@@ -1,0 +1,67 @@
+/*******************************************************************************
+ * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
+ * Copyright (C) 2015-present Brian Duffey
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see {http://www.gnu.org/licenses/}.
+ * Home: https://asitewithnoname.com/
+ */
+// Common colors
+$black: #000;
+$white: #fff;
+$football: #825736;
+
+// Billy's colors
+$gray-1: #f2f2f2;
+$gray-2: #e0e0e0;
+$gray-3: #bdbdbd;
+$gray-4: #828282;
+$gray-5: #4f4f4f;
+$gray-6: #333;
+$green-1: #e7f2eb;
+$green-2: #8abf9e;
+$green-3: #439963;
+$green-4: #15803d;
+$green-5: #106630;
+$green-6: #0a401e;
+$red-1: #f8d3d3;
+$red-2: #ed9292;
+$red-3: #eb5757;
+$red-4: #dc2626;
+$red-5: #841616;
+$red-6: #580f0f;
+$blue-1: #e9eff8;
+$blue-2: #92b3df;
+$blue-3: #5085cb;
+$blue-4: #2567bf;
+$blue-5: #194885;
+$blue-6: #0e294c;
+$yellow-1: #fbfbd9;
+$yellow-2: #f7f8b4;
+$yellow-3: #f3f48e;
+$yellow-4: #ecee44;
+$yellow-5: #a5a62f;
+$yellow-6: #464714;
+
+// Brand colors
+$google-background: #db4437;
+$google-text: $white;
+$twitter-background: #1da1f2;
+$twitter-text: #f5f8fa;
+
+// Bootstrap theme colors
+$primary: $green-4;
+$secondary: $gray-4;
+$success: $green-3;
+// $info: $gray-3;
+// $warning: $yellow;
+$danger: $red-4;
+$light: $gray-1;
+$dark: $gray-6;

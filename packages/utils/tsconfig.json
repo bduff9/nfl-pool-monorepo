@@ -1,0 +1,9 @@
+{
+	"extends": "@nfl-pool-monorepo/tsconfig/utils.json",
+	"include": [
+	"**/*.ts"
+	],
+	"exclude": [
+	"node_modules"
+	]
+	}
