@@ -28,7 +28,7 @@ const SidebarLoader: FC = () => {
   return (
     <>
       <div className={cn("md:hidden print:hidden absolute text-center top-0 left-0 right-0 bg-black text-gray-100")}>
-        <span className={cn("absolute cursor-pointer top-[5px] left-[10px] text-gray-100 z-[1]")}>
+        <span className={cn("absolute cursor-pointer top-[5px] left-[10px] text-gray-100 z-1")}>
           <LuMenu className="size-6" />
         </span>
         <h1 className="m-0">{title}</h1>

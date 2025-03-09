@@ -16,7 +16,7 @@ const Providers: FC<Props> = ({ children }) => {
   const titleContext = useState<string>("Welcome");
 
   return (
-    <ProgressBar className="fixed top-0 bg-sky-600 h-2 z-[1031]">
+    <ProgressBar className="fixed top-0 bg-sky-600 h-2 z-1031">
       <TitleContext.Provider value={titleContext}>
         <SkeletonTheme baseColor="#F2F2F2" highlightColor="#444">
           {children}

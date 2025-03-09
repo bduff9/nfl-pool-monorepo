@@ -15,6 +15,8 @@
  */
 import type { SupportContent } from "@nfl-pool-monorepo/db/src";
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
+import { Button } from "@nfl-pool-monorepo/ui/components/button";
+import { Separator } from "@nfl-pool-monorepo/ui/components/separator";
 import Fuse, { type FuseResult } from "fuse.js";
 import type { Selectable } from "kysely";
 import type { Metadata } from "next";
@@ -71,7 +73,7 @@ const convertTextToAnchor = (text: string): string => text.toLowerCase().replace
 
 const createFAQList = (faqs: FuseResult<Selectable<SupportContent>>[]): ReactNode => {
   if (faqs.length === 0) {
-    return <div className="text-muted fst-italic">No results found</div>;
+    return <div className="text-muted italic">No results found</div>;
   }
 
   const faqList: ReactNode[] = [];
@@ -81,15 +83,15 @@ const createFAQList = (faqs: FuseResult<Selectable<SupportContent>>[]): ReactNod
     if (faq.item.SupportContentCategory !== category) {
       category = faq.item.SupportContentCategory;
       faqList.push(
-        <h3 id={convertTextToAnchor(category || "")} key={`category-${category}`}>
+        <h3 className="text-3xl mb-2" id={convertTextToAnchor(category || "")} key={`category-${category}`}>
           {category}
         </h3>,
       );
     }
 
     faqList.push(
-      <details className="text-success ms-7 mb-3" key={`faq-${faq.item.SupportContentID}`}>
-        <summary className="text-dark ms-n5">
+      <details className="text-emerald-600 ml-20 mb-3" key={`faq-${faq.item.SupportContentID}`}>
+        <summary className="text-black -ml-12">
           <FuseHighlight attribute="SupportContentDescription" hit={faq} />
         </summary>
         <FuseHighlight attribute="SupportContentDescription2" hit={faq} />
@@ -102,20 +104,20 @@ const createFAQList = (faqs: FuseResult<Selectable<SupportContent>>[]): ReactNod
 
 const createRuleList = (rules: FuseResult<Selectable<SupportContent>>[]): ReactNode => {
   if (rules.length === 0) {
-    return <div className="text-muted fst-italic">No results found</div>;
+    return <div className="text-muted italic">No results found</div>;
   }
 
   const ruleList: ReactNode[] = [];
 
   for (const rule of rules) {
     ruleList.push(
-      <li key={`rule-${rule.item.SupportContentID}`} className="mb-3">
+      <li key={`rule-${rule.item.SupportContentID}`} className="mb-4">
         <FuseHighlight attribute="SupportContentDescription" hit={rule} />
       </li>,
     );
   }
 
-  return <ol>{ruleList}</ol>;
+  return <ol className="list-decimal pl-8">{ruleList}</ol>;
 };
 
 const getSupportContent = async (): Promise<{
@@ -175,7 +177,7 @@ const logSupportSearch = async (value: string): Promise<void> => {
 };
 
 const Support: NP = async ({ searchParams }) => {
-  const { session } = await getCurrentSession();
+  const { session, user } = await getCurrentSession();
   const { faqs, rules, slackLink, supportEmail } = await getSupportContent();
   const { q = "" } = await searchParams;
   const query = Array.isArray(q) ? "" : q;
@@ -242,37 +244,42 @@ const Support: NP = async ({ searchParams }) => {
   }
 
   return (
-    <div className="h-100 row">
+    <div className="h-full flex flex-wrap max-w-full px-2">
       <CustomHead title={TITLE} />
-      <div className="content-bg text-dark m-3 pt-5 pt-md-3 min-vh-100 pb-3 col" id="top">
+      <div
+        className="bg-gray-100/80 text-dark my-3 pt-5 md:pt-3 min-h-screen pb-4 px-3 grow shrink-0 max-w-full"
+        id="top"
+      >
         <SupportSearch currentQuery={query} />
-        <h2 className="text-center mb-0" id="rules">
+        <h2 className="text-4xl text-center mb-0" id="rules">
           Rules
         </h2>
-        <hr />
+        <Separator className="my-4 h-px bg-gray-400" />
         {ruleMarkup}
-        <h2 className="text-center mb-0" id="faq">
+        <h2 className="text-4xl text-center mb-0" id="faq">
           FAQ
         </h2>
-        <hr />
+        <Separator className="my-4 h-px bg-gray-400" />
         {faqMarkup}
-        <h2 className="text-center mb-0" id="contact">
+        <h2 className="text-4xl text-center mb-0" id="contact">
           Contact Us
         </h2>
-        <hr />
+        <Separator className="my-4 h-px bg-gray-400" />
         <div className="text-center">
-          <SlackLink href={slackLink} />
+          <SlackLink href={slackLink} userId={user?.id} />
           <br />
           <br />
           Feel free to reach out for any questions or issues you may have
           <br />
-          <a href={`mailto:${supportEmail}`}>{supportEmail}</a>
+          <a className="underline text-sky-600" href={`mailto:${supportEmail}`}>
+            {supportEmail}
+          </a>
           <br />
           <br />
           {!session && (
-            <ProgressBarLink className="btn btn-primary" href="/auth/login">
-              Back to login
-            </ProgressBarLink>
+            <Button asChild variant="primary">
+              <ProgressBarLink href="/auth/login">Back to login</ProgressBarLink>
+            </Button>
           )}
         </div>
       </div>

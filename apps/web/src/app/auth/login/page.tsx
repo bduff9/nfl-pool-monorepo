@@ -62,11 +62,11 @@ const Login: NP = async ({ searchParams }) => {
   const hasSubmitted = (Array.isArray(submitted) ? submitted[0] : submitted) === "Y";
 
   return (
-    <div className="bg-gray-100 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-gray-800 rounded-lg p-4 flex-shrink-0 flex-grow w-full h-full lg:h-auto lg:w-[50%] xl:w-[33%]">
+    <div className="bg-gray-100 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-gray-800 rounded-lg p-4 shrink-0 grow w-full h-full lg:h-auto lg:w-[50%] xl:w-[33%]">
       <CustomHead title={TITLE} />
       <div className="absolute -top-24 left-1/2 -translate-x-1/2 size-36">
         <Image
-          alt="A football icon"
+          alt="A football"
           className="object-contain object-center hidden lg:block"
           priority={true}
           src="/football.svg"

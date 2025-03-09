@@ -4,6 +4,7 @@ import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@nfl-pool-monorepo/ui/components/form";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import "client-only";
+import { redirect } from "next/navigation";
 import { type FC, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
@@ -16,7 +17,6 @@ import { formatError } from "@/lib/auth.client";
 import { loginSchema } from "@/lib/zod";
 import { processFormErrors, processFormState } from "@/lib/zsa";
 import { login, register } from "@/server/actions/users";
-import { redirect } from "next/navigation";
 
 type Props = {
   error: string | undefined;

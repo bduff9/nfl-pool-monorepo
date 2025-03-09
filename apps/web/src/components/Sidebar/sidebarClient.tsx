@@ -126,14 +126,14 @@ const SidebarClient: FC<Props> = ({
     <>
       <div className={cn("md:hidden print:hidden absolute text-center top-0 start-0 end-0 bg-black text-gray-100")}>
         {/* biome-ignore lint/a11y/useKeyWithClickEvents: Skipping a11y for now */}
-        <span className={cn("absolute cursor-pointer top-[5px] left-[10px] text-gray-100 z-[1]")} onClick={toggleMenu}>
+        <span className={cn("absolute cursor-pointer top-[5px] left-[10px] text-gray-100 z-1")} onClick={toggleMenu}>
           <LuMenu className="size-6" />
         </span>
         <h1 className="m-0">{title}</h1>
       </div>
       <div
         className={cn(
-          "fixed top-0 bottom-0 start-0 block pt-2 h-full w-[83.333333%] sm:w-[25%] lg:w-[16.666667%] md:block print:hidden z-[1030] overflow-x-hidden overflow-y-auto text-2xl font-bold text-gray-100 bg-black shadow-lg",
+          "fixed top-0 bottom-0 start-0 block pt-2 h-full w-[83.333333%] sm:w-[25%] lg:w-[16.666667%] md:block print:hidden z-1030 overflow-x-hidden overflow-y-auto text-2xl font-bold text-gray-100 bg-black shadow-lg",
           !openMenu && "hidden",
         )}
       >

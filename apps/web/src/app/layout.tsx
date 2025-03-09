@@ -116,13 +116,13 @@ const RootLayout: FC<Props> = async ({ children }) => {
                   <Suspense fallback={<SidebarLoader />}>
                     <Sidebar user={user} />
                   </Suspense>
-                  <div className="h-full flex-shrink-0 flex-grow sm:w-[75%] sm:ml-auto print:ml-0 lg:w-[83.33333%] lg:ml-[16.66667%] relative">
+                  <div className="h-full shrink-0 grow sm:w-[75%] sm:ml-auto print:ml-0 lg:w-[83.33333%] lg:ml-[16.66667%] relative">
                     <Suspense>{children}</Suspense>
                   </div>
                 </>
               ) : (
                 <Suspense>
-                  <div className="h-full flex-shrink-0 flex-grow relative">{children}</div>
+                  <div className="h-full shrink-0 grow relative">{children}</div>
                 </Suspense>
               )}
             </div>
