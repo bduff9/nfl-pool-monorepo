@@ -13,23 +13,23 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-import type { FC } from 'react';
-import Skeleton from 'react-loading-skeleton';
+import { Skeleton } from "@nfl-pool-monorepo/ui/components/skeleton";
+import type { FC } from "react";
 
 const ProgressChartLoader: FC = () => {
-	return (
-		<>
-			{/* Progress Bar Chart */}
-			<div className="text-start">
-				<Skeleton height={16} width={75} />
-			</div>
-			<Skeleton height={28} />
-			<div className="d-flex justify-content-between mb-1">
-				<Skeleton height={8} width={125} />
-				<Skeleton height={8} width={31} />
-			</div>
-		</>
-	);
+  return (
+    <>
+      {/* Progress Bar Chart */}
+      <div className="text-start">
+        <Skeleton className="h-4 w-[75px] bg-gray-300" />
+      </div>
+      <Skeleton className="h-7 w-full bg-gray-300" />
+      <div className="flex justify-between mb-1">
+        <Skeleton className="h-2 w-[125px] bg-gray-300" />
+        <Skeleton className="h-2 w-[31px] bg-gray-300" />
+      </div>
+    </>
+  );
 };
 
 export default ProgressChartLoader;

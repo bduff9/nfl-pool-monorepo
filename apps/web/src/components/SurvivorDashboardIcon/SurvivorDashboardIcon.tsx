@@ -50,13 +50,13 @@ const SurvivorDashboardIcon: FC<SurvivorDashboardIconProps> = ({
       return (
         <>
           <Image
+            alt={`${lastPick.TeamCity} ${lastPick.TeamName}`}
             className="grayscale"
             height={206}
-            src={`/NFLLogos/${lastPick.TeamLogo}`}
-            width={206}
             layout="intrinsic"
-            alt={`${lastPick.TeamCity} ${lastPick.TeamName}`}
+            src={`/NFLLogos/${lastPick.TeamLogo}`}
             title={`${lastPick.TeamCity} ${lastPick.TeamName}`}
+            width={206}
           />
           <h3 className="mt-n4 fw-bold text-danger position-relative">You&lsquo;re Out</h3>
         </>
@@ -89,12 +89,12 @@ const SurvivorDashboardIcon: FC<SurvivorDashboardIconProps> = ({
   return (
     <>
       <Image
-        height={206}
-        src={`/NFLLogos/${pickForWeek.TeamLogo}`}
-        width={206}
-        layout="intrinsic"
         alt={`${pickForWeek.TeamCity} ${pickForWeek.TeamName}`}
+        height={206}
+        layout="intrinsic"
+        src={`/NFLLogos/${pickForWeek.TeamLogo}`}
         title={`${pickForWeek.TeamCity} ${pickForWeek.TeamName}`}
+        width={206}
       />
       <h3 className="mt-n4 fw-bold text-success position-relative">Still Alive</h3>
     </>

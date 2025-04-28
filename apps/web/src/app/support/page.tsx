@@ -111,7 +111,7 @@ const createRuleList = (rules: FuseResult<Selectable<SupportContent>>[]): ReactN
 
   for (const rule of rules) {
     ruleList.push(
-      <li key={`rule-${rule.item.SupportContentID}`} className="mb-4">
+      <li className="mb-4" key={`rule-${rule.item.SupportContentID}`}>
         <FuseHighlight attribute="SupportContentDescription" hit={rule} />
       </li>,
     );
@@ -168,11 +168,11 @@ const logSupportSearch = async (value: string): Promise<void> => {
   try {
     await writeLog({
       LogAction: "SUPPORT_SEARCH",
-      LogMessage: value,
       LogData: null,
+      LogMessage: value,
     });
   } catch (error) {
-    console.error({ text: "Error when writing log for support search: ", error });
+    console.error({ error, text: "Error when writing log for support search: " });
   }
 };
 
@@ -186,7 +186,6 @@ const Support: NP = async ({ searchParams }) => {
 
   if (query.length > 2) {
     await logSupportSearch(query);
-    // biome-ignore lint/performance/useTopLevelRegex: <explanation>
     const searchQuery = `'${query.split(/\s/).join(" '")}`;
     const faqFuse = new Fuse(faqs, {
       findAllMatches: true,
@@ -247,7 +246,7 @@ const Support: NP = async ({ searchParams }) => {
     <div className="h-full flex flex-wrap max-w-full px-2">
       <CustomHead title={TITLE} />
       <div
-        className="bg-gray-100/80 text-dark my-3 pt-5 md:pt-3 min-h-screen pb-4 px-3 grow shrink-0 max-w-full"
+        className="bg-gray-100/80 text-black pt-5 md:pt-3 min-h-screen pb-4 px-3 grow shrink-0 max-w-full"
         id="top"
       >
         <SupportSearch currentQuery={query} />

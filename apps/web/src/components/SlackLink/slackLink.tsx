@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import type { FC } from 'react';
+import type { FC } from "react";
 
 import { writeLog } from "@/server/actions/logs";
 
 type Props = {
   href: string;
-  userId?: number;
+  userId?: number | undefined;
 };
 
 const SlackLink: FC<Props> = ({ href, userId }) => {
@@ -14,12 +14,15 @@ const SlackLink: FC<Props> = ({ href, userId }) => {
     try {
       await writeLog({
         LogAction: "SLACK",
-        LogMessage: null,
         LogData: null,
+        LogMessage: null,
         userId,
       });
     } catch (error) {
-      console.error({ text: "Error when writing log for slack link click: ", error });
+      console.error({
+        error,
+        text: "Error when writing log for slack link click: ",
+      });
     }
   };
 

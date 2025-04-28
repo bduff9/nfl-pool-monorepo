@@ -35,7 +35,7 @@ const Logout: FC = async () => {
   }
 
   return (
-    <div className="text-center w-100 position-absolute top-50 start-50 translate-middle">
+    <div className="text-center w-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
       <CustomHead title={TITLE} />
       <LogoutClient />
     </div>

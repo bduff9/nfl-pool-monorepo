@@ -1,4 +1,8 @@
 "use client";
+import { formatError } from "@/lib/auth.client";
+import { loginSchema } from "@/lib/zod";
+import { processFormErrors, processFormState } from "@/lib/zsa";
+import { login, register } from "@/server/actions/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@nfl-pool-monorepo/ui/components/form";
@@ -8,15 +12,9 @@ import { redirect } from "next/navigation";
 import { type FC, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
-
 import FloatingLabelInput from "../FloatingLabelInput/FloatingLabelInput";
 import { ProgressBarLink } from "../ProgressBar/ProgressBar";
 import TextSeparator from "../TextSeparator/TextSeparator";
-
-import { formatError } from "@/lib/auth.client";
-import { loginSchema } from "@/lib/zod";
-import { processFormErrors, processFormState } from "@/lib/zsa";
-import { login, register } from "@/server/actions/users";
 
 type Props = {
   error: string | undefined;
@@ -25,13 +23,13 @@ type Props = {
 
 const LoginForm: FC<Props> = ({ error, isLogin }) => {
   const form = useForm<z.infer<typeof loginSchema>>({
-    resolver: zodResolver(loginSchema),
     defaultValues: {
       confirmPassword: "",
       email: "",
       isLogin,
       password: "",
     },
+    resolver: zodResolver(loginSchema),
   });
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: Only need to run on isLogin change
@@ -132,7 +130,7 @@ const LoginForm: FC<Props> = ({ error, isLogin }) => {
           </div>
         )}
         <div className="grid gap-2 mb-2">
-          <Button type="submit" disabled={form.formState.isSubmitting} variant="primary">
+          <Button disabled={form.formState.isSubmitting} type="submit" variant="primary">
             {isLogin
               ? form.formState.isSubmitting
                 ? "Logging in..."

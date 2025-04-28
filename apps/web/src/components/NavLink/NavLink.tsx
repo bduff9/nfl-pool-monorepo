@@ -1,3 +1,4 @@
+import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { LinkProps } from "next/link";
 import { usePathname } from "next/navigation";
 /*******************************************************************************
@@ -16,8 +17,6 @@ import { usePathname } from "next/navigation";
  * Home: https://asitewithnoname.com/
  */
 import type { FC } from "react";
-
-import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { ProgressBarLink } from "../ProgressBar/ProgressBar";
 
 type NavLinkProps = Partial<LinkProps> & {
@@ -38,13 +37,12 @@ const NavLink: FC<NavLinkProps> = ({ children, href, isNested = false, onClick, 
   if (href) {
     return (
       <ProgressBarLink
-        href={href}
         className={cn(
-          "inline-block w-full py-2 rounded text-2xl font-bold",
+          "inline-block w-full py-2 rounded text-2xl font-medium",
           isActive && "text-green-700 bg-gray-200",
-          isNested && "text-lg font-normal",
-          isNested ? "ps-4" : "ps-2",
+          isNested ? "ps-8 text-lg font-normal" : "ps-4",
         )}
+        href={href}
       >
         {children}
       </ProgressBarLink>
@@ -54,10 +52,9 @@ const NavLink: FC<NavLinkProps> = ({ children, href, isNested = false, onClick, 
   return (
     <button
       className={cn(
-        "text-left w-full py-2 rounded",
+        "text-left w-full py-2 rounded cursor-pointer",
         isActive && "text-green-700 bg-gray-200",
-        isNested && "text-lg font-normal",
-        isNested ? "ps-4" : "ps-2",
+        isNested ? "ps-8 text-lg font-normal" : "ps-4",
       )}
       onClick={onClick}
       type="button"

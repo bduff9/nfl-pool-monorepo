@@ -1,20 +1,14 @@
 {
-  "extends": "@nfl-pool-monorepo/tsconfig/next.json",
   "compilerOptions": {
+    "declaration": false,
+    "declarationMap": false,
     "plugins": [
       {
-       "name": "next"
+        "name": "next"
       }
     ]
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    "tailwind.config.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"],
+  "extends": "@nfl-pool-monorepo/tsconfig/next.json",
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "tailwind.config.ts", "../../packages/db/src/queries/systemValue.ts"]
 }

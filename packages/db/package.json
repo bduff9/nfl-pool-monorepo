@@ -1,23 +1,25 @@
 {
-  "name": "@nfl-pool-monorepo/db",
-  "version": "1.0.0",
+  "author": "",
+  "dependencies": {
+    "@nfl-pool-monorepo/utils": "*",
+    "kysely": "0.27.6",
+    "mysql2": "3.14.0"
+  },
+  "description": "",
+  "devDependencies": {
+    "kysely-codegen": "0.18.3",
+    "kysely-ctl": "0.12.2"
+  },
+  "keywords": [],
+  "license": "ISC",
   "main": "index.js",
+  "name": "@nfl-pool-monorepo/db",
   "scripts": {
     "codegen": "kysely-codegen --out-file ./src/index.ts",
     "db:downgrade": "kysely migrate down",
     "db:generate": "kysely migrate make --",
-    "db:migrate": "kysely migrate latest && npm run codegen"
+    "db:migrate": "kysely migrate latest && npm run codegen",
+    "lint": "biome check ./src --write"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "kysely": "0.27.5",
-    "mysql2": "3.12.0"
-  },
-  "devDependencies": {
-    "kysely-codegen": "0.17.0",
-    "kysely-ctl": "0.11.1"
-  }
+  "version": "1.0.0"
 }

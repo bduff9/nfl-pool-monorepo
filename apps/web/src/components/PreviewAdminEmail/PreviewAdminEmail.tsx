@@ -1,0 +1,154 @@
+'use client';
+
+/*******************************************************************************
+ * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
+ * Copyright (C) 2015-present Brian Duffey
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see {http://www.gnu.org/licenses/}.
+ * Home: https://asitewithnoname.com/
+ */
+
+import type { AdminEmailType } from '@/lib/constants';
+import { processFormState } from '@/lib/zsa';
+import { getEmailPreview } from '@/server/actions/email';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@nfl-pool-monorepo/ui/components/tabs';
+import 'client-only';
+import { type FC, useMemo, useState } from 'react';
+
+type Props = {
+	emailType: typeof AdminEmailType[number];
+	payload: {
+		body: string;
+		preview: string;
+		subject: string;
+	};
+	userFirstName: string;
+};
+
+const PreviewAdminEmail: FC<Props> = ({
+	emailType,
+	payload,
+	userFirstName,
+}) => {
+	const { body, preview, subject } = payload;
+	const [htmlPreview, setHtmlPreview] = useState<string>('');
+	const [subjectPreview, setSubjectPreview] = useState<string>('');
+	const [textPreview, setTextPreview] = useState<string>('');
+
+	useMemo(
+		async (): Promise<void> => {
+			if (!body || !subject || !preview) {
+				setHtmlPreview('');
+
+				return;
+			}
+
+			const result = await getEmailPreview({
+				body,
+				emailFormat: 'html',
+				emailType,
+				preview,
+				subject,
+				userFirstName,
+			});
+
+			processFormState(result, () => {
+				setHtmlPreview(result[0]?.metadata.html as string | null ?? '');
+			});
+		},
+		[body, preview, subject, emailType, userFirstName],
+	);
+
+	useMemo(
+		async (): Promise<void> => {
+			if (!subject) {
+				setSubjectPreview('');
+
+				return;
+			}
+
+			const result = await getEmailPreview({
+				body,
+				emailFormat: 'subject',
+				emailType,
+				preview,
+				subject,
+				userFirstName,
+			});
+
+			processFormState(result, () => {
+				setSubjectPreview(result[0]?.metadata.subject as string | null ?? '');
+			});
+		},
+		[body, preview, subject, emailType, userFirstName],
+	);
+	useMemo(
+		async (): Promise<void> => {
+			if (!body) {
+				setTextPreview('');
+
+				return;
+			}
+
+			const result = await getEmailPreview({
+				body,
+				emailFormat: 'text',
+				emailType,
+				preview,
+				subject,
+				userFirstName,
+			});
+
+			processFormState(result, () => {
+				setTextPreview(result[0]?.metadata.text as string | null ?? '');
+			});
+		},
+		[body, preview, subject, emailType, userFirstName],
+	);
+
+	return (
+		<div className="w-full bg-white p-2 rounded-md border">
+			<Tabs defaultValue="html" className="w-full">
+				<TabsList className="grid w-full grid-cols-3">
+					<TabsTrigger value="html">HTML</TabsTrigger>
+					<TabsTrigger value="subject">Subject</TabsTrigger>
+					<TabsTrigger value="text">Text</TabsTrigger>
+				</TabsList>
+				<TabsContent value="html">
+					{/* <Card className="dark:bg-white text-black">
+						<CardContent> */}
+							<div
+								// biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
+								dangerouslySetInnerHTML={{ __html: htmlPreview }}
+							/>
+						{/* </CardContent>
+					</Card> */}
+				</TabsContent>
+				<TabsContent value="subject">
+					{/* <Card className="dark:bg-white text-black">
+						<CardContent> */}
+							<div>{subjectPreview}</div>
+						{/* </CardContent>
+					</Card> */}
+				</TabsContent>
+				<TabsContent value="text">
+					{/* <Card className="dark:bg-white text-black">
+						<CardContent> */}
+							<div>{textPreview}</div>
+						{/* </CardContent>
+					</Card> */}
+				</TabsContent>
+			</Tabs>
+		</div>
+	);
+};
+
+export default PreviewAdminEmail;

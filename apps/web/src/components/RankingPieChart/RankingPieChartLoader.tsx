@@ -13,21 +13,21 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-import type { FC } from 'react';
-import Skeleton from 'react-loading-skeleton';
+import { Skeleton } from "@nfl-pool-monorepo/ui/components/skeleton";
+import type { FC } from "react";
 
 const RankingPieChartLoader: FC = () => {
-	return (
-		<>
-			{/* Pie Chart */}
-			<div>
-				<Skeleton circle height={160} width={160} />
-			</div>
-			<div className="mt-2">
-				<Skeleton height={19} width={66} />
-			</div>
-		</>
-	);
+  return (
+    <>
+      {/* Pie Chart */}
+      <div>
+        <Skeleton className="h-40 w-40 rounded-full bg-gray-300" />
+      </div>
+      <div className="mt-2">
+        <Skeleton className="h-[19px] w-[66px] bg-gray-300" />
+      </div>
+    </>
+  );
 };
 
 export default RankingPieChartLoader;

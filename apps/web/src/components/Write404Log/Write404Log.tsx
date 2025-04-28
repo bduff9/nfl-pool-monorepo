@@ -16,8 +16,8 @@ const Write404Log: FC<Props> = ({ user }) => {
   useEffect(() => {
     writeLog({
       LogAction: "404",
-      LogMessage: path,
       LogData: null,
+      LogMessage: path,
       userId: user?.id,
     });
   }, [path, user?.id]);

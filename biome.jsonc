@@ -1,22 +1,57 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-  "files": {
-    "ignoreUnknown": true,
-    "ignore": ["node_modules/*", "*.config.*", "*.json", "tsconfig.json", ".turbo", "**/dist", "**/out", ".next"]
-  },
-  "organizeImports": {
+  "$schema": "https://biomejs.dev/schemas/2.0.0-beta.1/schema.json",
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "groups": [
+              ":URL:",
+              ":BUN:",
+              ":NODE:",
+              ":BLANK_LINE:",
+              ":PACKAGE:",
+              ":PACKAGE_WITH_PROTOCOL:",
+              ":BLANK_LINE:",
+              ":ALIAS:",
+              ":BLANK_LINE:",
+              ":PATH:"
+            ]
+          }
+        },
+        "useSortedAttributes": "on",
+        "useSortedKeys": "on",
+        "useSortedProperties": "on"
+      }
+    },
     "enabled": true
   },
+  "files": {
+    "ignoreUnknown": true,
+    "includes": ["**", "!**/node_modules/*", "!**/*.config.*", "!**/.turbo", "!**/dist", "!**/out", "!**/.next"]
+  },
+  "formatter": {
+    "enabled": true,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "lineEnding": "lf",
+    "lineWidth": 120
+  },
   "linter": {
+    "domains": {
+      "next": "all",
+      "react": "all",
+      "test": "all"
+    },
     "enabled": true,
     "rules": {
-      "recommended": false,
-      "all": true,
       "complexity": {},
       "correctness": {
         "noNodejsModules": "off",
         "useImportExtensions": "off"
       },
+      "recommended": true,
       "style": {
         "noDefaultExport": "off",
         "noImplicitBoolean": "off",
@@ -28,12 +63,5 @@
         "noReactSpecificProps": "off"
       }
     }
-  },
-  "formatter": {
-    "enabled": true,
-    "formatWithErrors": false,
-    "indentStyle": "space",
-    "lineEnding": "lf",
-    "lineWidth": 120
   }
 }

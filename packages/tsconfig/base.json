@@ -1,40 +1,31 @@
 {
-	"$schema": "https://json.schemastore.org/tsconfig",
-	"compilerOptions": {
-		"strict": true,
-		"noUncheckedIndexedAccess": true,
-		"alwaysStrict": false,
-		"module": "ESNext",
-		"moduleResolution": "Bundler",
-		"resolveJsonModule": true,
-		"target": "ESNext",
-		"lib": [
-			"DOM",
-			"DOM.Iterable",
-			"ESNext"
-		],
-		"noEmit": true,
-		"declaration": true,
-		"declarationMap": true,
-		"verbatimModuleSyntax": true,
-		"moduleDetection": "force",
-		"downlevelIteration": true,
-		"allowJs": true,
-		"isolatedModules": true,
-		"esModuleInterop": true,
-		"forceConsistentCasingInFileNames": true,
-		"skipLibCheck": true,
-		"skipDefaultLibCheck": true,
-		"incremental": true,
-		"tsBuildInfoFile": ".tsbuildinfo",
-		"erasableSyntaxOnly": true
-	},
-	"include": [
-		"**/*.ts",
-		"**/*.tsx"
-	],
-	"exclude": [
-		"node_modules",
-		"src/tests"
-	]
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "allowJs": true,
+    "alwaysStrict": false,
+    "declaration": true,
+    "declarationMap": true,
+    "downlevelIteration": true,
+    "erasableSyntaxOnly": true,
+    "esModuleInterop": true,
+    "exactOptionalPropertyTypes": true,
+    "forceConsistentCasingInFileNames": true,
+    "incremental": true,
+    "isolatedModules": true,
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "module": "ESNext",
+    "moduleDetection": "force",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "noUncheckedIndexedAccess": true,
+    "resolveJsonModule": true,
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ESNext",
+    "tsBuildInfoFile": ".tsbuildinfo",
+    "verbatimModuleSyntax": true
+  },
+  "exclude": ["node_modules", "src/tests"],
+  "include": ["**/*.ts", "**/*.tsx"]
 }

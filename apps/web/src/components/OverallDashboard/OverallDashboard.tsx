@@ -13,17 +13,15 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-import type { FC } from "react";
-
-import { ProgressBarLink } from "../ProgressBar/ProgressBar";
-import ProgressChart from "../ProgressChart/ProgressChart";
-import RankingPieChart from "../RankingPieChart/RankingPieChart";
-
-import { OverallDashboardResults, OverallDashboardTitle } from "./OverallDashboard.client";
 
 import { getMyOverallRank, getOverallMvCount, getOverallMvTiedCount } from "@/server/loaders/overallMv";
 import { getSeasonStatus } from "@/server/loaders/week";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
+import type { FC } from "react";
+import { ProgressBarLink } from "../ProgressBar/ProgressBar";
+import ProgressChart from "../ProgressChart/ProgressChart";
+import RankingPieChart from "../RankingPieChart/RankingPieChart";
+import { OverallDashboardResults, OverallDashboardTitle } from "./OverallDashboard.client";
 
 const OverallDashboard: FC = async () => {
   const seasonStatusPromise = getSeasonStatus();
@@ -44,14 +42,14 @@ const OverallDashboard: FC = async () => {
   const behindMe = overallTotalCount - me - overallTiedCount;
 
   return (
-    <div className={cn("col-md-4 text-center mb-md:mb-0")}>
+    <div className={cn("col-md-4 text-center mb-md:mb-0 border-b border-gray-500 md:border-none")}>
       <OverallDashboardTitle />
       {myOverallRank === undefined ? (
         <div>Season has not started yet!</div>
       ) : (
         <div>
           <div>
-            <ProgressBarLink href="/overall" className="d-md-inline-block">
+            <ProgressBarLink className="md:inline-block underline" href="/overall">
               View Details
             </ProgressBarLink>
           </div>

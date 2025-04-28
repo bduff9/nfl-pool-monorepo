@@ -1,501 +1,522 @@
-'use server';
-import { sql } from 'kysely';
-import { revalidatePath } from 'next/cache';
-import { getServerSession } from 'next-auth';
-import 'server-only';
+"use server";
 
-import type { Users_UserAutoPickStrategy } from '@/db/types';
-import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
-import {
-	autoPickSchema,
-	fromErrorToFormState,
-	setMyPickSchema,
-	validateMyPicksSchema,
-	weekSchema,
-} from '@/utils/zod';
-import { type TSessionUser, type FormState } from '@/utils/types';
-import { db } from '@/db';
+import { db } from "@nfl-pool-monorepo/db/src/kysely";
+import { sendPicksSubmittedEmail } from "@nfl-pool-monorepo/transactional/emails/picksSubmitted";
+import { sendQuickPickConfirmationEmail } from '@nfl-pool-monorepo/transactional/emails/quickPickConfirmation';
+import sendPicksSubmittedSMS from "@nfl-pool-monorepo/transactional/sms/picksSubmitted";
+import { sql } from "kysely";
+import { revalidatePath } from "next/cache";
+import "server-only";
 
-const shouldAutoPickHome = (type: Users_UserAutoPickStrategy): boolean => {
-	if (type === 'Home') return true;
+import { getLowestUnusedPoint } from "@nfl-pool-monorepo/db/src/queries/pick";
+import { z } from "zod";
+import { createServerAction, ZSAError } from "zsa";
 
-	if (type === 'Away') return false;
+import type { AutoPickStrategy } from "@/lib/constants";
+import { autoPickSchema, serverActionResultSchema, setMyPickSchema, validateMyPicksSchema, weekSchema } from "@/lib/zod";
+import { authedProcedure } from "@/lib/zsa.server";
 
-	return !!Math.round(Math.random());
+import { getCurrentSession } from "../loaders/sessions";
+
+const shouldAutoPickHome = (type: typeof AutoPickStrategy[number]): boolean => {
+  if (type === "Home") return true;
+
+  if (type === "Away") return false;
+
+  return !!Math.round(Math.random());
 };
 
-export const autoPickMyPicks = async (
-	week: number,
-	type: Users_UserAutoPickStrategy,
-): Promise<FormState> => {
-	const session = await getServerSession(authOptions);
+export const autoPickMyPicks = authedProcedure.input(autoPickSchema).output(serverActionResultSchema).handler(async ({ ctx, input }) => {
+  const { week, type } = input;
 
-	if (!session?.user) {
-		return {
-			fieldErrors: {},
-			message: 'Not authorized',
-			status: 'ERROR',
-			timestamp: Date.now(),
-		};
-	}
+  try {
+    await db.transaction().execute(async (trx) => {
+    const picksForWeek = await trx
+      .selectFrom("Picks as P")
+      .select(["P.PickID", "P.PickPoints"])
+      .innerJoin("Games as G", "G.GameID", "P.GameID")
+      .select(["G.GameKickoff", "G.HomeTeamID", "G.VisitorTeamID"])
+      .where("G.GameWeek", "=", week)
+      .where("P.UserID", "=", ctx.user.id)
+      .execute();
+    const usedPoints = picksForWeek
+      .filter(({ PickPoints }) => PickPoints !== null)
+      .map(({ PickPoints }) => PickPoints as number);
+    const availablePoints = picksForWeek
+      .map((_, i) => {
+        const point = i + 1;
 
-	const result = autoPickSchema.safeParse({ week, type });
+        if (usedPoints.includes(point)) return null;
 
-	if (!result.success) {
-		return fromErrorToFormState(result.error);
-	}
+        return point;
+      })
+      .filter((point): point is number => point !== null);
+    const unmadePicks = picksForWeek.filter((pick) => {
+      if (pick.PickPoints) return false;
 
-	try {
-		const picksForWeek = await db
-			.selectFrom('Picks as P')
-			.select(['P.PickID', 'P.PickPoints'])
-			.innerJoin('Games as G', 'G.GameID', 'P.GameID')
-			.select(['G.GameKickoff', 'G.HomeTeamID', 'G.VisitorTeamID'])
-			.where('G.GameWeek', '=', week)
-			.where('P.newUserID', '=', (session.user as TSessionUser).id)
-			.execute();
-		const usedPoints = picksForWeek
-			.filter(({ PickPoints }) => PickPoints !== null)
-			.map(({ PickPoints }) => PickPoints as number);
-		const availablePoints = picksForWeek
-			.map((_, i) => {
-				const point = i + 1;
+      const hasStarted = pick.GameKickoff < new Date();
 
-				if (usedPoints.includes(point)) return null;
+      if (hasStarted) return false;
 
-				return point;
-			})
-			.filter((point): point is number => point !== null);
-		const unmadePicks = picksForWeek.filter(pick => {
-			if (pick.PickPoints) return false;
+      return true;
+    });
 
-			const hasStarted = pick.GameKickoff < new Date();
+    for (const pick of unmadePicks) {
+      const pointIndex = Math.floor(Math.random() * availablePoints.length);
+      const PickPoints = availablePoints.splice(pointIndex, 1)[0];
+      const PickUpdated = new Date();
+      const PickUpdatedBy = ctx.user.email ?? undefined;
+      let TeamID: number;
 
-			if (hasStarted) return false;
+      if (shouldAutoPickHome(type)) {
+        TeamID = pick.HomeTeamID;
+      } else {
+        TeamID = pick.VisitorTeamID;
+      }
 
-			return true;
-		});
+      await trx
+        .updateTable("Picks")
+        .set({ PickPoints, PickUpdated, PickUpdatedBy, TeamID })
+        .where("PickID", "=", pick.PickID)
+        .executeTakeFirstOrThrow();
+    }
+  });
+  } catch (error) {
+    console.error('Failed to auto pick for week', type, week, error);
 
-		for (const pick of unmadePicks) {
-			const pointIndex = Math.floor(Math.random() * availablePoints.length);
-			const PickPoints = availablePoints.splice(pointIndex, 1)[0];
-			const PickUpdated = new Date();
-			const PickUpdatedBy = session.user.email ?? undefined;
-			let TeamID: number;
+    if (error instanceof ZSAError) {
+      throw error;
+    }
 
-			if (shouldAutoPickHome(type)) {
-				TeamID = pick.HomeTeamID;
-			} else {
-				TeamID = pick.VisitorTeamID;
-			}
+    throw new ZSAError(
+      "INTERNAL_SERVER_ERROR",
+      "Failed to auto pick for week",
+    );
+  }
 
-			await db
-				.updateTable('Picks')
-				.set({ PickPoints, PickUpdated, PickUpdatedBy, TeamID })
-				.where('PickID', '=', pick.PickID)
-				.execute();
-		}
-	} catch (error) {
-		return fromErrorToFormState(error);
-	}
+  revalidatePath("/picks/set");
 
-	revalidatePath('/picks/set');
+  return {
+    metadata: {},
+    status: "Success",
+  };
+});
 
-	return {
-		fieldErrors: {},
-		message: '',
-		status: 'SUCCESS',
-		timestamp: Date.now(),
-	};
-};
+export const quickPick = createServerAction()
+  .input(z.object({
+    teamId: z.coerce.number().int().positive().max(33),
+    userId: z.coerce.number().int().positive(),
+    }))
+  .output(serverActionResultSchema)
+  .handler(async ({ input }) => {
+    const { user } = await getCurrentSession();
+		const givenUserID = user?.id;
+    const { teamId, userId } = input;
 
-export const resetMyPicksForWeek = async (week: number): Promise<FormState> => {
-	const session = await getServerSession(authOptions);
+		if (givenUserID && givenUserID !== userId) {
+			console.error('Passed user ID does not match context', { teamId, user, userId });
 
-	if (!session?.user) {
-		return {
-			fieldErrors: {},
-			message: 'Not authorized',
-			status: 'ERROR',
-			timestamp: Date.now(),
-		};
-	}
-
-	const result = weekSchema.safeParse(week);
-
-	if (!result.success) {
-		return fromErrorToFormState(result.error);
-	}
-
-	try {
-		await db
-			.updateTable('Picks')
-			.set({
-				TeamID: null,
-				PickPoints: null,
-				PickUpdated: new Date(),
-				PickUpdatedBy: (session.user as TSessionUser).email,
-			})
-			.where('newUserID', '=', (session.user as TSessionUser).id)
-			.where(({ eb, selectFrom }) =>
-				eb(
-					'GameID',
-					'in',
-					selectFrom('Games')
-						.select('GameID')
-						.where('GameWeek', '=', week)
-						.where('GameKickoff', '>', sql<Date>`CURRENT_TIMESTAMP`),
-				),
-			)
-			.execute();
-	} catch (error) {
-		return fromErrorToFormState(error);
-	}
-
-	revalidatePath('/picks/set');
-
-	return {
-		fieldErrors: {},
-		message: '',
-		status: 'SUCCESS',
-		timestamp: Date.now(),
-	};
-};
-
-export const setMyPick = async (
-	week: number,
-	gameID: null | number,
-	teamID: null | number,
-	points: number,
-): Promise<FormState> => {
-	const session = await getServerSession(authOptions);
-
-	if (!session?.user) {
-		return {
-			fieldErrors: {},
-			message: 'Not authorized',
-			status: 'ERROR',
-			timestamp: Date.now(),
-		};
-	}
-
-	const result = setMyPickSchema.safeParse({ week, gameID, teamID, points });
-
-	if (!result.success) {
-		return fromErrorToFormState(result.error);
-	}
-
-	try {
-		const oldPick = await db
-			.selectFrom('Picks as P')
-			.selectAll('P')
-			.innerJoin('Games as G', 'G.GameID', 'P.GameID')
-			.selectAll('G')
-			.where('G.GameWeek', '=', week)
-			.where('P.newUserID', '=', (session.user as TSessionUser).id)
-			.where('P.PickPoints', '=', points)
-			.executeTakeFirst();
-
-		if (oldPick) {
-			const hasStarted = oldPick.GameKickoff < new Date();
-
-			if (hasStarted) {
-				return {
-					fieldErrors: {},
-					message: 'Game has already started!',
-					status: 'ERROR',
-					timestamp: Date.now(),
-				};
-			}
-
-			await db
-				.updateTable('Picks')
-				.set({
-					TeamID: null,
-					PickPoints: null,
-					PickUpdated: new Date(),
-					PickUpdatedBy: (session.user as TSessionUser).email,
-				})
-				.where('PickID', '=', oldPick.PickID)
-				.execute();
-		}
-
-		if (gameID) {
-			const newPick = await db
-				.selectFrom('Picks as P')
-				.selectAll('P')
-				.innerJoin('Games as G', 'G.GameID', 'P.GameID')
-				.selectAll('G')
-				.where('P.GameID', '=', gameID)
-				.where('G.GameWeek', '=', week)
-				.where('G.GameKickoff', '>', sql<Date>`CURRENT_TIMESTAMP`)
-				.where('P.newUserID', '=', (session.user as TSessionUser).id)
-				.executeTakeFirst();
-
-			if (!newPick) {
-				return {
-					fieldErrors: {},
-					message: 'No pick that can be changed found!',
-					status: 'ERROR',
-					timestamp: Date.now(),
-				};
-			}
-
-			if (newPick.HomeTeamID !== teamID && newPick.VisitorTeamID !== teamID) {
-				return {
-					fieldErrors: {},
-					message: 'Invalid team passed for pick!',
-					status: 'ERROR',
-					timestamp: Date.now(),
-				};
-			}
-
-			const gamesInWeek = await db
-				.selectFrom('Games')
-				.select([sql<number>`COUNT(*)`.as('count')])
-				.where('GameWeek', '=', week)
-				.executeTakeFirstOrThrow();
-
-			if (points > gamesInWeek.count) {
-				return {
-					fieldErrors: {},
-					message: 'Invalid point value passed for week!',
-					status: 'ERROR',
-					timestamp: Date.now(),
-				};
-			}
-
-			await db
-				.updateTable('Picks')
-				.set({
-					TeamID: teamID,
-					PickPoints: points,
-					PickUpdated: new Date(),
-					PickUpdatedBy: (session.user as TSessionUser).email,
-				})
-				.where('PickID', '=', newPick.PickID)
-				.execute();
-		}
-	} catch (error) {
-		return fromErrorToFormState(error);
-	}
-
-	revalidatePath('/picks/set');
-
-	return {
-		fieldErrors: {},
-		message: '',
-		status: 'SUCCESS',
-		timestamp: Date.now(),
-	};
-};
-
-export const submitMyPicks = async (week: number): Promise<FormState> => {
-	const session = await getServerSession(authOptions);
-
-	if (!session?.user) {
-		return {
-			fieldErrors: {},
-			message: 'Not authorized',
-			status: 'ERROR',
-			timestamp: Date.now(),
-		};
-	}
-
-	const result = weekSchema.safeParse(week);
-
-	if (!result.success) {
-		return fromErrorToFormState(result.error);
-	}
-
-	try {
-		const picks = await db
-			.selectFrom('Picks as P')
-			.select(['P.PickPoints', 'P.TeamID'])
-			.innerJoin('Games as G', 'G.GameID', 'P.GameID')
-			.select(['G.GameKickoff'])
-			.where('G.GameWeek', '=', week)
-			.where('P.newUserID', '=', (session.user as TSessionUser).id)
-			.orderBy('P.PickPoints asc')
-			.execute();
-
-		for (let i = 0; i < picks.length; i++) {
-			const pick = picks[i];
-			const point = i + 1;
-			const hasGameStarted = pick.GameKickoff < new Date();
-
-			if (pick.PickPoints !== point) {
-				return {
-					fieldErrors: {},
-					message: 'Missing point value found!',
-					status: 'ERROR',
-					timestamp: Date.now(),
-				};
-			}
-
-			if (pick.TeamID === null && !hasGameStarted) {
-				return {
-					fieldErrors: {},
-					message: 'Missing team pick found!',
-					status: 'ERROR',
-					timestamp: Date.now(),
-				};
-			}
-		}
-
-		const lastGame = await db
-			.selectFrom('Games')
-			.select(['GameKickoff'])
-			.where('GameWeek', '=', week)
-			.orderBy('GameKickoff desc')
-			.executeTakeFirstOrThrow();
-		const lastGameHasStarted = lastGame.GameKickoff < new Date();
-		const myTiebreaker = await db
-			.selectFrom('Tiebreakers')
-			.select(['TiebreakerID', 'TiebreakerLastScore'])
-			.where('TiebreakerWeek', '=', week)
-			.where('newUserID', '=', (session.user as TSessionUser).id)
-			.executeTakeFirstOrThrow();
-
-		if (myTiebreaker.TiebreakerLastScore < 1 && !lastGameHasStarted) {
 			return {
-				fieldErrors: {},
-				message: 'Tiebreaker last score must be greater than zero!',
-				status: 'ERROR',
-				timestamp: Date.now(),
-			};
+        metadata: {},
+        status: "Success",
+      };
 		}
 
-		await db
-			.updateTable('Tiebreakers')
-			.set({
-				TiebreakerHasSubmitted: 1,
-				TiebreakerUpdatedBy: session.user.email ?? undefined,
-			})
-			.where('TiebreakerID', '=', myTiebreaker.TiebreakerID)
-			.execute();
+		const game = await db.selectFrom('Games')
+      .select(['GameID', 'GameWeek'])
+      .where('GameNumber', '=', 1)
+      .where('GameKickoff', '>', sql<Date>`CURRENT_TIMESTAMP`)
+      .where(eb => sql<number>`YEARWEEK(${eb.ref('GameKickoff')})`, '=', sql<number>`YEARWEEK(CURRENT_TIMESTAMP)`)
+      .where(eb => eb.or([
+        eb('HomeTeamID', '=', teamId),
+        eb('VisitorTeamID', '=', teamId),
+      ]))
+      .executeTakeFirst();
 
-		const notification = await db
-			.selectFrom('Notifications as N')
-			.select(['N.NotificationEmail', 'N.NotificationSMS'])
-			.innerJoin('Users as U', 'U.UserID', 'N.newUserID')
-			.where('U.UserCommunicationsOptedOut', '=', 0)
-			.where('N.NotificationType', '=', 'PicksSubmitted')
-			.where('N.newUserID', '=', (session.user as TSessionUser).id)
-			.executeTakeFirst();
+		if (!game) {
+			console.error('No matching game found', { teamId, user, userId });
 
-		if (notification?.NotificationEmail) {
-			// await sendPicksSubmittedEmail(user, week, picks, myTiebreaker);
+			throw new ZSAError('NOT_FOUND', 'No matching game found');
 		}
 
-		if (notification?.NotificationSMS) {
-			// await sendPicksSubmittedSMS(user, week, picks, myTiebreaker);
+		const pick = await db.selectFrom('Picks')
+      .select(['PickID', 'PickPoints', 'TeamID', 'UserID'])
+      .where('GameID', '=', game.GameID)
+      .where('UserID', '=', userId)
+      .executeTakeFirstOrThrow();
+
+		if (pick.TeamID || pick.PickPoints) {
+			console.error('Pick has already been made', { game, pick, teamId, user, userId });
+
+			throw new ZSAError('PRECONDITION_FAILED', 'Pick has already been made');
 		}
 
-		await db
-			.insertInto('Logs')
-			.values({
-				LogAction: 'SUBMIT_PICKS',
-				LogMessage: `${(session.user as TSessionUser).name} submitted their picks for week ${week}`,
-				LogAddedBy: (session.user as TSessionUser).email ?? '',
-				LogUpdatedBy: (session.user as TSessionUser).email ?? '',
-				newUserID: (session.user as TSessionUser).id,
-			})
-			.execute();
-	} catch (error) {
-		return fromErrorToFormState(error);
-	}
+		const lowestPoint = await getLowestUnusedPoint(game.GameWeek, userId);
 
-	revalidatePath('/picks/view');
+		if (lowestPoint === null) {
+			console.error(
+				'Quick pick failed because user has not made this pick but also has no points left to use',
+				{ game, pick, teamId, userId },
+			);
 
-	return {
-		fieldErrors: {},
-		message: '',
-		status: 'SUCCESS',
-		timestamp: Date.now(),
-	};
-};
+			throw new ZSAError(
+        'INTERNAL_SERVER_ERROR',
+				'Quick pick failed because you have not made this pick but also you have no points left to use',
+			);
+		}
 
-export const validateMyPicks = async (
-	week: number,
-	unused: number[],
-	lastScore: number,
-): Promise<FormState> => {
-	const session = await getServerSession(authOptions);
+    await db.updateTable('Picks').set({
+      PickPoints: lowestPoint,
+      PickUpdated: new Date(),
+      PickUpdatedBy: user?.email,
+      TeamID: teamId,
+    }).where('PickID', '=', pick.PickID).executeTakeFirstOrThrow();
+		await sendQuickPickConfirmationEmail(userId, teamId, lowestPoint, game.GameWeek);
 
-	if (!session?.user) {
 		return {
-			fieldErrors: {},
-			message: 'Not authorized',
-			status: 'ERROR',
-			timestamp: Date.now(),
-		};
-	}
+      metadata: {},
+      status: "Success",
+    };
+  });
 
-	const result = validateMyPicksSchema.safeParse({
-		lastScore,
-		unused,
-		week,
-	});
+export const resetMyPicksForWeek = authedProcedure.input(z.object({ week: weekSchema })).output(serverActionResultSchema).handler(async ({ ctx, input }) => {
+  const { week } = input;
 
-	if (!result.success) {
-		return fromErrorToFormState(result.error);
-	}
+  try {
+    await db.transaction().execute(async (trx) => {
+    await trx
+      .updateTable("Picks")
+      .set({
+        PickPoints: null,
+        PickUpdated: new Date(),
+        PickUpdatedBy: ctx.user.email,
+        TeamID: null,
+      })
+      .where("UserID", "=", ctx.user.id)
+      .where(({ eb, selectFrom }) =>
+        eb(
+          "GameID",
+          "in",
+          selectFrom("Games")
+            .select("GameID")
+            .where("GameWeek", "=", week)
+            .where("GameKickoff", ">", sql<Date>`CURRENT_TIMESTAMP`),
+        ),
+      )
+      .executeTakeFirstOrThrow();
+    });
+  } catch (error) {
+    console.error("Failed to reset picks for week", week, error);
 
-	try {
-		const unusedCount =
-			!unused || unused.length === 0
-				? await db
-						.selectFrom('Picks as P')
-						.select([sql<number>`COUNT(*)`.as('count')])
-						.innerJoin('Games as G', 'G.GameID', 'P.GameID')
-						.where('G.GameWeek', '=', week)
-						.where('P.newUserID', '=', (session.user as TSessionUser).id)
-						.where('P.PickPoints', 'is', null)
-						.executeTakeFirst()
-				: await db
-						.selectFrom('Picks as P')
-						.select([sql<number>`COUNT(*)`.as('count')])
-						.innerJoin('Games as G', 'G.GameID', 'P.GameID')
-						.where('G.GameWeek', '=', week)
-						.where('P.newUserID', '=', (session.user as TSessionUser).id)
-						.where('P.PickPoints', 'in', unused)
-						.executeTakeFirst();
+    if (error instanceof ZSAError) {
+      throw error;
+    }
 
-		if (!unusedCount || unusedCount.count > 0) {
-			return {
-				fieldErrors: {},
-				message: 'Points are not in sync',
-				status: 'ERROR',
-				timestamp: Date.now(),
-			};
-		}
+    throw new ZSAError(
+      "INTERNAL_SERVER_ERROR",
+      "Failed to reset picks for week",
+    );
+  }
 
-		const tiebreaker = await db
-			.selectFrom('Tiebreakers')
-			.select(['TiebreakerLastScore'])
-			.where('TiebreakerWeek', '=', week)
-			.where('newUserID', '=', (session.user as TSessionUser).id)
-			.executeTakeFirstOrThrow();
+  revalidatePath("/picks/set");
 
-		if (tiebreaker.TiebreakerLastScore !== lastScore) {
-			return {
-				fieldErrors: {},
-				message: 'Tiebreaker last score on FE does not match BE',
-				status: 'ERROR',
-				timestamp: Date.now(),
-			};
-		}
-	} catch (error) {
-		return fromErrorToFormState(error);
-	}
+  return {
+    metadata: {},
+    status: "Success",
+  };
+});
 
-	revalidatePath('/picks/set');
+export const setMyPick = authedProcedure.input(setMyPickSchema).output(serverActionResultSchema).handler(async ({ ctx, input }) => {
+  const { gameID, points, teamID, week } = input;
 
-	return {
-		fieldErrors: {},
-		message: '',
-		status: 'SUCCESS',
-		timestamp: Date.now(),
-	};
-};
+  try {
+    await db.transaction().execute(async (trx) => {
+      const oldPick = await trx
+        .selectFrom("Picks as P")
+        .selectAll("P")
+        .innerJoin("Games as G", "G.GameID", "P.GameID")
+        .selectAll("G")
+      .where("G.GameWeek", "=", week)
+      .where("P.UserID", "=", ctx.user.id)
+      .where("P.PickPoints", "=", points)
+      .executeTakeFirst();
+
+    if (oldPick) {
+      const hasStarted = oldPick.GameKickoff < new Date();
+
+      if (hasStarted) {
+        throw new ZSAError(
+          "PRECONDITION_FAILED",
+          "Game has already started!",
+        );
+      }
+
+      await trx
+        .updateTable("Picks")
+        .set({
+          PickPoints: null,
+          PickUpdated: new Date(),
+          PickUpdatedBy: ctx.user.email,
+          TeamID: null,
+        })
+        .where("PickID", "=", oldPick.PickID)
+        .execute();
+    }
+
+    if (gameID) {
+      const newPick = await trx
+        .selectFrom("Picks as P")
+        .selectAll("P")
+        .innerJoin("Games as G", "G.GameID", "P.GameID")
+        .selectAll("G")
+        .where("P.GameID", "=", gameID)
+        .where("G.GameWeek", "=", week)
+        .where("G.GameKickoff", ">", sql<Date>`CURRENT_TIMESTAMP`)
+        .where("P.UserID", "=", ctx.user.id)
+        .executeTakeFirst();
+
+      if (!newPick) {
+        throw new ZSAError(
+          "PRECONDITION_FAILED",
+          "No pick found that can be changed!",
+        );
+      }
+
+      if (newPick.HomeTeamID !== teamID && newPick.VisitorTeamID !== teamID) {
+        throw new ZSAError(
+          "PRECONDITION_FAILED",
+          "Invalid team passed for pick!",
+        );
+      }
+
+      const gamesInWeek = await trx
+        .selectFrom("Games")
+        .select([sql<number>`COUNT(*)`.as("count")])
+        .where("GameWeek", "=", week)
+        .executeTakeFirstOrThrow();
+
+      if (points > gamesInWeek.count) {
+        throw new ZSAError(
+          "PRECONDITION_FAILED",
+          "Invalid point value passed for week!",
+        );
+      }
+
+      await trx
+        .updateTable("Picks")
+        .set({
+          PickPoints: points,
+          PickUpdated: new Date(),
+          PickUpdatedBy: ctx.user.email,
+          TeamID: teamID,
+        })
+        .where("PickID", "=", newPick.PickID)
+        .executeTakeFirstOrThrow();
+    }
+  });
+  } catch (error) {
+    console.error("Failed to set pick", week, error);
+
+    if (error instanceof ZSAError) {
+      throw error;
+    }
+
+    throw new ZSAError(
+      "INTERNAL_SERVER_ERROR",
+      "Failed to set pick",
+    );
+  }
+
+  revalidatePath("/picks/set");
+
+  return {
+    metadata: {},
+    status: "Success",
+  };
+});
+
+export const submitMyPicks = authedProcedure.input(z.object({ week: weekSchema })).output(serverActionResultSchema).handler(async ({ ctx, input }) => {
+  const { week } = input;
+
+  try {
+    await db.transaction().execute(async (trx) => {
+    const picks = await trx
+      .selectFrom("Picks as P")
+      .select(["P.PickPoints", "P.TeamID"])
+      .innerJoin("Games as G", "G.GameID", "P.GameID")
+      .select(["G.GameKickoff"])
+      .where("G.GameWeek", "=", week)
+      .where("P.UserID", "=", ctx.user.id)
+      .orderBy("P.PickPoints asc")
+      .execute();
+
+    for (let i = 0; i < picks.length; i++) {
+      const pick = picks[i];
+      const point = i + 1;
+
+      if (!pick) {
+        continue;
+      }
+
+      const hasGameStarted = pick.GameKickoff < new Date();
+
+      if (pick.PickPoints !== point) {
+        throw new ZSAError(
+          "PRECONDITION_FAILED",
+          `Missing point value found! (${point})`,
+        );
+      }
+
+      if (pick.TeamID === null && !hasGameStarted) {
+        throw new ZSAError(
+          "PRECONDITION_FAILED",
+          "Missing team pick found!",
+        );
+      }
+    }
+
+    const lastGame = await trx
+      .selectFrom("Games")
+      .select(["GameKickoff"])
+      .where("GameWeek", "=", week)
+      .orderBy("GameKickoff desc")
+      .executeTakeFirstOrThrow();
+    const lastGameHasStarted = lastGame.GameKickoff < new Date();
+    const myTiebreaker = await trx
+      .selectFrom("Tiebreakers")
+      .select(["TiebreakerID", "TiebreakerLastScore"])
+      .where("TiebreakerWeek", "=", week)
+      .where("UserID", "=", ctx.user.id)
+      .executeTakeFirstOrThrow();
+
+    if (myTiebreaker.TiebreakerLastScore < 1 && !lastGameHasStarted) {
+      throw new ZSAError(
+        "PRECONDITION_FAILED",
+        "Tiebreaker last score must be greater than zero!",
+      );
+    }
+
+    await trx
+      .updateTable("Tiebreakers")
+      .set({
+        TiebreakerHasSubmitted: 1,
+        TiebreakerUpdated: new Date(),
+        TiebreakerUpdatedBy: ctx.user.email,
+      })
+      .where("TiebreakerID", "=", myTiebreaker.TiebreakerID)
+      .executeTakeFirstOrThrow();
+
+    const notification = await trx
+      .selectFrom("Notifications as N")
+      .select(["N.NotificationEmail", "N.NotificationSMS"])
+      .innerJoin("Users as U", "U.UserID", "N.UserID")
+      .where("U.UserCommunicationsOptedOut", "=", 0)
+      .where("N.NotificationType", "=", "PicksSubmitted")
+      .where("N.UserID", "=", ctx.user.id)
+      .executeTakeFirst();
+
+    if (notification?.NotificationEmail === 1) {
+      await sendPicksSubmittedEmail(ctx.user, week, myTiebreaker.TiebreakerLastScore);
+    }
+
+    if (notification?.NotificationSMS === 1) {
+      await sendPicksSubmittedSMS(ctx.user, week, myTiebreaker.TiebreakerLastScore);
+    }
+
+    await trx
+      .insertInto("Logs")
+      .values({
+        LogAction: "SUBMIT_PICKS",
+        LogAddedBy: ctx.user.email,
+        LogMessage: `${ctx.user.name ?? ctx.user.email} submitted their picks for week ${week}`,
+        LogUpdatedBy: ctx.user.email,
+        UserID: ctx.user.id,
+      })
+      .execute();
+    });
+  } catch (error) {
+    console.error("Failed to submit picks", week, error);
+
+    if (error instanceof ZSAError) {
+      throw error;
+    }
+
+    throw new ZSAError(
+      "INTERNAL_SERVER_ERROR",
+      "Failed to submit picks",
+    );
+  }
+
+  revalidatePath("/picks/view");
+
+  return {
+    metadata: {},
+    status: "Success",
+  };
+});
+
+export const validateMyPicks = authedProcedure.input(validateMyPicksSchema).output(serverActionResultSchema).handler(async ({ ctx, input }) => {
+  const { lastScore, unused, week } = input;
+
+  try {
+    await db.transaction().execute(async (trx) => {
+      const unusedCount =
+        !unused || unused.length === 0
+          ? await trx
+              .selectFrom("Picks as P")
+              .select([sql<number>`COUNT(*)`.as("count")])
+            .innerJoin("Games as G", "G.GameID", "P.GameID")
+            .where("G.GameWeek", "=", week)
+            .where("P.UserID", "=", ctx.user.id)
+            .where("P.PickPoints", "is", null)
+            .executeTakeFirst()
+        : await trx
+            .selectFrom("Picks as P")
+            .select([sql<number>`COUNT(*)`.as("count")])
+            .innerJoin("Games as G", "G.GameID", "P.GameID")
+            .where("G.GameWeek", "=", week)
+            .where("P.UserID", "=", ctx.user.id)
+            .where("P.PickPoints", "in", unused)
+            .executeTakeFirst();
+
+    if (!unusedCount || unusedCount.count > 0) {
+      throw new ZSAError(
+        "PRECONDITION_FAILED",
+        "Points are not in sync",
+      );
+    }
+
+    const tiebreaker = await trx
+      .selectFrom("Tiebreakers")
+      .select(["TiebreakerLastScore"])
+      .where("TiebreakerWeek", "=", week)
+      .where("UserID", "=", ctx.user.id)
+      .executeTakeFirstOrThrow();
+
+    if (tiebreaker.TiebreakerLastScore !== lastScore) {
+      throw new ZSAError(
+        "PRECONDITION_FAILED",
+        "Tiebreaker last score on FE does not match BE",
+      );
+    }
+  });
+  } catch (error) {
+    console.error("Failed to validate picks", week, error);
+
+    if (error instanceof ZSAError) {
+      throw error;
+    }
+
+    throw new ZSAError(
+      "INTERNAL_SERVER_ERROR",
+      "Failed to validate picks",
+    );
+  }
+
+  revalidatePath("/picks/set");
+
+  return {
+    metadata: {},
+    status: "Success",
+  };
+});

@@ -3,11 +3,9 @@ import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { revalidatePath } from "next/cache";
 import "server-only";
 
-import { getCurrentSession } from "../loaders/sessions";
-
-import { writeLog } from "./logs";
-
 import { deleteSessionTokenCookie, invalidateSession } from "@/lib/auth";
+import { getCurrentSession } from "../loaders/sessions";
+import { writeLog } from "./logs";
 
 export const signOut = async (): Promise<void> => {
   const { session, user } = await getCurrentSession();

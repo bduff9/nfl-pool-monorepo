@@ -60,3 +60,18 @@ export const getMySurvivorPickForWeek = cache(async (week: number) => {
     )
     .executeTakeFirst();
 });
+
+export const getMySurvivorPicks = cache(async () => {
+  const { user } = await getCurrentSession();
+
+  if (!user) {
+    throw new Error("Not logged in");
+  }
+
+  return db
+    .selectFrom("SurvivorPicks")
+    .select(['SurvivorPickWeek', 'TeamID'])
+    .where('UserID', '=', user.id)
+    .orderBy('SurvivorPickWeek', 'asc')
+    .execute();
+});

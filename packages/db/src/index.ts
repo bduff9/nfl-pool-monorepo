@@ -41,6 +41,16 @@ export interface Accounts {
   UserID: number;
 }
 
+export interface ApiCalls {
+  ApiCallDate: Date;
+  ApiCallError: string | null;
+  ApiCallID: Generated<number>;
+  ApiCallResponse: Json | null;
+  ApiCallUrl: string;
+  ApiCallWeek: number | null;
+  ApiCallYear: number;
+}
+
 export interface APICalls {
   APICallAdded: Generated<Date>;
   APICallAddedBy: string;
@@ -55,6 +65,18 @@ export interface APICalls {
   APICallURL: string;
   APICallWeek: number | null;
   APICallYear: number;
+}
+
+export interface Emails {
+  EmailCreatedAt: Date;
+  EmailHtml: string | null;
+  EmailID: string;
+  EmailSms: string | null;
+  EmailSubject: string | null;
+  EmailTextOnly: string | null;
+  EmailTo: string;
+  EmailType: string;
+  EmailUpdatedAt: Date | null;
 }
 
 export interface Games {
@@ -416,7 +438,9 @@ export interface WeeklyMV {
 
 export interface DB {
   Accounts: Accounts;
+  ApiCalls: ApiCalls;
   APICalls: APICalls;
+  Emails: Emails;
   Games: Games;
   History: History;
   Leagues: Leagues;

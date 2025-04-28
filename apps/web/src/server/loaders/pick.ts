@@ -182,7 +182,67 @@ export const getMyWeeklyPicks = cache(async (week: number) => {
       jsonObjectFrom(
         eb
           .selectFrom("Teams as WT")
-          .select(["WT.TeamID", "WT.TeamCity", "WT.TeamLogo", "WT.TeamName"])
+          .select([
+            "WT.TeamCity",
+            "WT.TeamID",
+            "WT.TeamLogo",
+            "WT.TeamName",
+            "WT.TeamPrimaryColor",
+            "WT.TeamSecondaryColor",
+            "WT.TeamConference",
+            "WT.TeamDivision",
+            "WT.TeamPassDefenseRank",
+            "WT.TeamPassOffenseRank",
+            "WT.TeamRushDefenseRank",
+            "WT.TeamRushOffenseRank",
+          ])
+          .select((eb2) => [
+            jsonObjectFrom(
+              eb2
+                .selectFrom("Games as G2")
+                .select((eb3) => [
+                  sql<number>`SUM(IF(${eb3.ref("G2.WinnerTeamID")} = ${eb3.ref("G.WinnerTeamID")}, 1, 0))`.as("wins"),
+                  sql<number>`SUM(IF(${eb3.ref("G2.WinnerTeamID")} <> ${eb3.ref("G.WinnerTeamID")} AND ${eb3.ref("G2.WinnerTeamID")} IN (${eb3.ref("G2.HomeTeamID")}, ${eb3.ref("G2.VisitorTeamID")}), 1, 0))`.as(
+                    "losses",
+                  ),
+                  sql<number>`SUM(IF(${eb3.ref("G2.WinnerTeamID")} <> ${eb3.ref("G.WinnerTeamID")} AND ${eb3.ref("G2.WinnerTeamID")} NOT IN (${eb3.ref("G2.HomeTeamID")}, ${eb3.ref("G2.VisitorTeamID")}), 1, 0))`.as(
+                    "ties",
+                  ),
+                ])
+                .where("G2.GameStatus", "=", "Final")
+                .where((eb3) =>
+                  eb3.or([
+                    eb3("G2.HomeTeamID", "=", eb3.ref("G.WinnerTeamID")),
+                    eb3("G2.VisitorTeamID", "=", eb3.ref("G.WinnerTeamID")),
+                  ]),
+                ),
+            ).as("record"),
+            jsonArrayFrom(
+              eb2
+                .selectFrom("Games as G2")
+                .select([
+                  "G2.GameID",
+                  "G2.GameWeek",
+                  "G2.HomeTeamID",
+                  "G2.VisitorTeamID",
+                  "G2.WinnerTeamID",
+                  "G2.GameHomeScore",
+                  "G2.GameVisitorScore",
+                ])
+                .innerJoin("Teams as HT2", "HT2.TeamID", "G2.HomeTeamID")
+                .select(["HT2.TeamShortName as homeTeamShortName"])
+                .innerJoin("Teams as VT2", "VT2.TeamID", "G2.VisitorTeamID")
+                .select(["VT2.TeamShortName as visitorTeamShortName"])
+                .orderBy("G2.GameWeek", "asc")
+                .where("G2.GameStatus", "=", "Final")
+                .where((eb3) =>
+                  eb3.or([
+                    eb3("G2.HomeTeamID", "=", eb3.ref("WT.TeamID")),
+                    eb3("G2.VisitorTeamID", "=", eb3.ref("WT.TeamID")),
+                  ]),
+                ),
+            ).as("teamHistory"),
+          ])
           .whereRef("WT.TeamID", "=", "G.WinnerTeamID"),
       ).as("winnerTeam"),
     ])

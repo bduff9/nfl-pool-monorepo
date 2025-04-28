@@ -1,86 +1,66 @@
-'use server';
-import { revalidatePath } from 'next/cache';
-import { getServerSession } from 'next-auth';
-import 'server-only';
+"use server";
+import { revalidatePath } from "next/cache";
+import "server-only";
 
-import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
-import type { TSessionUser, FormState } from '@/utils/types';
-import { fromErrorToFormState, updateMyTiebreakerScoreSchema } from '@/utils/zod';
-import { db } from '@/db';
+import { serverActionResultSchema, updateMyTiebreakerScoreSchema } from "@/lib/zod";
+import { authedProcedure } from "@/lib/zsa.server";
+import { db } from "@nfl-pool-monorepo/db/src/kysely";
+import { ZSAError } from "zsa";
 
-export const updateMyTiebreakerScore = async (
-	week: number,
-	score: number,
-): Promise<FormState> => {
-	const session = await getServerSession(authOptions);
+export const updateMyTiebreakerScore = authedProcedure.input(updateMyTiebreakerScoreSchema).output(serverActionResultSchema).handler(async ({ ctx, input }) => {
+const { week, score } = input;
 
-	if (!session?.user) {
-		return {
-			fieldErrors: {},
-			message: 'Not authorized',
-			status: 'ERROR',
-			timestamp: Date.now(),
-		};
-	}
+  try {
+    await db.transaction().execute(async (trx) => {
+    const lastGame = await trx
+      .selectFrom("Games")
+      .select(["GameKickoff"])
+      .where("GameWeek", "=", week)
+      .orderBy("GameKickoff desc")
+      .executeTakeFirstOrThrow();
 
-	const result = updateMyTiebreakerScoreSchema.safeParse({ week, score });
+    if (lastGame.GameKickoff < new Date()) {
+      throw new ZSAError('PRECONDITION_FAILED', "Game has already started!");
+    }
 
-	if (!result.success) {
-		return fromErrorToFormState(result.error);
-	}
+    const myTiebreaker = await trx
+      .selectFrom("Tiebreakers")
+      .select(["TiebreakerID", "TiebreakerHasSubmitted"])
+      .where("TiebreakerWeek", "=", week)
+      .where("UserID", "=", ctx.user.id)
+      .executeTakeFirstOrThrow();
 
-	try {
-		const lastGame = await db
-			.selectFrom('Games')
-			.select(['GameKickoff'])
-			.where('GameWeek', '=', week)
-			.orderBy('GameKickoff desc')
-			.executeTakeFirstOrThrow();
+    if (myTiebreaker.TiebreakerHasSubmitted) {
+      throw new ZSAError('PRECONDITION_FAILED', "Tiebreaker has already been submitted!");
+    }
 
-		if (lastGame.GameKickoff < new Date()) {
-			return {
-				fieldErrors: {},
-				message: 'Last game has already started!',
-				status: 'ERROR',
-				timestamp: Date.now(),
-			};
-		}
+    await trx
+      .updateTable("Tiebreakers")
+      .set({
+        TiebreakerLastScore: score,
+        TiebreakerUpdated: new Date(),
+        TiebreakerUpdatedBy: ctx.user.email,
+      })
+      .where("TiebreakerID", "=", myTiebreaker.TiebreakerID)
+      .executeTakeFirstOrThrow();
+    });
+  } catch (error) {
+    console.error("Failed to update my tiebreaker score", week, error);
 
-		const myTiebreaker = await db
-			.selectFrom('Tiebreakers')
-			.select(['TiebreakerID', 'TiebreakerHasSubmitted'])
-			.where('TiebreakerWeek', '=', week)
-			.where('newUserID', '=', (session.user as TSessionUser).id)
-			.executeTakeFirstOrThrow();
+    if (error instanceof ZSAError) {
+      throw error;
+    }
 
-		if (myTiebreaker.TiebreakerHasSubmitted) {
-			return {
-				fieldErrors: {},
-				message: 'Picks have already been submitted!',
-				status: 'ERROR',
-				timestamp: Date.now(),
-			};
-		}
+    throw new ZSAError(
+      "INTERNAL_SERVER_ERROR",
+      "Failed to update my tiebreaker score",
+    );
+  }
 
-		await db
-			.updateTable('Tiebreakers')
-			.set({
-				TiebreakerLastScore: score,
-				TiebreakerUpdatedBy: session.user.email ?? undefined,
-				TiebreakerUpdated: new Date(),
-			})
-			.where('TiebreakerID', '=', myTiebreaker.TiebreakerID)
-			.execute();
-	} catch (error) {
-		return fromErrorToFormState(error);
-	}
+  revalidatePath("/picks/set");
 
-	revalidatePath('/picks/set');
-
-	return {
-		fieldErrors: {},
-		message: '',
-		status: 'SUCCESS',
-		timestamp: Date.now(),
-	};
-};
+  return {
+    metadata: {},
+    status: "Success",
+  };
+});

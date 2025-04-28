@@ -1,5 +1,5 @@
 "use client";
-import { useRouter } from "next/navigation";
+import { cn } from "@nfl-pool-monorepo/utils/styles";
 /*******************************************************************************
  * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
  * Copyright (C) 2015-present Brian Duffey
@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
+import { useRouter } from "next/navigation";
 import { type FC, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 
@@ -38,8 +39,8 @@ const GoogleAuthButton: FC<GoogleAuthButtonProps> = ({ isLinked = false, isRegis
   return (
     <button
       aria-label={title}
+      className={cn('flex items-center gap-3 bg-google-button-blue rounded-full p-0.5 pr-4 transition-colors duration-300 hover:bg-google-button-blue-hover disabled:opacity-65', isLinked && 'pointer-events-none')}
       disabled={isLoading || isLinked}
-      className="flex items-center gap-3 bg-google-button-blue rounded-full p-0.5 pr-4 transition-colors duration-300 hover:bg-google-button-blue-hover"
       onClick={(): void => {
         setIsLoading(true);
         router.push("/login/google");

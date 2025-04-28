@@ -2,9 +2,8 @@ import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { cache } from "react";
 import "server-only";
 
-import { getCurrentSession } from "./sessions";
-
 import { weekSchema } from "@/lib/zod";
+import { getCurrentSession } from "./sessions";
 
 export const getMyTiebreaker = cache(async (week: number) => {
   const { user } = await getCurrentSession();

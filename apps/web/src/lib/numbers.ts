@@ -15,7 +15,7 @@
  */
 export const getRandomInteger = (from = 0, to = 10): number => {
   if (to <= from) {
-    console.error({ text: "Invalid to passed in: ", from, to });
+    console.error({ from, text: "Invalid to passed in: ", to });
 
     return 0;
   }

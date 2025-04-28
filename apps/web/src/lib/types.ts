@@ -16,28 +16,16 @@ import type { FC } from "react";
  * Home: https://asitewithnoname.com/
  */
 
+export type SearchParams = {
+	[key: string]: string | string[] | undefined;
+};
+
 /**
  * Next.js Page component
  */
 export type NP<Props = Record<string, never>> = FC<
   {
     params: Promise<Record<string, string>>;
-    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+    searchParams: Promise<SearchParams>;
   } & Props
 >;
-
-export type TextOrSubject<Props = Record<string, never>> = (props: Props) => string;
-
-/**
- * Season and week status
- */
-export type Status = "Not Started" | "In Progress" | "Complete";
-
-export type FormState = {
-  status: "UNSET" | "SUCCESS" | "ERROR";
-  message: string;
-  fieldErrors: Record<string, string[] | undefined>;
-  timestamp: number;
-};
-
-export type ServerAction = (p: FormState, f: FormData) => Promise<FormState>;

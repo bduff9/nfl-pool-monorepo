@@ -13,72 +13,77 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-import type { FC } from 'react';
-import { useState } from 'react';
-import Modal from 'react-bootstrap/Modal';
+
+import { Button } from "@nfl-pool-monorepo/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@nfl-pool-monorepo/ui/components/dialog";
+import { Loader2 } from "lucide-react";
+import type { FC, ReactNode } from "react";
+import { useState } from "react";
 
 type ConfirmationModal = {
-	acceptButton?: string;
-	body: JSX.Element | string;
-	cancelButton?: string;
-	onAccept: () => void | Promise<void>;
-	onCancel: () => void | Promise<void>;
-	title: string;
+  acceptButton?: string;
+  body: ReactNode;
+  cancelButton?: string;
+  onAccept: () => void | Promise<void>;
+  onCancel: () => void | Promise<void>;
+  title: string;
 };
 
 const ConfirmationModal: FC<ConfirmationModal> = ({
-	acceptButton = 'OK',
-	body,
-	cancelButton = 'Cancel',
-	onAccept,
-	onCancel,
-	title,
+  acceptButton = "OK",
+  body,
+  cancelButton = "Cancel",
+  onAccept,
+  onCancel,
+  title,
 }) => {
-	const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(true);
 
-	const handleAccept = async (): Promise<void> => {
-		setLoading(true);
-		await onAccept();
-		setLoading(false);
-	};
+  const handleAccept = async (): Promise<void> => {
+    setLoading(true);
+    await onAccept();
+    setLoading(false);
+    setOpen(false);
+  };
 
-	return (
-		<Modal onHide={onCancel} show>
-			<Modal.Header closeButton>
-				<Modal.Title>{title}</Modal.Title>
-			</Modal.Header>
-			<Modal.Body>{body}</Modal.Body>
-			<Modal.Footer>
-				<button
-					className="btn btn-secondary"
-					disabled={loading}
-					onClick={onCancel}
-					type="button"
-				>
-					{cancelButton}
-				</button>
-				<button
-					className="btn btn-primary"
-					disabled={loading}
-					onClick={handleAccept}
-					type="button"
-				>
-					{loading ? (
-						<>
-							<span
-								className="spinner-grow spinner-grow-sm d-none d-md-inline-block"
-								role="status"
-								aria-hidden="true"
-							></span>
-							Loading...
-						</>
-					) : (
-						acceptButton
-					)}
-				</button>
-			</Modal.Footer>
-		</Modal>
-	);
+  const handleCancel = async (): Promise<void> => {
+    await onCancel();
+    setOpen(false);
+  };
+
+  return (
+    <Dialog onOpenChange={(open) => setOpen(open)} open={open}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
+        <DialogDescription>{body}</DialogDescription>
+        <DialogFooter>
+          <Button disabled={loading} onClick={handleCancel} variant="outline">
+            {cancelButton}
+          </Button>
+          <Button disabled={loading} onClick={handleAccept}>
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Loading...
+              </>
+            ) : (
+              acceptButton
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 };
 
 export default ConfirmationModal;

@@ -13,40 +13,38 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-import type { FC } from 'react';
-
-import { formatTimeFromKickoff } from '../../utils/dates';
-import { getShortQuarter } from '../../utils/strings';
-
-import type { Games_GameStatus } from '@/db/types';
+import { formatTimeFromKickoff } from "@/lib/dates";
+import { getShortQuarter } from "@/lib/strings";
+import type { getGamesForWeek } from "@/server/loaders/game";
+import type { FC } from "react";
 
 type GameStatusDisplayProps = {
-	kickoff: Date;
-	status: Games_GameStatus;
-	timeLeft: string;
+  kickoff: Date;
+  gameStatus: Awaited<ReturnType<typeof getGamesForWeek>>[number]["GameStatus"];
+  timeLeft: string;
 };
 
-const GameStatusDisplay: FC<GameStatusDisplayProps> = ({ kickoff, status, timeLeft }) => {
-	if (status === 'Final') {
-		return <>{status}</>;
-	}
+const GameStatusDisplay: FC<GameStatusDisplayProps> = ({ kickoff, gameStatus, timeLeft }) => {
+  if (gameStatus === "Final") {
+    return <>{gameStatus}</>;
+  }
 
-	if (status === 'Pregame') {
-		return <>{formatTimeFromKickoff(kickoff)}</>;
-	}
+  if (gameStatus === "Pregame") {
+    return <>{formatTimeFromKickoff(kickoff)}</>;
+  }
 
-	return (
-		<>
-			<span className="d-none d-md-inline">{status}</span>
-			<span className="d-md-none">{getShortQuarter(status)}</span>
-			{status !== 'Half Time' && (
-				<>
-					<br />
-					{timeLeft}
-				</>
-			)}
-		</>
-	);
+  return (
+    <>
+      <span className="hidden md:inline">{gameStatus}</span>
+      <span className="md:hidden">{getShortQuarter(gameStatus)}</span>
+      {gameStatus !== "Half Time" && (
+        <>
+          <br />
+          {timeLeft}
+        </>
+      )}
+    </>
+  );
 };
 
 export default GameStatusDisplay;

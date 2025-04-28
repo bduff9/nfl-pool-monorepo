@@ -1,32 +1,32 @@
 {
-  "theme_color": "#8c8c8c",
-  "background_color": "#8c8c8c",
-  "display": "standalone",
-  "scope": "/",
-  "start_url": "/",
   "app_name": "NFL Confidence Pool",
-  "short_name": "NFL CP",
+  "background_color": "#8c8c8c",
   "description": "A confidence pool for the NFL regular season",
+  "display": "standalone",
   "icons": [
     {
-      "src": "/icon-192x192.png",
       "sizes": "192x192",
+      "src": "/icon-192x192.png",
       "type": "image/png"
     },
     {
-      "src": "/icon-256x256.png",
       "sizes": "256x256",
+      "src": "/icon-256x256.png",
       "type": "image/png"
     },
     {
-      "src": "/icon-384x384.png",
       "sizes": "384x384",
+      "src": "/icon-384x384.png",
       "type": "image/png"
     },
     {
-      "src": "/icon-512x512.png",
       "sizes": "512x512",
+      "src": "/icon-512x512.png",
       "type": "image/png"
     }
-  ]
+  ],
+  "scope": "/",
+  "short_name": "NFL CP",
+  "start_url": "/",
+  "theme_color": "#8c8c8c"
 }

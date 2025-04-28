@@ -13,18 +13,16 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-import type { FC } from "react";
-
-import { ProgressBarLink } from "../ProgressBar/ProgressBar";
-import ProgressChart from "../ProgressChart/ProgressChart";
-import RankingPieChart from "../RankingPieChart/RankingPieChart";
-
-import { WeeklyDashboardCountdown, WeeklyDashboardResults, WeeklyDashboardTitle } from "./WeeklyDashboard.client";
 
 import { getMyTiebreaker } from "@/server/loaders/tiebreaker";
 import { getSelectedWeek, getWeekStart, getWeekStatus } from "@/server/loaders/week";
 import { getMyWeeklyRank, getWeeklyMvCount, getWeeklyMvTiedCount } from "@/server/loaders/weeklyMv";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
+import type { FC } from "react";
+import { ProgressBarLink } from "../ProgressBar/ProgressBar";
+import ProgressChart from "../ProgressChart/ProgressChart";
+import RankingPieChart from "../RankingPieChart/RankingPieChart";
+import { WeeklyDashboardCountdown, WeeklyDashboardResults, WeeklyDashboardTitle } from "./WeeklyDashboard.client";
 
 const WeeklyDashboard: FC = async () => {
   const selectedWeek = await getSelectedWeek();
@@ -50,24 +48,24 @@ const WeeklyDashboard: FC = async () => {
   const behindMe = weeklyTotalCount - me - weeklyTiedCount;
 
   return (
-    <div className={cn("col-md-4 text-center mb-3 md:mb-0")}>
+    <div className={cn("col-md-4 text-center mb-3 md:mb-0 border-b border-gray-500 md:border-none")}>
       <WeeklyDashboardTitle selectedWeek={selectedWeek} />
       <div>
-        {myTiebreaker.TiebreakerHasSubmitted ? (
+        {myTiebreaker?.TiebreakerHasSubmitted === 1 ? (
           <>
             <div className="text-success">You have submitted your picks</div>
-            <ProgressBarLink href="/picks/view">View my picks</ProgressBarLink>
+            <ProgressBarLink className="underline" href="/picks/view">View my picks</ProgressBarLink>
           </>
         ) : (
           <>
             <div className="text-danger">You have not submitted your picks yet!</div>
-            <ProgressBarLink href="/picks/set">Make my picks</ProgressBarLink>
+            <ProgressBarLink className="underline" href="/picks/set">Make my picks</ProgressBarLink>
           </>
         )}
         {myWeeklyRank === undefined ? (
           <WeeklyDashboardCountdown weekStart={weekStart} />
         ) : (
-          <ProgressBarLink href="/weekly" className="d-block">
+          <ProgressBarLink className="underline" href="/weekly">
             View Details
           </ProgressBarLink>
         )}

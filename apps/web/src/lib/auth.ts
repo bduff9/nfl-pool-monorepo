@@ -1,31 +1,29 @@
-import dns from "node:dns";
-
+import { env } from "@/lib/env";
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
+import type { User } from "@nfl-pool-monorepo/types";
 import { hash, verify } from "@node-rs/argon2";
 import { sha1 } from "@oslojs/crypto/sha1";
 import { sha256 } from "@oslojs/crypto/sha2";
-import { encodeBase32LowerCaseNoPadding, encodeHexLowerCase } from "@oslojs/encoding";
+import {
+	encodeBase32LowerCaseNoPadding,
+	encodeHexLowerCase,
+} from "@oslojs/encoding";
 import { Google } from "arctic";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import dns from "node:dns";
 import "server-only";
 
 import { getCurrentSession } from "@/server/loaders/sessions";
 
-export type SessionValidationResult = { session: Session; user: User } | { session: null; user: null };
+export type SessionValidationResult =
+	| { session: Session; user: User }
+	| { session: null; user: null };
 
 export type Session = {
-  id: string;
-  userId: number;
-  expiresAt: Date;
-};
-
-export type User = {
-  id: number;
-  doneRegistering: number;
-  isAdmin: number;
-  firstName: string | null;
-  playsSurvivor: number;
+	id: string;
+	userId: number;
+	expiresAt: Date;
 };
 
 /**
@@ -34,210 +32,246 @@ export type User = {
 export const DEFAULT_SESSION_LENGTH = 1000 * 60 * 60 * 24 * 30;
 
 export const generateSessionToken = (): string => {
-  const bytes = new Uint8Array(20);
+	const bytes = new Uint8Array(20);
 
-  crypto.getRandomValues(bytes);
+	crypto.getRandomValues(bytes);
 
-  return encodeBase32LowerCaseNoPadding(bytes);
+	return encodeBase32LowerCaseNoPadding(bytes);
 };
 
-export const createSession = async (token: string, userId: number): Promise<Session> => {
-  const sessionToken = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-  const session: Session = {
-    id: sessionToken,
-    userId,
-    expiresAt: new Date(Date.now() + DEFAULT_SESSION_LENGTH),
-  };
+export const createSession = async (
+	token: string,
+	userId: number,
+): Promise<Session> => {
+	const sessionToken = encodeHexLowerCase(
+		sha256(new TextEncoder().encode(token)),
+	);
+	const session: Session = {
+		expiresAt: new Date(Date.now() + DEFAULT_SESSION_LENGTH),
+		id: sessionToken,
+		userId,
+	};
 
-  await db
-    .insertInto("Sessions")
-    .values({
-      UserID: userId,
-      SessionToken: sessionToken,
-      SessionExpires: session.expiresAt,
-      SessionAccessToken: "",
-      SessionAddedBy: "LUCIA",
-      SessionUpdatedBy: "LUCIA",
-    })
-    .executeTakeFirstOrThrow();
+	await db
+		.insertInto("Sessions")
+		.values({
+			SessionAccessToken: "",
+			SessionAddedBy: "LUCIA",
+			SessionExpires: session.expiresAt,
+			SessionToken: sessionToken,
+			SessionUpdatedBy: "LUCIA",
+			UserID: userId,
+		})
+		.executeTakeFirstOrThrow();
 
-  return session;
+	return session;
 };
 
-export async function validateSessionToken(token: string): Promise<SessionValidationResult> {
-  const sessionToken = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-  const session = await db
-    .selectFrom("Sessions")
-    .select(["SessionToken", "UserID", "SessionExpires"])
-    .where("SessionToken", "=", sessionToken)
-    .executeTakeFirst();
+export async function validateSessionToken(
+	token: string,
+): Promise<SessionValidationResult> {
+	const sessionToken = encodeHexLowerCase(
+		sha256(new TextEncoder().encode(token)),
+	);
+	const session = await db
+		.selectFrom("Sessions")
+		.select(["SessionToken", "UserID", "SessionExpires"])
+		.where("SessionToken", "=", sessionToken)
+		.executeTakeFirst();
 
-  if (!session) {
-    return { session: null, user: null };
-  }
+	if (!session) {
+		return { session: null, user: null };
+	}
 
-  const sessionObj: Session = {
-    id: session.SessionToken,
-    userId: session.UserID,
-    expiresAt: session.SessionExpires,
-  };
-  const user = await db
-    .selectFrom("Users")
-    .select([
-      "UserID as id",
-      "UserDoneRegistering as doneRegistering",
-      "UserIsAdmin as isAdmin",
-      "UserFirstName as firstName",
-      "UserPlaysSurvivor as playsSurvivor",
-    ])
-    .where("UserID", "=", session.UserID)
-    .executeTakeFirstOrThrow();
+	const sessionObj: Session = {
+		expiresAt: session.SessionExpires,
+		id: session.SessionToken,
+		userId: session.UserID,
+	};
 
-  if (Date.now() >= sessionObj.expiresAt.getTime()) {
-    await db.deleteFrom("Sessions").where("SessionToken", "=", session.SessionToken).executeTakeFirstOrThrow();
+	if (Date.now() >= sessionObj.expiresAt.getTime()) {
+		await db
+			.deleteFrom("Sessions")
+			.where("SessionToken", "=", session.SessionToken)
+			.executeTakeFirstOrThrow();
 
-    return { session: null, user: null };
-  }
+		return { session: null, user: null };
+	}
 
-  if (Date.now() >= sessionObj.expiresAt.getTime() - DEFAULT_SESSION_LENGTH / 2) {
-    sessionObj.expiresAt = new Date(Date.now() + DEFAULT_SESSION_LENGTH);
+	const user = await db
+		.selectFrom("Users")
+		.select([
+			"UserID as id",
+			"UserDoneRegistering as doneRegistering",
+			"UserIsAdmin as isAdmin",
+			"UserPlaysSurvivor as playsSurvivor",
+			"UserEmail as email",
+			"UserName as name",
+			"UserImage as image",
+		])
+		.where("UserID", "=", session.UserID)
+		.executeTakeFirstOrThrow();
 
-    await db
-      .updateTable("Sessions")
-      .set({ SessionExpires: sessionObj.expiresAt })
-      .where("SessionToken", "=", sessionObj.id)
-      .executeTakeFirstOrThrow();
-  }
+	if (
+		Date.now() >=
+		sessionObj.expiresAt.getTime() - DEFAULT_SESSION_LENGTH / 2
+	) {
+		sessionObj.expiresAt = new Date(Date.now() + DEFAULT_SESSION_LENGTH);
 
-  return { session: sessionObj, user };
+		await db
+			.updateTable("Sessions")
+			.set({ SessionExpires: sessionObj.expiresAt })
+			.where("SessionToken", "=", sessionObj.id)
+			.executeTakeFirstOrThrow();
+	}
+
+	return { session: sessionObj, user };
 }
 
-export const invalidateSession = async (sessionToken: string): Promise<void> => {
-  await db.deleteFrom("Sessions").where("SessionToken", "=", sessionToken).executeTakeFirstOrThrow();
+export const invalidateSession = async (
+	sessionToken: string,
+): Promise<void> => {
+	await db
+		.deleteFrom("Sessions")
+		.where("SessionToken", "=", sessionToken)
+		.executeTakeFirstOrThrow();
 };
 
 export const invalidateAllSessions = async (userId: number): Promise<void> => {
-  await db.deleteFrom("Sessions").where("UserID", "=", userId).executeTakeFirstOrThrow();
+	await db
+		.deleteFrom("Sessions")
+		.where("UserID", "=", userId)
+		.executeTakeFirstOrThrow();
 };
 
-export const setSessionTokenCookie = async (token: string, expiresAt: Date): Promise<void> => {
-  const cookieStore = await cookies();
+export const setSessionTokenCookie = async (
+	token: string,
+	expiresAt: Date,
+): Promise<void> => {
+	const cookieStore = await cookies();
 
-  cookieStore.set("session", token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    expires: expiresAt,
-    path: "/",
-  });
+	cookieStore.set("session", token, {
+		expires: expiresAt,
+		httpOnly: true,
+		path: "/",
+		sameSite: "lax",
+		secure: process.env.NODE_ENV === "production",
+	});
 };
 
 export const deleteSessionTokenCookie = async (): Promise<void> => {
-  const cookieStore = await cookies();
+	const cookieStore = await cookies();
 
-  cookieStore.set("session", "", {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 0,
-    path: "/",
-  });
+	cookieStore.set("session", "", {
+		httpOnly: true,
+		maxAge: 0,
+		path: "/",
+		sameSite: "lax",
+		secure: process.env.NODE_ENV === "production",
+	});
 };
 
 export const hashPassword = (password: string): Promise<string> =>
-  hash(password, {
-    memoryCost: 19456,
-    timeCost: 2,
-    outputLen: 32,
-    parallelism: 1,
-  });
+	hash(password, {
+		memoryCost: 19456,
+		outputLen: 32,
+		parallelism: 1,
+		timeCost: 2,
+	});
 
-export const verifyPasswordHash = async (hash: string, password: string): Promise<boolean> => verify(hash, password);
+export const verifyPasswordHash = async (
+	hash: string,
+	password: string,
+): Promise<boolean> => verify(hash, password);
 
-export const verifyPasswordStrength = async (password: string): Promise<boolean> => {
-  if (password.length < 8 || password.length > 255) {
-    return false;
-  }
+export const verifyPasswordStrength = async (
+	password: string,
+): Promise<boolean> => {
+	if (password.length < 8 || password.length > 255) {
+		return false;
+	}
 
-  const hash = encodeHexLowerCase(sha1(new TextEncoder().encode(password)));
-  const hashPrefix = hash.slice(0, 5);
-  const response = await fetch(`https://api.pwnedpasswords.com/range/${hashPrefix}`);
-  const data = await response.text();
-  const items = data.split("\n");
-  for (const item of items) {
-    const hashSuffix = item.slice(0, 35).toLowerCase();
+	const hash = encodeHexLowerCase(sha1(new TextEncoder().encode(password)));
+	const hashPrefix = hash.slice(0, 5);
+	const response = await fetch(
+		`https://api.pwnedpasswords.com/range/${hashPrefix}`,
+	);
+	const data = await response.text();
+	const items = data.split("\n");
+	for (const item of items) {
+		const hashSuffix = item.slice(0, 35).toLowerCase();
 
-    if (hash === hashPrefix + hashSuffix) {
-      return false;
-    }
-  }
+		if (hash === hashPrefix + hashSuffix) {
+			return false;
+		}
+	}
 
-  return true;
+	return true;
 };
 
 export const mxExists = async (email: string): Promise<boolean> => {
-  try {
-    const hostName = email.split("@")[1];
-    const addresses = await dns.promises.resolveMx(hostName ?? "");
+	try {
+		const hostName = email.split("@")[1];
+		const addresses = await dns.promises.resolveMx(hostName ?? "");
 
-    return addresses?.every((address) => address.exchange);
-  } catch (error) {
-    console.error({ text: "mx check error:", error });
+		return addresses?.every((address) => address.exchange);
+	} catch (error) {
+		console.error({ error, text: "mx check error:" });
 
-    return false;
-  }
+		return false;
+	}
 };
 
 export const requireAdmin = async (): Promise<string | null> => {
-  const { user } = await getCurrentSession();
+	const { user } = await getCurrentSession();
 
-  if (!user) {
-    return "/auth/login";
-  }
+	if (!user) {
+		return "/auth/login";
+	}
 
-  if (!user.isAdmin) {
-    return redirect("/");
-  }
+	if (!user.isAdmin) {
+		return redirect("/");
+	}
 
-  return null;
+	return null;
 };
 
 export const requireLoggedIn = async (): Promise<string | null> => {
-  const { user } = await getCurrentSession();
+	const { user } = await getCurrentSession();
 
-  if (!user) {
-    return "/auth/login";
-  }
+	if (!user) {
+		return "/auth/login";
+	}
 
-  return null;
+	return null;
 };
 
 export const requireLoggedOut = async (): Promise<string | null> => {
-  const { user } = await getCurrentSession();
+	const { user } = await getCurrentSession();
 
-  if (user) {
-    return "/auth/login";
-  }
+	if (user) {
+		return "/auth/login";
+	}
 
-  return null;
+	return null;
 };
 
 export const requireRegistered = async (): Promise<string | null> => {
-  const { user } = await getCurrentSession();
+	const { user } = await getCurrentSession();
 
-  if (!user) {
-    return "/auth/login";
-  }
+	if (!user) {
+		return "/auth/login";
+	}
 
-  if (!user.doneRegistering) {
-    return "/users/create";
-  }
+	if (!user.doneRegistering) {
+		return "/users/create";
+	}
 
-  return null;
+	return null;
 };
 
 export const google = new Google(
-  process.env.GOOGLE_ID ?? "",
-  process.env.GOOGLE_SECRET ?? "",
-  `${process.env.NEXT_PUBLIC_SITE_URL}/login/google/callback`,
+	env.GOOGLE_ID ?? "",
+	env.GOOGLE_SECRET ?? "",
+	`${env.NEXT_PUBLIC_SITE_URL}/login/google/callback`,
 );

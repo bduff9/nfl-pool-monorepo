@@ -1,9 +1,10 @@
+import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import type { OAuth2Tokens } from "arctic";
 import { decodeIdToken } from "arctic";
 import { cookies } from "next/headers";
 
 import { createSession, generateSessionToken, google, setSessionTokenCookie } from "@/lib/auth";
-import { db } from "@nfl-pool-monorepo/db/src/kysely";
+import { getCurrentSession } from "@/server/loaders/sessions";
 
 type GoogleClaims = {
   iss: string;
@@ -53,14 +54,40 @@ export const GET = async (request: Request): Promise<Response> => {
 
   const claims = decodeIdToken(tokens.idToken()) as GoogleClaims;
   const googleUserId = claims.sub;
+  const { user: signedInUser } = await getCurrentSession();
   let status: "New" | "Existing" | "Linked" = "Linked";
-
   let user = await db
     .selectFrom("Accounts as a")
     .innerJoin("Users as u", "a.UserID", "u.UserID")
     .select(["u.UserID"])
     .where("a.AccountProviderAccountID", "=", googleUserId)
     .executeTakeFirst();
+
+  if (signedInUser) {
+    if (!user) {
+      await db
+        .insertInto("Accounts")
+        .values({
+          AccountAccessToken: tokens.accessToken(),
+          AccountAccessTokenExpires: tokens.accessTokenExpiresAt(),
+          AccountAddedBy: "LUCIA",
+          AccountCompoundID: googleUserId,
+          AccountProviderAccountID: googleUserId,
+          AccountProviderID: "google",
+          AccountProviderType: "oauth",
+          AccountUpdatedBy: "LUCIA",
+          UserID: signedInUser.id,
+        })
+        .executeTakeFirstOrThrow();
+    }
+
+    return new Response(null, {
+      headers: {
+        Location: "/users/edit",
+      },
+      status: 302,
+    });
+  }
 
   if (!user) {
     user = await db.selectFrom("Users").select("UserID").where("UserEmail", "=", claims.email).executeTakeFirst();
@@ -75,15 +102,15 @@ export const GET = async (request: Request): Promise<Response> => {
     const insertResult = await db
       .insertInto("Users")
       .values({
-        UserEmail: claims.email,
-        UserFirstName: claims.given_name,
-        UserLastName: claims.family_name,
-        UserDoneRegistering: 0,
-        UserIsAdmin: 0,
-        UserName: claims.name,
-        UserEmailVerified: claims.email_verified ? new Date() : null,
-        UserImage: claims.picture,
         UserAddedBy: "LUCIA",
+        UserDoneRegistering: 0,
+        UserEmail: claims.email,
+        UserEmailVerified: claims.email_verified ? new Date() : null,
+        UserFirstName: claims.given_name,
+        UserImage: claims.picture,
+        UserIsAdmin: 0,
+        UserLastName: claims.family_name,
+        UserName: claims.name,
         UserUpdatedBy: "LUCIA",
       })
       .executeTakeFirstOrThrow();
@@ -95,15 +122,15 @@ export const GET = async (request: Request): Promise<Response> => {
     await db
       .insertInto("Accounts")
       .values({
-        AccountCompoundID: googleUserId,
-        UserID: user.UserID,
-        AccountProviderType: "oauth",
-        AccountProviderID: "google",
-        AccountProviderAccountID: googleUserId,
         AccountAccessToken: tokens.accessToken(),
         AccountAccessTokenExpires: tokens.accessTokenExpiresAt(),
         AccountAddedBy: "LUCIA",
+        AccountCompoundID: googleUserId,
+        AccountProviderAccountID: googleUserId,
+        AccountProviderID: "google",
+        AccountProviderType: "oauth",
         AccountUpdatedBy: "LUCIA",
+        UserID: user.UserID,
       })
       .executeTakeFirstOrThrow();
   }
@@ -114,9 +141,9 @@ export const GET = async (request: Request): Promise<Response> => {
   await setSessionTokenCookie(sessionToken, session.expiresAt);
 
   return new Response(null, {
-    status: 302,
     headers: {
       Location: "/",
     },
+    status: 302,
   });
 };

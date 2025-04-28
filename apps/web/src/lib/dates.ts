@@ -13,25 +13,24 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-import { HOURS_IN_DAY, MILLISECONDS_IN_SECOND, MINUTES_IN_HOUR, SECONDS_IN_MINUTE } from "./constants";
+import { HOURS_IN_DAY, MILLISECONDS_IN_SECOND, MINUTES_IN_HOUR, SECONDS_IN_MINUTE } from "@nfl-pool-monorepo/utils/constants";
 
-export const formatDateForBackup = (date: string): string => {
+export const formatDateForBackup = (date: Date): string => {
   const options: Intl.DateTimeFormatOptions = {
-    weekday: "long",
-    month: "long",
     day: "numeric",
+    month: "long",
     timeZone: "UTC",
+    weekday: "long",
   };
-  const toFormat = new Date(date);
 
-  return toFormat.toLocaleDateString("en-US", options);
+  return date.toLocaleDateString("en-US", options);
 };
 
 export const formatDateForKickoff = (date: Date | string): string => {
   const options: Intl.DateTimeFormatOptions = {
-    weekday: "long",
-    month: "long",
     day: "numeric",
+    month: "long",
+    weekday: "long",
   };
   const toFormat = new Date(date);
 
@@ -51,13 +50,13 @@ export const formatTimeFromKickoff = (date: Date | string): string => {
 
 export const formatTimestampForLog = (date: string): string => {
   const options: Intl.DateTimeFormatOptions = {
-    weekday: "long",
-    month: "long",
     day: "numeric",
-    year: "numeric",
     hour: "numeric",
     minute: "2-digit",
+    month: "long",
     timeZoneName: "short",
+    weekday: "long",
+    year: "numeric",
   };
   const toFormat = new Date(date);
 

@@ -13,96 +13,74 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-import { faFootballBall } from '@bduff9/pro-duotone-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import clsx from 'clsx';
-import Image from 'next/image';
-import type { FC } from 'react';
 
-import styles from './ScoreboardTeam.module.scss';
-
-import type { Games_GameStatus, Teams } from '@/db/types';
+import type { getGamesForWeek } from "@/server/loaders/game";
+import { cn } from "@nfl-pool-monorepo/utils/styles";
+import Image from "next/image";
+import type { FC } from "react";
+import { PiFootballDuotone } from "react-icons/pi";
 
 type ScoreboardTeamProps = {
-	gameStatus: Games_GameStatus;
-	hasPossession: boolean;
-	isInRedzone: boolean;
-	isWinner: boolean;
-	score: number;
-	team: Pick<Teams, 'TeamCity' | 'TeamLogo' | 'TeamName' | 'TeamShortName'> | null;
+  gameStatus: Awaited<ReturnType<typeof getGamesForWeek>>[number]["GameStatus"];
+  hasPossession: boolean;
+  isInRedzone: boolean;
+  isWinner: boolean;
+  score: number;
+  team: Awaited<ReturnType<typeof getGamesForWeek>>[number]["homeTeam"] | Awaited<ReturnType<typeof getGamesForWeek>>[number]["visitorTeam"];
 };
 
-const ScoreboardTeam: FC<ScoreboardTeamProps> = ({
-	gameStatus,
-	hasPossession,
-	isInRedzone,
-	isWinner,
-	score,
-	team,
-}) => {
-	const isLoser = !isWinner && gameStatus === 'Final';
+const ScoreboardTeam: FC<ScoreboardTeamProps> = ({ gameStatus, hasPossession, isInRedzone, isWinner, score, team }) => {
+  const isLoser = !isWinner && gameStatus === "Final";
 
-	if (!team) return null;
+  if (!team) return null;
 
-	return (
-		<>
-			<div className="team-logo">
-				<Image
-					alt={`${team.TeamCity} ${team.TeamName}`}
-					className={clsx(isLoser && styles.loser)}
-					height={70}
-					src={`/NFLLogos/${team.TeamLogo}`}
-					title={`${team.TeamCity} ${team.TeamName}`}
-					width={70}
-					style={{
-						maxWidth: '100%',
-						height: 'auto',
-					}}
-				/>
-			</div>
-			<div
-				className={clsx(
-					'flex-grow-1',
-					'd-flex',
-					'align-items-center',
-					'ps-3',
-					isWinner && 'text-success',
-					isWinner && 'fw-bold',
-					isLoser && 'text-muted',
-					isInRedzone && 'text-danger',
-				)}
-			>
-				<span className="d-none d-md-inline">
-					{team.TeamCity} {team.TeamName}
-				</span>
-				<span className="d-md-none">{team.TeamShortName}</span>
-			</div>
-			<div
-				className={clsx(
-					'd-flex',
-					'align-items-center',
-					'pe-3',
-					isWinner && 'text-success',
-					isWinner && 'fw-bold',
-					isLoser && 'text-muted',
-					isInRedzone && 'text-danger',
-				)}
-			>
-				{gameStatus !== 'Pregame' && (
-					<>
-						{hasPossession && (
-							<FontAwesomeIcon
-								className={clsx('me-2', !isInRedzone && styles.football)}
-								icon={faFootballBall}
-							/>
-						)}
-						{score}
-					</>
-				)}
-			</div>
-			<div className="w-100"></div>
-		</>
-	);
+  return (
+    <>
+      <div>
+        <Image
+          alt={`${team.TeamCity} ${team.TeamName}`}
+          className={cn('h-auto m-w-full', isLoser && 'grayscale')}
+          height={70}
+          src={`/NFLLogos/${team.TeamLogo}`}
+          title={`${team.TeamCity} ${team.TeamName}`}
+          width={70}
+        />
+      </div>
+      <div
+        className={cn(
+          "flex-grow flex items-center ps-3",
+          isWinner && "text-green-600",
+          isWinner && "font-bold",
+          isLoser && "text-muted",
+          isInRedzone && "text-red-600",
+        )}
+      >
+        <span className="hidden md:inline">
+          {team.TeamCity} {team.TeamName}
+        </span>
+        <span className="md:hidden">{team.TeamShortName}</span>
+      </div>
+      <div
+        className={cn(
+          "flex items-center pe-3",
+          isWinner && "text-green-600",
+          isWinner && "font-bold",
+          isLoser && "text-muted",
+          isInRedzone && "text-red-600",
+        )}
+      >
+        {gameStatus !== "Pregame" && (
+          <>
+            {hasPossession && (
+              <PiFootballDuotone className={cn("me-2", !isInRedzone && 'text-amber-800')} />
+            )}
+            {score}
+          </>
+        )}
+      </div>
+      <div className="w-full"></div>
+    </>
+  );
 };
 
 export default ScoreboardTeam;

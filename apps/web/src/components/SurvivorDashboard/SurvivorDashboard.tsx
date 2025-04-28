@@ -1,5 +1,6 @@
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { redirect } from "next/navigation";
+import type { FC } from "react";
 /*******************************************************************************
  * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
  * Copyright (C) 2015-present Brian Duffey
@@ -15,12 +16,6 @@ import { redirect } from "next/navigation";
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-import type { FC } from "react";
-
-import { ProgressBarLink } from "../ProgressBar/ProgressBar";
-import ProgressChart from "../ProgressChart/ProgressChart";
-import SurvivorDashboardIcon from "../SurvivorDashboardIcon/SurvivorDashboardIcon";
-
 import { getCurrentSession } from "@/server/loaders/sessions";
 import { getIsAliveInSurvivor, getMySurvivorPickForWeek } from "@/server/loaders/survivor";
 import {
@@ -30,6 +25,9 @@ import {
   getSurvivorWeeklyCounts,
 } from "@/server/loaders/survivorMv";
 import { getSelectedWeek, getWeekStatus } from "@/server/loaders/week";
+import { ProgressBarLink } from "../ProgressBar/ProgressBar";
+import ProgressChart from "../ProgressChart/ProgressChart";
+import SurvivorDashboardIcon from "../SurvivorDashboardIcon/SurvivorDashboardIcon";
 
 const SurvivorDashboard: FC = async () => {
   const selectedWeek = await getSelectedWeek();
@@ -77,19 +75,17 @@ const SurvivorDashboard: FC = async () => {
             ) : (
               <div className="text-danger">You have not submitted your survivor pick yet!</div>
             )
-          ) : (
-            <></>
-          )}
+          ) : null}
           {mySurvivorMv && (
             <ProgressBarLink
+              className={cn("block underline", (!isAliveInSurvivor || mySurvivorPickForWeek) && "md:mb-5")}
               href="/survivor/view"
-              className={cn("block", (!isAliveInSurvivor || mySurvivorPickForWeek) && "md:mb-5")}
             >
               View Details
             </ProgressBarLink>
           )}
           {isAliveInSurvivor && !mySurvivorPickForWeek && (
-            <ProgressBarLink href="/survivor/set" className={cn("block mb-4")}>
+            <ProgressBarLink className={cn("block mb-4 underline")} href="/survivor/set">
               Click here to make your pick
             </ProgressBarLink>
           )}

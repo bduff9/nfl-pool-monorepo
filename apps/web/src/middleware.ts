@@ -8,10 +8,10 @@ export const middleware = (request: NextRequest): NextResponse => {
 
     if (token !== null) {
       response.cookies.set("session", token, {
-        path: "/",
-        maxAge: 60 * 60 * 24 * 30,
-        sameSite: "lax",
         httpOnly: true,
+        maxAge: 60 * 60 * 24 * 30,
+        path: "/",
+        sameSite: "lax",
         secure: process.env.NODE_ENV === "production",
       });
     }

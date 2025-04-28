@@ -4,7 +4,7 @@ import "client-only";
 import { motion } from "framer-motion";
 import type { FC } from "react";
 
-import { useCountdown } from "@/lib/hooks";
+import { useCountdown } from "@/lib/hooks/useCountdown";
 
 type WeeklyDashboardCountdownProps = {
   weekStart: Date;

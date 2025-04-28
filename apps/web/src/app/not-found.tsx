@@ -13,19 +13,17 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-import { promises as fs } from "node:fs";
-import path from "node:path";
-
-import { cn } from "@nfl-pool-monorepo/utils/styles";
-import Image from "next/image";
-import type { FC } from "react";
-
-import CustomHead from "../components/CustomHead/CustomHead";
 
 import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import Write404Log from "@/components/Write404Log/Write404Log";
 import { getRandomInteger } from "@/lib/numbers";
 import { getCurrentSession } from "@/server/loaders/sessions";
+import { cn } from "@nfl-pool-monorepo/utils/styles";
+import Image from "next/image";
+import { promises as fs } from "node:fs";
+import path from "node:path";
+import type { FC } from "react";
+import CustomHead from "../components/CustomHead/CustomHead";
 
 const NotFound: FC = async () => {
   const { user } = await getCurrentSession();
@@ -38,9 +36,9 @@ const NotFound: FC = async () => {
     <div className="flex flex-wrap">
       <CustomHead title="404" />
       <Write404Log user={user} />
-      <div className="bg-gray-100 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 mx-3 border border-dark rounded-sm text-dark px-3 pb-6 w-full md:w-1/2">
-        <h1 className="text-5xl text-center">What have you done?!</h1>
-        <div className={cn("mx-auto relative h-[50vh]")}>
+      <div className="bg-gray-100/80 text-black absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 mx-3 border border-dark rounded-sm text-dark px-3 py-6 w-full md:w-1/2">
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-center mb-6">What have you done?!</h1>
+        <div className={cn("mx-auto relative min-h-[33vh]")}>
           {!!image && (
             <Image
               alt="Okay, this part was us."
@@ -52,11 +50,11 @@ const NotFound: FC = async () => {
             />
           )}
         </div>
-        <h4 className="text-center text-2xl mb-2">
+        <h4 className="scroll-m-20 text-xl font-semibold tracking-tight text-center mb-2">
           Something has gone wrong. It might be because of you. It might be because of us. Either way, this is awkward.
         </h4>
         <div className="text-center">
-          <ProgressBarLink href="/" className="text-sky-600">
+          <ProgressBarLink className="text-sky-600 text-xl" href="/">
             Please click here to get us both out of this situation
           </ProgressBarLink>
         </div>

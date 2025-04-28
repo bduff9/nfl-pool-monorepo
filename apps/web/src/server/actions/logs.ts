@@ -3,9 +3,9 @@
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import "server-only";
 
+import type { Logs } from "@nfl-pool-monorepo/db/src";
 import type { FormState } from "@/lib/types";
 import { getCurrentSession } from "@/server/loaders/sessions";
-import type { Logs } from "@nfl-pool-monorepo/db/src";
 
 export const writeLog = async ({
   LeagueID,
@@ -18,7 +18,7 @@ export const writeLog = async ({
   LogAction: Logs["LogAction"];
   LogMessage: null | string;
   LogData: null | string;
-  userId?: number;
+  userId?: number | undefined;
 }): Promise<FormState> => {
   const { user } = await getCurrentSession();
 
@@ -36,8 +36,8 @@ export const writeLog = async ({
       LeagueID,
       LogAction,
       LogAddedBy: auditUser,
-      LogMessage,
       LogData,
+      LogMessage,
       LogUpdatedBy: auditUser,
       UserID: userId,
     })

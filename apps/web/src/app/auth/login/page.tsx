@@ -13,14 +13,11 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import "server-only";
-
-// import styles from "./page.module.scss";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import GoogleAuthButton from "@/components/GoogleAuthButton/GoogleAuthButton";
@@ -29,22 +26,12 @@ import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import TextSeparator from "@/components/TextSeparator/TextSeparator";
 import { requireLoggedOut } from "@/lib/auth";
 import type { NP } from "@/lib/types";
+import { getSystemYear } from "@nfl-pool-monorepo/db/src/queries/systemValue";
 
 const TITLE = "Login";
 
 export const metadata: Metadata = {
   title: TITLE,
-};
-
-const getSystemYear = async (): Promise<string> => {
-  const systemValue = await db
-    .selectFrom("SystemValues")
-    .select("SystemValueValue")
-    .where("SystemValueName", "=", "YearUpdated")
-    .where("SystemValueDeleted", "is", null)
-    .executeTakeFirstOrThrow();
-
-  return systemValue.SystemValueValue ?? new Date().getFullYear().toString();
 };
 
 const Login: NP = async ({ searchParams }) => {
@@ -62,19 +49,19 @@ const Login: NP = async ({ searchParams }) => {
   const hasSubmitted = (Array.isArray(submitted) ? submitted[0] : submitted) === "Y";
 
   return (
-    <div className="bg-gray-100 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-gray-800 rounded-lg p-4 shrink-0 grow w-full h-full lg:h-auto lg:w-[50%] xl:w-[33%]">
+    <div className="bg-gray-100 text-gray-800 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-gray-800 rounded-lg p-4 shrink-0 grow w-full h-full lg:h-auto lg:w-[50%] xl:w-[33%]">
       <CustomHead title={TITLE} />
       <div className="absolute -top-24 left-1/2 -translate-x-1/2 size-36">
         <Image
           alt="A football"
           className="object-contain object-center hidden lg:block"
-          priority={true}
-          src="/football.svg"
           fill
+          priority={true}
           sizes="144px"
+          src="/football.svg"
         />
       </div>
-      <h1 className="text-center text-gray-800 font-medium text-4xl mt-8">
+      <h1 className="text-center font-medium text-4xl mt-8">
         {year}
         <br />
         NFL Confidence Pool

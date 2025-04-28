@@ -1,26 +1,26 @@
 {
-  "name": "@nfl-pool-monorepo/utils",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "check-types": "tsc --noEmit",
-    "build": "tsup",
-    "lint": "biome lint ./src",
-    "format": "biome format ./src "
-  },
-  "keywords": [],
   "author": "",
-  "license": "ISC",
   "dependencies": {
     "clsx": "2.1.1",
-    "tailwind-merge": "3.0.1"
+    "tailwind-merge": "3.2.0"
   },
+  "description": "",
   "devDependencies": {
     "@nfl-pool-monorepo/tsconfig": "*"
   },
   "exports": {
     ".": "./src",
+    "./constants": "./src/constants.ts",
     "./styles": "./src/styles.ts"
-  }
+  },
+  "keywords": [],
+  "license": "ISC",
+  "main": "index.js",
+  "name": "@nfl-pool-monorepo/utils",
+  "scripts": {
+    "build": "tsup",
+    "check-types": "tsc --noEmit",
+    "lint": "biome check ./src --write"
+  },
+  "version": "1.0.0"
 }

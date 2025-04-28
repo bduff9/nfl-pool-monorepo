@@ -10,24 +10,24 @@ export const GET = async (): Promise<Response> => {
   const cookieStore = await cookies();
 
   cookieStore.set("google_oauth_state", state, {
-    path: "/",
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
     maxAge: 60 * 10,
+    path: "/",
     sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
   });
   cookieStore.set("google_code_verifier", codeVerifier, {
-    path: "/",
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
     maxAge: 60 * 10,
+    path: "/",
     sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
   });
 
   return new Response(null, {
-    status: 302,
     headers: {
       Location: url.toString(),
     },
+    status: 302,
   });
 };

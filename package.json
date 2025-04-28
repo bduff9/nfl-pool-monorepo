@@ -1,9 +1,21 @@
 {
-  "name": "nfl-pool-monorepo",
-  "version": "1.0.0",
-  "private": true,
+  "author": "",
+  "dependencies": {
+    "turbo": "2.5.0"
+  },
   "description": "",
+  "devDependencies": {
+    "@biomejs/biome": "2.0.0-beta.1",
+    "postcss": "8.5.3",
+    "typescript": "5.8.3",
+    "typesync": "0.14.3"
+  },
+  "keywords": [],
+  "license": "ISC",
   "main": "index.js",
+  "name": "nfl-pool-monorepo",
+  "packageManager": "npm@11.3.0",
+  "private": true,
   "scripts": {
     "add-shadcn-component": "turbo run add-shadcn-component -- --",
     "build": "turbo build",
@@ -15,21 +27,9 @@
     "lint:fix": "turbo lint --continue -- --apply",
     "setup": "typesync && npm i && npm prune"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "turbo": "2.4.2"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "1.9.4",
-    "postcss": "8.5.2",
-    "typescript": "5.7.3",
-    "typesync": "0.14.1"
-  },
+  "version": "1.0.0",
   "workspaces": [
     "apps/*",
     "packages/*"
-  ],
-  "packageManager": "npm@10.9.2"
+  ]
 }

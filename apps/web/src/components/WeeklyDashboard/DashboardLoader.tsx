@@ -13,46 +13,36 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-import clsx from 'clsx';
-import type { FC } from 'react';
-import Skeleton from 'react-loading-skeleton';
 
-import ProgressChartLoader from '../ProgressChart/ProgressChartLoader';
-import RankingPieChartLoader from '../RankingPieChart/RankingPieChartLoader';
+import { Skeleton } from "@nfl-pool-monorepo/ui/components/skeleton";
+import { cn } from "@nfl-pool-monorepo/utils/styles";
+import type { FC } from "react";
 
-// eslint-disable-next-line css-modules/no-unused-class
-import styles from './WeeklyDashboard.module.scss';
+import ProgressChartLoader from "../ProgressChart/ProgressChartLoader";
+import RankingPieChartLoader from "../RankingPieChart/RankingPieChartLoader";
 
 type Props = {
-	title: string;
+  title: string;
 };
 
 const DashboardLoader: FC<Props> = ({ title }) => {
-	return (
-		<div
-			className={clsx(
-				'col-md-4',
-				'text-center',
-				'mb-3',
-				'mb-md-0',
-				styles['weekly-dashboard'],
-			)}
-		>
-			<h2 className="mb-0">{title}</h2>
-			{/* View Details link */}
-			<div className="mb-3" style={{ marginTop: '42px' }}>
-				<Skeleton height={18} width={87} />
-			</div>
-			{/* Pie Chart */}
-			<RankingPieChartLoader />
-			{/* H2 */}
-			<Skeleton className="mt-5 h2" height={36} width={250} />
-			{/* Points Bar */}
-			<ProgressChartLoader />
-			{/* Games Bar */}
-			<ProgressChartLoader />
-		</div>
-	);
+  return (
+    <div className={cn("md:w-1/3 text-center mb-3 md:mb-0 border-b border-gray-500 md:border-none")}>
+      <h2 className="mb-0">{title}</h2>
+      {/* View Details link */}
+      <div className="mb-3 mt-[42px]">
+        <Skeleton className="h-[18px] w-[87px] bg-gray-300" />
+      </div>
+      {/* Pie Chart */}
+      <RankingPieChartLoader />
+      {/* H2 */}
+      <Skeleton className="mt-5 h-9 w-[250px] bg-gray-300" />
+      {/* Points Bar */}
+      <ProgressChartLoader />
+      {/* Games Bar */}
+      <ProgressChartLoader />
+    </div>
+  );
 };
 
 export default DashboardLoader;

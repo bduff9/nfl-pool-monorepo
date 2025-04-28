@@ -1,33 +1,35 @@
+import type { ReactNode } from "react";
 import type { FieldValues, SubmitErrorHandler } from "react-hook-form";
 import { toast } from "sonner";
-import type { ZodType, ZodTypeDef } from "zod";
-import type { TAnyZodSafeFunctionHandler, inferServerActionReturnType } from "zsa";
+import type { z, ZodType, ZodTypeDef } from "zod";
+import type { inferServerActionReturnType, TAnyZodSafeFunctionHandler, ZSAError } from "zsa";
+import type { serverActionResultSchema } from "./zod";
 
-export type FormZSA = TAnyZodSafeFunctionHandler<
-  // biome-ignore lint/suspicious/noExplicitAny: We don't know the type of the FormZSA
-  ZodType<any, ZodTypeDef, any>,
-  // biome-ignore lint/suspicious/noExplicitAny: We don't know the type of the FormZSA
-  any
+// biome-ignore lint/suspicious/noExplicitAny: We need to support any ZSA function
+export type FormZSA<TInput extends ZodType<any, ZodTypeDef, any> = ZodType<any, ZodTypeDef, any>, TOutput extends ZodType<any, ZodTypeDef, any> = typeof serverActionResultSchema> = TAnyZodSafeFunctionHandler<
+  TInput,
+  TOutput,
+  Promise<z.infer<TOutput>>,
+  ZSAError<TInput, TOutput>
 >;
 
 export const processFormState = (
   result: inferServerActionReturnType<
-    // biome-ignore lint/suspicious/noExplicitAny: We don't know the type of the FormZSA
-    TAnyZodSafeFunctionHandler<ZodType<any, ZodTypeDef, any>, any>
+    FormZSA
   >,
   redirect?: () => void,
-  successMessage = "Success!",
+  successMessage?: ReactNode,
 ): void => {
   const [data, error] = result;
 
-  if (error || data?.status === "Error") {
+  if (error) {
     if (error?.name === "ZodError") {
       toast.error("Something went wrong!", {
         description: "Please check the information you are submitting.",
       });
     } else {
       toast.error("Something went wrong!", {
-        description: data?.error || error?.data || "Please check the information you are submitting.",
+        description: error?.data ? `${error.data}` : "Please check the information you are submitting.",
       });
     }
 
@@ -35,9 +37,11 @@ export const processFormState = (
   }
 
   if (data.status === "Success") {
-    toast.success(successMessage, {
-      description: `${new Date().toTimeString()}`,
-    });
+    if (successMessage) {
+      toast.success(successMessage, {
+        description: `${new Date().toTimeString()}`,
+      });
+    }
 
     redirect?.();
   }

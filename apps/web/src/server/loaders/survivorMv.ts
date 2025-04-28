@@ -3,7 +3,7 @@ import { sql } from "kysely";
 import { cache } from "react";
 import "server-only";
 
-import { WEEKS_IN_SEASON } from "@/lib/constants";
+import { WEEKS_IN_SEASON } from "@nfl-pool-monorepo/utils/constants";
 import { getCurrentSession } from "./sessions";
 
 export const getMySurvivorMv = cache(async () => {
@@ -35,9 +35,9 @@ export const getMySurvivorMv = cache(async () => {
     return {
       ...mySurvivorMV,
       lastPickTeam: {
-        TeamName,
         TeamCity,
         TeamLogo,
+        TeamName,
       },
     };
   }
@@ -63,9 +63,9 @@ export const getSurvivorOverallCounts = cache(async () => {
 
   return (
     result ?? {
-      overallCount: 0,
       aliveCount: 0,
       deadCount: 0,
+      overallCount: 0,
     }
   );
 });
@@ -124,9 +124,9 @@ export const getSurvivorWeeklyCounts = cache(async (week: number) => {
 
   return (
     result ?? {
-      overallCount: 0,
       aliveCount: 0,
       deadCount: 0,
+      overallCount: 0,
       waitingCount: 0,
     }
   );

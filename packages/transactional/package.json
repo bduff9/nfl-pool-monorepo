@@ -1,0 +1,31 @@
+{
+  "dependencies": {
+    "@aws-sdk/client-ses": "3.797.0",
+    "@nfl-pool-monorepo/db": "*",
+    "@nfl-pool-monorepo/utils": "*",
+    "@react-email/components": "0.0.36",
+    "@t3-oss/env-core": "0.13.0",
+    "arktype": "2.1.20",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-email": "4.0.7",
+    "tailwindcss": "4.1.4",
+    "twilio": "5.5.2"
+  },
+  "devDependencies": {
+    "@nfl-pool-monorepo/tsconfig": "*",
+    "@tailwindcss/postcss": "4.1.4",
+    "@types/node": "22.15.2",
+    "@types/react": "19.1.2",
+    "@types/react-dom": "19.1.2",
+    "postcss": "8.5.3",
+    "typescript": "5.8.3"
+  },
+  "name": "@nfl-pool-monorepo/transactional",
+  "private": true,
+  "scripts": {
+    "dev": "cp .env ../../node_modules/react-email/dist/preview && email dev --dir emails/templates",
+    "lint": "biome check . --write"
+  },
+  "version": "0.1.0"
+}

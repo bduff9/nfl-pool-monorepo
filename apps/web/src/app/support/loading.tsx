@@ -13,9 +13,9 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-import { getRandomInteger } from "@/lib/numbers";
+
+import { Skeleton } from "@nfl-pool-monorepo/ui/components/skeleton";
 import type { FC } from "react";
-import Skeleton from "react-loading-skeleton";
 
 const SupportLoader: FC = async () => {
   return (
@@ -29,10 +29,10 @@ const SupportLoader: FC = async () => {
         </h2>
         <hr />
         <ol>
-          {new Array(10).fill(0).map((_, i) => (
+          {Array.from({ length: 10 }).map((_, i) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: Index is only key we have available
             <li className="mb-3" key={i}>
-              <Skeleton count={getRandomInteger(1, 5)} />
+              <Skeleton className="h-6 w-96 bg-gray-300" />
             </li>
           ))}
         </ol>
@@ -41,15 +41,15 @@ const SupportLoader: FC = async () => {
         </h2>
         <hr />
         <h3>
-          <Skeleton />
+          <Skeleton className="h-6 w-96 bg-gray-300" />
         </h3>
-        {new Array(3).fill(0).map((_, i) => (
+        {Array.from({ length: 3 }).map((_, i) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: Index is only key we have available
-          <details className="text-success ms-7 mb-3" key={`faq-${i}`}>
-            <summary className="text-dark ms-n5">
-              <Skeleton />
+          <details className="text-green-600 ms-7 mb-3" key={`faq-${i}`}>
+            <summary className="text-black -ms-5">
+              <Skeleton className="h-6 w-96 bg-gray-300" />
             </summary>
-            <Skeleton />
+            <Skeleton className="h-6 w-96 bg-gray-300" />
           </details>
         ))}
         <h2 className="text-center mb-0" id="contact">
@@ -57,12 +57,12 @@ const SupportLoader: FC = async () => {
         </h2>
         <hr />
         <div className="text-center">
-          <Skeleton />
+          <Skeleton className="h-6 w-96 bg-gray-300" />
           <br />
           <br />
-          <Skeleton />
+          <Skeleton className="h-6 w-96 bg-gray-300" />
           <br />
-          <Skeleton />
+          <Skeleton className="h-6 w-96 bg-gray-300" />
           <br />
           <br />
         </div>
@@ -71,5 +71,4 @@ const SupportLoader: FC = async () => {
   );
 };
 
-// ts-prune-ignore-next
 export default SupportLoader;

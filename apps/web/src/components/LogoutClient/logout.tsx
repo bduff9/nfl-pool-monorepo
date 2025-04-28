@@ -21,10 +21,10 @@ const LogoutClient: FC = () => {
     <h1 className="text-white text-6xl -translate-y-1/2 mt-[50%]">
       <Image
         alt="Spinning football loader"
+        className="max-w-full mx-auto"
         height={200}
         src="/spinningfootball.gif"
         width={200}
-        className="max-w-full mx-auto"
       />
       <div className="mt-4">Logging out...</div>
     </h1>
