@@ -1,56 +1,36 @@
 {
-	"$schema": "https://turbo.build/schema.json",
-	"globalDependencies": [
-		"**/.env.*local"
-	],
-	"tasks": {
-		"topo": {
-			"dependsOn": [
-				"^topo"
-			]
-		},
-		"build": {
-			"dependsOn": [
-				"^build"
-			],
-			"outputs": [
-				"dist/**",
-				".next/**",
-				"!.next/cache/**"
-			]
-		},
-		"lint": {
-			"dependsOn": [
-				"^topo"
-			]
-		},
-		"format": {
-			"dependsOn": [
-				"^topo"
-			]
-		},
-		"lint:fix": {
-			"dependsOn": [
-				"^topo"
-			]
-		},
-		"format:fix": {
-			"dependsOn": [
-				"^topo"
-			]
-		},
-		"check-types": {},
-		"dev": {
-			"cache": false,
-			"persistent": true
-		},
-		"add-shadcn-component": {
-			"dependsOn": [
-				"^topo"
-			]
-		},
-		"clean": {
-			"cache": false
-		}
-	}
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["**/.env.*local"],
+  "tasks": {
+    "add-shadcn-component": {
+      "dependsOn": ["^topo"]
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["apps/web/.next/**", "!apps/web/.next/cache/**", "apps/cron/cdk.out/**"]
+    },
+    "check-types": {},
+    "clean": {
+      "cache": false
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "format": {
+      "dependsOn": ["^topo"]
+    },
+    "format:fix": {
+      "dependsOn": ["^topo"]
+    },
+    "lint": {
+      "dependsOn": ["^topo"]
+    },
+    "lint:fix": {
+      "dependsOn": ["^topo"]
+    },
+    "topo": {
+      "dependsOn": ["^topo"]
+    }
+  }
 }

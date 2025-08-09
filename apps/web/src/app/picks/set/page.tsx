@@ -13,64 +13,55 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-import CustomHead from '@/components/CustomHead/CustomHead';
-import MakePicksClient from '@/components/MakePicksClient/MakePicksClient';
-import { requireRegistered } from '@/lib/auth';
-import type { NP } from '@/lib/types';
-import { getMyWeeklyPicks } from '@/server/loaders/pick';
-import { getMyTiebreaker } from '@/server/loaders/tiebreaker';
-import { getSelectedWeek } from '@/server/loaders/week';
-import { cn } from '@nfl-pool-monorepo/utils/styles';
-import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
-import 'server-only';
 
-const TITLE = 'Make Weekly Picks';
+import { cn } from "@nfl-pool-monorepo/utils/styles";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+
+import CustomHead from "@/components/CustomHead/CustomHead";
+import MakePicksClient from "@/components/MakePicksClient/MakePicksClient";
+import { requireRegistered } from "@/lib/auth";
+import type { NP } from "@/lib/types";
+import { getMyWeeklyPicks } from "@/server/loaders/pick";
+import { getMyTiebreaker } from "@/server/loaders/tiebreaker";
+import { getSelectedWeek } from "@/server/loaders/week";
+import "server-only";
+
+const TITLE = "Make Weekly Picks";
 
 export const metadata: Metadata = {
-	title: TITLE,
+  title: TITLE,
 };
 
 const MakePicks: NP = async () => {
-	const redirectUrl = await requireRegistered();
+  const redirectUrl = await requireRegistered();
 
-	if (redirectUrl) {
-		return redirect(redirectUrl);
-	}
+  if (redirectUrl) {
+    return redirect(redirectUrl);
+  }
 
-	const selectedWeek = await getSelectedWeek();
-	const tiebreakerPromise = getMyTiebreaker(selectedWeek);
-	const myWeeklyPicksPromise = getMyWeeklyPicks(selectedWeek);
+  const selectedWeek = await getSelectedWeek();
+  const tiebreakerPromise = getMyTiebreaker(selectedWeek);
+  const myWeeklyPicksPromise = getMyWeeklyPicks(selectedWeek);
 
-	const [tiebreaker, myWeeklyPicks] = await Promise.all([
-		tiebreakerPromise,
-		myWeeklyPicksPromise,
-	]);
+  const [tiebreaker, myWeeklyPicks] = await Promise.all([tiebreakerPromise, myWeeklyPicksPromise]);
 
-	if (!tiebreaker) {
-		return redirect('/');
-	}
+  if (!tiebreaker) {
+    return redirect("/");
+  }
 
-	if (tiebreaker?.TiebreakerHasSubmitted === 1) {
-		return redirect('/picks/view');
-	}
+  if (tiebreaker?.TiebreakerHasSubmitted === 1) {
+    return redirect("/picks/view");
+  }
 
-	return (
-		<div className="h-full flex flex-col">
-			<CustomHead title={`Make week ${selectedWeek} picks`} />
-			<div
-				className={cn(
-					'bg-gray-100/80 text-black md:mx-2 pt-3 flex-1 min-h-screen pb-[70px]',
-				)}
-			>
-				<MakePicksClient
-					selectedWeek={selectedWeek}
-					tiebreaker={tiebreaker}
-					weeklyPicks={myWeeklyPicks}
-				/>
-			</div>
-		</div>
-	);
+  return (
+    <div className="h-full flex flex-col">
+      <CustomHead title={`Make week ${selectedWeek} picks`} />
+      <div className={cn("bg-gray-100/80 text-black md:mx-2 pt-3 flex-1 min-h-screen pb-[70px]")}>
+        <MakePicksClient selectedWeek={selectedWeek} tiebreaker={tiebreaker} weeklyPicks={myWeeklyPicks} />
+      </div>
+    </div>
+  );
 };
 
 export default MakePicks;

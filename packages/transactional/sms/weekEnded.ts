@@ -14,56 +14,76 @@
  * Home: https://asitewithnoname.com/
  */
 
-import type { User } from '../entity';
-import { Game } from '../entity';
-import EmailType from '../entity/EmailType';
-import { log } from '../util/logging';
+import type { Users } from "@nfl-pool-monorepo/db/src";
+import { db } from "@nfl-pool-monorepo/db/src/kysely";
+import type { Selectable } from "kysely";
 
-import { sendSMS } from '.';
+import { sendSMS } from ".";
 
-const sendWeekEndedSMS = async (user: User, week: number): Promise<void> => {
-	const { gameHomeScore, gameVisitorScore, homeTeam, visitorTeam, winnerTeam } =
-		await Game.findOneOrFail({
-			order: { gameKickoff: 'DESC' },
-			relations: ['homeTeam', 'visitorTeam', 'winnerTeam'],
-			where: { gameWeek: week },
-		});
-	const isTie = gameHomeScore === gameVisitorScore;
-	const [winnerScore, loserScore] =
-		gameHomeScore > gameVisitorScore
-			? [gameHomeScore, gameVisitorScore]
-			: [gameVisitorScore, gameHomeScore];
-	let message = `${user.userFirstName}, week ${week} has just ended with ${visitorTeam.teamCity} ${visitorTeam.teamName} @ ${homeTeam.teamCity} ${homeTeam.teamName}. `;
+const sendWeekEndedSMS = async (
+  user: Pick<Selectable<Users>, "UserPhone" | "UserFirstName">,
+  week: number,
+): Promise<void> => {
+  const homeTeam = await db
+    .selectFrom("Teams as t")
+    .innerJoin("Games as g", "g.HomeTeamID", "t.TeamID")
+    .select([
+      "g.GameHomeScore",
+      "g.GameVisitorScore",
+      "t.TeamCity",
+      "t.TeamName",
+      "t.TeamPrimaryColor",
+      "t.TeamSecondaryColor",
+    ])
+    .where("g.GameWeek", "=", week)
+    .orderBy("GameKickoff", "desc")
+    .executeTakeFirstOrThrow();
+  const visitorTeam = await db
+    .selectFrom("Teams as t")
+    .select(["t.TeamCity", "t.TeamName", "t.TeamPrimaryColor", "t.TeamSecondaryColor"])
+    .innerJoin("Games as g", "g.VisitorTeamID", "t.TeamID")
+    .where("g.GameWeek", "=", week)
+    .orderBy("GameKickoff", "desc")
+    .executeTakeFirstOrThrow();
+  const winnerTeam = await db
+    .selectFrom("Teams as t")
+    .select(["t.TeamCity", "t.TeamName", "t.TeamPrimaryColor", "t.TeamSecondaryColor"])
+    .innerJoin("Games as g", "g.WinnerTeamID", "t.TeamID")
+    .where("g.GameWeek", "=", week)
+    .orderBy("GameKickoff", "desc")
+    .executeTakeFirstOrThrow();
+  const [winnerScore, loserScore] =
+    homeTeam.GameHomeScore > homeTeam.GameVisitorScore
+      ? [homeTeam.GameHomeScore, homeTeam.GameVisitorScore]
+      : [homeTeam.GameVisitorScore, homeTeam.GameHomeScore];
+  let message = `${user.UserFirstName}, week ${week} has just ended with ${visitorTeam.TeamCity} ${visitorTeam.TeamName} @ ${homeTeam.TeamCity} ${homeTeam.TeamName}. `;
 
-	if (isTie) {
-		message += `The game ended in a tie, {{ winnerScore }} - {{ loserScore }}.`;
-	} else {
-		message += `The ${winnerTeam?.teamName} won with a score of ${winnerScore} - ${loserScore}.`;
-	}
+  if (winnerScore === loserScore) {
+    message += `The game ended in a tie, ${winnerScore} - ${loserScore}.`;
+  } else {
+    message += `The ${winnerTeam.TeamName} won with a score of ${winnerScore} - ${loserScore}.`;
+  }
 
-	try {
-		if (!user.userPhone) {
-			throw new Error('Missing phone number for user!');
-		}
+  try {
+    if (!user.UserPhone) {
+      throw new Error("Missing phone number for user!");
+    }
 
-		await sendSMS(user.userPhone, message, EmailType.weekEnded);
-	} catch (error) {
-		log.error('Failed to send week ended sms:', {
-			error,
-			gameHomeScore,
-			gameVisitorScore,
-			homeTeam,
-			isTie,
-			loserScore,
-			message,
-			type: EmailType.weekEnded,
-			user,
-			visitorTeam,
-			week,
-			winnerScore,
-			winnerTeam,
-		});
-	}
+    await sendSMS(user.UserPhone, message, "weekEnded");
+  } catch (error) {
+    console.error("Failed to send week ended sms:", {
+      error,
+      homeTeam,
+      loserScore,
+      message,
+      type: "weekEnded",
+      user,
+      visitorTeam,
+      week,
+      winnerScore,
+      winnerTeam,
+    });
+  }
 };
 
 export default sendWeekEndedSMS;

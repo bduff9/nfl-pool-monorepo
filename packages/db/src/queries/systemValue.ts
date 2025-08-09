@@ -1,7 +1,9 @@
+import { getCurrentSeasonYear } from "@nfl-pool-monorepo/utils/dates";
 import { type } from "arktype";
+import type { Transaction } from "kysely";
 import { cache } from "react";
-import "server-only";
 
+import type { DB } from "..";
 import { db } from "../kysely";
 
 export const getOverallPrizeAmounts = cache(async (): Promise<[number, number, number, number]> => {
@@ -114,9 +116,9 @@ export const getSystemYear = cache(async (): Promise<number> => {
   return Number(systemValue?.SystemValueValue ?? "0");
 });
 
-export const getWeeklyPrizeAmounts = cache(async (): Promise<[number, number, number]> => {
+export const getWeeklyPrizeAmounts = cache(async (trx?: Transaction<DB>): Promise<[number, number, number]> => {
   const defaultPrizes: [number, number, number] = [0, 0, 0];
-  const systemValue = await db
+  const systemValue = await (trx ?? db)
     .selectFrom("SystemValues")
     .select("SystemValueValue")
     .where("SystemValueName", "=", "WeeklyPrizes")
@@ -137,3 +139,14 @@ export const getWeeklyPrizeAmounts = cache(async (): Promise<[number, number, nu
 
   return prizes;
 });
+
+export const verifySeasonYearForReset = async (): Promise<null | number> => {
+  const nextSeasonYear = getCurrentSeasonYear();
+  const currentSeasonYear = await getSystemYear();
+
+  if (nextSeasonYear === currentSeasonYear + 1) {
+    return nextSeasonYear;
+  }
+
+  return null;
+};

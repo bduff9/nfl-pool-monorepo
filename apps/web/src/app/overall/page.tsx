@@ -13,185 +13,168 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-import { faTimesHexagon } from '@bduff9/pro-duotone-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import clsx from 'clsx';
-import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
-import { getServerSession } from 'next-auth';
 
-import { authOptions } from '../api/auth/[...nextauth]/authOptions';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@nfl-pool-monorepo/ui/components/table";
+import { cn } from "@nfl-pool-monorepo/utils/styles";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { LuBadgeAlert } from "react-icons/lu";
 
-import type { NP, TSessionUser } from '@/utils/types';
-import CustomHead from '@/components/CustomHead/CustomHead';
-import RankingPieChart from '@/components/RankingPieChart/RankingPieChart';
-import ProgressChart from '@/components/ProgressChart/ProgressChart';
-import { requireRegistered } from '@/utils/auth.server';
-import { getSeasonStatus } from '@/loaders/week';
+import CustomHead from "@/components/CustomHead/CustomHead";
+import { OverallDashboardResults, OverallDashboardTitle } from "@/components/OverallDashboard/OverallDashboard.client";
+import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
+import ProgressChart from "@/components/ProgressChart/ProgressChart";
+import RankingPieChart from "@/components/RankingPieChart/RankingPieChart";
+import { requireRegistered } from "@/lib/auth";
+import type { NP } from "@/lib/types";
 import {
-	getMyOverallRank,
-	getOverallMvCount,
-	getOverallMvTiedCount,
-	getOverallRankings,
-} from '@/loaders/overallMv';
-import {
-	OverallDashboardResults,
-	OverallDashboardTitle,
-} from '@/components/OverallDashboard/OverallDashboard.client';
-import { ProgressBarLink } from '@/components/ProgressBar/ProgressBar';
+  getMyOverallRank,
+  getOverallMvCount,
+  getOverallMvTiedCount,
+  getOverallRankings,
+} from "@/server/loaders/overallMv";
+import { getCurrentUser } from "@/server/loaders/user";
+import { getSeasonStatus } from "@/server/loaders/week";
 
-const TITLE = 'Overall Ranks';
+const TITLE = "Overall Ranks";
 
-// ts-prune-ignore-next
 export const metadata: Metadata = {
-	title: TITLE,
+  title: TITLE,
 };
 
 const OverallRankings: NP = async () => {
-	if (await requireRegistered()) {
-		return null;
-	}
+  const redirectUrl = await requireRegistered();
 
-	const sessionPromise = getServerSession(authOptions);
-	const seasonStatusPromise = getSeasonStatus();
-	const myOverallRankPromise = getMyOverallRank();
-	const overallTotalCountPromise = getOverallMvCount();
-	const overallTiedCountPromise = getOverallMvTiedCount();
-	const overallRankingsPromise = getOverallRankings();
+  if (redirectUrl) {
+    return redirect(redirectUrl);
+  }
 
-	const [
-		session,
-		seasonStatus,
-		myOverallRank,
-		overallTotalCount,
-		overallTiedCount,
-		overallRankings,
-	] = await Promise.all([
-		sessionPromise,
-		seasonStatusPromise,
-		myOverallRankPromise,
-		overallTotalCountPromise,
-		overallTiedCountPromise,
-		overallRankingsPromise,
-	]);
+  const seasonStatusPromise = getSeasonStatus();
+  const myOverallRankPromise = getMyOverallRank();
+  const overallTotalCountPromise = getOverallMvCount();
+  const overallTiedCountPromise = getOverallMvTiedCount();
+  const overallRankingsPromise = getOverallRankings();
+  const userPromise = getCurrentUser();
 
-	if (overallTotalCount === 0) {
-		redirect('/');
+  const [seasonStatus, myOverallRank, overallTotalCount, overallTiedCount, overallRankings, user] = await Promise.all([
+    seasonStatusPromise,
+    myOverallRankPromise,
+    overallTotalCountPromise,
+    overallTiedCountPromise,
+    overallRankingsPromise,
+    userPromise,
+  ]);
 
-		return null;
-	}
+  if (overallTotalCount === 0) {
+    return redirect("/");
+  }
 
-	const myPlace = `${myOverallRank?.Tied ? 'T' : ''}${myOverallRank?.Rank}`;
-	const me = myOverallRank?.Rank ?? 0;
-	const aheadOfMe = me - 1;
-	const behindMe = overallTotalCount - me - overallTiedCount;
+  const myPlace = `${myOverallRank?.Tied ? "T" : ""}${myOverallRank?.Rank}`;
+  const me = myOverallRank?.Rank ?? 0;
+  const aheadOfMe = me - 1;
+  const behindMe = overallTotalCount - me - overallTiedCount;
 
-	return (
-		<div className="h-100 row">
-			<CustomHead title={TITLE} />
-			<div className="content-bg text-dark my-3 mx-2 pt-0 pt-md-3 min-vh-100 pb-4 col">
-				<div className="row">
-					<div
-						className="d-none d-md-inline-block col-6 text-center"
-						style={{ height: '205px' }}
-					>
-						<OverallDashboardTitle />
-						<RankingPieChart
-							data={[
-								{
-									fill: 'var(--bs-danger)',
-									myPlace,
-									name: 'ahead of me',
-									total: overallTotalCount,
-									value: aheadOfMe,
-								},
-								{
-									fill: 'var(--bs-success)',
-									myPlace,
-									name: 'behind me',
-									total: overallTotalCount,
-									value: behindMe,
-								},
-								{
-									fill: 'var(--bs-warning)',
-									myPlace,
-									name: 'tied with me',
-									total: overallTotalCount,
-									value: overallTiedCount,
-								},
-							]}
-							layoutId="overallRankingPieChart"
-						/>
-					</div>
-					<div className="mt-4 d-block d-md-none">
-						<ProgressBarLink href="/">&laquo; Back to Dashboard</ProgressBarLink>
-					</div>
-					<div className="d-none d-md-inline-block col-6">
-						<OverallDashboardResults className="mb-4 text-center" />
-						<ProgressChart
-							correct={myOverallRank?.PointsEarned ?? 0}
-							incorrect={myOverallRank?.PointsWrong ?? 0}
-							isOver={seasonStatus === 'Complete'}
-							layoutId="overallPointsEarned"
-							max={myOverallRank?.PointsTotal ?? 0}
-							type="Points"
-						/>
-						<ProgressChart
-							correct={myOverallRank?.GamesCorrect ?? 0}
-							incorrect={myOverallRank?.GamesWrong ?? 0}
-							isOver={seasonStatus === 'Complete'}
-							layoutId="overallGamesCorrect"
-							max={myOverallRank?.GamesTotal ?? 0}
-							type="Games"
-						/>
-					</div>
-					<div className="col-12 mt-4 table-responsive text-center">
-						<table className="table table-striped table-hover">
-							<thead>
-								<tr>
-									<th scope="col">Rank</th>
-									<th scope="col">Team</th>
-									<th scope="col">Owner</th>
-									<th scope="col">Points</th>
-									<th scope="col">Games Correct</th>
-									<th scope="col">Missed Games?</th>
-								</tr>
-							</thead>
-							<tbody>
-								{overallRankings.map(row => (
-									<tr
-										className={clsx(
-											row.newUserID === (session?.user as TSessionUser)?.id &&
-												'table-warning',
-										)}
-										key={`user-rank-for-${row.newUserID}`}
-									>
-										<th scope="row">
-											{row.Tied ? 'T' : ''}
-											{row.Rank}
-										</th>
-										<td>{row.TeamName}</td>
-										<td>{row.UserName}</td>
-										<td>{row.PointsEarned}</td>
-										<td>{row.GamesCorrect}</td>
-										<td
-											className="text-danger"
-											title={`Missed games: ${row.GamesMissed}`}
-										>
-											{row.GamesMissed > 0 && (
-												<FontAwesomeIcon className="text-danger" icon={faTimesHexagon} />
-											)}
-										</td>
-									</tr>
-								))}
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-		</div>
-	);
+  return (
+    <div className="h-full flex">
+      <CustomHead title={TITLE} />
+      <div className="bg-gray-100/80 text-black my-3 mx-2 pt-0 md:pt-3 min-h-screen pb-4 flex-1">
+        <div className="flex flex-wrap">
+          <div className="hidden md:inline-block w-1/2 text-center h-[205px]">
+            <OverallDashboardTitle />
+            <RankingPieChart
+              data={[
+                {
+                  fill: "var(--color-red-700)",
+                  myPlace,
+                  name: "ahead of me",
+                  total: overallTotalCount,
+                  value: aheadOfMe,
+                },
+                {
+                  fill: "var(--color-green-700)",
+                  myPlace,
+                  name: "behind me",
+                  total: overallTotalCount,
+                  value: behindMe,
+                },
+                {
+                  fill: "var(--color-amber-600)",
+                  myPlace,
+                  name: "tied with me",
+                  total: overallTotalCount,
+                  value: overallTiedCount,
+                },
+              ]}
+              layoutId="overallRankingPieChart"
+            />
+          </div>
+          <div className="mt-4 block md:hidden">
+            <ProgressBarLink href="/">&laquo; Back to Dashboard</ProgressBarLink>
+          </div>
+          <div className="hidden md:inline-block w-1/2 px-3">
+            <OverallDashboardResults className="mb-4 text-center" />
+            <ProgressChart
+              correct={myOverallRank?.PointsEarned ?? 0}
+              incorrect={myOverallRank?.PointsWrong ?? 0}
+              isOver={seasonStatus === "Complete"}
+              layoutId="overallPointsEarned"
+              max={myOverallRank?.PointsTotal ?? 0}
+              type="Points"
+            />
+            <ProgressChart
+              correct={myOverallRank?.GamesCorrect ?? 0}
+              incorrect={myOverallRank?.GamesWrong ?? 0}
+              isOver={seasonStatus === "Complete"}
+              layoutId="overallGamesCorrect"
+              max={myOverallRank?.GamesTotal ?? 0}
+              type="Games"
+            />
+          </div>
+          <Table parentClassName="w-full mt-4 text-center">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-center text-black font-semibold" scope="col">
+                  Rank
+                </TableHead>
+                <TableHead className="text-center text-black font-semibold" scope="col">
+                  Team
+                </TableHead>
+                <TableHead className="text-center text-black font-semibold" scope="col">
+                  Owner
+                </TableHead>
+                <TableHead className="text-center text-black font-semibold" scope="col">
+                  Points
+                </TableHead>
+                <TableHead className="text-center text-black font-semibold" scope="col">
+                  Games Correct
+                </TableHead>
+                <TableHead className="text-center text-black font-semibold" scope="col">
+                  Missed Games?
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {overallRankings.map((row) => (
+                <tr className={cn(row.UserID === user.UserID && "bg-amber-300")} key={`user-rank-for-${row.UserID}`}>
+                  <TableHead className="text-center text-black font-semibold" scope="row">
+                    {row.Tied ? "T" : ""}
+                    {row.Rank}
+                  </TableHead>
+                  <TableCell>{row.TeamName}</TableCell>
+                  <TableCell>{row.UserName}</TableCell>
+                  <TableCell>{row.PointsEarned}</TableCell>
+                  <TableCell>{row.GamesCorrect}</TableCell>
+                  <TableCell title={`Missed games: ${row.GamesMissed}`}>
+                    {row.GamesMissed > 0 && <LuBadgeAlert className="text-red-700 mx-auto size-5" />}
+                  </TableCell>
+                </tr>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+    </div>
+  );
 };
 
-// ts-prune-ignore-next
 export default OverallRankings;

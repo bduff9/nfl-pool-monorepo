@@ -21,7 +21,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
 } from "@nfl-pool-monorepo/ui/components/dialog";
 import { Loader2 } from "lucide-react";
 import type { FC, ReactNode } from "react";

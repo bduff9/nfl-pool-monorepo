@@ -14,37 +14,49 @@
  * Home: https://asitewithnoname.com/
  */
 
-import type { User } from '../entity';
-import { Game } from '../entity';
-import EmailType from '../entity/EmailType';
-import { log } from '../util/logging';
+import type { Users } from "@nfl-pool-monorepo/db/src";
+import { db } from "@nfl-pool-monorepo/db/src/kysely";
+import type { Selectable } from "kysely";
 
-import { sendSMS } from '.';
+import { sendSMS } from ".";
 
-const sendWeekStartedSMS = async (user: User, week: number): Promise<void> => {
-	const { homeTeam, visitorTeam } = await Game.findOneOrFail({
-		relations: ['homeTeam', 'visitorTeam'],
-		where: { gameWeek: week, gameNumber: 1 },
-	});
-	const message = `${user.userFirstName}, week ${week} has just started with ${visitorTeam.teamCity} ${visitorTeam.teamName} @ ${homeTeam.teamCity} ${homeTeam.teamName}`;
+const sendWeekStartedSMS = async (
+  user: Pick<Selectable<Users>, "UserPhone" | "UserFirstName">,
+  week: number,
+): Promise<void> => {
+  const homeTeam = await db
+    .selectFrom("Teams as t")
+    .select(["t.TeamCity", "t.TeamName"])
+    .innerJoin("Games as g", "g.HomeTeamID", "t.TeamID")
+    .where("g.GameWeek", "=", week)
+    .where("g.GameNumber", "=", 1)
+    .executeTakeFirstOrThrow();
+  const visitorTeam = await db
+    .selectFrom("Teams as t")
+    .select(["t.TeamCity", "t.TeamName"])
+    .innerJoin("Games as g", "g.VisitorTeamID", "t.TeamID")
+    .where("g.GameWeek", "=", week)
+    .where("g.GameNumber", "=", 1)
+    .executeTakeFirstOrThrow();
+  const message = `${user.UserFirstName}, week ${week} has just started with ${visitorTeam.TeamCity} ${visitorTeam.TeamName} @ ${homeTeam.TeamCity} ${homeTeam.TeamName}`;
 
-	try {
-		if (!user.userPhone) {
-			throw new Error('Missing phone number for user!');
-		}
+  try {
+    if (!user.UserPhone) {
+      throw new Error("Missing phone number for user!");
+    }
 
-		await sendSMS(user.userPhone, message, EmailType.weekStarted);
-	} catch (error) {
-		log.error('Failed to send week started sms: ', {
-			error,
-			homeTeam,
-			message,
-			type: EmailType.weekStarted,
-			user,
-			visitorTeam,
-			week,
-		});
-	}
+    await sendSMS(user.UserPhone, message, "weekStarted");
+  } catch (error) {
+    console.error("Failed to send week started sms: ", {
+      error,
+      homeTeam,
+      message,
+      type: "weekStarted",
+      user,
+      visitorTeam,
+      week,
+    });
+  }
 };
 
 export default sendWeekStartedSMS;

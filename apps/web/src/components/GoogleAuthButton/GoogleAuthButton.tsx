@@ -1,4 +1,5 @@
 "use client";
+
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 /*******************************************************************************
  * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
@@ -39,7 +40,10 @@ const GoogleAuthButton: FC<GoogleAuthButtonProps> = ({ isLinked = false, isRegis
   return (
     <button
       aria-label={title}
-      className={cn('flex items-center gap-3 bg-google-button-blue rounded-full p-0.5 pr-4 transition-colors duration-300 hover:bg-google-button-blue-hover disabled:opacity-65', isLinked && 'pointer-events-none')}
+      className={cn(
+        "flex items-center gap-3 bg-google-button-blue rounded-full p-0.5 pr-4 transition-colors duration-300 hover:bg-google-button-blue-hover disabled:opacity-65",
+        isLinked && "pointer-events-none",
+      )}
       disabled={isLoading || isLinked}
       onClick={(): void => {
         setIsLoading(true);

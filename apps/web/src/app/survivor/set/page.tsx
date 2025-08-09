@@ -14,49 +14,64 @@
  * Home: https://asitewithnoname.com/
  */
 
-import MakeSurvivorPickClient from '@/components/MakeSurvivorPickClient/MakeSurvivorPickClient';
-import type { NP } from '@/lib/types';
-import { getGamesForWeek, getWeekInProgress } from '@/server/loaders/game';
-import { getIsAliveInSurvivor, getMySurvivorPicks } from '@/server/loaders/survivor';
-import { getTeamsOnBye } from '@/server/loaders/team';
-import { getSelectedWeek } from '@/server/loaders/week';
-import { redirect } from 'next/navigation';
-import CustomHead from '../../../components/CustomHead/CustomHead';
+import { redirect } from "next/navigation";
+
+import MakeSurvivorPickClient from "@/components/MakeSurvivorPickClient/MakeSurvivorPickClient";
+import { requireRegistered } from "@/lib/auth";
+import type { NP } from "@/lib/types";
+import { getGamesForWeekCached, getWeekInProgress } from "@/server/loaders/game";
+import { getIsAliveInSurvivor, getMySurvivorPicks } from "@/server/loaders/survivor";
+import { getTeamsOnBye } from "@/server/loaders/team";
+import { getSelectedWeek } from "@/server/loaders/week";
+
+import CustomHead from "../../../components/CustomHead/CustomHead";
 
 const SetSurvivorPage: NP = async () => {
-	const selectedWeekPromise = getSelectedWeek();
-	const isAlivePromise = getIsAliveInSurvivor();
-	const weekInProgressPromise = getWeekInProgress();
-	const survivorPicksPromise = getMySurvivorPicks();
+  const redirectUrl = await requireRegistered();
 
-	const [selectedWeek, isAlive, weekInProgress, survivorPicks] = await Promise.all([
-		selectedWeekPromise,
-		isAlivePromise,
-		weekInProgressPromise,
-		survivorPicksPromise,
-	]);
+  if (redirectUrl) {
+    return redirect(redirectUrl);
+  }
 
-	const gamesPromise = getGamesForWeek(selectedWeek);
-	const teamsOnByePromise = getTeamsOnBye(selectedWeek);
+  const selectedWeekPromise = getSelectedWeek();
+  const isAlivePromise = getIsAliveInSurvivor();
+  const weekInProgressPromise = getWeekInProgress();
+  const survivorPicksPromise = getMySurvivorPicks();
 
-	const [games, teamsOnBye] = await Promise.all([gamesPromise, teamsOnByePromise]);
+  const [selectedWeek, isAlive, weekInProgress, survivorPicks] = await Promise.all([
+    selectedWeekPromise,
+    isAlivePromise,
+    weekInProgressPromise,
+    survivorPicksPromise,
+  ]);
 
-	if (weekInProgress && selectedWeek <= weekInProgress) {
-		return redirect('/survivor/view');
-	}
+  const gamesPromise = getGamesForWeekCached(selectedWeek);
+  const teamsOnByePromise = getTeamsOnBye(selectedWeek);
 
-	if (!isAlive) {
-		return redirect('/');
-	}
+  const [games, teamsOnBye] = await Promise.all([gamesPromise, teamsOnByePromise]);
 
-	return (
-		<div className="h-full flex">
-			<CustomHead title="Make Survivor Picks" />
-			<div className="bg-gray-100/80 text-black mx-2 pt-5 md:pt-3 min-h-screen pb-4 flex-1">
-				<MakeSurvivorPickClient games={games} survivorPicks={survivorPicks} teamsOnBye={teamsOnBye} week={selectedWeek} weekInProgress={weekInProgress} />
-			</div>
-		</div>
-	);
+  if (weekInProgress && selectedWeek <= weekInProgress) {
+    return redirect("/survivor/view");
+  }
+
+  if (!isAlive) {
+    return redirect("/");
+  }
+
+  return (
+    <div className="h-full flex">
+      <CustomHead title="Make Survivor Picks" />
+      <div className="bg-gray-100/80 text-black mx-2 pt-5 md:pt-3 min-h-screen pb-4 flex-1">
+        <MakeSurvivorPickClient
+          games={games}
+          survivorPicks={survivorPicks}
+          teamsOnBye={teamsOnBye}
+          week={selectedWeek}
+          weekInProgress={weekInProgress}
+        />
+      </div>
+    </div>
+  );
 };
 
 export default SetSurvivorPage;

@@ -1,5 +1,19 @@
 "use server";
 
+import type { DB, Users } from "@nfl-pool-monorepo/db/src";
+import { db } from "@nfl-pool-monorepo/db/src/kysely";
+import { ensureUserIsInPublicLeague } from "@nfl-pool-monorepo/db/src/mutations/leagues";
+import { insertUserHistoryRecord } from "@nfl-pool-monorepo/db/src/mutations/userHistory";
+import { populateUserData } from "@nfl-pool-monorepo/db/src/mutations/users";
+import { getPoolCost } from "@nfl-pool-monorepo/db/src/queries/systemValue";
+import { sendNewUserEmail } from "@nfl-pool-monorepo/transactional/emails/newUser";
+import { sendTrustedEmail } from "@nfl-pool-monorepo/transactional/emails/trusted";
+import { sendUntrustedEmail } from "@nfl-pool-monorepo/transactional/emails/untrusted";
+import { DEFAULT_AUTO_PICKS } from "@nfl-pool-monorepo/utils/constants";
+import { type Selectable, sql, type Transaction } from "kysely";
+import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+
 import {
   createSession,
   generateSessionToken,
@@ -10,52 +24,63 @@ import {
   verifyPasswordStrength,
 } from "@/lib/auth";
 import { editProfileSchema, finishRegistrationSchema, loginSchema, serverActionResultSchema } from "@/lib/zod";
-import { authedProcedure } from "@/lib/zsa.server";
-import type { DB, Users } from "@nfl-pool-monorepo/db/src";
-import { db } from "@nfl-pool-monorepo/db/src/kysely";
-import { ensureUserIsInPublicLeague } from "@nfl-pool-monorepo/db/src/mutations/leagues";
-import { insertUserHistoryRecord } from "@nfl-pool-monorepo/db/src/mutations/userHistory";
-import { populateUserData } from "@nfl-pool-monorepo/db/src/mutations/users";
-import { getPoolCost } from "@nfl-pool-monorepo/db/src/queries/systemValue";
-import { sendNewUserEmail } from "@nfl-pool-monorepo/transactional/emails/newUser";
-import { sendUntrustedEmail } from "@nfl-pool-monorepo/transactional/emails/untrusted";
-import { DEFAULT_AUTO_PICKS } from "@nfl-pool-monorepo/utils/constants";
-import { type Selectable, sql, type Transaction } from "kysely";
-import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
+import { adminProcedure, authedProcedure } from "@/lib/zsa.server";
 import "server-only";
+
+import { z } from "zod";
 import { createServerAction, ZSAError } from "zsa";
+
 import { updateUserNotifications } from "./notification";
 
 export const editMyProfile = authedProcedure
   .input(editProfileSchema)
   .output(serverActionResultSchema)
   .handler(async ({ ctx, input }) => {
-    const { notifications, UserAutoPickStrategy, UserAutoPicksLeft, UserEmail, UserFirstName, UserLastName, UserName, UserPaymentType, UserPaymentAccount, UserTeamName } = input;
+    const {
+      notifications,
+      UserAutoPickStrategy,
+      UserAutoPicksLeft,
+      UserEmail,
+      UserFirstName,
+      UserLastName,
+      UserName,
+      UserPaymentType,
+      UserPaymentAccount,
+      UserTeamName,
+    } = input;
 
     await db.transaction().execute(async (trx) => {
-      await trx.updateTable('Users').set({
-        UserAutoPickStrategy,
-        UserAutoPicksLeft,
-        UserEmail,
-        UserFirstName,
-        UserLastName,
-        UserName,
-        UserPaymentAccount,
-        UserPaymentType,
-        UserTeamName,
-      }).where('UserID', '=', ctx.user.id).executeTakeFirstOrThrow();
+      await trx
+        .updateTable("Users")
+        .set({
+          UserAutoPickStrategy,
+          UserAutoPicksLeft,
+          UserEmail,
+          UserFirstName,
+          UserLastName,
+          UserName,
+          UserPaymentAccount,
+          UserPaymentType,
+          UserTeamName,
+        })
+        .where("UserID", "=", ctx.user.id)
+        .executeTakeFirstOrThrow();
 
       for (const notification of notifications) {
-        await trx.updateTable('Notifications').set({
-          NotificationEmail: notification.NotificationEmail,
-          NotificationEmailHoursBefore: notification.NotificationEmailHoursBefore,
-          NotificationPushNotification: notification.NotificationPushNotification,
-          NotificationPushNotificationHoursBefore: notification.NotificationPushNotificationHoursBefore,
-          NotificationSMS: notification.NotificationSMS,
-          NotificationSMSHoursBefore: notification.NotificationSMSHoursBefore,
-          NotificationType: notification.NotificationType,
-        }).where('NotificationID', '=', notification.NotificationID).where('UserID', '=', ctx.user.id).executeTakeFirstOrThrow();
+        await trx
+          .updateTable("Notifications")
+          .set({
+            NotificationEmail: notification.NotificationEmail,
+            NotificationEmailHoursBefore: notification.NotificationEmailHoursBefore,
+            NotificationPushNotification: notification.NotificationPushNotification,
+            NotificationPushNotificationHoursBefore: notification.NotificationPushNotificationHoursBefore,
+            NotificationSMS: notification.NotificationSMS,
+            NotificationSMSHoursBefore: notification.NotificationSMSHoursBefore,
+            NotificationType: notification.NotificationType,
+          })
+          .where("NotificationID", "=", notification.NotificationID)
+          .where("UserID", "=", ctx.user.id)
+          .executeTakeFirstOrThrow();
       }
     });
 
@@ -125,7 +150,11 @@ export const finishRegistration = authedProcedure
           if (referredByUser) {
             await trx
               .updateTable("Users")
-              .set({ UserDoneRegistering: 1, UserReferredBy: referredByUser.UserID, UserTrusted: 1 })
+              .set({
+                UserDoneRegistering: 1,
+                UserReferredBy: referredByUser.UserID,
+                UserTrusted: 1,
+              })
               .where("UserID", "=", ctx.user.id)
               .executeTakeFirstOrThrow();
             doneRegistering = true;
@@ -166,6 +195,7 @@ export const finishRegistration = authedProcedure
           .updateTable("Users")
           .set({
             UserAutoPicksLeft: DEFAULT_AUTO_PICKS,
+            UserDoneRegistering: doneRegistering ? 1 : 0,
             UserFirstName,
             UserLastName,
             UserName,
@@ -218,6 +248,24 @@ export const finishRegistration = authedProcedure
       },
       status: "Success",
     };
+  });
+
+export const getUserDropdown = adminProcedure
+  .output(
+    z.array(
+      z.object({
+        UserID: z.number(),
+        UserName: z.string().nullable(),
+      }),
+    ),
+  )
+  .handler(async () => {
+    return db
+      .selectFrom("Users")
+      .select(["UserID", "UserName"])
+      .where("UserTrusted", "=", 1)
+      .orderBy("UserName", "asc")
+      .execute();
   });
 
 export const login = createServerAction()
@@ -299,6 +347,70 @@ export const login = createServerAction()
     };
   });
 
+export const markUserAsTrusted = adminProcedure
+  .input(z.object({ referredByUserId: z.number(), userId: z.number() }))
+  .output(serverActionResultSchema)
+  .handler(async ({ ctx, input }) => {
+    const { userId, referredByUserId } = input;
+
+    if (userId === referredByUserId) {
+      throw new ZSAError("PRECONDITION_FAILED", "User cannot refer themselves");
+    }
+
+    try {
+      await db.transaction().execute(async (trx) => {
+        const user = await trx
+          .selectFrom("Users")
+          .select([
+            "UserID",
+            "UserEmail",
+            "UserName",
+            "UserFirstName",
+            "UserPlaysSurvivor",
+            "UserReferredByRaw",
+            "UserTeamName",
+            "UserTrusted",
+            "UserReferredBy",
+          ])
+          .where("UserID", "=", userId)
+          .executeTakeFirstOrThrow();
+
+        if (user.UserTrusted === 1 || user.UserReferredBy !== null) {
+          throw new ZSAError("PRECONDITION_FAILED", "User is already trusted");
+        }
+
+        await trx
+          .updateTable("Users")
+          .set({
+            UserDoneRegistering: 1,
+            UserReferredBy: referredByUserId,
+            UserTrusted: 1,
+            UserUpdated: new Date(),
+            UserUpdatedBy: ctx.user.email,
+          })
+          .where("UserID", "=", userId)
+          .executeTakeFirstOrThrow();
+        await registerUser(trx, user);
+        await sendTrustedEmail(user);
+      });
+    } catch (error) {
+      console.error("Failed to mark user as trusted", error);
+
+      if (error instanceof ZSAError) {
+        throw error;
+      }
+
+      throw new ZSAError("INTERNAL_SERVER_ERROR", "Failed to mark user as trusted");
+    }
+
+    revalidatePath("/admin/users");
+
+    return {
+      metadata: {},
+      status: "Success",
+    };
+  });
+
 export const register = createServerAction()
   .input(loginSchema)
   .output(serverActionResultSchema)
@@ -351,10 +463,19 @@ export const register = createServerAction()
 
       const hashedPassword = await hashPassword(password);
 
-      user = await db
+      await db
         .insertInto("Users")
-        .values({ UserAddedBy: "ADMIN", UserEmail: email, UserPasswordHash: hashedPassword, UserUpdatedBy: "ADMIN" })
-        .returning(["UserID", "UserPasswordHash", "UserDoneRegistering", "UserTrusted"])
+        .values({
+          UserAddedBy: "ADMIN",
+          UserEmail: email,
+          UserPasswordHash: hashedPassword,
+          UserUpdatedBy: "ADMIN",
+        })
+        .executeTakeFirstOrThrow();
+      user = await db
+        .selectFrom("Users")
+        .select(["UserID", "UserDoneRegistering", "UserPasswordHash", "UserTrusted"])
+        .where("UserEmail", "=", email)
         .executeTakeFirstOrThrow();
     }
 
@@ -383,7 +504,49 @@ export const register = createServerAction()
     const sessionToken = generateSessionToken();
     const session = await createSession(sessionToken, user.UserID);
 
-    setSessionTokenCookie(sessionToken, session.expiresAt);
+    await setSessionTokenCookie(sessionToken, session.expiresAt);
+
+    return {
+      metadata: {},
+      status: "Success",
+    };
+  });
+
+export const removeUserFromAdmin = adminProcedure
+  .input(
+    z.object({
+      userID: z.number(),
+    }),
+  )
+  .output(serverActionResultSchema)
+  .handler(async ({ input }) => {
+    const { userID } = input;
+
+    try {
+      await db.transaction().execute(async (trx) => {
+        const userToRemove = await trx
+          .selectFrom("Users")
+          .select(["UserEmail", "UserTrusted"])
+          .where("UserID", "=", userID)
+          .executeTakeFirstOrThrow();
+
+        if (userToRemove.UserTrusted === 1) {
+          throw new ZSAError("PRECONDITION_FAILED", "Cannot delete a trusted user");
+        }
+
+        await trx.deleteFrom("Users").where("UserID", "=", userID).executeTakeFirstOrThrow();
+      });
+    } catch (error) {
+      console.error("Failed to remove user", error);
+
+      if (error instanceof ZSAError) {
+        throw error;
+      }
+
+      throw new ZSAError("INTERNAL_SERVER_ERROR", "Failed to remove user");
+    }
+
+    revalidatePath("/admin/users");
 
     return {
       metadata: {},

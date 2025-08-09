@@ -53,11 +53,10 @@
       },
       "recommended": true,
       "style": {
-        "noDefaultExport": "off",
-        "noImplicitBoolean": "off",
-        "noNamespaceImport": "off",
-        "useNamingConvention": "off"
-      },
+							"noDefaultExport": "off",
+							"noImplicitBoolean": "off",
+							"useNamingConvention": "off"
+						},
       "suspicious": {
         "noConsole": "off",
         "noReactSpecificProps": "off"

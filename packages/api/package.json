@@ -1,0 +1,19 @@
+{
+  "author": "",
+  "dependencies": {
+    "@nfl-pool-monorepo/db": "*",
+    "@nfl-pool-monorepo/utils": "*",
+    "zod": "3.25.67"
+  },
+  "description": "",
+  "devDependencies": {
+  },
+  "keywords": [],
+  "license": "ISC",
+  "main": "index.js",
+  "name": "@nfl-pool-monorepo/api",
+  "scripts": {
+    "lint": "biome check ./src --write"
+  },
+  "version": "1.0.0"
+}

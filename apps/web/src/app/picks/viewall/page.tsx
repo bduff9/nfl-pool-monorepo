@@ -13,79 +13,71 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-import clsx from 'clsx';
-import 'server-only';
-import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
 
-import ViewAllPicksClient from './viewall.client';
+import "server-only";
 
-import type { NP } from '@/utils/types';
-import { getSelectedWeek } from '@/loaders/week';
-import { requireRegistered } from '@/utils/auth.server';
-import { getMyTiebreaker } from '@/loaders/tiebreaker';
-import CustomHead from '@/components/CustomHead/CustomHead';
-import { getWeeklyRankings } from '@/loaders/weeklyMv';
-import { getGamesForWeek } from '@/loaders/game';
-import { getAllPicksForWeek } from '@/loaders/pick';
+import { getGamesForWeek } from "@nfl-pool-monorepo/db/src/queries/game";
+import { cn } from "@nfl-pool-monorepo/utils/styles";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-const TITLE = 'View All Week Picks';
+import CustomHead from "@/components/CustomHead/CustomHead";
+import { requireRegistered } from "@/lib/auth";
+import type { NP } from "@/lib/types";
+import { getAllPicksForWeek } from "@/server/loaders/pick";
+import { getMyTiebreaker } from "@/server/loaders/tiebreaker";
+import { getSelectedWeek } from "@/server/loaders/week";
+import { getWeeklyRankings } from "@/server/loaders/weeklyMv";
 
-// ts-prune-ignore-next
+import ViewAllPicksClient from "./viewall.client";
+
+const TITLE = "View All Week Picks";
+
 export const metadata: Metadata = {
-	title: TITLE,
+  title: TITLE,
 };
 
 const ViewAllPicks: NP = async () => {
-	if (await requireRegistered()) {
-		return null;
-	}
+  const redirectUrl = await requireRegistered();
 
-	const selectedWeek = await getSelectedWeek();
-	const tiebreakerPromise = getMyTiebreaker(selectedWeek);
-	const weeklyRankingsPromise = getWeeklyRankings(selectedWeek);
-	const gamesForWeekPromise = getGamesForWeek(selectedWeek);
-	const picksForWeekPromise = getAllPicksForWeek(selectedWeek);
+  if (redirectUrl) {
+    return redirect(redirectUrl);
+  }
 
-	const [tiebreaker, weeklyRankings, gamesForWeek, picksForWeek] = await Promise.all([
-		tiebreakerPromise,
-		weeklyRankingsPromise,
-		gamesForWeekPromise,
-		picksForWeekPromise,
-	]);
+  const selectedWeek = await getSelectedWeek();
+  const tiebreakerPromise = getMyTiebreaker(selectedWeek);
+  const weeklyRankingsPromise = getWeeklyRankings(selectedWeek);
+  const gamesForWeekPromise = getGamesForWeek(selectedWeek);
+  const picksForWeekPromise = getAllPicksForWeek(selectedWeek);
 
-	if (!tiebreaker.TiebreakerHasSubmitted) {
-		return redirect('/picks/set');
-	}
+  const [tiebreaker, weeklyRankings, gamesForWeek, picksForWeek] = await Promise.all([
+    tiebreakerPromise,
+    weeklyRankingsPromise,
+    gamesForWeekPromise,
+    picksForWeekPromise,
+  ]);
 
-	if (weeklyRankings.length === 0) {
-		return redirect('/picks/view');
-	}
+  if (tiebreaker?.TiebreakerHasSubmitted !== 1) {
+    return redirect("/picks/set");
+  }
 
-	return (
-		<div className="h-100 row">
-			<CustomHead title={`View all week ${selectedWeek} picks`} />
-			<div
-				className={clsx(
-					'content-bg',
-					'text-dark',
-					'my-3',
-					'mx-2',
-					'pt-3',
-					'col',
-					'min-vh-100',
-				)}
-			>
-				<ViewAllPicksClient
-					gamesForWeek={gamesForWeek}
-					picksForWeek={picksForWeek}
-					weeklyRankings={weeklyRankings}
-					key={`view-all-for-week-${selectedWeek}`}
-				/>
-			</div>
-		</div>
-	);
+  if (weeklyRankings.length === 0) {
+    return redirect("/picks/view");
+  }
+
+  return (
+    <div className="h-full flex">
+      <CustomHead title={`View all week ${selectedWeek} picks`} />
+      <div className={cn("bg-gray-100/80 text-black my-3 mx-2 pt-3 flex-1 min-h-screen")}>
+        <ViewAllPicksClient
+          gamesForWeek={gamesForWeek}
+          key={`view-all-for-week-${selectedWeek}`}
+          picksForWeek={picksForWeek}
+          weeklyRankings={weeklyRankings}
+        />
+      </div>
+    </div>
+  );
 };
 
-// ts-prune-ignore-next
 export default ViewAllPicks;

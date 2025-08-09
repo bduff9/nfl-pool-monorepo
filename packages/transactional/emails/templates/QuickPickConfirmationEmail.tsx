@@ -1,5 +1,8 @@
-import { Button, Column, Container, Head, Html, Preview, render, Row, Section, Text } from "@react-email/components";
-import React from "react";
+import { Button, Column, Container, Head, Html, Preview, Row, Section, Text } from "@react-email/components";
+import { render } from "@react-email/render";
+// biome-ignore lint/style/useImportType: This is needed for react-email
+import * as React from "react";
+
 import { env } from "../../src/env";
 import type { Email } from "../../src/types";
 import BodyWrapper from "./_components/BodyWrapper";
@@ -7,6 +10,7 @@ import Footer from "./_components/Footer";
 import Header from "./_components/Header";
 
 type Props = {
+  children?: React.ReactNode;
   notSelectedTeam: {
     TeamCity: string;
     TeamName: string;
@@ -47,19 +51,23 @@ const QuickPickConfirmationEmail: Email<Props> = ({
           <Section>
             <Row>
               <Column className="bg-white pt-8 px-6 pb-4 rounded-b-xl">
-                <Text className="text-xl">
-                  Phew {userFirstName}!
-                </Text>
+                <Text className="text-xl">Phew {userFirstName}!</Text>
 
-                <Text className="text-lg">That was a close one! Your week {week} game 1 pick has been saved for {point} points.</Text>
+                <Text className="text-lg">
+                  That was a close one! Your week {week} game 1 pick has been saved for {point} points.
+                </Text>
 
                 <Text>You picked the:</Text>
 
-                <Text className="text-3xl font-bold" style={{ color: selectedTeam.TeamPrimaryColor }}>{selectedTeam.TeamCity} {selectedTeam.TeamName}</Text>
+                <Text className="text-3xl font-bold" style={{ color: selectedTeam.TeamPrimaryColor }}>
+                  {selectedTeam.TeamCity} {selectedTeam.TeamName}
+                </Text>
 
                 <Text>to beat the</Text>
 
-                <Text className="text-xl font-semibold" style={{ color: notSelectedTeam.TeamPrimaryColor }}>{notSelectedTeam.TeamCity} {notSelectedTeam.TeamName}</Text>
+                <Text className="text-xl font-semibold" style={{ color: notSelectedTeam.TeamPrimaryColor }}>
+                  {notSelectedTeam.TeamCity} {notSelectedTeam.TeamName}
+                </Text>
 
                 <Button
                   className="bg-green-700 text-white w-full text-center py-2.5 rounded-md"
@@ -86,14 +94,14 @@ QuickPickConfirmationEmail.PreviewProps = {
     TeamPrimaryColor: "#061E3E",
   },
   point: 2,
-  userFirstName: "John",
   selectedTeam: {
     TeamCity: "New York",
     TeamName: "Giants",
     TeamPrimaryColor: "#03497F",
   },
-  week: 3,
   unsubscribeLink: "https://example.com/unsubscribe",
+  userFirstName: "John",
+  week: 3,
 };
 
 export default QuickPickConfirmationEmail;

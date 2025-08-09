@@ -17,6 +17,7 @@ import { usePathname } from "next/navigation";
  * Home: https://asitewithnoname.com/
  */
 import type { FC } from "react";
+
 import { ProgressBarLink } from "../ProgressBar/ProgressBar";
 
 type NavLinkProps = Partial<LinkProps> & {

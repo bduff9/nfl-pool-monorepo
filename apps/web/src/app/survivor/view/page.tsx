@@ -13,308 +13,201 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-import clsx from 'clsx';
-import { GetServerSideProps } from 'next';
-import Link from 'next/link';
-import Image from 'next/image';
-import { useRouter } from 'next/router';
-import React, { VFC, useContext, useEffect } from 'react';
-import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 
-import Authenticated from '../../components/Authenticated/Authenticated';
-import CustomHead from '../../components/CustomHead/CustomHead';
-import ProgressChart from '../../components/ProgressChart/ProgressChart';
-import ProgressChartLoader from '../../components/ProgressChart/ProgressChartLoader';
-import RankingPieChartLoader from '../../components/RankingPieChart/RankingPieChartLoader';
-import SurvivorDashboardIcon from '../../components/SurvivorDashboardIcon/SurvivorDashboardIcon';
-import { SeasonStatus, WeekStatus } from '../../generated/graphql';
-import { useSurvivorDashboard } from '../../graphql/survivorDashboard';
-import { useSurvivorView } from '../../graphql/survivorView';
-import { TUser } from '../../models/User';
-import { getEmptyArray } from '../../utils/arrays';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@nfl-pool-monorepo/ui/components/table";
+import { WEEKS_IN_SEASON } from "@nfl-pool-monorepo/utils/constants";
+import { cn } from "@nfl-pool-monorepo/utils/styles";
+import Image from "next/image";
+import { redirect } from "next/navigation";
+
+import CustomHead from "@/components/CustomHead/CustomHead";
+import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
+import ProgressChart from "@/components/ProgressChart/ProgressChart";
+import SurvivorDashboardIcon from "@/components/SurvivorDashboardIcon/SurvivorDashboardIcon";
+import { requireRegistered } from "@/lib/auth";
+import type { NP } from "@/lib/types";
+import { getWeekInProgress } from "@/server/loaders/game";
+import { getIsAliveInSurvivor, getMySurvivorPickForWeek } from "@/server/loaders/survivor";
 import {
-	isSignedInSSR,
-	UNAUTHENTICATED_REDIRECT,
-	isDoneRegisteringSSR,
-	IS_NOT_DONE_REGISTERING_REDIRECT,
-} from '../../utils/auth.server';
-import { BackgroundLoadingContext, WeekContext } from '../../utils/context';
-import styles from '../../styles/survivor/view.module.scss';
-import { WEEKS_IN_SEASON } from '../../utils/constants';
-import { useSelectedWeek } from '../../graphql/sidebar';
-import { logger } from '../../utils/logging';
+  getMySurvivorMv,
+  getSurvivorOverallCounts,
+  getSurvivorRankings,
+  getSurvivorStatus,
+  getSurvivorWeeklyCounts,
+} from "@/server/loaders/survivorMv";
+import { getCurrentUser } from "@/server/loaders/user";
+import { getSelectedWeek, getWeekStatus } from "@/server/loaders/week";
 
-type ViewSurvivorProps = {
-	user: TUser;
+const ViewSurvivor: NP = async () => {
+  const redirectUrl = await requireRegistered();
+
+  if (redirectUrl) {
+    return redirect(redirectUrl);
+  }
+
+  const selectedWeek = await getSelectedWeek();
+
+  const weekStatusPromise = getWeekStatus(selectedWeek);
+  const isAliveInSurvivorPromise = getIsAliveInSurvivor();
+  const userPromise = getCurrentUser();
+  const mySurvivorMvPromise = getMySurvivorMv();
+  const mySurvivorPickForWeekPromise = getMySurvivorPickForWeek(selectedWeek);
+  const survivorStatusPromise = getSurvivorStatus();
+  const survivorOverallCountsPromise = getSurvivorOverallCounts();
+  const survivorWeeklyCountsPromise = getSurvivorWeeklyCounts(selectedWeek);
+  const weekInProgressPromise = getWeekInProgress();
+  const survivorRankingsPromise = getSurvivorRankings();
+
+  const [
+    weekStatus,
+    isAliveInSurvivor,
+    user,
+    mySurvivorMv,
+    mySurvivorPickForWeek,
+    survivorStatus,
+    survivorOverallCounts,
+    survivorWeeklyCounts,
+    weekInProgress,
+    survivorRankings,
+  ] = await Promise.all([
+    weekStatusPromise,
+    isAliveInSurvivorPromise,
+    userPromise,
+    mySurvivorMvPromise,
+    mySurvivorPickForWeekPromise,
+    survivorStatusPromise,
+    survivorOverallCountsPromise,
+    survivorWeeklyCountsPromise,
+    weekInProgressPromise,
+    survivorRankingsPromise,
+  ]);
+
+  if (survivorStatus === "Not Started") {
+    return redirect("/");
+  }
+
+  return (
+    <div className="h-full flex">
+      <CustomHead title="View Survivor Picks" />
+      <div className="bg-gray-100/80 text-black my-3 mx-2 pt-5 md:pt-3 min-h-screen pb-4 flex-1">
+        <div className="flex flex-col min-h-screen">
+          <div className="flex">
+            <div className={cn("hidden md:inline-block w-1/3 text-center h-[205px]")}>
+              <SurvivorDashboardIcon
+                isAlive={isAliveInSurvivor}
+                isPlaying={user.UserPlaysSurvivor === 1}
+                lastPick={mySurvivorMv?.lastPickTeam}
+                pickForWeek={mySurvivorPickForWeek}
+              />
+            </div>
+            <div className="mt-4 block md:hidden">
+              <ProgressBarLink href="/">&laquo; Back to Dashboard</ProgressBarLink>
+            </div>
+            <div className={cn("hidden md:inline-block w-2/3 pt-8 px-3")}>
+              <ProgressChart
+                correct={survivorWeeklyCounts.aliveCount}
+                incorrect={survivorWeeklyCounts.deadCount}
+                inProgress={survivorWeeklyCounts.waitingCount}
+                isOver={weekStatus === "Complete"}
+                layoutId="survivorWeekStatus"
+                max={survivorWeeklyCounts.overallCount}
+                type="Current Week Remaining"
+              />
+              <ProgressChart
+                correct={survivorOverallCounts.aliveCount}
+                incorrect={survivorOverallCounts.deadCount}
+                isOver={survivorStatus === "Complete"}
+                layoutId="survivorOverallStatus"
+                max={survivorOverallCounts.overallCount}
+                type="Overall Remaining"
+              />
+            </div>
+          </div>
+          <div className={cn("w-full mt-4 text-center p-0")}>
+            <Table parentClassName="max-w-[98vw] max-h-[98vh] overflow-scroll">
+              <TableHeader>
+                <TableRow className={cn("hidden md:table-row")}>
+                  <TableHead className="text-center bg-gray-50 text-black font-semibold" colSpan={99}>
+                    Week
+                  </TableHead>
+                </TableRow>
+                <TableRow>
+                  <TableHead
+                    className="bg-gray-50 text-black text-center font-semibold sticky top-0 left-0 z-[2]"
+                    scope="col"
+                  >
+                    Player
+                  </TableHead>
+                  {Array.from({ length: weekInProgress ?? WEEKS_IN_SEASON }).map((_, i) => (
+                    <TableHead
+                      className="text-black text-center font-semibold sticky z-[1] top-0 bg-gray-50"
+                      key={`header-for-week-${i + 1}`}
+                      scope="col"
+                    >
+                      <span className="hidden md:inline">{i + 1}</span>
+                      <span className="md:hidden">W{i + 1}</span>
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {survivorRankings.map((row) => (
+                  <TableRow className="h-[94px]" key={`picks-for-user-${row.UserID}`}>
+                    <TableHead
+                      className={cn(
+                        row.IsAliveOverall ? "bg-green-700" : "bg-red-700",
+                        "sticky left-0 z-[1] text-black font-semibold text-center",
+                      )}
+                      scope="row"
+                    >
+                      {row.UserName}
+                      <span className="hidden md:inline">
+                        <br />
+                        {row.TeamName}
+                      </span>
+                    </TableHead>
+                    {row.allPicks.map((pick) => (
+                      <TableCell
+                        className={cn(
+                          "",
+                          pick.TeamID === null
+                            ? "bg-red-700"
+                            : pick.WinnerTeamID && pick.WinnerTeamID === pick.TeamID
+                              ? "bg-green-700"
+                              : pick.WinnerTeamID && pick.WinnerTeamID !== pick.TeamID
+                                ? "bg-red-700"
+                                : "",
+                        )}
+                        key={`pick-for-user-${row.UserID}-week-${pick.SurvivorPickWeek}`}
+                      >
+                        {pick.TeamID ? (
+                          <Image
+                            alt={`${pick.TeamCity} ${pick.TeamName}`}
+                            className="m-auto"
+                            height={70}
+                            layout="fixed"
+                            src={`/NFLLogos/${pick.TeamLogo}`}
+                            title={`${pick.TeamCity} ${pick.TeamName}`}
+                            width={70}
+                          />
+                        ) : (
+                          <h4 className="mb-0 scroll-m-20 text-xl font-semibold tracking-tight">
+                            No
+                            <br />
+                            Pick
+                          </h4>
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
-const ViewSurvivor: VFC<ViewSurvivorProps> = ({ user }) => {
-	const router = useRouter();
-	const [selectedWeek] = useContext(WeekContext);
-	const { data, error, isValidating } = useSurvivorView();
-	const {
-		data: dashboardData,
-		error: dashboardError,
-		isValidating: dashboardIsValidating,
-	} = useSurvivorDashboard(selectedWeek);
-	const {
-		data: selectedWeekData,
-		error: selectedWeekError,
-		isValidating: selectedWeekIsValidating,
-	} = useSelectedWeek(selectedWeek);
-	const [, setBackgroundLoading] = useContext(BackgroundLoadingContext);
-
-	useEffect(() => {
-		setBackgroundLoading(
-			(!!data && isValidating) ||
-				(!!dashboardData && dashboardIsValidating) ||
-				(!!selectedWeekData && selectedWeekIsValidating),
-		);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [
-		data,
-		isValidating,
-		dashboardData,
-		dashboardIsValidating,
-		selectedWeekData,
-		selectedWeekIsValidating,
-	]);
-
-	if (error) {
-		logger.error({ text: 'Error when loading data for View Survivor', error });
-	}
-
-	if (dashboardError) {
-		logger.error({
-			text: 'Error when loading dashboard data for View Survivor',
-			dashboardError,
-		});
-	}
-
-	if (selectedWeekError) {
-		logger.error({
-			text: `Error when loading selected week ${selectedWeek}: `,
-			selectedWeekError,
-		});
-	}
-
-	if (dashboardData?.getSurvivorStatus === SeasonStatus.NotStarted) {
-		router.replace('/');
-
-		return <></>;
-	}
-
-	return (
-		<Authenticated isRegistered>
-			<CustomHead title="View Survivor Picks" />
-			<div className="content-bg text-dark my-3 mx-2 pt-5 pt-md-3 min-vh-100 pb-4 col">
-				<SkeletonTheme>
-					<div className="row min-vh-100">
-						<div
-							className={clsx(
-								'd-none',
-								'd-md-inline-block',
-								'col-4',
-								'text-center',
-								styles['logo-wrapper'],
-							)}
-						>
-							{!dashboardData ? (
-								<div className="mt-4">
-									<RankingPieChartLoader />
-								</div>
-							) : (
-								<SurvivorDashboardIcon
-									isAlive={dashboardData.getMySurvivorDashboard?.isAliveOverall}
-									isPlaying={user.hasSurvivor}
-									lastPick={dashboardData.getMySurvivorDashboard?.lastPickTeam}
-									pickForWeek={dashboardData.getMySurvivorPickForWeek?.team}
-								/>
-							)}
-						</div>
-						<div className="mt-4 d-block d-md-none">
-							<Link href="/">
-								<a>&laquo; Back to Dashboard</a>
-							</Link>
-						</div>
-						<div
-							className={clsx(
-								'd-none',
-								'd-md-inline-block',
-								'col-8',
-								styles['bar-wrapper'],
-							)}
-						>
-							{!dashboardData ? (
-								<>
-									<ProgressChartLoader />
-									<ProgressChartLoader />
-								</>
-							) : (
-								<>
-									<ProgressChart
-										correct={dashboardData.survivorAliveForWeek}
-										incorrect={dashboardData.survivorDeadForWeek}
-										inProgress={dashboardData.survivorWaitingForWeek}
-										isOver={selectedWeekData?.getWeek.weekStatus === WeekStatus.Complete}
-										layoutId="survivorWeekStatus"
-										max={dashboardData.getSurvivorWeekCount}
-										type="Current Week Remaining"
-									/>
-									<ProgressChart
-										correct={dashboardData.survivorAliveOverall}
-										incorrect={dashboardData.survivorDeadOverall}
-										isOver={dashboardData.getSurvivorStatus === SeasonStatus.Complete}
-										layoutId="survivorOverallStatus"
-										max={dashboardData.getSurvivorOverallCount}
-										type="Overall Remaining"
-									/>
-								</>
-							)}
-						</div>
-						<div
-							className={clsx(
-								'col-12',
-								'mt-4',
-								'table-responsive',
-								'text-center',
-								'p-0',
-								styles['sticky-wrapper'],
-							)}
-						>
-							<table className="table table-striped table-hover text-nowrap">
-								<thead>
-									<tr className={clsx('d-none', 'd-md-table-row', styles['nonsticky-row'])}>
-										<th className="text-center" colSpan={99}>
-											Week
-										</th>
-									</tr>
-									<tr className={styles['sticky-row']}>
-										<th scope="col">Player</th>
-										{!data
-											? getEmptyArray(WEEKS_IN_SEASON).map((_, i) => (
-												<th key={`th-skeleton-${i}`} scope="col">
-													<Skeleton width={25} />
-												</th>
-											))
-											: getEmptyArray(data.getWeekInProgress ?? WEEKS_IN_SEASON).map(
-												(_, i) => (
-													<th key={`header-for-week-${i + 1}`} scope="col">
-														<span className="d-none d-md-inline">{i + 1}</span>
-														<span className="d-md-none">W{i + 1}</span>
-													</th>
-												),
-											)}
-									</tr>
-								</thead>
-								{!data ? (
-									<tbody>
-										{getEmptyArray(20).map((_, i) => (
-											<tr key={`table-loader-${i}`}>
-												<th
-													className={clsx(styles['sticky-col'], styles['solid-bg'])}
-													scope="row"
-												>
-													<Skeleton width={120} />
-													<span className="d-none d-md-inline">
-														<br />
-														<Skeleton width={160} />
-													</span>
-												</th>
-												{getEmptyArray(WEEKS_IN_SEASON).map((_, i) => (
-													<td key={`td-skeleton-${i}`}>
-														<Skeleton height={70} width={70} />
-													</td>
-												))}
-											</tr>
-										))}
-									</tbody>
-								) : (
-									<tbody>
-										{data.getSurvivorRankings.map(row => (
-											<tr
-												className={styles['pick-row']}
-												key={`picks-for-user-${row.userID}`}
-											>
-												<th
-													className={clsx(
-														row.isAliveOverall ? 'bg-success' : 'bg-danger',
-														styles['sticky-col'],
-													)}
-													scope="row"
-												>
-													{row.userName}
-													<span className="d-none d-md-inline">
-														<br />
-														{row.teamName}
-													</span>
-												</th>
-												{row.allPicks.map(pick => (
-													<td
-														className={clsx(
-															pick.team === null
-																? 'bg-danger'
-																: pick.game.winnerTeam &&
-																  pick.game.winnerTeam.teamID === pick.team.teamID
-																	? 'bg-success'
-																	: pick.game.winnerTeam &&
-																	  pick.game.winnerTeam.teamID !== pick.team.teamID
-																		? 'bg-danger'
-																		: '',
-														)}
-														key={`pick-for-user-${row.userID}-week-${pick.survivorPickWeek}`}
-													>
-														{pick.team ? (
-															<Image
-																alt={`${pick.team.teamCity} ${pick.team.teamName}`}
-																height={70}
-																layout="fixed"
-																src={`/NFLLogos/${pick.team.teamLogo}`}
-																title={`${pick.team.teamCity} ${pick.team.teamName}`}
-																width={70}
-															/>
-														) : (
-															<h4 className="mb-0">
-																No
-																<br />
-																Pick
-															</h4>
-														)}
-													</td>
-												))}
-											</tr>
-										))}
-									</tbody>
-								)}
-							</table>
-						</div>
-					</div>
-				</SkeletonTheme>
-			</div>
-		</Authenticated>
-	);
-};
-
-ViewSurvivor.whyDidYouRender = true;
-
-// ts-prune-ignore-next
-export const getServerSideProps: GetServerSideProps = async context => {
-	const session = await isSignedInSSR(context);
-
-	if (!session) {
-		return UNAUTHENTICATED_REDIRECT;
-	}
-
-	const isDoneRegistering = isDoneRegisteringSSR(session);
-
-	if (!isDoneRegistering) {
-		return IS_NOT_DONE_REGISTERING_REDIRECT;
-	}
-
-	const { user } = session;
-
-	return { props: { user } };
-};
-
-// ts-prune-ignore-next
 export default ViewSurvivor;

@@ -1,35 +1,41 @@
-import { env } from '@/lib/env';
-import { BlobServiceClient } from '@azure/storage-blob';
-import { cache } from 'react';
-import 'server-only';
+import { ListObjectsV2Command, S3Client } from "@aws-sdk/client-s3";
+import { cache } from "react";
+
+import { env } from "@/lib/env";
+import "server-only";
 
 type Backup = {
-	backupName: string;
-	backupDate: Date;
-	backupWhen: 'AM' | 'PM';
+  backupName: string;
+  backupDate: Date;
+  backupWhen: "AM" | "PM";
 };
 
+const client = new S3Client({});
+
 export const getAdminBackups = cache(async () => {
-	const backups: Backup[] = [];
-	const blobServiceClient = BlobServiceClient.fromConnectionString(env.AzureWebJobsStorage);
-	const containerClient = blobServiceClient.getContainerClient(env.containerName);
+  const backups: Backup[] = [];
+  const listCommand = new ListObjectsV2Command({
+    Bucket: env.BACKUP_BUCKET_NAME,
+  });
 
-	for await (const blob of containerClient.listBlobsFlat()) {
-		const name = blob.name;
-		const parts = name.split('-');
+  const { Contents: blobs } = await client.send(listCommand);
 
-		parts.splice(0, 1);
+  for await (const blob of blobs ?? []) {
+    const name = blob.Key ?? "";
+    const parts = name.split("-");
 
-		const amPm = parts.splice(parts.length - 1, 1)[0]?.replace('.sql', '') as 'AM' | 'PM';
-		const date = new Date(parts.join('-'));
-		const backup: Backup = {
-			backupDate: date,
-			backupName: name,
-			backupWhen: amPm,
-		};
+    parts.splice(0, 1);
 
-		backups.push(backup);
-	}
+    const amPm = parts.splice(parts.length - 1, 1)[0]?.replace(".sql", "") as "AM" | "PM";
+    const date = new Date(parts.join("-"));
+    const backup: Backup = {
+      backupDate: date,
+      backupName: name,
+      backupWhen: amPm,
+    };
 
-	return { count: backups.length, results: backups };
+    backups.push(backup);
+  }
+
+  return { count: backups.length, results: backups };
 });

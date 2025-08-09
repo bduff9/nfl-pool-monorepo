@@ -13,14 +13,16 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
+
+import type { FC } from "react";
+
 import { formatTimeFromKickoff } from "@/lib/dates";
 import { getShortQuarter } from "@/lib/strings";
-import type { getGamesForWeek } from "@/server/loaders/game";
-import type { FC } from "react";
+import type { getGamesForWeekCached } from "@/server/loaders/game";
 
 type GameStatusDisplayProps = {
   kickoff: Date;
-  gameStatus: Awaited<ReturnType<typeof getGamesForWeek>>[number]["GameStatus"];
+  gameStatus: Awaited<ReturnType<typeof getGamesForWeekCached>>[number]["GameStatus"];
   timeLeft: string;
 };
 

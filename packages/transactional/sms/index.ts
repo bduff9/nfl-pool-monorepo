@@ -14,131 +14,125 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { db } from '@nfl-pool-monorepo/db/src/kysely';
-import type { InsertResult } from 'kysely';
-import { Twilio } from 'twilio';
+import { db } from "@nfl-pool-monorepo/db/src/kysely";
+import { Twilio } from "twilio";
 
-import type { EmailTypes } from '../emails/types';
-import { EMAIL_SUBJECT_PREFIX } from '../src/constants';
-import { env } from '../src/env';
+import type { EmailTypes } from "../emails/types";
+import { EMAIL_SUBJECT_PREFIX } from "../src/constants";
+import { env } from "../src/env";
 
 const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER } = env;
 const twilioClient = new Twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
 export const getBaseSMSClass = async ({
-	type,
-	to,
-}: { type: (typeof EmailTypes)[number]; to: string }): Promise<InsertResult | null> => {
-	try {
-		const result = await db.insertInto('Emails').values({
-			EmailCreatedAt: new Date(),
-			EmailTo: to,
-			EmailType: type,
-		}).executeTakeFirstOrThrow();
-
-		return result;
-	} catch (error) {
-		console.error("Failed to create SMS record in DB:", {
-			emailType: type,
-			error,
-			to,
-		});
-	}
-
-	return null;
+  id,
+  type,
+  to,
+}: {
+  id: string;
+  type: (typeof EmailTypes)[number];
+  to: string;
+}): Promise<void> => {
+  try {
+    await db
+      .insertInto("Emails")
+      .values({
+        EmailCreatedAt: new Date(),
+        EmailID: id,
+        EmailTo: to,
+        EmailType: type,
+      })
+      .executeTakeFirstOrThrow();
+  } catch (error) {
+    console.error("Failed to create SMS record in DB:", {
+      emailType: type,
+      error,
+      to,
+    });
+  }
 };
 
 type TwilioError = {
-	code: number;
-	details?: string;
-	moreInfo: string;
-	status: number;
+  code: number;
+  details?: string;
+  moreInfo: string;
+  status: number;
 };
 
-const isTwilioError = (obj: unknown): obj is TwilioError =>
-	typeof obj === 'object' && obj !== null && 'code' in obj;
+const isTwilioError = (obj: unknown): obj is TwilioError => typeof obj === "object" && obj !== null && "code" in obj;
 
 const disableAllSMSForUser = async (phoneNumber: string): Promise<void> => {
-	const user = await db.selectFrom('Users')
-		.select(['UserID'])
-		.where('UserPhone', '=', phoneNumber)
-		.executeTakeFirst();
+  const user = await db.selectFrom("Users").select(["UserID"]).where("UserPhone", "=", phoneNumber).executeTakeFirst();
 
-	if (!user) {
-		console.warn('No user found with number to disable SMS notifications:', phoneNumber);
-
-		return;
-	}
-
-	await db.updateTable('Notifications').set({
-		NotificationSMS: 0,
-		NotificationSMSHoursBefore: null,
-		NotificationUpdatedBy: 'System',
-	}).where('UserID', '=', user.UserID).executeTakeFirstOrThrow();
-	await db.updateTable('Users').set({
-		UserPhone: null,
-		UserUpdatedBy: 'System',
-	}).where('UserID', '=', user.UserID).executeTakeFirstOrThrow();
-};
-
-export const sendSMS = async (
-	sendTo: string,
-	message: string,
-	type: (typeof EmailTypes)[number],
-): Promise<void> => {
-	const { domain } = env;
-	const to = sendTo.startsWith('+1') ? sendTo : `+1${sendTo}`;
-	const body = `${EMAIL_SUBJECT_PREFIX}${message}\n${domain}`;
-	const newSMS = await getBaseSMSClass({
-		to,
-		type,
-	});
-
-	try {
-		await twilioClient.messages.create({
-			body,
-			from: TWILIO_PHONE_NUMBER,
-			to,
-		});
-	} catch (error) {
-		if (isTwilioError(error) && error.code === 21610) {
-			console.info(
-				'User has opted out of SMS, turning all their SMS notifications off',
-				sendTo,
-			);
-			await disableAllSMSForUser(sendTo);
-
-			return;
-		}
-
-		throw error;
-	}
-
-	updateSMSClass({
-		sms: body,
-		smsResult: newSMS,
-	});
-};
-
-export const updateSMSClass = async ({
-  smsResult,
-  sms,
-}: {
-  smsResult: InsertResult | null;
-  sms: string;
-}): Promise<void> => {
-  if (!smsResult?.insertId) {
-    console.warn("Failed to update SMS record: smsResult is null");
+  if (!user) {
+    console.warn("No user found with number to disable SMS notifications:", phoneNumber);
 
     return;
   }
 
+  await db
+    .updateTable("Notifications")
+    .set({
+      NotificationSMS: 0,
+      NotificationSMSHoursBefore: null,
+      NotificationUpdatedBy: "System",
+    })
+    .where("UserID", "=", user.UserID)
+    .executeTakeFirstOrThrow();
+  await db
+    .updateTable("Users")
+    .set({
+      UserPhone: null,
+      UserUpdatedBy: "System",
+    })
+    .where("UserID", "=", user.UserID)
+    .executeTakeFirstOrThrow();
+};
+
+export const sendSMS = async (sendTo: string, message: string, type: (typeof EmailTypes)[number]): Promise<void> => {
+  const { domain } = env;
+  const to = sendTo.startsWith("+1") ? sendTo : `+1${sendTo}`;
+  const body = `${EMAIL_SUBJECT_PREFIX}${message}\n${domain}`;
+  const id = crypto.randomUUID();
+  await getBaseSMSClass({
+    id,
+    to,
+    type,
+  });
+
   try {
-    await db.updateTable('Emails').set({
-      EmailSms: sms,
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-    }).where('EmailID', '=', smsResult.insertId as any).executeTakeFirstOrThrow();
+    await twilioClient.messages.create({
+      body,
+      from: TWILIO_PHONE_NUMBER,
+      to,
+    });
   } catch (error) {
-    console.error("Failed to update SMS record:", { error, smsResult });
+    if (isTwilioError(error) && error.code === 21610) {
+      console.info("User has opted out of SMS, turning all their SMS notifications off", sendTo);
+      await disableAllSMSForUser(sendTo);
+
+      return;
+    }
+
+    throw error;
+  }
+
+  updateSMSClass({
+    id,
+    sms: body,
+  });
+};
+
+export const updateSMSClass = async ({ id, sms }: { id: string; sms: string }): Promise<void> => {
+  try {
+    await db
+      .updateTable("Emails")
+      .set({
+        EmailSms: sms,
+      })
+      .where("EmailID", "=", id)
+      .executeTakeFirstOrThrow();
+  } catch (error) {
+    console.error("Failed to update SMS record:", { error, id });
   }
 };

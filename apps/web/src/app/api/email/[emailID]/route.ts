@@ -14,42 +14,41 @@
  * Home: https://asitewithnoname.com/
  */
 
+import { DAYS_IN_MONTH, HOURS_IN_DAY, MINUTES_IN_HOUR, SECONDS_IN_MINUTE } from "@nfl-pool-monorepo/utils/constants";
 
-import { addCustomStyling } from '@/lib/strings';
-import { getEmail } from '@/server/loaders/email';
-import { DAYS_IN_MONTH, HOURS_IN_DAY, MINUTES_IN_HOUR, SECONDS_IN_MINUTE } from '@nfl-pool-monorepo/utils/constants';
+import { addCustomStyling } from "@/lib/strings";
+import { getEmail } from "@/server/loaders/email";
 
 export const GET = async (_req: Request, { params }: { params: Promise<{ emailID: string }> }): Promise<Response> => {
-	const { emailID } = await params;
-	const cacheMaxAge =
-		6 * DAYS_IN_MONTH * HOURS_IN_DAY * MINUTES_IN_HOUR * SECONDS_IN_MINUTE; // 6 months
-	const response = new Response();
+  const { emailID } = await params;
+  const cacheMaxAge = 6 * DAYS_IN_MONTH * HOURS_IN_DAY * MINUTES_IN_HOUR * SECONDS_IN_MINUTE; // 6 months
+  const response = new Response();
 
-	response.headers.set('Cache-Control', `max-age=${cacheMaxAge}, s-maxage=${cacheMaxAge}`);
+  response.headers.set("Cache-Control", `max-age=${cacheMaxAge}, s-maxage=${cacheMaxAge}`);
 
-	try {
-		const html = await getEmail(emailID);
+  try {
+    const html = await getEmail(emailID);
 
-		if (!html) {
-			throw new Error('html content is empty');
-		}
+    if (!html) {
+      throw new Error("html content is empty");
+    }
 
-		return new Response(`${addCustomStyling(html)}`, {
-			status: 200,
-			headers: {
-				'Content-Type': 'text/html',
-				'Cache-Control': `max-age=${cacheMaxAge}, s-maxage=${cacheMaxAge}`,
-			},
-		});
-	} catch (error) {
-		console.error({ text: 'Error retrieving email:', error, emailID });
+    return new Response(`${addCustomStyling(html)}`, {
+      headers: {
+        "Cache-Control": `max-age=${cacheMaxAge}, s-maxage=${cacheMaxAge}`,
+        "Content-Type": "text/html",
+      },
+      status: 200,
+    });
+  } catch (error) {
+    console.error({ emailID, error, text: "Error retrieving email:" });
 
-		return new Response('<h1>Email not found, please try again later</h1>', {
-			status: 404,
-			headers: {
-				'Content-Type': 'text/html',
-				'Cache-Control': `max-age=${cacheMaxAge}, s-maxage=${cacheMaxAge}`,
-			},
-		});
-	}
+    return new Response("<h1>Email not found, please try again later</h1>", {
+      headers: {
+        "Cache-Control": `max-age=${cacheMaxAge}, s-maxage=${cacheMaxAge}`,
+        "Content-Type": "text/html",
+      },
+      status: 404,
+    });
+  }
 };

@@ -4,26 +4,28 @@ import { db } from "@nfl-pool-monorepo/db/src/kysely";
 
 import { EMAIL_SUBJECT_PREFIX } from "../src/constants";
 import { env } from "../src/env";
-import { EmailTypes } from "./types";
+import type { EmailTypes } from "./types";
 
 export const getBaseEmailClass = async ({
   type,
   to,
   bcc,
-}: { type: (typeof EmailTypes)[number] } & (
-  | { bcc: string[]; to?: never }
-  | { bcc?: never; to: string[] }
-)): Promise<string | null> => {
+}: { type: (typeof EmailTypes)[number] } & ({ bcc: string[]; to?: never } | { bcc?: never; to: string[] })): Promise<
+  string | null
+> => {
   const emails = bcc ?? to ?? [];
 
   try {
     const id = crypto.randomUUID();
-    await db.insertInto('Emails').values({
-      EmailID: id,
-      EmailCreatedAt: new Date(),
-      EmailTo: [...new Set(emails)].join(', '),
-      EmailType: type,
-    }).executeTakeFirstOrThrow();
+    await db
+      .insertInto("Emails")
+      .values({
+        EmailCreatedAt: new Date(),
+        EmailID: id,
+        EmailTo: [...new Set(emails)].join(", "),
+        EmailType: type,
+      })
+      .executeTakeFirstOrThrow();
 
     return id;
   } catch (error) {
@@ -37,8 +39,7 @@ export const getBaseEmailClass = async ({
   return null;
 };
 
-export const getBrowserLink = (emailId: string | null): string =>
-  emailId ? `${env.domain}/api/email/${emailId}` : "";
+export const getBrowserLink = (emailId: string | null): string => (emailId ? `${env.domain}/api/email/${emailId}` : "");
 
 export const getUnsubscribeLink = (toEmails: string[]): string =>
   `${env.domain}/api/email/unsubscribe${
@@ -108,12 +109,16 @@ export const updateEmailClass = async ({
   }
 
   try {
-    await db.updateTable('Emails').set({
-      EmailHtml: html,
-      EmailSubject: `${EMAIL_SUBJECT_PREFIX}${subject}`,
-      EmailTextOnly: text,
-      EmailUpdatedAt: new Date(),
-    }).where('EmailID', '=', emailId).executeTakeFirstOrThrow();
+    await db
+      .updateTable("Emails")
+      .set({
+        EmailHtml: html,
+        EmailSubject: `${EMAIL_SUBJECT_PREFIX}${subject}`,
+        EmailTextOnly: text,
+        EmailUpdatedAt: new Date(),
+      })
+      .where("EmailID", "=", emailId)
+      .executeTakeFirstOrThrow();
   } catch (error) {
     console.error("Failed to update email record:", { emailId, error });
   }

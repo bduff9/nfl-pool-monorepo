@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /*******************************************************************************
  * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
@@ -16,67 +16,60 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { PaymentMethod } from '@/lib/constants';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@nfl-pool-monorepo/ui/components/select';
-import { type FC, useState } from 'react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nfl-pool-monorepo/ui/components/select";
+import { type FC, useState } from "react";
+
+import { PaymentMethod } from "@/lib/constants";
 
 type PaymentSelectorProps = {
-	amount: number;
-	defaultPayment: typeof PaymentMethod[number];
+  amount: number;
+  defaultPayment: (typeof PaymentMethod)[number];
 };
 
 const PAYMENT_MESSAGE =
-	'NOTE: Please be sure to use an account tied to your name or put your name in the memo field so we correctly attribute your payment to you';
+  "NOTE: Please be sure to use an account tied to your name or put your name in the memo field so we correctly attribute your payment to you";
 
 const PaymentSelector: FC<PaymentSelectorProps> = ({ amount, defaultPayment }) => {
-	const [paymentType, setPaymentType] = useState<typeof PaymentMethod[number]>(defaultPayment);
+  const [paymentType, setPaymentType] = useState<(typeof PaymentMethod)[number]>(defaultPayment);
 
+  return (
+    <div className="mt-2 mx-3">
+      <div>How would you like to pay your balance?</div>
 
-	return (
-		<div className="mt-2 mx-3">
-			<div>How would you like to pay your balance?</div>
+      <Select onValueChange={(value) => setPaymentType(value as (typeof PaymentMethod)[number])} value={paymentType}>
+        <SelectTrigger className="dark:bg-white w-64">
+          <SelectValue placeholder="Select a payment type" />
+        </SelectTrigger>
+        <SelectContent>
+          {Object.values(PaymentMethod).map((paymentMethod) => (
+            <SelectItem key={paymentMethod} value={paymentMethod}>
+              {paymentMethod}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
-			<Select onValueChange={value => setPaymentType(value as typeof PaymentMethod[number])} value={paymentType}>
-				<SelectTrigger className="dark:bg-white w-64">
-					<SelectValue placeholder="Select a payment type" />
-				</SelectTrigger>
-				<SelectContent>
-					{Object.values(PaymentMethod).map(paymentMethod => (
-						<SelectItem key={paymentMethod} value={paymentMethod}>
-							{paymentMethod}
-						</SelectItem>
-					))}
-				</SelectContent>
-			</Select>
-
-			<div className="text-center mt-2">
-				{paymentType === 'Paypal' && (
-					<div className="font-bold text-red-500">
-						Please pay ${amount} using PayPal:{' '}
-						<a
-							href={`https://www.paypal.me/brianduffey/${amount}`}
-							rel="noopener noreferrer"
-							target="_blank"
-						>
-							paypal.me/brianduffey/{amount}
-						</a>
-					</div>
-				)}
-				{paymentType === 'Venmo' && (
-					<div className="font-bold text-red-500">
-						Please pay ${amount} using Venmo to account @brianduffey
-					</div>
-				)}
-				{paymentType === 'Zelle' && (
-					<div className="font-bold text-red-500">
-						Please pay ${amount} using your bank&apos;s Zelle service to account
-						bduff9@gmail.com
-					</div>
-				)}
-				<div className="mt-4 font-extrabold">{PAYMENT_MESSAGE}</div>
-			</div>
-		</div>
-	);
+      <div className="text-center mt-2">
+        {paymentType === "Paypal" && (
+          <div className="font-bold text-red-500">
+            Please pay ${amount} using PayPal:{" "}
+            <a href={`https://www.paypal.me/brianduffey/${amount}`} rel="noopener noreferrer" target="_blank">
+              paypal.me/brianduffey/{amount}
+            </a>
+          </div>
+        )}
+        {paymentType === "Venmo" && (
+          <div className="font-bold text-red-500">Please pay ${amount} using Venmo to account @brianduffey</div>
+        )}
+        {paymentType === "Zelle" && (
+          <div className="font-bold text-red-500">
+            Please pay ${amount} using your bank&apos;s Zelle service to account bduff9@gmail.com
+          </div>
+        )}
+        <div className="mt-4 font-extrabold">{PAYMENT_MESSAGE}</div>
+      </div>
+    </div>
+  );
 };
 
 export default PaymentSelector;

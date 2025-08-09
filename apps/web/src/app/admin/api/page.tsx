@@ -14,53 +14,53 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { DataTable } from '@nfl-pool-monorepo/ui/components/data-table';
-import { cn } from '@nfl-pool-monorepo/utils/styles';
-import { redirect } from 'next/navigation';
+import { DataTable } from "@nfl-pool-monorepo/ui/components/data-table";
+import { cn } from "@nfl-pool-monorepo/utils/styles";
+import { redirect } from "next/navigation";
 
-import { apiCallColumns } from '@/components/ApiCallsTable/ApiCallsColumns';
-import CustomHead from '@/components/CustomHead/CustomHead';
-import { requireAdmin } from '@/lib/auth';
-import type { NP } from '@/lib/types';
-import { loadAPICalls } from '@/server/loaders/apiCall';
+import { apiCallColumns } from "@/components/ApiCallsTable/ApiCallsColumns";
+import CustomHead from "@/components/CustomHead/CustomHead";
+import { requireAdmin } from "@/lib/auth";
+import type { NP } from "@/lib/types";
+import { loadAPICalls } from "@/server/loaders/apiCall";
 
 const AdminAPICalls: NP = async ({ searchParams }) => {
-	const redirectUrl = await requireAdmin();
+  const redirectUrl = await requireAdmin();
 
-	if (redirectUrl) {
-		return redirect(redirectUrl);
-	}
+  if (redirectUrl) {
+    return redirect(redirectUrl);
+  }
 
-	const { count, results } = await loadAPICalls(await searchParams);
+  const { count, results } = await loadAPICalls(await searchParams);
 
-	return (
-		<div className="h-full flex flex-col">
-			<CustomHead title="API History" />
-			<div
-				className={cn(
-					'bg-gray-100/80 text-black mx-2 pt-3 flex-1 min-h-screen',
-				)}
-			>
-				<div className="flex flex-col min-h-screen py-4 px-6">
-					<div className="w-full text-center md:text-start">
-						{count} {count === 1 ? 'API Call' : 'API Calls'}
-					</div>
-					<div className="w-full mt-3">
-						<div className="content-bg rounded table-responsive">
-							<DataTable
-								columns={apiCallColumns}
-								data={results}
-								filters={[
-									{ field: 'ApiCallWeek', placeholder: 'Filter weeks...', type: 'week' },
-								]}
-								rowCount={count}
-							/>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	);
+  return (
+    <div className="h-full flex flex-col">
+      <CustomHead title="API History" />
+      <div className={cn("bg-gray-100/80 text-black mx-2 pt-3 flex-1 min-h-screen")}>
+        <div className="flex flex-col min-h-screen py-4 px-6">
+          <div className="w-full text-center md:text-start">
+            {count} {count === 1 ? "API Call" : "API Calls"}
+          </div>
+          <div className="w-full mt-3">
+            <div className="bg-gray-100/80 rounded">
+              <DataTable
+                columns={apiCallColumns}
+                data={results}
+                filters={[
+                  {
+                    field: "ApiCallWeek",
+                    placeholder: "Filter weeks...",
+                    type: "week",
+                  },
+                ]}
+                rowCount={count}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default AdminAPICalls;

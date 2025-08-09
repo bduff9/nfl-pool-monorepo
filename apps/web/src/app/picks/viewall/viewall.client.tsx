@@ -1,4 +1,5 @@
-'use client';
+"use client";
+
 /*******************************************************************************
  * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
  * Copyright (C) 2015-present Brian Duffey
@@ -14,138 +15,136 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-import clsx from 'clsx';
-import Button from 'react-bootstrap/Button';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import Dropdown from 'react-bootstrap/Dropdown';
-import 'client-only';
-import type { FC } from 'react';
-import { useState } from 'react';
 
-import styles from './viewall.module.scss';
+import "client-only";
 
-import type { GameForWeek } from '@/actions/game';
-import { sortPicks } from '@/utils/arrays';
-import type { ViewAllPick } from '@/actions/pick';
-import type { WeeklyRank } from '@/actions/weeklyMv';
-import ViewAllModal from '@/components/ViewAllModal/ViewAllModal';
-import ViewAllTable from '@/components/ViewAllTable/ViewAllTable';
+import type { getGamesForWeek } from "@nfl-pool-monorepo/db/src/queries/game";
+import { Button } from "@nfl-pool-monorepo/ui/components/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@nfl-pool-monorepo/ui/components/dropdown-menu";
+import { cn } from "@nfl-pool-monorepo/utils/styles";
+import type { FC } from "react";
+import { useState } from "react";
+import { FaChevronDown } from "react-icons/fa";
 
-const updateGames = (games: Array<GameForWeek>) => {
-	const gamesMap = games.reduce(
-		(acc, game) => {
-			const gameID = game.GameID;
+import ViewAllModal from "@/components/ViewAllModal/ViewAllModal";
+import ViewAllTable from "@/components/ViewAllTable/ViewAllTable";
+import { sortPicks } from "@/lib/arrays";
+import type { getAllPicksForWeek } from "@/server/loaders/pick";
+import type { getWeeklyRankings } from "@/server/loaders/weeklyMv";
 
-			if (!acc[gameID]) {
-				acc[gameID] = game;
-			}
+const updateGames = (games: Awaited<ReturnType<typeof getGamesForWeek>>) => {
+  const gamesMap = games.reduce(
+    (acc, game) => {
+      const gameID = game.GameID;
 
-			return acc;
-		},
-		{} as Record<number, GameForWeek>,
-	);
+      if (!acc[gameID]) {
+        acc[gameID] = game;
+      }
 
-	return gamesMap;
+      return acc;
+    },
+    {} as Record<number, Awaited<ReturnType<typeof getGamesForWeek>>[number]>,
+  );
+
+  return gamesMap;
 };
 
 type Props = {
-	gamesForWeek: Array<GameForWeek>;
-	picksForWeek: Array<ViewAllPick>;
-	weeklyRankings: Array<WeeklyRank>;
+  gamesForWeek: Awaited<ReturnType<typeof getGamesForWeek>>;
+  picksForWeek: Awaited<ReturnType<typeof getAllPicksForWeek>>;
+  weeklyRankings: Awaited<ReturnType<typeof getWeeklyRankings>>;
 };
 
-const ViewAllPicksClient: FC<Props> = ({
-	gamesForWeek,
-	picksForWeek,
-	weeklyRankings,
-}) => {
-	const [mode, setMode] = useState<'Live Results' | 'What If'>('Live Results');
-	const [games, setGames] = useState<Record<number, GameForWeek>>(
-		updateGames(gamesForWeek),
-	);
-	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-	const [hasWhatIfBeenSet, setHasWhatIfBeenSet] = useState<boolean>(false);
+const ViewAllPicksClient: FC<Props> = ({ gamesForWeek, picksForWeek, weeklyRankings }) => {
+  const [mode, setMode] = useState<"Live Results" | "What If">("Live Results");
+  const [games, setGames] = useState<Record<number, Awaited<ReturnType<typeof getGamesForWeek>>[number]>>(
+    updateGames(gamesForWeek),
+  );
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [hasWhatIfBeenSet, setHasWhatIfBeenSet] = useState<boolean>(false);
 
-	const saveModalChanges = (customGames: Array<GameForWeek>): void => {
-		setGames(updateGames(customGames));
-		setIsModalOpen(false);
-		setHasWhatIfBeenSet(true);
-	};
+  const isLive = mode === "Live Results";
 
-	return (
-		<>
-			<div className="row min-vh-100">
-				<div className="col-12 text-center text-md-start">
-					Current Viewing Mode
-					<br />
-					<Dropdown as={ButtonGroup} className={clsx(styles['mode-button'])}>
-						<Button
-							className={clsx(
-								'px-7',
-								'text-nowrap',
-								'flex-grow-1',
-								'flex-shrink-0',
-								mode === 'What If' && styles['btn-blue'],
-							)}
-							disabled={mode === 'Live Results'}
-							onClick={() => setIsModalOpen(true)}
-							variant={mode === 'Live Results' ? 'primary' : undefined}
-						>
-							{mode}
-						</Button>
-						<Dropdown.Toggle
-							className={clsx(
-								'flex-grow-0',
-								'flex-shrink-1',
-								mode === 'What If' && styles['btn-blue'],
-							)}
-							split
-							variant={mode === 'Live Results' ? 'primary' : undefined}
-						></Dropdown.Toggle>
-						<Dropdown.Menu>
-							<Dropdown.Item
-								onClick={() => {
-									setMode('What If');
-									setIsModalOpen(true);
-								}}
-							>
-								What If
-							</Dropdown.Item>
-							<Dropdown.Item
-								onClick={() => {
-									setMode('Live Results');
-									setHasWhatIfBeenSet(false);
-									updateGames(gamesForWeek);
-								}}
-							>
-								Live Results
-							</Dropdown.Item>
-						</Dropdown.Menu>
-					</Dropdown>
-				</div>
-				<div className="col-12">
-					{mode === 'Live Results' || !hasWhatIfBeenSet ? (
-						<ViewAllTable games={games} picks={picksForWeek} ranks={weeklyRankings} />
-					) : (
-						<ViewAllTable
-							games={games}
-							picks={picksForWeek}
-							ranks={sortPicks(picksForWeek, games, weeklyRankings)}
-						/>
-					)}
-				</div>
-				{mode === 'What If' && (
-					<ViewAllModal
-						closeModal={() => setIsModalOpen(false)}
-						games={gamesForWeek}
-						isOpen={isModalOpen}
-						saveChanges={saveModalChanges}
-					/>
-				)}
-			</div>
-		</>
-	);
+  const saveModalChanges = (customGames: Awaited<ReturnType<typeof getGamesForWeek>>): void => {
+    setGames(updateGames(customGames));
+    setIsModalOpen(false);
+    setHasWhatIfBeenSet(true);
+  };
+
+  return (
+    <div className="row min-vh-100">
+      <div className="col-12 text-center text-md-start">
+        Current Viewing Mode
+        <br />
+        <div className="inline-flex rounded-md shadow-sm overflow-hidden">
+          <Button
+            className={cn(
+              "px-7 text-nowrap flex-grow flex-shrink-0 rounded-none",
+              !isLive && "dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white",
+            )}
+            disabled={isLive}
+            onClick={() => setIsModalOpen(true)}
+            variant={isLive ? "primary" : "outline"}
+          >
+            {mode}
+          </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                className={cn(
+                  "flex-grow-0 flex-shrink rounded-none border-l border-gray-300 px-2",
+                  !isLive && "dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white",
+                )}
+                variant={isLive ? "primary" : "outline"}
+              >
+                <FaChevronDown className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => {
+                  setMode("Live Results");
+                  setHasWhatIfBeenSet(false);
+                  updateGames(gamesForWeek);
+                }}
+              >
+                Live Results
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setMode("What If");
+                  setIsModalOpen(true);
+                }}
+              >
+                What If
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+      <div className="col-12">
+        {isLive || !hasWhatIfBeenSet ? (
+          <ViewAllTable games={games} picks={picksForWeek} ranks={weeklyRankings} />
+        ) : (
+          <ViewAllTable games={games} picks={picksForWeek} ranks={sortPicks(picksForWeek, games, weeklyRankings)} />
+        )}
+      </div>
+      {!isLive && (
+        <ViewAllModal
+          closeModal={setIsModalOpen}
+          games={gamesForWeek}
+          isOpen={isModalOpen}
+          saveChanges={saveModalChanges}
+        />
+      )}
+    </div>
+  );
 };
 
-// ts-prune-ignore-next
 export default ViewAllPicksClient;

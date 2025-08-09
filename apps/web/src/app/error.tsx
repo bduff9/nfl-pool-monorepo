@@ -1,10 +1,12 @@
 "use client";
 
-import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import Image from "next/image";
 import { type FC, useEffect, useState } from "react";
+
+import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
+
 import CustomHead from "../components/CustomHead/CustomHead";
 
 type Props = {
@@ -38,7 +40,9 @@ const ErrorPage: FC<Props> = ({ error, reset }) => {
     <div className="flex flex-wrap">
       <CustomHead title="Error Occurred" />
       <div className="bg-gray-100/80 text-black absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-dark rounded-sm text-dark px-3 py-6 w-full md:w-1/2">
-        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-center mb-6">Flag on the play!</h1>
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-center mb-6">
+          Flag on the play!
+        </h1>
         <div className={cn("mx-auto relative min-h-[33vh]")}>
           {!!image && (
             <Image
@@ -51,7 +55,9 @@ const ErrorPage: FC<Props> = ({ error, reset }) => {
             />
           )}
         </div>
-        <h2 className="mt-6 scroll-m-20 pb-2 text-3xl font-semibold tracking-tight transition-colors mb-2 text-center">There has been an error.</h2>
+        <h2 className="mt-6 scroll-m-20 pb-2 text-3xl font-semibold tracking-tight transition-colors mb-2 text-center">
+          There has been an error.
+        </h2>
         <div className="text-center mb-2">
           <Button className="text-sky-600 text-4xl" onClick={() => reset()} variant="link">
             Please try again

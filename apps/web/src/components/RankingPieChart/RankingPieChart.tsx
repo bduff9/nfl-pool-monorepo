@@ -1,4 +1,5 @@
 "use client";
+
 /*******************************************************************************
  * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
  * Copyright (C) 2015-present Brian Duffey
@@ -14,10 +15,13 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
+
 import { motion } from "framer-motion";
 import type { FC } from "react";
 import { useState } from "react";
 import { Pie, PieChart, ResponsiveContainer, Sector, Tooltip } from "recharts";
+import type { PieSectorDataItem } from "recharts/types/polar/Pie";
+import type { ActiveShape } from "recharts/types/util/types";
 
 type PieChartData = {
   fill: string;
@@ -40,34 +44,29 @@ type ActiveShapeProps = {
   value: number;
 };
 
-const renderActiveShape = ({
-  cx,
-  cy,
-  innerRadius,
-  outerRadius,
-  startAngle,
-  endAngle,
-  fill,
-  payload,
-}: ActiveShapeProps): JSX.Element => (
-  <g>
-    <text dy={22} fontSize="4rem" textAnchor="middle" x={cx} y={cy}>
-      {payload.myPlace}
-    </text>
-    <Sector
-      cx={cx}
-      cy={cy}
-      endAngle={endAngle}
-      fill={fill}
-      innerRadius={innerRadius}
-      outerRadius={outerRadius}
-      startAngle={startAngle}
-    />
-    <text dy={100} fontSize="1rem" textAnchor="middle" x={cx} y={cy}>
-      Out of {payload.total}
-    </text>
-  </g>
-);
+const renderActiveShape: ActiveShape<PieSectorDataItem> = (props: unknown) => {
+  const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload } = props as ActiveShapeProps;
+
+  return (
+    <g>
+      <text dy={22} fontSize="4rem" textAnchor="middle" x={cx} y={cy}>
+        {payload.myPlace}
+      </text>
+      <Sector
+        cx={cx}
+        cy={cy}
+        endAngle={endAngle}
+        fill={fill}
+        innerRadius={innerRadius}
+        outerRadius={outerRadius}
+        startAngle={startAngle}
+      />
+      <text dy={100} fontSize="1rem" textAnchor="middle" x={cx} y={cy}>
+        Out of {payload.total}
+      </text>
+    </g>
+  );
+};
 
 type RankingPieChartProps = {
   data: Array<PieChartData>;

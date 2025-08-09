@@ -1,19 +1,18 @@
 {
-  "name": "@nfl-pool-monorepo/types",
-  "version": "1.0.0",
-  "description": "",
-  "scripts": {
-    "build": "tsc",
-    "lint": "biome lint ./src",
-    "check-types": "tsc --noEmit"
-  },
-  "keywords": [],
   "author": "",
-  "license": "ISC",
+  "description": "",
   "devDependencies": {
     "@nfl-pool-monorepo/tsconfig": "*"
   },
   "exports": {
     ".": "./src/index.ts"
-  }
+  },
+  "keywords": [],
+  "license": "ISC",
+  "name": "@nfl-pool-monorepo/types",
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "lint": "biome lint ./src"
+  },
+  "version": "1.0.0"
 }

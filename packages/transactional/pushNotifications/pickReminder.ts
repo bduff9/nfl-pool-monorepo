@@ -1,5 +1,5 @@
 /*******************************************************************************
- * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
+ * NFL Confidence Pool BE - the backend implementation of an NFL confidence pool.
  * Copyright (C) 2015-present Brian Duffey
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,19 +13,25 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-@import "../../styles/variables";
+import type { Users } from "@nfl-pool-monorepo/db/src";
+import type { Selectable } from "kysely";
 
-.payment-label {
-  min-width: 2rem;
-  height: 41px;
-}
+import { sendPushNotification } from ".";
 
-.payment-total {
-  width: 60px;
-}
-
-.dots {
-  &::after {
-    content: "....................................................................................................";
+const sendPickReminderPushNotification = async (
+  user: Pick<Selectable<Users>, "UserID" | "UserFirstName">,
+  week: number,
+  hoursLeft: number,
+): Promise<void> => {
+  try {
+    await sendPushNotification(
+      user.UserID,
+      `Hurry up, ${user.UserFirstName}!  Don't lose out on points for week ${week}, act now to submit your picks! There are only ${hoursLeft} hours left!`,
+      "pickReminder",
+    );
+  } catch (_error) {
+    console.error("Failed to send pick reminder push notification");
   }
-}
+};
+
+export default sendPickReminderPushNotification;

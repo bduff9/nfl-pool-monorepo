@@ -1,5 +1,6 @@
 "use client";
 import "client-only";
+
 import Image from "next/image";
 import { type FC, useEffect } from "react";
 

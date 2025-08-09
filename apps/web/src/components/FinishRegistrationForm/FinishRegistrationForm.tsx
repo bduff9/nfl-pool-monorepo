@@ -1,4 +1,5 @@
 "use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@nfl-pool-monorepo/ui/components/form";
@@ -7,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger } from "@nfl-pool-monorepo/ui/components/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@nfl-pool-monorepo/ui/components/tooltip";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
+
 /*******************************************************************************
  * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
  * Copyright (C) 2015-present Brian Duffey
@@ -24,17 +26,19 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
  */
 import { PaymentMethod } from "@/lib/constants";
 import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
-import type { Status } from "@/lib/types";
 import { getFirstName, getFullName, getLastName } from "@/lib/user";
 import { finishRegistrationSchema } from "@/lib/zod";
 import { type FormZSA, processFormErrors, processFormState } from "@/lib/zsa";
 import type { getCurrentUser } from "@/server/loaders/user";
 import "client-only";
+
+import type { Status } from "@nfl-pool-monorepo/types";
 import { useRouter } from "next/navigation";
 import { type FC, useEffect, useState } from "react";
 import { type SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { PiFootballDuotone, PiQuestionDuotone } from "react-icons/pi";
 import type { z } from "zod";
+
 import GoogleAuthButton from "../GoogleAuthButton/GoogleAuthButton";
 
 type FinishRegistrationFormProps = {

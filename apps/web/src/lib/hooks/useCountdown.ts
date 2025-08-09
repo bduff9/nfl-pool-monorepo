@@ -1,6 +1,7 @@
-import { getTimeRemaining, getTimeRemainingString } from "@/lib/dates";
 import { MILLISECONDS_IN_SECOND, MINUTES_IN_HOUR, SECONDS_IN_MINUTE } from "@nfl-pool-monorepo/utils/constants";
 import { useEffect, useMemo, useRef, useState } from "react";
+
+import { getTimeRemaining, getTimeRemainingString } from "@/lib/dates";
 
 export const useCountdown = (countdownTo: Date): string => {
   // biome-ignore lint/correctness/useExhaustiveDependencies: No need for all deps

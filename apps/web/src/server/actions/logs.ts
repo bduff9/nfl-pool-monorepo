@@ -4,7 +4,8 @@ import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import "server-only";
 
 import type { Logs } from "@nfl-pool-monorepo/db/src";
-import type { FormState } from "@/lib/types";
+
+import type { ServerActionResult } from "@/lib/zod";
 import { getCurrentSession } from "@/server/loaders/sessions";
 
 export const writeLog = async ({
@@ -19,10 +20,8 @@ export const writeLog = async ({
   LogMessage: null | string;
   LogData: null | string;
   userId?: number | undefined;
-}): Promise<FormState> => {
+}): Promise<ServerActionResult> => {
   const { user } = await getCurrentSession();
-
-  //TODO: zod validation
 
   if (!userId) {
     userId = user?.id;
@@ -44,9 +43,7 @@ export const writeLog = async ({
     .executeTakeFirstOrThrow();
 
   return {
-    fieldErrors: {},
-    message: "",
-    status: "SUCCESS",
-    timestamp: Date.now(),
+    metadata: {},
+    status: "Success",
   };
 };

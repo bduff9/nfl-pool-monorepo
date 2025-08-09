@@ -2,7 +2,8 @@ import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { cache } from "react";
 import "server-only";
 
-import { weekSchema } from "@/lib/zod";
+import { weekSchema } from "@nfl-pool-monorepo/utils/zod";
+
 import { getCurrentSession } from "./sessions";
 
 export const getWeeklyMvCount = cache(async (week: number) => {

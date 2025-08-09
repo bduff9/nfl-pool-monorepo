@@ -14,19 +14,22 @@
  * Home: https://asitewithnoname.com/
  */
 
-import type { getGamesForWeek } from "@/server/loaders/game";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import Image from "next/image";
 import type { FC } from "react";
 import { PiFootballDuotone } from "react-icons/pi";
 
+import type { getGamesForWeekCached } from "@/server/loaders/game";
+
 type ScoreboardTeamProps = {
-  gameStatus: Awaited<ReturnType<typeof getGamesForWeek>>[number]["GameStatus"];
+  gameStatus: Awaited<ReturnType<typeof getGamesForWeekCached>>[number]["GameStatus"];
   hasPossession: boolean;
   isInRedzone: boolean;
   isWinner: boolean;
   score: number;
-  team: Awaited<ReturnType<typeof getGamesForWeek>>[number]["homeTeam"] | Awaited<ReturnType<typeof getGamesForWeek>>[number]["visitorTeam"];
+  team:
+    | Awaited<ReturnType<typeof getGamesForWeekCached>>[number]["homeTeam"]
+    | Awaited<ReturnType<typeof getGamesForWeekCached>>[number]["visitorTeam"];
 };
 
 const ScoreboardTeam: FC<ScoreboardTeamProps> = ({ gameStatus, hasPossession, isInRedzone, isWinner, score, team }) => {
@@ -39,7 +42,7 @@ const ScoreboardTeam: FC<ScoreboardTeamProps> = ({ gameStatus, hasPossession, is
       <div>
         <Image
           alt={`${team.TeamCity} ${team.TeamName}`}
-          className={cn('h-auto m-w-full', isLoser && 'grayscale')}
+          className={cn("h-auto m-w-full", isLoser && "grayscale")}
           height={70}
           src={`/NFLLogos/${team.TeamLogo}`}
           title={`${team.TeamCity} ${team.TeamName}`}
@@ -71,9 +74,7 @@ const ScoreboardTeam: FC<ScoreboardTeamProps> = ({ gameStatus, hasPossession, is
       >
         {gameStatus !== "Pregame" && (
           <>
-            {hasPossession && (
-              <PiFootballDuotone className={cn("me-2", !isInRedzone && 'text-amber-800')} />
-            )}
+            {hasPossession && <PiFootballDuotone className={cn("me-2", !isInRedzone && "text-amber-800")} />}
             {score}
           </>
         )}

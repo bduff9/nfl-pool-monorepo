@@ -1,6 +1,6 @@
 "use client";
 
-import { NuqsAdapter } from 'nuqs/adapters/next/app';
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import type { FC, ReactNode } from "react";
 import { useState } from "react";
 
@@ -18,9 +18,7 @@ const Providers: FC<Props> = ({ children }) => {
   return (
     <ProgressBar className="fixed top-0 bg-sky-600 h-2 z-1031">
       <TitleContext.Provider value={titleContext}>
-        <NuqsAdapter>
-          {children}
-        </NuqsAdapter>
+        <NuqsAdapter>{children}</NuqsAdapter>
       </TitleContext.Provider>
     </ProgressBar>
   );

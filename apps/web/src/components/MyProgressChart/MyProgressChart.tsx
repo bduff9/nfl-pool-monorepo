@@ -13,7 +13,8 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-import clsx from "clsx";
+
+import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { FC } from "react";
 
 type MyProgressChartProps = {
@@ -41,47 +42,45 @@ const MyProgressChart: FC<MyProgressChartProps> = ({
   return (
     <div>
       <div className="text-end text-muted">{max}</div>
-      <div className={clsx("progress", "mb-2", styles["custom-progress"])}>
+      <div className="mb-2 h-8 flex overflow-hidden text-xs bg-gray-50 rounded-sm">
         <div
           aria-valuemax={max}
           aria-valuemin={0}
           aria-valuenow={correct}
-          className={clsx(
-            "progress-bar",
-            !isOver && "progress-bar-striped",
-            !isOver && "progress-bar-animated",
-            styles.correct,
+          className={cn(
+            "flex flex-col justify-center items-center text-white text-center whitespace-nowrap transition-all rounded-sm  bg-green-700",
+            !isOver && "in-progress",
           )}
           role="progressbar"
           style={{ width: `${correctPercent}%` }}
         >
           {correct}
         </div>
-        <div
-          aria-valuemax={max}
-          aria-valuemin={0}
-          aria-valuenow={possible}
-          className={clsx(
-            "progress-bar",
-            !isOver && "progress-bar-striped",
-            !isOver && "progress-bar-animated",
-            styles.possible,
-          )}
-          role="progressbar"
-          style={{ width: `${possiblePercent}%` }}
-        >
-          {possible}
-        </div>
+        {possible !== correct && (
+          <div
+            aria-valuemax={max}
+            aria-valuemin={0}
+            aria-valuenow={possible}
+            className={cn(
+              "flex flex-col justify-center items-center text-white text-center whitespace-nowrap transition-all rounded-sm bg-green-300",
+              !isOver && "in-progress",
+            )}
+            role="progressbar"
+            style={{ width: `${possiblePercent}%` }}
+          >
+            {possible}
+          </div>
+        )}
       </div>
-      <div className="small d-flex justify-content-between">
+      <div className="text-xs flex justify-between pb-1">
         <div>
-          <div className={clsx(styles.correct, styles.key)}></div> {correctLabel}
+          <div className="inline-block w-4 h-4 bg-green-700"></div> {correctLabel}
         </div>
         <div>
-          <div className={clsx(styles.possible, styles.key)}></div> {possibleLabel}
+          <div className="inline-block w-4 h-4 bg-green-300"></div> {possibleLabel}
         </div>
         <div>
-          <div className={clsx(styles.max, styles.key)}></div> {maxLabel}
+          <div className="inline-block w-4 h-4 bg-gray-50"></div> {maxLabel}
         </div>
       </div>
     </div>

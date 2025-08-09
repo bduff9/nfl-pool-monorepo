@@ -2,6 +2,8 @@ import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { cache } from "react";
 import "server-only";
 
+import { isAliveInSurvivor } from "@nfl-pool-monorepo/db/src/queries/survivor";
+
 import { getCurrentSession } from "./sessions";
 
 export const getIsAliveInSurvivor = cache(async (): Promise<boolean> => {
@@ -15,26 +17,7 @@ export const getIsAliveInSurvivor = cache(async (): Promise<boolean> => {
     return false;
   }
 
-  const { count } = await db
-    .selectFrom("SurvivorMV")
-    .select(({ fn }) => [fn.countAll<number>().as("count")])
-    .executeTakeFirstOrThrow();
-
-  if (count === 0) {
-    return true;
-  }
-
-  const myRank = await db
-    .selectFrom("SurvivorMV")
-    .select("IsAliveOverall")
-    .where("UserID", "=", user.id)
-    .executeTakeFirst();
-
-  if (!myRank) {
-    return false;
-  }
-
-  return myRank.IsAliveOverall === 1;
+  return isAliveInSurvivor(user.id);
 });
 
 export const getMySurvivorPickForWeek = cache(async (week: number) => {
@@ -70,8 +53,8 @@ export const getMySurvivorPicks = cache(async () => {
 
   return db
     .selectFrom("SurvivorPicks")
-    .select(['SurvivorPickWeek', 'TeamID'])
-    .where('UserID', '=', user.id)
-    .orderBy('SurvivorPickWeek', 'asc')
+    .select(["SurvivorPickWeek", "TeamID"])
+    .where("UserID", "=", user.id)
+    .orderBy("SurvivorPickWeek", "asc")
     .execute();
 });

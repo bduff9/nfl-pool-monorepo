@@ -14,41 +14,64 @@
  * Home: https://asitewithnoname.com/
  */
 
+import {
+  getOverallPrizeAmounts,
+  getPoolCost,
+  getSurvivorCost,
+  getSurvivorPrizeAmounts,
+  getWeeklyPrizeAmounts,
+} from "@nfl-pool-monorepo/db/src/queries/systemValue";
+import { DataTable } from "@nfl-pool-monorepo/ui/components/data-table";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
-import { redirect } from 'next/navigation';
+import { redirect } from "next/navigation";
 
+import { prizeColumns } from "@/components/AdminUserPayoutTable/AdminPayoutColumns";
 import CustomHead from "@/components/CustomHead/CustomHead";
-import ManageAdminPayouts from "@/components/ManageAdminPayouts/ManageAdminPayouts";
+import ManageAdminPayments from "@/components/ManageAdminPayments/ManageAdminPayments";
 import { requireAdmin } from "@/lib/auth";
 import type { NP } from "@/lib/types";
 import { getUserPayoutsForAdmin } from "@/server/loaders/payment";
+import { getRegisteredCount, getSurvivorCount } from "@/server/loaders/user";
 
 const AdminPaymentsPage: NP = async ({ searchParams }) => {
-	const redirectUrl = await requireAdmin();
+  const redirectUrl = await requireAdmin();
 
-	if (redirectUrl) {
-		return redirect(redirectUrl);
-	}
+  if (redirectUrl) {
+    return redirect(redirectUrl);
+  }
 
-	const results = await getUserPayoutsForAdmin(await searchParams);
+  const [overallPrizes, poolCost, registeredCount, survivorCost, survivorCount, survivorPrizes, weeklyPrizes, winners] =
+    await Promise.all([
+      getOverallPrizeAmounts(),
+      getPoolCost(),
+      getRegisteredCount(),
+      getSurvivorCost(),
+      getSurvivorCount(),
+      getSurvivorPrizeAmounts(),
+      getWeeklyPrizeAmounts(),
+      getUserPayoutsForAdmin(await searchParams),
+    ]);
 
-	return (
-		<div className="h-full flex flex-col">
-			<CustomHead title="Manage Payments" />
-			<div className={cn('text-black mx-2 flex-1 min-h-screen')}>
-				{/* <ManageAdminPayments
-					overallPrizes={overallPrizes}
-					poolCost={poolCost}
-					registeredCount={registeredCount}
-					survivorCost={survivorCost}
-					survivorCount={survivorCount}
-					survivorPrizes={survivorPrizes}
-					weeklyPrizes={weeklyPrizes}
-				/> */}
-				<ManageAdminPayouts winners={results} />
-			</div>
-		</div>
-	);
+  return (
+    <div className="h-full flex flex-col">
+      <CustomHead title="Manage Payments" />
+      <div className={cn("text-black mx-2 flex-1 min-h-screen")}>
+        <ManageAdminPayments
+          overallPrizes={overallPrizes}
+          poolCost={poolCost}
+          registeredCount={registeredCount}
+          survivorCost={survivorCost}
+          survivorCount={survivorCount}
+          survivorPrizes={survivorPrizes}
+          weeklyPrizes={weeklyPrizes}
+        />
+
+        <div className="flex flex-col bg-gray-100/80 rounded-md mt-6">
+          <DataTable columns={prizeColumns} data={winners} hidePagination rowCount={winners.length} />
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default AdminPaymentsPage;

@@ -14,10 +14,12 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { getMyOverallRank, getOverallMvCount, getOverallMvTiedCount } from "@/server/loaders/overallMv";
-import { getSeasonStatus } from "@/server/loaders/week";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { FC } from "react";
+
+import { getMyOverallRank, getOverallMvCount, getOverallMvTiedCount } from "@/server/loaders/overallMv";
+import { getSeasonStatus } from "@/server/loaders/week";
+
 import { ProgressBarLink } from "../ProgressBar/ProgressBar";
 import ProgressChart from "../ProgressChart/ProgressChart";
 import RankingPieChart from "../RankingPieChart/RankingPieChart";
@@ -42,13 +44,13 @@ const OverallDashboard: FC = async () => {
   const behindMe = overallTotalCount - me - overallTiedCount;
 
   return (
-    <div className={cn("col-md-4 text-center mb-md:mb-0 border-b border-gray-500 md:border-none")}>
+    <div className={cn("text-center mb-3 md:mb-0 border-b border-gray-500 md:border-none px-3")}>
       <OverallDashboardTitle />
       {myOverallRank === undefined ? (
         <div>Season has not started yet!</div>
       ) : (
         <div>
-          <div>
+          <div className="mb-12">
             <ProgressBarLink className="md:inline-block underline" href="/overall">
               View Details
             </ProgressBarLink>
@@ -56,21 +58,21 @@ const OverallDashboard: FC = async () => {
           <RankingPieChart
             data={[
               {
-                fill: "var(--bs-danger)",
+                fill: "var(--color-red-700)",
                 myPlace,
                 name: "ahead of me",
                 total: overallTotalCount,
                 value: aheadOfMe,
               },
               {
-                fill: "var(--bs-success)",
+                fill: "var(--color-green-700)",
                 myPlace,
                 name: "behind me",
                 total: overallTotalCount,
                 value: behindMe,
               },
               {
-                fill: "var(--bs-warning)",
+                fill: "var(--color-amber-600)",
                 myPlace,
                 name: "tied with me",
                 total: overallTotalCount,

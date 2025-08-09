@@ -51,22 +51,6 @@ export interface ApiCalls {
   ApiCallYear: number;
 }
 
-export interface APICalls {
-  APICallAdded: Generated<Date>;
-  APICallAddedBy: string;
-  APICallDate: Generated<Date>;
-  APICallDeleted: Date | null;
-  APICallDeletedBy: string | null;
-  APICallError: string | null;
-  APICallID: Generated<number>;
-  APICallResponse: string | null;
-  APICallUpdated: Generated<Date>;
-  APICallUpdatedBy: string;
-  APICallURL: string;
-  APICallWeek: number | null;
-  APICallYear: number;
-}
-
 export interface Emails {
   EmailCreatedAt: Date;
   EmailHtml: string | null;
@@ -439,7 +423,6 @@ export interface WeeklyMV {
 export interface DB {
   Accounts: Accounts;
   ApiCalls: ApiCalls;
-  APICalls: APICalls;
   Emails: Emails;
   Games: Games;
   History: History;

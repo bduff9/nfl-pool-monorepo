@@ -14,16 +14,19 @@
  * Home: https://asitewithnoname.com/
  */
 
-import type { getGamesForWeek } from "@/server/loaders/game";
-import type { getMyWeeklyPicks } from "@/server/loaders/pick";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { FC } from "react";
 import { FaTimesCircle } from "react-icons/fa";
 
+import type { getGamesForWeekCached } from "@/server/loaders/game";
+import type { getMyWeeklyPicks } from "@/server/loaders/pick";
+
 type TeamBlockProps = {
   onClose?: (() => void) | undefined;
   spread?: null | number;
-  team: Awaited<ReturnType<typeof getMyWeeklyPicks>>[number]["homeTeam"] | Awaited<ReturnType<typeof getMyWeeklyPicks>>[number]["visitorTeam"];
+  team:
+    | Awaited<ReturnType<typeof getMyWeeklyPicks>>[number]["homeTeam"]
+    | Awaited<ReturnType<typeof getMyWeeklyPicks>>[number]["visitorTeam"];
 };
 
 const TeamBlock: FC<TeamBlockProps> = ({ onClose, spread, team }) => (
@@ -91,11 +94,7 @@ const TeamBlock: FC<TeamBlockProps> = ({ onClose, spread, team }) => (
               Wk {game.GameWeek} {isHome ? "vs" : "@"} {isHome ? game.visitorTeamShortName : game.homeTeamShortName}
             </div>
             <div
-              className={cn(
-                "w-full md:w-1/2 text-start md:text-end",
-                won && "text-green-500",
-                lost && "text-red-600",
-              )}
+              className={cn("w-full md:w-1/2 text-start md:text-end", won && "text-green-500", lost && "text-red-600")}
             >
               {won ? "W" : lost ? "L" : "T"} ({isHome ? game.GameHomeScore : game.GameVisitorScore}-
               {isHome ? game.GameVisitorScore : game.GameHomeScore})
@@ -108,7 +107,7 @@ const TeamBlock: FC<TeamBlockProps> = ({ onClose, spread, team }) => (
 );
 
 type TeamDetailProps = {
-  game: Awaited<ReturnType<typeof getGamesForWeek>>[number];
+  game: Awaited<ReturnType<typeof getGamesForWeekCached>>[number];
   onClose?: (() => void) | undefined;
 };
 

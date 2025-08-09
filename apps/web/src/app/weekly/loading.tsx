@@ -14,82 +14,97 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { ProgressBarLink } from '@/components/ProgressBar/ProgressBar';
-import ProgressChartLoader from '@/components/ProgressChart/ProgressChartLoader';
-import RankingPieChartLoader from '@/components/RankingPieChart/RankingPieChartLoader';
-import type { NP } from '@/lib/types';
-import { Skeleton } from '@nfl-pool-monorepo/ui/components/skeleton';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@nfl-pool-monorepo/ui/components/table';
+import { Skeleton } from "@nfl-pool-monorepo/ui/components/skeleton";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@nfl-pool-monorepo/ui/components/table";
+
+import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
+import ProgressChartLoader from "@/components/ProgressChart/ProgressChartLoader";
+import RankingPieChartLoader from "@/components/RankingPieChart/RankingPieChartLoader";
+import type { NP } from "@/lib/types";
 
 const WeeklyRankingsLoader: NP = () => {
-	return (
-		<div className="h-full flex">
-			<div className="bg-gray-100/80 text-black mx-2 pt-0 md:pt-3 min-h-screen pb-4 flex-1">
-				<div className="flex">
-					<div
-						className="hidden md:inline-block w-1/2 text-center h-[205px]"
-					>
-						<h2 className="mb-0">Week Rank</h2>
-						<div className="mt-4">
-							<RankingPieChartLoader />
-						</div>
-					</div>
-					<div className="mt-4 block md:hidden">
-						<ProgressBarLink className="underline" href="/">&laquo; Back to Dashboard</ProgressBarLink>
-					</div>
-					<div className="hidden md:inline-block w-1/2">
-						<h2 className="mb-4 text-center">My Week Results</h2>
-						<ProgressChartLoader />
-						<ProgressChartLoader />
-					</div>
-					<div className="w-full mt-4 text-center">
-						<Table>
-							<TableHeader>
-								<TableRow>
-									<TableHead scope="col">Rank</TableHead>
-									<TableHead scope="col">Team</TableHead>
-									<TableHead scope="col">Owner</TableHead>
-									<TableHead scope="col">Points</TableHead>
-									<TableHead scope="col">Games Correct</TableHead>
-									<TableHead scope="col">Tiebreaker</TableHead>
-									<TableHead scope="col">Last Game</TableHead>
-									<TableHead scope="col">Eliminated</TableHead>
-								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{Array.from({ length: 20 }).map((_, i) => (
-									// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-									<TableRow key={`table-loader-${i}`}>
-										<TableHead scope="row">
-											<Skeleton />
-										</TableHead>
-										<TableCell>
-											<Skeleton />
-										</TableCell>
-										<TableCell>
-											<Skeleton />
-										</TableCell>
-										<TableCell>
-											<Skeleton />
-										</TableCell>
-										<TableCell>
-											<Skeleton />
-										</TableCell>
-										<TableCell>
-											<Skeleton />
-										</TableCell>
-										<TableCell>
-											<Skeleton />
-										</TableCell>
-									</TableRow>
-								))}
-							</TableBody>
-						</Table>
-					</div>
-				</div>
-			</div>
-		</div>
-	);
+  return (
+    <div className="h-full flex">
+      <div className="bg-gray-100/80 text-black mx-2 pt-0 md:pt-3 min-h-screen pb-4 flex-1">
+        <div className="flex flex-wrap">
+          <div className="hidden md:inline-block w-1/2 text-center h-[205px]">
+            <h2 className="mb-0">Week Rank</h2>
+            <div className="mt-4">
+              <RankingPieChartLoader />
+            </div>
+          </div>
+          <div className="mt-4 block md:hidden">
+            <ProgressBarLink className="underline" href="/">
+              &laquo; Back to Dashboard
+            </ProgressBarLink>
+          </div>
+          <div className="hidden md:inline-block w-1/2 px-3">
+            <h2 className="mb-4 text-center">My Week Results</h2>
+            <ProgressChartLoader />
+            <ProgressChartLoader />
+          </div>
+          <Table parentClassName="w-full mt-4 text-center">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-center text-black font-semibold" scope="col">
+                  Rank
+                </TableHead>
+                <TableHead className="text-center text-black font-semibold" scope="col">
+                  Team
+                </TableHead>
+                <TableHead className="text-center text-black font-semibold" scope="col">
+                  Owner
+                </TableHead>
+                <TableHead className="text-center text-black font-semibold" scope="col">
+                  Points
+                </TableHead>
+                <TableHead className="text-center text-black font-semibold" scope="col">
+                  Games Correct
+                </TableHead>
+                <TableHead className="text-center text-black font-semibold" scope="col">
+                  Tiebreaker
+                </TableHead>
+                <TableHead className="text-center text-black font-semibold" scope="col">
+                  Last Game
+                </TableHead>
+                <TableHead className="text-center text-black font-semibold" scope="col">
+                  Eliminated
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {Array.from({ length: 20 }).map((_, i) => (
+                // biome-ignore lint/suspicious/noArrayIndexKey: This is a loader and the key is not important
+                <TableRow key={`table-loader-${i}`}>
+                  <TableHead className="text-center text-black font-semibold" scope="row">
+                    <Skeleton />
+                  </TableHead>
+                  <TableCell>
+                    <Skeleton />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default WeeklyRankingsLoader;

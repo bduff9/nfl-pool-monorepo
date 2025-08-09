@@ -14,53 +14,55 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { db } from '@nfl-pool-monorepo/db/src/kysely';
-import type { User } from '@nfl-pool-monorepo/types';
-import { sendSMS } from '.';
+import { db } from "@nfl-pool-monorepo/db/src/kysely";
+import type { User } from "@nfl-pool-monorepo/types";
 
-const sendPicksSubmittedSMS = async (
-	user: User,
-	week: number,
-	tiebreakerLastScore: number,
-): Promise<void> => {
-	const userResult = await db.selectFrom("Users").select(["UserFirstName", "UserPhone"]).where("UserID", "=", user.id).executeTakeFirstOrThrow();
-	const picks = await db.selectFrom('Picks as p')
-		.select(['p.PickPoints', 'p.TeamID'])
-		.innerJoin('Games as g', 'g.GameID', 'p.GameID')
-		.leftJoin('Teams as t', 't.TeamID', 'p.TeamID')
-		.select(['t.TeamShortName'])
-		.where('g.GameWeek', '=', week)
-		.where('p.UserID', '=', user.id)
-		.execute();
-	let message = `Hi ${userResult.UserFirstName},
+import { sendSMS } from ".";
+
+const sendPicksSubmittedSMS = async (user: User, week: number, tiebreakerLastScore: number): Promise<void> => {
+  const userResult = await db
+    .selectFrom("Users")
+    .select(["UserFirstName", "UserPhone"])
+    .where("UserID", "=", user.id)
+    .executeTakeFirstOrThrow();
+  const picks = await db
+    .selectFrom("Picks as p")
+    .select(["p.PickPoints", "p.TeamID"])
+    .innerJoin("Games as g", "g.GameID", "p.GameID")
+    .leftJoin("Teams as t", "t.TeamID", "p.TeamID")
+    .select(["t.TeamShortName"])
+    .where("g.GameWeek", "=", week)
+    .where("p.UserID", "=", user.id)
+    .execute();
+  let message = `Hi ${userResult.UserFirstName},
 This is a confirmation that your week ${week} picks have been submitted.
 Your picks are:`;
 
-	for (const pick of picks) {
-		message += `
-${pick.PickPoints} - ${pick.TeamID ? `${pick.TeamShortName}` : 'Missed Pick'}`;
-	}
+  for (const pick of picks) {
+    message += `
+${pick.PickPoints} - ${pick.TeamID ? `${pick.TeamShortName}` : "Missed Pick"}`;
+  }
 
-	message += `
+  message += `
 Tiebreaker Score: ${tiebreakerLastScore}`;
 
-	try {
-		if (!userResult.UserPhone) {
-			throw new Error(`Missing phone number for user ${user.email}!`);
-		}
+  try {
+    if (!userResult.UserPhone) {
+      throw new Error(`Missing phone number for user ${user.email}!`);
+    }
 
-		await sendSMS(userResult.UserPhone, message, "picksSubmitted");
-	} catch (error) {
-		console.error('Failed to send pick reminder sms: ', {
-			error,
-			message,
-			picks,
-			tiebreakerLastScore,
-			type: "picksSubmitted",
-			user,
-			week,
-		});
-	}
+    await sendSMS(userResult.UserPhone, message, "picksSubmitted");
+  } catch (error) {
+    console.error("Failed to send pick reminder sms: ", {
+      error,
+      message,
+      picks,
+      tiebreakerLastScore,
+      type: "picksSubmitted",
+      user,
+      week,
+    });
+  }
 };
 
 export default sendPicksSubmittedSMS;

@@ -5,7 +5,8 @@ import { cookies } from "next/headers";
 import { cache } from "react";
 import "server-only";
 
-import { weekSchema } from "@/lib/zod";
+import { weekSchema } from "@nfl-pool-monorepo/utils/zod";
+
 import { getCurrentSession } from "./sessions";
 
 export const getCurrentWeekCached = cache(() => getCurrentWeek());

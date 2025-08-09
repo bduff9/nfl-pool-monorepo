@@ -26,7 +26,7 @@
     "next-themes": "0.4.6",
     "nuqs": "2.4.3",
     "react-day-picker": "9.6.7",
-    "react-hook-form": "7.56.0",
+    "react-hook-form": "7.56.4",
     "recharts": "^2.15.3",
     "shadcn": "2.4.1",
     "sonner": "2.0.3",
@@ -57,7 +57,6 @@
   "name": "@nfl-pool-monorepo/ui",
   "scripts": {
     "add-shadcn-component": "npx shadcn@latest add",
-    "build": "tsup",
     "check-types": "tsc --noEmit",
     "lint": "biome check ./src --write"
   },

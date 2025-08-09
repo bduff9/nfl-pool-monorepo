@@ -13,185 +13,173 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-import clsx from 'clsx';
-import type { Metadata } from 'next';
-import { getServerSession } from 'next-auth';
-import { redirect } from 'next/navigation';
 
-import { authOptions } from '../api/auth/[...nextauth]/authOptions';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@nfl-pool-monorepo/ui/components/table";
+import { cn } from "@nfl-pool-monorepo/utils/styles";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-import type { NP, TSessionUser } from '@/utils/types';
-import { requireRegistered } from '@/utils/auth.server';
-import { getSelectedWeek, getWeekStatus } from '@/loaders/week';
-import CustomHead from '@/components/CustomHead/CustomHead';
-import {
-	getWeeklyMvCount,
-	getWeeklyMvTiedCount,
-	getMyWeeklyRank,
-	getWeeklyRankings,
-} from '@/loaders/weeklyMv';
-import RankingPieChart from '@/components/RankingPieChart/RankingPieChart';
-import ProgressChart from '@/components/ProgressChart/ProgressChart';
-import {
-	WeeklyDashboardResults,
-	WeeklyDashboardTitle,
-} from '@/components/WeeklyDashboard/WeeklyDashboard.client';
-import { ProgressBarLink } from '@/components/ProgressBar/ProgressBar';
+import CustomHead from "@/components/CustomHead/CustomHead";
+import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
+import ProgressChart from "@/components/ProgressChart/ProgressChart";
+import RankingPieChart from "@/components/RankingPieChart/RankingPieChart";
+import { WeeklyDashboardResults, WeeklyDashboardTitle } from "@/components/WeeklyDashboard/WeeklyDashboard.client";
+import { requireRegistered } from "@/lib/auth";
+import type { NP } from "@/lib/types";
+import { getCurrentUser } from "@/server/loaders/user";
+import { getSelectedWeek, getWeekStatus } from "@/server/loaders/week";
+import { getMyWeeklyRank, getWeeklyMvCount, getWeeklyMvTiedCount, getWeeklyRankings } from "@/server/loaders/weeklyMv";
 
-const TITLE = 'Weekly Ranks';
+const TITLE = "Weekly Ranks";
 
-// ts-prune-ignore-next
 export const metadata: Metadata = {
-	title: TITLE,
+  title: TITLE,
 };
 
 const WeeklyRankings: NP = async () => {
-	if (await requireRegistered()) {
-		return null;
-	}
+  const redirectUrl = await requireRegistered();
 
-	const selectedWeek = await getSelectedWeek();
+  if (redirectUrl) {
+    return redirect(redirectUrl);
+  }
 
-	const sessionPromise = getServerSession(authOptions);
-	const weekStatusPromise = getWeekStatus(selectedWeek);
-	const weeklyTotalCountPromise = getWeeklyMvCount(selectedWeek);
-	const weeklyTiedCountPromise = getWeeklyMvTiedCount(selectedWeek);
-	const myWeeklyRankPromise = getMyWeeklyRank(selectedWeek);
-	const weeklyRankingsPromise = getWeeklyRankings(selectedWeek);
+  const selectedWeek = await getSelectedWeek();
 
-	const [
-		session,
-		weekStatus,
-		weeklyTotalCount,
-		weeklyTiedCount,
-		myWeeklyRank,
-		weeklyRankings,
-	] = await Promise.all([
-		sessionPromise,
-		weekStatusPromise,
-		weeklyTotalCountPromise,
-		weeklyTiedCountPromise,
-		myWeeklyRankPromise,
-		weeklyRankingsPromise,
-	]);
+  const weekStatusPromise = getWeekStatus(selectedWeek);
+  const weeklyTotalCountPromise = getWeeklyMvCount(selectedWeek);
+  const weeklyTiedCountPromise = getWeeklyMvTiedCount(selectedWeek);
+  const myWeeklyRankPromise = getMyWeeklyRank(selectedWeek);
+  const weeklyRankingsPromise = getWeeklyRankings(selectedWeek);
+  const userPromise = getCurrentUser();
 
-	if (weeklyTotalCount === 0) {
-		redirect('/');
+  const [weekStatus, weeklyTotalCount, weeklyTiedCount, myWeeklyRank, weeklyRankings, user] = await Promise.all([
+    weekStatusPromise,
+    weeklyTotalCountPromise,
+    weeklyTiedCountPromise,
+    myWeeklyRankPromise,
+    weeklyRankingsPromise,
+    userPromise,
+  ]);
 
-		return null;
-	}
+  if (weeklyTotalCount === 0) {
+    return redirect("/");
+  }
 
-	const myPlace = `${myWeeklyRank?.Tied ? 'T' : ''}${myWeeklyRank?.Rank}`;
-	const me = myWeeklyRank?.Rank ?? 0;
-	const aheadOfMe = me - 1;
-	const behindMe = weeklyTotalCount - me - weeklyTiedCount;
+  const myPlace = `${myWeeklyRank?.Tied ? "T" : ""}${myWeeklyRank?.Rank}`;
+  const me = myWeeklyRank?.Rank ?? 0;
+  const aheadOfMe = me - 1;
+  const behindMe = weeklyTotalCount - me - weeklyTiedCount;
 
-	return (
-		<div className="h-100 row">
-			<CustomHead title={`Week ${selectedWeek} Ranks`} />
-			<div className="content-bg text-dark my-3 mx-2 pt-0 pt-md-3 min-vh-100 pb-4 col">
-				<div className="row">
-					<div
-						className="d-none d-md-inline-block col-6 text-center"
-						style={{ height: '205px' }}
-					>
-						<WeeklyDashboardTitle selectedWeek={selectedWeek} />
-						<RankingPieChart
-							data={[
-								{
-									fill: 'var(--bs-danger)',
-									myPlace,
-									name: 'ahead of me',
-									total: weeklyTotalCount,
-									value: aheadOfMe,
-								},
-								{
-									fill: 'var(--bs-success)',
-									myPlace,
-									name: 'behind me',
-									total: weeklyTotalCount,
-									value: behindMe,
-								},
-								{
-									fill: 'var(--bs-warning)',
-									myPlace,
-									name: 'tied with me',
-									total: weeklyTotalCount,
-									value: weeklyTiedCount,
-								},
-							]}
-							layoutId="weeklyRankingPieChart"
-						/>
-					</div>
-					<div className="mt-4 d-block d-md-none">
-						<ProgressBarLink href="/">&laquo; Back to Dashboard</ProgressBarLink>
-					</div>
-					<div className="d-none d-md-inline-block col-6">
-						<WeeklyDashboardResults
-							className="mb-4 text-center"
-							selectedWeek={selectedWeek}
-						/>
-						<ProgressChart
-							correct={myWeeklyRank?.PointsEarned ?? 0}
-							incorrect={myWeeklyRank?.PointsWrong ?? 0}
-							isOver={weekStatus === 'Complete'}
-							layoutId="weeklyPointsEarned"
-							max={myWeeklyRank?.PointsTotal ?? 0}
-							type="Points"
-						/>
-						<ProgressChart
-							correct={myWeeklyRank?.GamesCorrect ?? 0}
-							incorrect={myWeeklyRank?.GamesWrong ?? 0}
-							isOver={weekStatus === 'Complete'}
-							layoutId="weeklyGamesCorrect"
-							max={myWeeklyRank?.GamesTotal ?? 0}
-							type="Games"
-						/>
-					</div>
-					<div className="col-12 mt-4 table-responsive text-center">
-						<table className="table table-striped table-hover">
-							<thead>
-								<tr>
-									<th scope="col">Rank</th>
-									<th scope="col">Team</th>
-									<th scope="col">Owner</th>
-									<th scope="col">Points</th>
-									<th scope="col">Games Correct</th>
-									<th scope="col">Tiebreaker</th>
-									<th scope="col">Last Game</th>
-									<th scope="col">Eliminated</th>
-								</tr>
-							</thead>
-							<tbody>
-								{weeklyRankings.map(row => (
-									<tr
-										className={clsx(
-											row.newUserID === (session?.user as TSessionUser)?.id &&
-												'table-warning',
-										)}
-										key={`user-rank-for-${row.newUserID}`}
-									>
-										<th scope="row">
-											{row.Tied ? 'T' : ''}
-											{row.Rank}
-										</th>
-										<td>{row.TeamName}</td>
-										<td>{row.UserName}</td>
-										<td>{row.PointsEarned}</td>
-										<td>{row.GamesCorrect}</td>
-										<td>{row.TiebreakerScore}</td>
-										<td>{row.LastScore}</td>
-										<td className="text-danger">{row.IsEliminated === 1 && <b>X</b>}</td>
-									</tr>
-								))}
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-		</div>
-	);
+  return (
+    <div className="h-full flex">
+      <CustomHead title={`Week ${selectedWeek} Ranks`} />
+      <div className="bg-gray-100/80 text-black my-3 mx-2 pt-0 md:pt-3 min-h-screen pb-4 flex-1">
+        <div className="flex flex-wrap">
+          <div className="hidden md:inline-block w-1/2 text-center h-[205px]">
+            <WeeklyDashboardTitle selectedWeek={selectedWeek} />
+            <RankingPieChart
+              data={[
+                {
+                  fill: "var(--color-red-700)",
+                  myPlace,
+                  name: "ahead of me",
+                  total: weeklyTotalCount,
+                  value: aheadOfMe,
+                },
+                {
+                  fill: "var(--color-green-700)",
+                  myPlace,
+                  name: "behind me",
+                  total: weeklyTotalCount,
+                  value: behindMe,
+                },
+                {
+                  fill: "var(--color-amber-600)",
+                  myPlace,
+                  name: "tied with me",
+                  total: weeklyTotalCount,
+                  value: weeklyTiedCount,
+                },
+              ]}
+              layoutId="weeklyRankingPieChart"
+            />
+          </div>
+          <div className="mt-4 block md:hidden">
+            <ProgressBarLink href="/">&laquo; Back to Dashboard</ProgressBarLink>
+          </div>
+          <div className="hidden md:inline-block w-1/2 px-3">
+            <WeeklyDashboardResults className="mb-4 text-center" selectedWeek={selectedWeek} />
+            <ProgressChart
+              correct={myWeeklyRank?.PointsEarned ?? 0}
+              incorrect={myWeeklyRank?.PointsWrong ?? 0}
+              isOver={weekStatus === "Complete"}
+              layoutId="weeklyPointsEarned"
+              max={myWeeklyRank?.PointsTotal ?? 0}
+              type="Points"
+            />
+            <ProgressChart
+              correct={myWeeklyRank?.GamesCorrect ?? 0}
+              incorrect={myWeeklyRank?.GamesWrong ?? 0}
+              isOver={weekStatus === "Complete"}
+              layoutId="weeklyGamesCorrect"
+              max={myWeeklyRank?.GamesTotal ?? 0}
+              type="Games"
+            />
+          </div>
+          <Table parentClassName="w-full mt-4 text-center">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-center text-black font-semibold" scope="col">
+                  Rank
+                </TableHead>
+                <TableHead className="text-center text-black font-semibold" scope="col">
+                  Team
+                </TableHead>
+                <TableHead className="text-center text-black font-semibold" scope="col">
+                  Owner
+                </TableHead>
+                <TableHead className="text-center text-black font-semibold" scope="col">
+                  Points
+                </TableHead>
+                <TableHead className="text-center text-black font-semibold" scope="col">
+                  Games Correct
+                </TableHead>
+                <TableHead className="text-center text-black font-semibold" scope="col">
+                  Tiebreaker
+                </TableHead>
+                <TableHead className="text-center text-black font-semibold" scope="col">
+                  Last Game
+                </TableHead>
+                <TableHead className="text-center text-black font-semibold" scope="col">
+                  Eliminated
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {weeklyRankings.map((row) => (
+                <TableRow
+                  className={cn(row.UserID === user.UserID && "bg-amber-300")}
+                  key={`user-rank-for-${row.UserID}`}
+                >
+                  <TableHead className="text-center text-black font-semibold" scope="row">
+                    {row.Tied ? "T" : ""}
+                    {row.Rank}
+                  </TableHead>
+                  <TableCell>{row.TeamName}</TableCell>
+                  <TableCell>{row.UserName}</TableCell>
+                  <TableCell>{row.PointsEarned}</TableCell>
+                  <TableCell>{row.GamesCorrect}</TableCell>
+                  <TableCell>{row.TiebreakerScore}</TableCell>
+                  <TableCell>{row.LastScore}</TableCell>
+                  <TableCell className="text-red-700">{row.IsEliminated === 1 && <b>X</b>}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+    </div>
+  );
 };
 
-// ts-prune-ignore-next
 export default WeeklyRankings;

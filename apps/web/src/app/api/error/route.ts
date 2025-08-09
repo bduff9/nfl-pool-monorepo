@@ -1,9 +1,9 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
+import { getRandomInteger } from "@nfl-pool-monorepo/utils/numbers";
 import { NextResponse } from "next/server";
 
-import { getRandomInteger } from "@/lib/numbers";
 import { getCurrentSession } from "@/server/loaders/sessions";
 
 export const GET = async () => {

@@ -1,4 +1,5 @@
 "use client";
+
 /*******************************************************************************
  * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
  * Copyright (C) 2015-present Brian Duffey
@@ -14,25 +15,37 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-import { faAt } from "@bduff9/pro-duotone-svg-icons/faAt";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import clsx from "clsx";
+
+import "client-only";
+
+import type { getGamesForWeek } from "@nfl-pool-monorepo/db/src/queries/game";
+import { Button } from "@nfl-pool-monorepo/ui/components/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@nfl-pool-monorepo/ui/components/dialog";
+import { cn } from "@nfl-pool-monorepo/utils/styles";
 import Image from "next/image";
-import type { FC } from "react";
+import type { Dispatch, FC, SetStateAction } from "react";
 import { useEffect, useState } from "react";
-import type { GameForWeek } from "@/actions/game";
-import { getAbbreviation } from "../../utils/strings";
-import styles from "./ViewAllModal.module.scss";
+import { PiAtDuotone } from "react-icons/pi";
+
+import { getAbbreviation } from "@/lib/strings";
 
 type Props = {
-  closeModal: () => void;
-  games: Array<GameForWeek>;
+  closeModal: Dispatch<SetStateAction<boolean>>;
+  games: Awaited<ReturnType<typeof getGamesForWeek>>;
   isOpen?: boolean;
-  saveChanges: (games: Array<GameForWeek>) => void;
+  saveChanges: (games: Awaited<ReturnType<typeof getGamesForWeek>>) => void;
 };
 
 const ViewAllModal: FC<Props> = ({ closeModal, games, isOpen = false, saveChanges }) => {
-  const [customGames, setCustomGames] = useState<Array<GameForWeek>>([]);
+  const [customGames, setCustomGames] = useState<Awaited<ReturnType<typeof getGamesForWeek>>>([]);
 
   useEffect(() => {
     if (customGames.length === 0) {
@@ -40,7 +53,11 @@ const ViewAllModal: FC<Props> = ({ closeModal, games, isOpen = false, saveChange
     }
   }, [customGames, games]);
 
-  const selectWinner = (event: React.MouseEvent<HTMLDivElement, MouseEvent>, gameID: number, teamID: number): void => {
+  const selectWinner = (
+    event: React.MouseEvent<HTMLDivElement, MouseEvent> | React.KeyboardEvent<HTMLDivElement>,
+    gameID: number,
+    teamID: number,
+  ): void => {
     event.stopPropagation();
 
     const newCustomGames = customGames.map((game) => {
@@ -53,101 +70,89 @@ const ViewAllModal: FC<Props> = ({ closeModal, games, isOpen = false, saveChange
   };
 
   return (
-    <>
-      <div
-        aria-describedby="whatIfModalBody"
-        aria-hidden={isOpen}
-        aria-labelledby="whatIfModalLabel"
-        aria-modal="true"
-        className={clsx("modal", "fade", isOpen && "d-block show")}
-        onClick={closeModal}
-        role="dialog"
-        tabIndex={-1}
-      >
-        <div className="modal-dialog modal-dialog-scrollable modal-dialog-centered">
-          <div className="modal-content">
-            <div className={clsx("modal-header", "text-center", styles["modal-header"])}>
-              <div className="modal-title" id="whatIfModalLabel">
-                <h5 className="d-none d-md-block">What If Version</h5>
-                Click a team logo to view the updated ranks in a &ldquo;What If&rdquo; version if that team were to win.
-              </div>
-              <button aria-label="Close" className="btn-close" onClick={closeModal} type="button"></button>
-            </div>
-            <div className="modal-body" id="whatIfModalBody">
-              {customGames.map((game) => (
+    <Dialog onOpenChange={closeModal} open={isOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="text-center">What If Version</DialogTitle>
+          <DialogDescription className="text-center">
+            Click a team logo to view the updated ranks in a &ldquo;What If&rdquo; version if that team were to win.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="overflow-y-auto max-h-[98vh]">
+          {customGames.map((game) => (
+            <div className="flex justify-around items-center text-center" key={`what-if-for-game-${game.GameID}`}>
+              <div className={cn("w-5/12")}>
+                {/** biome-ignore lint/a11y/noStaticElementInteractions: We need this to be interactive */}
                 <div
-                  className="d-flex justify-content-around align-items-center text-center"
-                  key={`what-if-for-game-${game.GameID}`}
+                  className={cn(
+                    "rounded-full size-[90px] mx-auto",
+                    game.WinnerTeamID === game.VisitorTeamID
+                      ? "cursor-default bg-blue-300 border-blue-500 border-4"
+                      : "cursor-pointer hover:bg-blue-100 hover:border-blue-300 hover:border-4",
+                  )}
+                  onClick={(event) => selectWinner(event, game.GameID, game.VisitorTeamID)}
+                  onKeyDown={(event) => selectWinner(event, game.GameID, game.VisitorTeamID)}
                 >
-                  <div className={clsx("col-5")}>
-                    <div
-                      className={clsx(
-                        "rounded-circle",
-                        styles["what-if"],
-                        ...(game.WinnerTeamID === game.VisitorTeamID
-                          ? ["cursor-default", styles.winner]
-                          : ["cursor-pointer"]),
-                      )}
-                      onClick={(event) => selectWinner(event, game.GameID, game.VisitorTeamID)}
-                    >
-                      <Image
-                        alt={`${game.visitorTeam?.TeamCity} ${game.visitorTeam?.TeamName}`}
-                        height={50}
-                        src={`/NFLLogos/${game.visitorTeam?.TeamLogo}`}
-                        title={`${game.visitorTeam?.TeamCity} ${game.visitorTeam?.TeamName}`}
-                        width={50}
-                      />
-                      {game.visitorTeam?.TeamName.includes(" ") ? (
-                        <div style={{ marginTop: "-.5rem" }}>{getAbbreviation(game.visitorTeam?.TeamName)}</div>
-                      ) : (
-                        <div style={{ marginTop: "-1rem" }}>{game.visitorTeam?.TeamName}</div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="col-2">
-                    <FontAwesomeIcon icon={faAt} />
-                  </div>
-                  <div className={clsx("col-5")}>
-                    <div
-                      className={clsx(
-                        "rounded-circle",
-                        styles["what-if"],
-                        ...(game.WinnerTeamID === game.HomeTeamID
-                          ? ["cursor-default", styles.winner]
-                          : ["cursor-pointer"]),
-                      )}
-                      onClick={(event) => selectWinner(event, game.GameID, game.HomeTeamID)}
-                    >
-                      <Image
-                        alt={`${game.homeTeam?.TeamCity} ${game.homeTeam?.TeamName}`}
-                        height={50}
-                        src={`/NFLLogos/${game.homeTeam?.TeamLogo}`}
-                        title={`${game.homeTeam?.TeamCity} ${game.homeTeam?.TeamName}`}
-                        width={50}
-                      />
-                      {game.homeTeam?.TeamName.includes(" ") ? (
-                        <div style={{ marginTop: "-.5rem" }}>{getAbbreviation(game.homeTeam?.TeamName)}</div>
-                      ) : (
-                        <div style={{ marginTop: "-1rem" }}>{game.homeTeam?.TeamName}</div>
-                      )}
-                    </div>
-                  </div>
+                  <Image
+                    alt={`${game.visitorTeam?.TeamCity} ${game.visitorTeam?.TeamName}`}
+                    className="mx-auto"
+                    height={50}
+                    src={`/NFLLogos/${game.visitorTeam?.TeamLogo}`}
+                    title={`${game.visitorTeam?.TeamCity} ${game.visitorTeam?.TeamName}`}
+                    width={50}
+                  />
+                  {game.visitorTeam?.TeamName.includes(" ") ? (
+                    <div>{getAbbreviation(game.visitorTeam?.TeamName)}</div>
+                  ) : (
+                    <div>{game.visitorTeam?.TeamName}</div>
+                  )}
                 </div>
-              ))}
+              </div>
+              <div className="w-1/6">
+                <PiAtDuotone className="mx-auto" />
+              </div>
+              <div className={cn("w-5/12")}>
+                {/** biome-ignore lint/a11y/noStaticElementInteractions: We need this to be interative */}
+                <div
+                  className={cn(
+                    "rounded-full size-[90px] mx-auto",
+                    game.WinnerTeamID === game.HomeTeamID
+                      ? "cursor-default bg-blue-300 border-blue-500 border-4"
+                      : "cursor-pointer hover:bg-blue-100 hover:border-blue-300 hover:border-4",
+                  )}
+                  onClick={(event) => selectWinner(event, game.GameID, game.HomeTeamID)}
+                  onKeyDown={(event) => selectWinner(event, game.GameID, game.HomeTeamID)}
+                >
+                  <Image
+                    alt={`${game.homeTeam?.TeamCity} ${game.homeTeam?.TeamName}`}
+                    className="mx-auto"
+                    height={50}
+                    src={`/NFLLogos/${game.homeTeam?.TeamLogo}`}
+                    title={`${game.homeTeam?.TeamCity} ${game.homeTeam?.TeamName}`}
+                    width={50}
+                  />
+                  {game.homeTeam?.TeamName.includes(" ") ? (
+                    <div>{getAbbreviation(game.homeTeam?.TeamName)}</div>
+                  ) : (
+                    <div>{game.homeTeam?.TeamName}</div>
+                  )}
+                </div>
+              </div>
             </div>
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={closeModal} type="button">
-                Cancel
-              </button>
-              <button className="btn btn-primary" onClick={() => saveChanges(customGames)} type="button">
-                Save changes
-              </button>
-            </div>
-          </div>
+          ))}
         </div>
-      </div>
-      {isOpen && <div className={clsx("modal-backdrop", "fade", "show")}></div>}
-    </>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button type="button" variant="secondary">
+              Close
+            </Button>
+          </DialogClose>
+          <Button onClick={() => saveChanges(customGames)} type="button" variant="primary">
+            Save
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 

@@ -1,11 +1,12 @@
 import { Column, Link, Row, Section, Text } from "@react-email/components";
-import { type FC } from "react";
+// biome-ignore lint/style/useImportType: This is needed for react-email
+import * as React from "react";
 
 type Props = {
   unsubscribeLink: string;
 };
 
-const Footer: FC<Props> = ({ unsubscribeLink }) => {
+const Footer: React.FC<Props> = ({ unsubscribeLink }) => {
   const { domain } = process.env;
 
   return (

@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "jsx": "preserve"
+  },
+  "extends": "@nfl-pool-monorepo/tsconfig/base.json",
+  "include": ["**/*.ts", "**/*.tsx"]
+}

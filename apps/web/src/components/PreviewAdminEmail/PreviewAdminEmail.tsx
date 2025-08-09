@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /*******************************************************************************
  * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
@@ -16,139 +16,128 @@
  * Home: https://asitewithnoname.com/
  */
 
-import type { AdminEmailType } from '@/lib/constants';
-import { processFormState } from '@/lib/zsa';
-import { getEmailPreview } from '@/server/actions/email';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@nfl-pool-monorepo/ui/components/tabs';
-import 'client-only';
-import { type FC, useMemo, useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@nfl-pool-monorepo/ui/components/tabs";
+
+import type { AdminEmailType } from "@/lib/constants";
+import { processFormState } from "@/lib/zsa";
+import { getEmailPreview } from "@/server/actions/email";
+import "client-only";
+
+import { type FC, useMemo, useState } from "react";
 
 type Props = {
-	emailType: typeof AdminEmailType[number];
-	payload: {
-		body: string;
-		preview: string;
-		subject: string;
-	};
-	userFirstName: string;
+  emailType: (typeof AdminEmailType)[number];
+  payload: {
+    body: string;
+    preview: string;
+    subject: string;
+  };
+  userFirstName: string;
 };
 
-const PreviewAdminEmail: FC<Props> = ({
-	emailType,
-	payload,
-	userFirstName,
-}) => {
-	const { body, preview, subject } = payload;
-	const [htmlPreview, setHtmlPreview] = useState<string>('');
-	const [subjectPreview, setSubjectPreview] = useState<string>('');
-	const [textPreview, setTextPreview] = useState<string>('');
+const PreviewAdminEmail: FC<Props> = ({ emailType, payload, userFirstName }) => {
+  const { body, preview, subject } = payload;
+  const [htmlPreview, setHtmlPreview] = useState<string>("");
+  const [subjectPreview, setSubjectPreview] = useState<string>("");
+  const [textPreview, setTextPreview] = useState<string>("");
 
-	useMemo(
-		async (): Promise<void> => {
-			if (!body || !subject || !preview) {
-				setHtmlPreview('');
+  useMemo(async (): Promise<void> => {
+    if (!body || !subject || !preview) {
+      setHtmlPreview("");
 
-				return;
-			}
+      return;
+    }
 
-			const result = await getEmailPreview({
-				body,
-				emailFormat: 'html',
-				emailType,
-				preview,
-				subject,
-				userFirstName,
-			});
+    const result = await getEmailPreview({
+      body,
+      emailFormat: "html",
+      emailType,
+      preview,
+      subject,
+      userFirstName,
+    });
 
-			processFormState(result, () => {
-				setHtmlPreview(result[0]?.metadata.html as string | null ?? '');
-			});
-		},
-		[body, preview, subject, emailType, userFirstName],
-	);
+    processFormState(result, () => {
+      setHtmlPreview((result[0]?.metadata.html as string | null) ?? "");
+    });
+  }, [body, preview, subject, emailType, userFirstName]);
 
-	useMemo(
-		async (): Promise<void> => {
-			if (!subject) {
-				setSubjectPreview('');
+  useMemo(async (): Promise<void> => {
+    if (!subject) {
+      setSubjectPreview("");
 
-				return;
-			}
+      return;
+    }
 
-			const result = await getEmailPreview({
-				body,
-				emailFormat: 'subject',
-				emailType,
-				preview,
-				subject,
-				userFirstName,
-			});
+    const result = await getEmailPreview({
+      body,
+      emailFormat: "subject",
+      emailType,
+      preview,
+      subject,
+      userFirstName,
+    });
 
-			processFormState(result, () => {
-				setSubjectPreview(result[0]?.metadata.subject as string | null ?? '');
-			});
-		},
-		[body, preview, subject, emailType, userFirstName],
-	);
-	useMemo(
-		async (): Promise<void> => {
-			if (!body) {
-				setTextPreview('');
+    processFormState(result, () => {
+      setSubjectPreview((result[0]?.metadata.subject as string | null) ?? "");
+    });
+  }, [body, preview, subject, emailType, userFirstName]);
+  useMemo(async (): Promise<void> => {
+    if (!body) {
+      setTextPreview("");
 
-				return;
-			}
+      return;
+    }
 
-			const result = await getEmailPreview({
-				body,
-				emailFormat: 'text',
-				emailType,
-				preview,
-				subject,
-				userFirstName,
-			});
+    const result = await getEmailPreview({
+      body,
+      emailFormat: "text",
+      emailType,
+      preview,
+      subject,
+      userFirstName,
+    });
 
-			processFormState(result, () => {
-				setTextPreview(result[0]?.metadata.text as string | null ?? '');
-			});
-		},
-		[body, preview, subject, emailType, userFirstName],
-	);
+    processFormState(result, () => {
+      setTextPreview((result[0]?.metadata.text as string | null) ?? "");
+    });
+  }, [body, preview, subject, emailType, userFirstName]);
 
-	return (
-		<div className="w-full bg-white p-2 rounded-md border">
-			<Tabs defaultValue="html" className="w-full">
-				<TabsList className="grid w-full grid-cols-3">
-					<TabsTrigger value="html">HTML</TabsTrigger>
-					<TabsTrigger value="subject">Subject</TabsTrigger>
-					<TabsTrigger value="text">Text</TabsTrigger>
-				</TabsList>
-				<TabsContent value="html">
-					{/* <Card className="dark:bg-white text-black">
+  return (
+    <div className="w-full bg-white p-2 rounded-md border">
+      <Tabs className="w-full" defaultValue="html">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="html">HTML</TabsTrigger>
+          <TabsTrigger value="subject">Subject</TabsTrigger>
+          <TabsTrigger value="text">Text</TabsTrigger>
+        </TabsList>
+        <TabsContent value="html">
+          {/* <Card className="dark:bg-white text-black">
 						<CardContent> */}
-							<div
-								// biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
-								dangerouslySetInnerHTML={{ __html: htmlPreview }}
-							/>
-						{/* </CardContent>
+          <div
+            // biome-ignore lint/security/noDangerouslySetInnerHtml: This is a preview of an email that will be sent, and the HTML is generated by a trusted source.
+            dangerouslySetInnerHTML={{ __html: htmlPreview }}
+          />
+          {/* </CardContent>
 					</Card> */}
-				</TabsContent>
-				<TabsContent value="subject">
-					{/* <Card className="dark:bg-white text-black">
+        </TabsContent>
+        <TabsContent value="subject">
+          {/* <Card className="dark:bg-white text-black">
 						<CardContent> */}
-							<div>{subjectPreview}</div>
-						{/* </CardContent>
+          <div>{subjectPreview}</div>
+          {/* </CardContent>
 					</Card> */}
-				</TabsContent>
-				<TabsContent value="text">
-					{/* <Card className="dark:bg-white text-black">
+        </TabsContent>
+        <TabsContent value="text">
+          {/* <Card className="dark:bg-white text-black">
 						<CardContent> */}
-							<div>{textPreview}</div>
-						{/* </CardContent>
+          <div>{textPreview}</div>
+          {/* </CardContent>
 					</Card> */}
-				</TabsContent>
-			</Tabs>
-		</div>
-	);
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
 };
 
 export default PreviewAdminEmail;

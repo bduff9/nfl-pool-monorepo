@@ -1,5 +1,8 @@
-import { Button, Column, Container, Head, Html, Preview, render, Row, Section, Text } from "@react-email/components";
-import React from "react";
+import { Button, Column, Container, Head, Html, Preview, Row, Section, Text } from "@react-email/components";
+import { render } from "@react-email/render";
+// biome-ignore lint/style/useImportType: This is needed for react-email
+import * as React from "react";
+
 import { env } from "../../src/env";
 import type { Email } from "../../src/types";
 import BodyWrapper from "./_components/BodyWrapper";
@@ -7,20 +10,14 @@ import Footer from "./_components/Footer";
 import Header from "./_components/Header";
 
 type Props = {
+  children?: React.ReactNode;
   html: string;
-	preview: string;
-	subject: string;
+  preview: string;
+  subject: string;
   userFirstName: string;
 };
 
-const CustomEmail: Email<Props> = ({
-  browserLink,
-  html,
-  preview,
-	subject,
-  userFirstName,
-  unsubscribeLink,
-}) => {
+const CustomEmail: Email<Props> = ({ browserLink, html, preview, subject, userFirstName, unsubscribeLink }) => {
   const { domain } = env;
 
   return (
@@ -36,18 +33,17 @@ const CustomEmail: Email<Props> = ({
           <Section>
             <Row>
               <Column className="bg-white pt-8 px-6 pb-4 rounded-b-xl">
-                <Text className="text-lg">
-                  Hello {userFirstName},
-                </Text>
+                <Text className="text-lg">Hello {userFirstName},</Text>
 
-                {/* biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation> */}
+                {/* biome-ignore lint/security/noDangerouslySetInnerHtml: The HTML is provided by an admin and is considered safe. */}
                 <div dangerouslySetInnerHTML={{ __html: html }} />
 
-                <Text className="text-lg">Please do not hesitate to let me know if there are any questions or concerns,<br />Brian and Billy</Text>
-                <Button
-                  className="bg-green-700 text-white w-full text-center py-2.5 rounded-md"
-                  href={`${domain}/`}
-                >
+                <Text className="text-lg">
+                  Please do not hesitate to let me know if there are any questions or concerns,
+                  <br />
+                  Brian and Billy
+                </Text>
+                <Button className="bg-green-700 text-white w-full text-center py-2.5 rounded-md" href={`${domain}/`}>
                   Go to pool
                 </Button>
               </Column>
@@ -63,9 +59,9 @@ const CustomEmail: Email<Props> = ({
 
 CustomEmail.PreviewProps = {
   browserLink: "https://example.com",
-  html: '<p><strong>Some</strong> <u>HTML</u> <i>content</i></p>',
-	preview: 'Some very helpful preview text',
-  subject: 'Some super interesting subject',
+  html: "<p><strong>Some</strong> <u>HTML</u> <i>content</i></p>",
+  preview: "Some very helpful preview text",
+  subject: "Some super interesting subject",
   unsubscribeLink: "https://example.com/unsubscribe",
   userFirstName: "John",
 };

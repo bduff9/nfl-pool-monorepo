@@ -1,22 +1,19 @@
 import type { ReactNode } from "react";
 import type { FieldValues, SubmitErrorHandler } from "react-hook-form";
 import { toast } from "sonner";
-import type { z, ZodType, ZodTypeDef } from "zod";
+import type { ZodType, ZodTypeDef, z } from "zod";
 import type { inferServerActionReturnType, TAnyZodSafeFunctionHandler, ZSAError } from "zsa";
+
 import type { serverActionResultSchema } from "./zod";
 
 // biome-ignore lint/suspicious/noExplicitAny: We need to support any ZSA function
-export type FormZSA<TInput extends ZodType<any, ZodTypeDef, any> = ZodType<any, ZodTypeDef, any>, TOutput extends ZodType<any, ZodTypeDef, any> = typeof serverActionResultSchema> = TAnyZodSafeFunctionHandler<
-  TInput,
-  TOutput,
-  Promise<z.infer<TOutput>>,
-  ZSAError<TInput, TOutput>
->;
+export type FormZSA<
+  TInput extends ZodType<any, ZodTypeDef, any> = ZodType<any, ZodTypeDef, any>,
+  TOutput extends ZodType<any, ZodTypeDef, any> = typeof serverActionResultSchema,
+> = TAnyZodSafeFunctionHandler<TInput, TOutput, Promise<z.infer<TOutput>>, ZSAError<TInput, TOutput>>;
 
 export const processFormState = (
-  result: inferServerActionReturnType<
-    FormZSA
-  >,
+  result: inferServerActionReturnType<FormZSA>,
   redirect?: () => void,
   successMessage?: ReactNode,
 ): void => {

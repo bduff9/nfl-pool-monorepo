@@ -1,5 +1,5 @@
 /*******************************************************************************
- * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
+ * NFL Confidence Pool BE - the backend implementation of an NFL confidence pool.
  * Copyright (C) 2015-present Brian Duffey
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,27 +13,13 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-@import "../../app/variables";
 
-.custom-progress {
-  /* stylelint-disable-next-line declaration-no-important */
-  height: 2rem !important;
-}
+import type { EmailTypes } from "../emails/types";
 
-.correct {
-  background-color: $green-3;
-}
-
-.max {
-  background-color: $green-1;
-}
-
-.possible {
-  background-color: $green-2;
-}
-
-.key {
-  display: inline-block;
-  width: 1rem;
-  height: 1rem;
-}
+export const sendPushNotification = async (
+  userId: number,
+  body: string,
+  type: (typeof EmailTypes)[number],
+): Promise<void> => {
+  console.log("TODO: Not implemented yet", { body, type, userId });
+};

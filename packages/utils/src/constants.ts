@@ -34,6 +34,26 @@ export const MILLISECONDS_IN_SECOND = 1000;
 export const WEEKS_IN_SEASON = 18;
 
 /**
+ * The number of weeks in the postseason
+ */
+export const PLAYOFF_WEEKS = 4;
+
+/**
+ * The total number of weeks in an average month
+ */
+export const WEEKS_IN_MONTH = 4;
+
+/**
+ * The total number of months in a year
+ */
+export const MONTHS_IN_YEAR = 12;
+
+/**
  * The default amount of auto picks each user starts the season with
  */
 export const DEFAULT_AUTO_PICKS = 3;
+
+/**
+ * The user to use for default AddedBy/UpdatedBy audit fields
+ */
+export const ADMIN_USER = "Admin";

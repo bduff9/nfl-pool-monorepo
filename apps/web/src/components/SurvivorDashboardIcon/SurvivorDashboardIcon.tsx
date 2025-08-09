@@ -40,7 +40,7 @@ const SurvivorDashboardIcon: FC<SurvivorDashboardIconProps> = ({
         <div className={cn("mx-auto size-48")}>
           <PiUserDuotone className="h-full w-full" />
         </div>
-        <h3 className="position-relative">Observer</h3>
+        <h3 className="relative scroll-m-20 text-2xl font-semibold tracking-tight">Observer</h3>
       </>
     );
   }
@@ -51,14 +51,16 @@ const SurvivorDashboardIcon: FC<SurvivorDashboardIconProps> = ({
         <>
           <Image
             alt={`${lastPick.TeamCity} ${lastPick.TeamName}`}
-            className="grayscale"
+            className="grayscale mx-auto"
             height={206}
             layout="intrinsic"
             src={`/NFLLogos/${lastPick.TeamLogo}`}
             title={`${lastPick.TeamCity} ${lastPick.TeamName}`}
             width={206}
           />
-          <h3 className="mt-n4 fw-bold text-danger position-relative">You&lsquo;re Out</h3>
+          <h3 className="-mt-4 text-red-600 relative scroll-m-20 text-2xl font-semibold tracking-tight">
+            You&lsquo;re Out
+          </h3>
         </>
       );
     }
@@ -69,7 +71,7 @@ const SurvivorDashboardIcon: FC<SurvivorDashboardIconProps> = ({
           <PiFootballHelmetDuotone className="h-full w-full" />
           <PiQuestionMark className="h-full w-full text-red-600" />
         </div>
-        <h3 className="text-bold text-red-600 relative">You&lsquo;re Out</h3>
+        <h3 className="text-red-600 relative scroll-m-20 text-2xl font-semibold tracking-tight">You&lsquo;re Out</h3>
       </>
     );
   }
@@ -81,7 +83,7 @@ const SurvivorDashboardIcon: FC<SurvivorDashboardIconProps> = ({
           <PiFootballHelmetDuotone className="h-full w-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
           <PiQuestionMark className="h-full w-full text-red-600 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
         </div>
-        <h3 className="text-bold text-red-600 relative">No Pick Made</h3>
+        <h3 className="text-red-600 relative scroll-m-20 text-2xl font-semibold tracking-tight">No Pick Made</h3>
       </>
     );
   }
@@ -96,7 +98,7 @@ const SurvivorDashboardIcon: FC<SurvivorDashboardIconProps> = ({
         title={`${pickForWeek.TeamCity} ${pickForWeek.TeamName}`}
         width={206}
       />
-      <h3 className="mt-n4 fw-bold text-success position-relative">Still Alive</h3>
+      <h3 className="-mt-4 text-green-600 relative scroll-m-20 text-2xl font-semibold tracking-tight">Still Alive</h3>
     </>
   );
 };

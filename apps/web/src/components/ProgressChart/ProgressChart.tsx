@@ -1,4 +1,5 @@
 "use client";
+
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 /*******************************************************************************
  * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
@@ -65,17 +66,15 @@ const ProgressChart: FC<ProgressChartProps> = ({
   return (
     <motion.div layoutId={layoutId}>
       <div className="text-start">{type}</div>
-      <div className={cn("progress h-8")}>
+      <div className={cn("flex overflow-hidden h-8 text-xs bg-gray-50 rounded-sm")}>
         <div
           aria-label={`${correct} ${correctLabel}`}
           aria-valuemax={max}
           aria-valuemin={0}
           aria-valuenow={correct}
           className={cn(
-            "progress-bar",
-            !isOver && "progress-bar-striped",
-            !isOver && "progress-bar-animated",
-            "bg-success",
+            "flex flex-col justify-center items-center text-white text-center whitespace-nowrap transition-all bg-green-700",
+            !isOver && "in-progress",
           )}
           role="progressbar"
           style={{ width: `${correctPercent}%` }}
@@ -89,10 +88,8 @@ const ProgressChart: FC<ProgressChartProps> = ({
           aria-valuemin={0}
           aria-valuenow={incorrect}
           className={cn(
-            "progress-bar",
-            !isOver && "progress-bar-striped",
-            !isOver && "progress-bar-animated",
-            "bg-danger",
+            "flex flex-col justify-center items-center text-white text-center whitespace-nowrap transition-all bg-red-700",
+            !isOver && "in-progress",
           )}
           role="progressbar"
           style={{ width: `${incorrectPercent}%` }}
@@ -107,10 +104,8 @@ const ProgressChart: FC<ProgressChartProps> = ({
             aria-valuemin={0}
             aria-valuenow={inProgress}
             className={cn(
-              "progress-bar",
-              !isOver && "progress-bar-striped",
-              !isOver && "progress-bar-animated",
-              "bg-secondary",
+              "flex flex-col justify-center items-center text-white text-center whitespace-nowrap transition-all bg-gray-700",
+              !isOver && "in-progress",
             )}
             role="progressbar"
             style={{ width: `${inProgressPercent}%` }}
@@ -121,12 +116,12 @@ const ProgressChart: FC<ProgressChartProps> = ({
         )}
       </div>
       {["Games", "Points"].includes(type) ? (
-        <div className="small d-flex justify-content-between mb-2">
+        <div className="text-sm flex justify-between mb-2">
           <div>Max possible {type.toLowerCase()}</div>
           <div>{max}</div>
         </div>
       ) : (
-        <div className="small d-flex justify-content-between mb-2">
+        <div className="text-sm flex justify-between mb-2">
           <div>&nbsp;</div>
         </div>
       )}

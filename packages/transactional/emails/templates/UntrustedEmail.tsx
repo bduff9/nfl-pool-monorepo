@@ -1,14 +1,17 @@
-import { Button, Column, Container, Head, Html, Preview, render, Row, Section, Text } from "@react-email/components";
+import { Button, Column, Container, Head, Html, Preview, Row, Section, Text } from "@react-email/components";
+import { render } from "@react-email/render";
+// biome-ignore lint/style/useImportType: This is needed for react-email
+import * as React from "react";
+
 import { env } from "../../src/env";
-
 import type { Email } from "../../src/types";
-
 import BodyWrapper from "./_components/BodyWrapper";
 import Footer from "./_components/Footer";
 import Header from "./_components/Header";
 
 type Props = {
   adminUserFirstName: string;
+  children?: React.ReactNode;
   newUserUserEmail: string;
   newUserUserName: string;
   newUserUserReferredByRaw: string;

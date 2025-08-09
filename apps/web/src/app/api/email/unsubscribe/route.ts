@@ -14,15 +14,16 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { unsubscribe } from "@/server/actions/email";
 import type { NextRequest } from "next/server";
 
-export const GET = async (req: NextRequest): Promise<Response> => {
-	const { nextUrl } = req;
-	const { searchParams } = nextUrl;
-	const email = searchParams.get('email') ?? '';
+import { unsubscribe } from "@/server/actions/email";
 
-	const html = `
+export const GET = async (req: NextRequest): Promise<Response> => {
+  const { nextUrl } = req;
+  const { searchParams } = nextUrl;
+  const email = searchParams.get("email") ?? "";
+
+  const html = `
 <!doctype html>
 <html>
 	<head lang="en">
@@ -38,44 +39,44 @@ export const GET = async (req: NextRequest): Promise<Response> => {
 	</body>
 </html>`;
 
-	return new Response(html, {
-		status: 200,
-		headers: {
-			'Content-Type': 'text/html',
-		},
-	});
+  return new Response(html, {
+    headers: {
+      "Content-Type": "text/html",
+    },
+    status: 200,
+  });
 };
 
 export const POST = async (req: NextRequest): Promise<Response> => {
-	const formData = await req.formData();
-	const email = formData.get('email') as string;
+  const formData = await req.formData();
+  const email = formData.get("email") as string;
 
-	try {
-		const [data] = await unsubscribe({ email });
+  try {
+    const [data] = await unsubscribe({ email });
 
-		if (data) {
-			return new Response('<h1>You have been successfully unsubscribed</h1>', {
-				status: 200,
-				headers: {
-					'Content-Type': 'text/html',
-				},
-			});
-		} else {
-			return new Response('<h1>Please contact an admin to finish unsubscribing</h1>', {
-				status: 500,
-				headers: {
-					'Content-Type': 'text/html',
-				},
-			});
-		}
-	} catch (error) {
-		console.error({ text: 'Error unsubscribing:', email, error });
+    if (data) {
+      return new Response("<h1>You have been successfully unsubscribed</h1>", {
+        headers: {
+          "Content-Type": "text/html",
+        },
+        status: 200,
+      });
+    } else {
+      return new Response("<h1>Please contact an admin to finish unsubscribing</h1>", {
+        headers: {
+          "Content-Type": "text/html",
+        },
+        status: 500,
+      });
+    }
+  } catch (error) {
+    console.error({ email, error, text: "Error unsubscribing:" });
 
-		return new Response('<h1>Error unsubscribing, please try again later</h1>', {
-			status: 500,
-			headers: {
-				'Content-Type': 'text/html',
-			},
-		});
-	}
+    return new Response("<h1>Error unsubscribing, please try again later</h1>", {
+      headers: {
+        "Content-Type": "text/html",
+      },
+      status: 500,
+    });
+  }
 };

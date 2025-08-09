@@ -1,5 +1,5 @@
 /*******************************************************************************
- * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
+ * NFL Confidence Pool BE - the backend implementation of an NFL confidence pool.
  * Copyright (C) 2015-present Brian Duffey
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,25 +13,25 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-@import "../../app/variables";
+import type { Users } from "@nfl-pool-monorepo/db/src";
+import type { Selectable } from "kysely";
 
-.modal-header {
-  background-color: $blue-2;
-  border: 1px solid $gray-5;
-}
+import { sendPushNotification } from ".";
 
-.winner {
-  background-color: $blue-2;
-  border: 4px solid $blue-4;
-}
-
-.what-if {
-  width: 90px;
-  height: 90px;
-  margin: 0 auto;
-
-  &:hover {
-    background-color: $blue-1;
-    border: 4px solid $blue-3;
+const sendSurvivorReminderPushNotification = async (
+  user: Pick<Selectable<Users>, "UserID" | "UserFirstName">,
+  week: number,
+  hoursLeft: number,
+): Promise<void> => {
+  try {
+    await sendPushNotification(
+      user.UserID,
+      `Hurry up, ${user.UserFirstName}!  Don't fail out of survivor on week ${week}, act now to submit your survivor pick! There are only ${hoursLeft} hours left!`,
+      "survivorReminder",
+    );
+  } catch (_error) {
+    console.error("Failed to send survivor reminder push notification");
   }
-}
+};
+
+export default sendSurvivorReminderPushNotification;

@@ -14,71 +14,68 @@
  * Home: https://asitewithnoname.com/
  */
 
+import type { User } from "@nfl-pool-monorepo/types";
+import type { FC } from "react";
+
 import { getOverallMvCount } from "@/server/loaders/overallMv";
 import { getIsAliveInSurvivor } from "@/server/loaders/survivor";
 import { getSurvivorOverallCounts } from "@/server/loaders/survivorMv";
 import { getMyTiebreaker } from "@/server/loaders/tiebreaker";
-import {
-	getCurrentWeekCached,
-	getSeasonStatus,
-	getSelectedWeek,
-	getWeekStatus,
-} from "@/server/loaders/week";
+import { getCurrentWeekCached, getSeasonStatus, getSelectedWeek, getWeekStatus } from "@/server/loaders/week";
 import { getWeeklyMvCount } from "@/server/loaders/weeklyMv";
-import type { User } from "@nfl-pool-monorepo/types";
-import type { FC } from "react";
+
 import AppSidebarClient from "./AppSidebar.client";
 
 type Props = {
-	user: User;
+  user: User;
 };
 
 const AppSidebar: FC<Props> = async ({ user }) => {
-	const currentWeek = await getCurrentWeekCached();
-	const selectedWeek = await getSelectedWeek(currentWeek);
+  const currentWeek = await getCurrentWeekCached();
+  const selectedWeek = await getSelectedWeek(currentWeek);
 
-	const isAliveInSurvivorPromise = getIsAliveInSurvivor();
-	const tiebreakerPromise = getMyTiebreaker(selectedWeek);
-	const seasonStatusPromise = getSeasonStatus();
-	const selectedWeekStatusPromise = getWeekStatus(selectedWeek);
-	const weeklyMvCountPromise = getWeeklyMvCount(selectedWeek);
-	const overallMvCountPromise = getOverallMvCount();
-	const survivorMvCountsPromise = getSurvivorOverallCounts();
+  const isAliveInSurvivorPromise = getIsAliveInSurvivor();
+  const tiebreakerPromise = getMyTiebreaker(selectedWeek);
+  const seasonStatusPromise = getSeasonStatus();
+  const selectedWeekStatusPromise = getWeekStatus(selectedWeek);
+  const weeklyMvCountPromise = getWeeklyMvCount(selectedWeek);
+  const overallMvCountPromise = getOverallMvCount();
+  const survivorMvCountsPromise = getSurvivorOverallCounts();
 
-	const [
-		isAliveInSurvivor,
-		overallMvCount,
-		seasonStatus,
-		selectedWeekStatus,
-		survivorMvCounts,
-		myTiebreaker,
-		weeklyMvCount,
-	] = await Promise.all([
-		isAliveInSurvivorPromise,
-		overallMvCountPromise,
-		seasonStatusPromise,
-		selectedWeekStatusPromise,
-		survivorMvCountsPromise,
-		tiebreakerPromise,
-		weeklyMvCountPromise,
-	]);
+  const [
+    isAliveInSurvivor,
+    overallMvCount,
+    seasonStatus,
+    selectedWeekStatus,
+    survivorMvCounts,
+    myTiebreaker,
+    weeklyMvCount,
+  ] = await Promise.all([
+    isAliveInSurvivorPromise,
+    overallMvCountPromise,
+    seasonStatusPromise,
+    selectedWeekStatusPromise,
+    survivorMvCountsPromise,
+    tiebreakerPromise,
+    weeklyMvCountPromise,
+  ]);
 
-	const hasSeasonStarted = seasonStatus !== "Not Started";
+  const hasSeasonStarted = seasonStatus !== "Not Started";
 
-	return (
-		<AppSidebarClient
-			currentWeek={currentWeek}
-			hasSeasonStarted={hasSeasonStarted}
-			isAliveInSurvivor={isAliveInSurvivor}
-			myTiebreaker={myTiebreaker}
-			overallMvCount={overallMvCount}
-			selectedWeek={selectedWeek}
-			selectedWeekStatus={selectedWeekStatus}
-			survivorMvCount={survivorMvCounts.overallCount}
-			user={user}
-			weeklyMvCount={weeklyMvCount}
-		/>
-	);
+  return (
+    <AppSidebarClient
+      currentWeek={currentWeek}
+      hasSeasonStarted={hasSeasonStarted}
+      isAliveInSurvivor={isAliveInSurvivor}
+      myTiebreaker={myTiebreaker}
+      overallMvCount={overallMvCount}
+      selectedWeek={selectedWeek}
+      selectedWeekStatus={selectedWeekStatus}
+      survivorMvCount={survivorMvCounts.overallCount}
+      user={user}
+      weeklyMvCount={weeklyMvCount}
+    />
+  );
 };
 
 export default AppSidebar;

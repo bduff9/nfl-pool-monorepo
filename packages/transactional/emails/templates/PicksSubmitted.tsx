@@ -1,14 +1,17 @@
-import { Button, Column, Container, Head, Html, Preview, render, Row, Section, Text } from "@react-email/components";
+import { Button, Column, Container, Head, Html, Preview, Row, Section, Text } from "@react-email/components";
+import { render } from "@react-email/render";
+// biome-ignore lint/style/useImportType: This is needed for react-email
+import * as React from "react";
+
 import { env } from "../../src/env";
-
 import type { Email } from "../../src/types";
-
 import BodyWrapper from "./_components/BodyWrapper";
 import Footer from "./_components/Footer";
 import Header from "./_components/Header";
 
 type Props = {
-  picks: { PickPoints: number | null; TeamID: number | null; TeamCity: string | null; TeamName: string | null; }[];
+  children?: React.ReactNode;
+  picks: { PickPoints: number | null; TeamID: number | null; TeamCity: string | null; TeamName: string | null }[];
   tiebreakerLastScore: number;
   userFirstName: string;
   week: number;
@@ -23,7 +26,8 @@ const PicksSubmittedEmail: Email<Props> = ({
   unsubscribeLink,
 }) => {
   const { domain } = env;
-  const preview = "This is an automated notification to let you know that we have successfully received your picks for this week";
+  const preview =
+    "This is an automated notification to let you know that we have successfully received your picks for this week";
 
   return (
     <Html>
@@ -75,7 +79,11 @@ const PicksSubmittedEmail: Email<Props> = ({
 
 PicksSubmittedEmail.PreviewProps = {
   browserLink: "https://example.com",
-  picks: [{ PickPoints: 1, TeamCity: "Example", TeamID: 1, TeamName: "Team" }, { PickPoints: 2, TeamCity: null, TeamID: null, TeamName: null }, { PickPoints: 3, TeamCity: "Example", TeamID: 3, TeamName: "Team" }],
+  picks: [
+    { PickPoints: 1, TeamCity: "Example", TeamID: 1, TeamName: "Team" },
+    { PickPoints: 2, TeamCity: null, TeamID: null, TeamName: null },
+    { PickPoints: 3, TeamCity: "Example", TeamID: 3, TeamName: "Team" },
+  ],
   tiebreakerLastScore: 33,
   unsubscribeLink: "https://example.com/unsubscribe",
   userFirstName: "John",

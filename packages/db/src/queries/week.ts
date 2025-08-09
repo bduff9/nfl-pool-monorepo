@@ -1,4 +1,4 @@
-import { MILLISECONDS_IN_SECOND, MINUTES_IN_HOUR, SECONDS_IN_MINUTE } from '@nfl-pool-monorepo/utils/constants';
+import { MILLISECONDS_IN_SECOND, MINUTES_IN_HOUR, SECONDS_IN_MINUTE } from "@nfl-pool-monorepo/utils/constants";
 
 import { db } from "../kysely";
 

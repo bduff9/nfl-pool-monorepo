@@ -1,9 +1,10 @@
 "use client";
+
+import type { User } from "@nfl-pool-monorepo/types";
 import { usePathname } from "next/navigation";
 import type { FC } from "react";
 import { useEffect } from "react";
 
-import type { User } from "@/lib/auth";
 import { writeLog } from "@/server/actions/logs";
 
 type Props = {

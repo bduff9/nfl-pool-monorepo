@@ -14,15 +14,18 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
-import Write404Log from "@/components/Write404Log/Write404Log";
-import { getRandomInteger } from "@/lib/numbers";
-import { getCurrentSession } from "@/server/loaders/sessions";
-import { cn } from "@nfl-pool-monorepo/utils/styles";
-import Image from "next/image";
 import { promises as fs } from "node:fs";
 import path from "node:path";
+
+import { getRandomInteger } from "@nfl-pool-monorepo/utils/numbers";
+import { cn } from "@nfl-pool-monorepo/utils/styles";
+import Image from "next/image";
 import type { FC } from "react";
+
+import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
+import Write404Log from "@/components/Write404Log/Write404Log";
+import { getCurrentSession } from "@/server/loaders/sessions";
+
 import CustomHead from "../components/CustomHead/CustomHead";
 
 const NotFound: FC = async () => {
@@ -37,7 +40,9 @@ const NotFound: FC = async () => {
       <CustomHead title="404" />
       <Write404Log user={user} />
       <div className="bg-gray-100/80 text-black absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 mx-3 border border-dark rounded-sm text-dark px-3 py-6 w-full md:w-1/2">
-        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-center mb-6">What have you done?!</h1>
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-center mb-6">
+          What have you done?!
+        </h1>
         <div className={cn("mx-auto relative min-h-[33vh]")}>
           {!!image && (
             <Image

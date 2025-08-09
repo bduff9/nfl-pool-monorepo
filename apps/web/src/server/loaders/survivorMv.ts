@@ -4,6 +4,9 @@ import { cache } from "react";
 import "server-only";
 
 import { WEEKS_IN_SEASON } from "@nfl-pool-monorepo/utils/constants";
+import { jsonArrayFrom, jsonObjectFrom } from "kysely/helpers/mysql";
+
+import { getWeekInProgress } from "./game";
 import { getCurrentSession } from "./sessions";
 
 export const getMySurvivorMv = cache(async () => {
@@ -68,6 +71,31 @@ export const getSurvivorOverallCounts = cache(async () => {
       overallCount: 0,
     }
   );
+});
+
+export const getSurvivorRankings = cache(async () => {
+  const weekInProgress = await getWeekInProgress();
+
+  return db
+    .selectFrom("SurvivorMV as smv")
+    .select(({ selectFrom }) => [
+      "smv.UserID",
+      "smv.UserName",
+      "smv.TeamName",
+      "smv.IsAliveOverall",
+      jsonArrayFrom(
+        selectFrom("SurvivorPicks as sp")
+          .innerJoin("Games as g", "g.GameID", "sp.GameID")
+          .leftJoin("Teams as t", "t.TeamID", "sp.TeamID")
+          .select(["sp.SurvivorPickWeek", "g.WinnerTeamID", "t.TeamID", "t.TeamCity", "t.TeamName", "t.TeamLogo"])
+          .where("sp.SurvivorPickWeek", "<=", weekInProgress)
+          .where("sp.SurvivorPickDeleted", "is", null)
+          .whereRef("sp.UserID", "=", "smv.UserID")
+          .orderBy("sp.SurvivorPickWeek", "asc"),
+      ).as("allPicks"),
+    ])
+    .orderBy("Rank", "asc")
+    .execute();
 });
 
 export const getSurvivorStatus = cache(async () => {

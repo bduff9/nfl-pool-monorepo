@@ -9,7 +9,7 @@ import {
   SidebarMenuItem,
   SidebarMenuSkeleton,
   SidebarProvider,
-  SidebarTrigger
+  SidebarTrigger,
 } from "@nfl-pool-monorepo/ui/components/sidebar";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { Metadata, Viewport } from "next";
@@ -19,12 +19,13 @@ import { type FC, type ReactNode, Suspense } from "react";
 
 import "./globals.css";
 
+import { Toaster } from "@nfl-pool-monorepo/ui/components/sonner";
+import { cookies } from "next/headers";
+
 import AppSidebar from "@/components/AppSidebar/AppSidebar";
 import Providers from "@/components/Providers/providers";
 import { env } from "@/lib/env";
 import { getCurrentSession } from "@/server/loaders/sessions";
-import { Toaster } from "@nfl-pool-monorepo/ui/components/sonner";
-import { cookies } from "next/headers";
 
 const roboto = Roboto({
   display: "swap",
@@ -106,7 +107,7 @@ const RootLayout: FC<Props> = async ({ children }) => {
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
 
   return (
-    <html className={cn('h-full', roboto.className)} lang="en">
+    <html className={cn("h-full", roboto.className)} lang="en">
       <head>
         {env.NEXT_PUBLIC_ENV === "production" && (
           <Script
@@ -130,35 +131,35 @@ const RootLayout: FC<Props> = async ({ children }) => {
             <SidebarProvider defaultOpen={defaultOpen}>
               <Suspense
                 fallback={
-									<Sidebar>
-										<SidebarHeader>
-											<SidebarMenu>
-												<SidebarMenuSkeleton className="mb-8" />
-											</SidebarMenu>
-										</SidebarHeader>
-										<SidebarContent>
-												{Array.from({ length: 5 }).map((_, index) => (
-													// biome-ignore lint/suspicious/noArrayIndexKey: We have no other data besides index
-													<SidebarGroup key={index}>
-														<SidebarGroupContent>
-															<SidebarMenu>
-																<SidebarMenuItem>
-																	<SidebarMenuSkeleton />
-																</SidebarMenuItem>
-															</SidebarMenu>
-														</SidebarGroupContent>
-													</SidebarGroup>
-												))}
-										</SidebarContent>
+                  <Sidebar>
+                    <SidebarHeader>
+                      <SidebarMenu>
+                        <SidebarMenuSkeleton className="mb-8" />
+                      </SidebarMenu>
+                    </SidebarHeader>
+                    <SidebarContent>
+                      {Array.from({ length: 5 }).map((_, index) => (
+                        // biome-ignore lint/suspicious/noArrayIndexKey: We have no other data besides index
+                        <SidebarGroup key={index}>
+                          <SidebarGroupContent>
+                            <SidebarMenu>
+                              <SidebarMenuItem>
+                                <SidebarMenuSkeleton />
+                              </SidebarMenuItem>
+                            </SidebarMenu>
+                          </SidebarGroupContent>
+                        </SidebarGroup>
+                      ))}
+                    </SidebarContent>
 
-										<SidebarFooter>
-											<SidebarMenu>
-												<SidebarMenuItem>
-													<SidebarMenuSkeleton showIcon />
-												</SidebarMenuItem>
-											</SidebarMenu>
-										</SidebarFooter>
-									</Sidebar>
+                    <SidebarFooter>
+                      <SidebarMenu>
+                        <SidebarMenuItem>
+                          <SidebarMenuSkeleton showIcon />
+                        </SidebarMenuItem>
+                      </SidebarMenu>
+                    </SidebarFooter>
+                  </Sidebar>
                 }
               >
                 <AppSidebar user={user} />

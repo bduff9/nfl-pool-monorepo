@@ -14,20 +14,21 @@
  * Home: https://asitewithnoname.com/
  */
 
-import CustomHead from '@/components/CustomHead/CustomHead';
-import GameStatusDisplay from '@/components/GameStatusDisplay/GameStatusDisplay';
-import ScoreboardTeam from '@/components/ScoreboardTeam/ScoreboardTeam';
-import { requireRegistered } from '@/lib/auth';
-import { formatDateForKickoff } from '@/lib/dates';
-import type { NP } from '@/lib/types';
-import { getGamesForWeek } from '@/server/loaders/game';
-import { getSelectedWeek } from '@/server/loaders/week';
-import { cn } from '@nfl-pool-monorepo/utils/styles';
-import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
-import { Fragment } from 'react';
+import { cn } from "@nfl-pool-monorepo/utils/styles";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { Fragment } from "react";
 
-const TITLE = 'Scoreboard';
+import CustomHead from "@/components/CustomHead/CustomHead";
+import GameStatusDisplay from "@/components/GameStatusDisplay/GameStatusDisplay";
+import ScoreboardTeam from "@/components/ScoreboardTeam/ScoreboardTeam";
+import { requireRegistered } from "@/lib/auth";
+import { formatDateForKickoff } from "@/lib/dates";
+import type { NP } from "@/lib/types";
+import { getGamesForWeekCached } from "@/server/loaders/game";
+import { getSelectedWeek } from "@/server/loaders/week";
+
+const TITLE = "Scoreboard";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -41,7 +42,7 @@ const Scoreboard: NP = async () => {
   }
 
   const selectedWeek = await getSelectedWeek();
-  const games = await getGamesForWeek(selectedWeek);
+  const games = await getGamesForWeekCached(selectedWeek);
   let lastKickoff: string;
 
   return (
@@ -49,7 +50,7 @@ const Scoreboard: NP = async () => {
       <CustomHead title={TITLE} />
       <div className="bg-gray-100/80 text-black md:mx-2 pt-5 md:pt-3 min-h-screen pb-4 flex-1">
         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-x-5 px-3">
-          {games.map(game => {
+          {games.map((game) => {
             const currentKickoff = formatDateForKickoff(game.GameKickoff);
             const differentKickoff = currentKickoff !== lastKickoff;
             const isFirst = !lastKickoff;
@@ -59,18 +60,11 @@ const Scoreboard: NP = async () => {
             return (
               <Fragment key={`game-${game.GameID}`}>
                 {differentKickoff && (
-                  <div
-                    className={cn(
-                      'col-span-full text-left font-bold',
-                      !isFirst && 'mt-3',
-                    )}
-                  >
-                    {currentKickoff}
-                  </div>
+                  <div className={cn("col-span-full text-left font-bold", !isFirst && "mt-3")}>{currentKickoff}</div>
                 )}
                 <div className="mb-3">
-                  <div className={cn('p-3 flex bg-gray-100 border border-gray-500')}>
-                    <div className={cn('flex flex-grow flex-wrap')}>
+                  <div className={cn("p-3 flex bg-gray-100 border border-gray-500")}>
+                    <div className={cn("flex flex-grow flex-wrap")}>
                       <ScoreboardTeam
                         gameStatus={game.GameStatus}
                         hasPossession={game.GameHasPossession === game.HomeTeamID}
@@ -88,11 +82,7 @@ const Scoreboard: NP = async () => {
                         team={game.visitorTeam}
                       />
                     </div>
-                    <div
-                      className={cn(
-                        'text-center pt-4 text-lg min-w-[320px] md:min-w-[128px]',
-                      )}
-                    >
+                    <div className={cn("text-center pt-4 text-lg min-w-[320px] md:min-w-[128px]")}>
                       <GameStatusDisplay
                         gameStatus={game.GameStatus}
                         kickoff={game.GameKickoff}

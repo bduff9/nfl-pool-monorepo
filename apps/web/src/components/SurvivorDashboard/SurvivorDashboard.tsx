@@ -1,6 +1,7 @@
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { redirect } from "next/navigation";
 import type { FC } from "react";
+
 /*******************************************************************************
  * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
  * Copyright (C) 2015-present Brian Duffey
@@ -25,6 +26,7 @@ import {
   getSurvivorWeeklyCounts,
 } from "@/server/loaders/survivorMv";
 import { getSelectedWeek, getWeekStatus } from "@/server/loaders/week";
+
 import { ProgressBarLink } from "../ProgressBar/ProgressBar";
 import ProgressChart from "../ProgressChart/ProgressChart";
 import SurvivorDashboardIcon from "../SurvivorDashboardIcon/SurvivorDashboardIcon";
@@ -64,21 +66,21 @@ const SurvivorDashboard: FC = async () => {
   ]);
 
   return (
-    <div className={cn("col-md-4 text-center mb-3 md:mb-0")}>
-      <h2 className="mb-0">Survivor Pool</h2>
+    <div className={cn("text-center mb-3 md:mb-0 px-3")}>
+      <h2 className="mb-0 scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0">Survivor Pool</h2>
 
       <div>
         <div>
           {isAliveInSurvivor ? (
             mySurvivorPickForWeek ? (
-              <div className="text-success">You have submitted your survivor pick</div>
+              <div className="text-green-700">You have submitted your survivor pick</div>
             ) : (
-              <div className="text-danger">You have not submitted your survivor pick yet!</div>
+              <div className="text-red-700">You have not submitted your survivor pick yet!</div>
             )
           ) : null}
           {mySurvivorMv && (
             <ProgressBarLink
-              className={cn("block underline", (!isAliveInSurvivor || mySurvivorPickForWeek) && "md:mb-5")}
+              className={cn("block underline", (!isAliveInSurvivor || mySurvivorPickForWeek) && "md:mb-[50px]")}
               href="/survivor/view"
             >
               View Details
@@ -97,7 +99,9 @@ const SurvivorDashboard: FC = async () => {
           pickForWeek={mySurvivorPickForWeek}
         />
 
-        {survivorStatus !== "Not Started" && <h2>Survivor Pool Results</h2>}
+        {survivorStatus !== "Not Started" && (
+          <h2 className="scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0">Survivor Pool Results</h2>
+        )}
         {survivorWeeklyCounts.overallCount > 0 && (
           <ProgressChart
             correct={survivorWeeklyCounts.aliveCount}

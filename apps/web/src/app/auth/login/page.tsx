@@ -19,6 +19,8 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import "server-only";
 
+import { getSystemYear } from "@nfl-pool-monorepo/db/src/queries/systemValue";
+
 import CustomHead from "@/components/CustomHead/CustomHead";
 import GoogleAuthButton from "@/components/GoogleAuthButton/GoogleAuthButton";
 import LoginForm from "@/components/LoginForm/LoginForm";
@@ -26,7 +28,6 @@ import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import TextSeparator from "@/components/TextSeparator/TextSeparator";
 import { requireLoggedOut } from "@/lib/auth";
 import type { NP } from "@/lib/types";
-import { getSystemYear } from "@nfl-pool-monorepo/db/src/queries/systemValue";
 
 const TITLE = "Login";
 

@@ -14,36 +14,32 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { cn } from '@nfl-pool-monorepo/utils/styles';
-import { redirect } from 'next/navigation';
+import { cn } from "@nfl-pool-monorepo/utils/styles";
+import { redirect } from "next/navigation";
 
-import BackupsTable from '@/components/BackupsTable/BackupsTable';
-import CustomHead from '@/components/CustomHead/CustomHead';
-import { requireAdmin } from '@/lib/auth';
-import type { NP } from '@/lib/types';
-import { getAdminBackups } from '@/server/loaders/backup';
+import BackupsTable from "@/components/BackupsTable/BackupsTable";
+import CustomHead from "@/components/CustomHead/CustomHead";
+import { requireAdmin } from "@/lib/auth";
+import type { NP } from "@/lib/types";
+import { getAdminBackups } from "@/server/loaders/backup";
 
 const AdminBackupsPage: NP = async () => {
-	const redirectUrl = await requireAdmin();
+  const redirectUrl = await requireAdmin();
 
-	if (redirectUrl) {
-		return redirect(redirectUrl);
-	}
+  if (redirectUrl) {
+    return redirect(redirectUrl);
+  }
 
-	const { count, results } = await getAdminBackups();
+  const { count, results } = await getAdminBackups();
 
-	return (
-		<div className="h-full flex flex-col">
-			<CustomHead title="Backups Admin" />
-			<div
-				className={cn(
-					'bg-gray-100/80 text-black mx-2 pt-3 flex-1 min-h-screen',
-				)}
-			>
-				<BackupsTable count={count} results={results} />
-			</div>
-		</div>
-	);
+  return (
+    <div className="h-full flex flex-col">
+      <CustomHead title="Backups Admin" />
+      <div className={cn("bg-gray-100/80 text-black mx-2 pt-3 flex-1 min-h-screen")}>
+        <BackupsTable count={count} results={results} />
+      </div>
+    </div>
+  );
 };
 
 export default AdminBackupsPage;

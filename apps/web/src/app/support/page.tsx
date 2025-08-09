@@ -245,10 +245,7 @@ const Support: NP = async ({ searchParams }) => {
   return (
     <div className="h-full flex flex-wrap max-w-full px-2">
       <CustomHead title={TITLE} />
-      <div
-        className="bg-gray-100/80 text-black pt-5 md:pt-3 min-h-screen pb-4 px-3 grow shrink-0 max-w-full"
-        id="top"
-      >
+      <div className="bg-gray-100/80 text-black pt-5 md:pt-3 min-h-screen pb-4 px-3 grow shrink-0 max-w-full" id="top">
         <SupportSearch currentQuery={query} />
         <h2 className="text-4xl text-center mb-0" id="rules">
           Rules

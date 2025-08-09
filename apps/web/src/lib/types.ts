@@ -17,7 +17,7 @@ import type { FC } from "react";
  */
 
 export type SearchParams = {
-	[key: string]: string | string[] | undefined;
+  [key: string]: string | string[] | undefined;
 };
 
 /**

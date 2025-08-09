@@ -1,4 +1,20 @@
 "use client";
+
+import type { DragStart, DropResult } from "@hello-pangea/dnd";
+import { DragDropContext, Droppable } from "@hello-pangea/dnd";
+import { Button } from "@nfl-pool-monorepo/ui/components/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@nfl-pool-monorepo/ui/components/dropdown-menu";
+import { Input } from "@nfl-pool-monorepo/ui/components/input";
+import { Label } from "@nfl-pool-monorepo/ui/components/label";
+import { useSidebar } from "@nfl-pool-monorepo/ui/components/sidebar";
+import { cn } from "@nfl-pool-monorepo/utils/styles";
+
 import type { AutoPickStrategy } from "@/lib/constants";
 import { parseDragData } from "@/lib/strings";
 import { processFormState } from "@/lib/zsa";
@@ -6,21 +22,8 @@ import { autoPickMyPicks, resetMyPicksForWeek, setMyPick, submitMyPicks, validat
 import { updateMyTiebreakerScore } from "@/server/actions/tiebreaker";
 import type { getMyWeeklyPicks } from "@/server/loaders/pick";
 import type { getMyTiebreaker } from "@/server/loaders/tiebreaker";
-import type { DragStart, DropResult } from "@hello-pangea/dnd";
-import { DragDropContext, Droppable } from "@hello-pangea/dnd";
-import { Button } from "@nfl-pool-monorepo/ui/components/button";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuGroup,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@nfl-pool-monorepo/ui/components/dropdown-menu";
-import { Input } from "@nfl-pool-monorepo/ui/components/input";
-import { Label } from "@nfl-pool-monorepo/ui/components/label";
-import { useSidebar } from "@nfl-pool-monorepo/ui/components/sidebar";
-import { cn } from "@nfl-pool-monorepo/utils/styles";
 import "client-only";
+
 import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 import type { FC, FocusEventHandler, ReactNode } from "react";
@@ -28,6 +31,7 @@ import { Fragment, useCallback, useOptimistic, useState, useTransition } from "r
 import { FaCloudUploadAlt, FaRedo, FaSave } from "react-icons/fa";
 import { PiFootballDuotone, PiRobotDuotone } from "react-icons/pi";
 import { toast } from "sonner";
+
 import PickGame, { Point } from "../PickGame/PickGame";
 import TeamDetail from "../TeamDetail/TeamDetail";
 

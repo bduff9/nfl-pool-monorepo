@@ -1,9 +1,7 @@
 import type { Users } from "@nfl-pool-monorepo/db/src";
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
-import type { Selectable } from "kysely";
-import "server-only";
-
 import { getSystemYear } from "@nfl-pool-monorepo/db/src/queries/systemValue";
+import type { Selectable } from "kysely";
 
 import { getBaseEmailClass, getBrowserLink, getUnsubscribeLink, sendEmail, updateEmailClass } from ".";
 import { getHtml, getPlainText, getSubject } from "./templates/NewUserEmail";

@@ -16,12 +16,12 @@ export const getUserNotifications = cache(async (userId: number) => {
     ])
     .innerJoin("NotificationTypes as nt", "n.NotificationType", "nt.NotificationType")
     .select([
-      'nt.NotificationTypeDescription',
-      'nt.NotificationTypeHasEmail',
-      'nt.NotificationTypeHasHours',
-      'nt.NotificationTypeHasPushNotification',
-      'nt.NotificationTypeHasSMS',
-      'nt.NotificationTypeTooltip',
+      "nt.NotificationTypeDescription",
+      "nt.NotificationTypeHasEmail",
+      "nt.NotificationTypeHasHours",
+      "nt.NotificationTypeHasPushNotification",
+      "nt.NotificationTypeHasSMS",
+      "nt.NotificationTypeTooltip",
     ])
     .where("n.UserID", "=", userId)
     .execute();

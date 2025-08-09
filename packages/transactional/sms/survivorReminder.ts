@@ -13,35 +13,33 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
+import type { Users } from "@nfl-pool-monorepo/db/src";
+import type { Selectable } from "kysely";
 
-import type { User } from '../entity';
-import EmailType from '../entity/EmailType';
-import { log } from '../util/logging';
-
-import { sendSMS } from '.';
+import { sendSMS } from ".";
 
 const sendSurvivorReminderSMS = async (
-	user: User,
-	week: number,
-	hoursLeft: number,
+  user: Pick<Selectable<Users>, "UserFirstName" | "UserPhone">,
+  week: number,
+  hoursLeft: number,
 ): Promise<void> => {
-	const message = `${user.userFirstName}, this is your reminder to submit your survivor pick for week ${week} as you now have less than ${hoursLeft} hours!`;
+  const message = `${user.UserFirstName}, this is your reminder to submit your survivor pick for week ${week} as you now have less than ${hoursLeft} hours!`;
 
-	try {
-		if (!user.userPhone) {
-			throw new Error('Missing phone number for user!');
-		}
+  try {
+    if (!user.UserPhone) {
+      throw new Error("Missing phone number for user!");
+    }
 
-		await sendSMS(user.userPhone, message, EmailType.survivorReminder);
-	} catch (error) {
-		log.error('Failed to send survivor reminder sms:', {
-			error,
-			hoursLeft,
-			type: EmailType.survivorReminder,
-			user,
-			week,
-		});
-	}
+    await sendSMS(user.UserPhone, message, "survivorReminder");
+  } catch (error) {
+    console.error("Failed to send survivor reminder sms:", {
+      error,
+      hoursLeft,
+      type: "survivorReminder",
+      user,
+      week,
+    });
+  }
 };
 
 export default sendSurvivorReminderSMS;

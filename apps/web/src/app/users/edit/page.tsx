@@ -14,6 +14,8 @@
  * Home: https://asitewithnoname.com/
  */
 
+import { redirect } from "next/navigation";
+
 import CustomHead from "@/components/CustomHead/CustomHead";
 import EditProfileForm from "@/components/EditProfileForm/EditProfileForm";
 import { requireRegistered } from "@/lib/auth";
@@ -21,7 +23,6 @@ import type { NP } from "@/lib/types";
 import { editMyProfile } from "@/server/actions/user";
 import { getUserNotifications } from "@/server/loaders/notification";
 import { getCurrentUser, userHasGoogle } from "@/server/loaders/user";
-import { redirect } from "next/navigation";
 
 const EditProfile: NP = async () => {
   const redirectPath = await requireRegistered();

@@ -42,7 +42,7 @@ const Dashboard: NP = async () => {
     <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title={TITLE} />
       <div className="bg-gray-100/80 text-black pt-5 md:pt-3 min-h-screen pb-4 grow shrink-0">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 min-h-screen">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-0 min-h-screen">
           <Suspense fallback={<DashboardLoader title="Weekly Rank" />}>
             <WeeklyDashboard />
           </Suspense>

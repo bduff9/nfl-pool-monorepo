@@ -1,9 +1,10 @@
-import { weekSchema } from "@/lib/zod";
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { sql } from "kysely";
 import { jsonArrayFrom, jsonObjectFrom } from "kysely/helpers/mysql";
 import { cache } from "react";
 import "server-only";
+
+import { weekSchema } from "@nfl-pool-monorepo/utils/zod";
 
 import { getCurrentSession } from "./sessions";
 
@@ -55,6 +56,7 @@ export const getMyWeeklyPicks = cache(async (week: number) => {
             "HT.TeamID",
             "HT.TeamLogo",
             "HT.TeamName",
+            "HT.TeamShortName",
             "HT.TeamPrimaryColor",
             "HT.TeamSecondaryColor",
             "HT.TeamConference",
@@ -121,6 +123,7 @@ export const getMyWeeklyPicks = cache(async (week: number) => {
             "VT.TeamID",
             "VT.TeamLogo",
             "VT.TeamName",
+            "VT.TeamShortName",
             "VT.TeamPrimaryColor",
             "VT.TeamSecondaryColor",
             "VT.TeamConference",
@@ -187,6 +190,7 @@ export const getMyWeeklyPicks = cache(async (week: number) => {
             "WT.TeamID",
             "WT.TeamLogo",
             "WT.TeamName",
+            "WT.TeamShortName",
             "WT.TeamPrimaryColor",
             "WT.TeamSecondaryColor",
             "WT.TeamConference",

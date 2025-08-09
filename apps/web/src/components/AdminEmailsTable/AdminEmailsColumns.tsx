@@ -1,5 +1,4 @@
-"use client"
-
+"use client";
 
 import { SortableColumnHeader } from "@nfl-pool-monorepo/ui/components/data-table";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -7,7 +6,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { env } from "@/lib/env";
 import type { getAdminEmails } from "@/server/loaders/email";
 
-export type Email = Awaited<ReturnType<typeof getAdminEmails>>['results'][number];
+export type Email = Awaited<ReturnType<typeof getAdminEmails>>["results"][number];
 
 export const emailColumns: ColumnDef<Email>[] = [
   {
@@ -43,12 +42,7 @@ export const emailColumns: ColumnDef<Email>[] = [
       return `${row.EmailType} unknown`;
     },
     accessorKey: "EmailType",
-    header: ({ column }) => (
-      <SortableColumnHeader
-        column={column}
-        title="Type"
-      />
-    ),
+    header: ({ column }) => <SortableColumnHeader column={column} title="Type" />,
   },
   {
     accessorKey: "UserName",
@@ -64,30 +58,15 @@ export const emailColumns: ColumnDef<Email>[] = [
         </>
       );
     },
-    header: ({ column }) => (
-      <SortableColumnHeader
-        column={column}
-        title="To"
-      />
-    ),
+    header: ({ column }) => <SortableColumnHeader column={column} title="To" />,
   },
   {
     accessorKey: "EmailSubject",
-    header: ({ column }) => (
-      <SortableColumnHeader
-        column={column}
-        title="Subject"
-      />
-    ),
+    header: ({ column }) => <SortableColumnHeader column={column} title="Subject" />,
   },
   {
-    accessorFn: row => row.EmailCreatedAt.toString(),
+    accessorFn: (row) => row.EmailCreatedAt.toString(),
     accessorKey: "EmailCreatedAt",
-    header: ({ column }) => (
-      <SortableColumnHeader
-        column={column}
-        title="Sent"
-      />
-    ),
+    header: ({ column }) => <SortableColumnHeader column={column} title="Sent" />,
   },
 ];
