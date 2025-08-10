@@ -1,7 +1,7 @@
 import { ADMIN_USER } from "@nfl-pool-monorepo/utils/constants";
 
-import { db } from "../kysely";
 import type { ApiTeam } from "./../../../api/src/zod";
+import { db } from "../kysely";
 
 export const updateTeamByeWeeks = async (week: number): Promise<void> => {
   await db

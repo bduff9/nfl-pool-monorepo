@@ -177,8 +177,8 @@
 }
 
 .required::after {
-  @apply text-red-600;
   content: "*";
+  @apply text-red-600;
 }
 
 .sr-only {
@@ -188,9 +188,9 @@
   padding: 0;
   margin: -1px;
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border-width: 0;
+  clip: rect(0, 0, 0, 0);
 }
 
 @keyframes progress-bar-stripes {

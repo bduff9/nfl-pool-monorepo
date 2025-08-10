@@ -372,7 +372,6 @@ function SidebarGroupLabel({
   const Comp = asChild ? Slot : "div";
 
   return (
-    //@ts-expect-error Refs fail here for some reason
     <Comp
       className={cn(
         "text-sidebar-foreground/70 ring-sidebar-ring flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
@@ -394,7 +393,6 @@ function SidebarGroupAction({
   const Comp = asChild ? Slot : "button";
 
   return (
-    //@ts-expect-error Refs fail here for some reason
     <Comp
       className={cn(
         "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground absolute top-3.5 right-3 flex aspect-square w-5 items-center justify-center rounded-md p-0 outline-hidden transition-transform focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
@@ -482,7 +480,6 @@ function SidebarMenuButton({
   const { isMobile, state } = useSidebar();
 
   const button = (
-    //@ts-expect-error Refs fail here for some reason
     <Comp
       className={cn(sidebarMenuButtonVariants({ size, variant }), className)}
       data-active={isActive}
@@ -523,7 +520,6 @@ function SidebarMenuAction({
   const Comp = asChild ? Slot : "button";
 
   return (
-    //@ts-expect-error Refs fail here for some reason
     <Comp
       className={cn(
         "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground peer-hover/menu-button:text-sidebar-accent-foreground absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-md p-0 outline-hidden transition-transform focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
@@ -636,7 +632,6 @@ function SidebarMenuSubButton({
   const Comp = asChild ? Slot : "a";
 
   return (
-    //@ts-expect-error Refs fail here for some reason
     <Comp
       className={cn(
         "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 outline-hidden focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",

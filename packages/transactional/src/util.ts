@@ -1,11 +1,11 @@
 import {
-	DAYS_IN_WEEK,
-	HOURS_IN_DAY,
-	MILLISECONDS_IN_SECOND,
-	MINUTES_IN_HOUR,
-	MONTHS_IN_YEAR,
-	SECONDS_IN_MINUTE,
-	WEEKS_IN_MONTH,
+  DAYS_IN_WEEK,
+  HOURS_IN_DAY,
+  MILLISECONDS_IN_SECOND,
+  MINUTES_IN_HOUR,
+  MONTHS_IN_YEAR,
+  SECONDS_IN_MINUTE,
+  WEEKS_IN_MONTH,
 } from "@nfl-pool-monorepo/utils/constants";
 
 export const relativeTime = (date: Date): string => {
@@ -57,9 +57,9 @@ export const relativeTime = (date: Date): string => {
 export const stripCharacterCount = (text: string): string => {
   const index = text.search(/\[.+\]/);
 
-	if (index < 0) {
-		return text;
-	}
+  if (index < 0) {
+    return text;
+  }
 
   return text.substring(0, index);
 };

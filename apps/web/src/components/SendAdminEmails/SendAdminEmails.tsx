@@ -322,6 +322,7 @@ const SendAdminEmails: FC = () => {
                                 fieldState.error && "border-red-600",
                               )}
                             >
+                              {/* biome-ignore lint/a11y/noStaticElementInteractions: This div should be interactive */}
                               <div onBlur={updatePreview} ref={quillRef} />
                             </div>
                           </FormControl>

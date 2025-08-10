@@ -73,8 +73,8 @@ const MakeSurvivorPickClient: FC<Props> = ({ games, survivorPicks, teamsOnBye, w
               className={cn("w-full md:w-1/2 lg:w-1/3 2xl:w-1/4 flex flex-wrap pb-3 relative h-48")}
               key={`survivor-game-${game.GameID}`}
             >
+              {/* biome-ignore lint/a11y/noStaticElementInteractions: This div acts as a clickable area to expand/collapse game details. */}
               <div
-                // biome-ignore lint/a11y/noStaticElementInteractions: This div acts as a clickable area to expand/collapse game details.
                 className={cn(
                   "w-full text-muted border border-black flex justify-around overflow-hidden cursor-pointer h-[25px] bg-gray-100 items-center",
                 )}

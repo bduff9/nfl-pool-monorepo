@@ -80,7 +80,7 @@ const SurvivorDashboard: FC = async () => {
           ) : null}
           {mySurvivorMv && (
             <ProgressBarLink
-              className={cn("block underline", (!isAliveInSurvivor || mySurvivorPickForWeek) && "md:mb-[50px]")}
+              className={cn("block underline", (!isAliveInSurvivor || mySurvivorPickForWeek) && "md:mb-[52px]")}
               href="/survivor/view"
             >
               View Details

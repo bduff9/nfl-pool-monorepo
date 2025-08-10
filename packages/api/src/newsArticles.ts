@@ -34,10 +34,12 @@ export const getArticlesForWeek = async (week: number) => {
   const response = await fetch(url);
   const jsonResponse = await response.json();
   const apiResults = newsArticlesSchema.safeParse(jsonResponse);
-  const filteredArticles = apiResults.success ? apiResults.data.articles.filter((article) => !!article.author && !!article.urlToImage) : [];
+  const filteredArticles = apiResults.success
+    ? apiResults.data.articles.filter((article) => !!article.author && !!article.urlToImage)
+    : [];
 
   if (filteredArticles.length <= 3) {
-		return filteredArticles;
+    return filteredArticles;
   }
 
   const articles: APINewsArticle[] = [];

@@ -38,6 +38,7 @@ type Props = {
 
 const SurvivorTeam: FC<Props> = ({ isHome = false, isOnBye = false, loading, onClick, pick, team, weekInProgress }) => {
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: This div should be interactive
     <div
       className={cn(
         ...(pick

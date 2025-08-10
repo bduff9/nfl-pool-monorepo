@@ -33,7 +33,6 @@ function Badge({
 }: React.ComponentProps<"span"> & VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
   const Comp = asChild ? Slot : "span";
 
-  //@ts-expect-error Refs fail here for some reason
   return <Comp className={cn(badgeVariants({ variant }), className)} data-slot="badge" {...props} />;
 }
 

@@ -12,7 +12,14 @@ export const sendWeekEndedEmail = async (
   const homeTeam = await db
     .selectFrom("Teams as t")
     .innerJoin("Games as g", "g.HomeTeamID", "t.TeamID")
-    .select(["g.GameHomeScore", "g.GameVisitorScore", "t.TeamCity", "t.TeamName", "t.TeamPrimaryColor", "t.TeamSecondaryColor"])
+    .select([
+      "g.GameHomeScore",
+      "g.GameVisitorScore",
+      "t.TeamCity",
+      "t.TeamName",
+      "t.TeamPrimaryColor",
+      "t.TeamSecondaryColor",
+    ])
     .where("g.GameWeek", "=", week)
     .orderBy("GameKickoff", "desc")
     .executeTakeFirstOrThrow();
@@ -30,7 +37,10 @@ export const sendWeekEndedEmail = async (
     .where("g.GameWeek", "=", week)
     .orderBy("GameKickoff", "desc")
     .executeTakeFirstOrThrow();
-  const [winnerScore, loserScore] = homeTeam.GameHomeScore > homeTeam.GameVisitorScore ? [homeTeam.GameHomeScore, homeTeam.GameVisitorScore] : [homeTeam.GameVisitorScore, homeTeam.GameHomeScore];
+  const [winnerScore, loserScore] =
+    homeTeam.GameHomeScore > homeTeam.GameVisitorScore
+      ? [homeTeam.GameHomeScore, homeTeam.GameVisitorScore]
+      : [homeTeam.GameVisitorScore, homeTeam.GameHomeScore];
   const to = [user.UserEmail];
   const emailId = await getBaseEmailClass({ to, type: "weekEnded" });
   const browserLink = getBrowserLink(emailId);

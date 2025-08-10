@@ -1,10 +1,11 @@
+import { sendLockedOutEmail } from "@nfl-pool-monorepo/transactional/emails/lockedOut";
 import { ADMIN_USER } from "@nfl-pool-monorepo/utils/constants";
 import { addOrdinal } from "@nfl-pool-monorepo/utils/numbers";
-import { sendLockedOutEmail } from "@nfl-pool-monorepo/transactional/emails/lockedOut";
 import { sql, type Transaction } from "kysely";
 
 import type { DB } from "..";
 import { db as database } from "../kysely";
+import { getUsersWhoOwe } from "../queries/payment";
 import { getSurvivorPoolStatus } from "./../queries/survivor";
 import {
   getOverallPrizeAmounts,
@@ -13,9 +14,8 @@ import {
   getSurvivorPrizeAmounts,
   getWeeklyPrizeAmounts,
 } from "../queries/systemValue";
-import { getUsersWhoOwe } from "../queries/payment";
-import { unregisterUser } from "./users";
 import { signOutUserFromAllDevices } from "./session";
+import { unregisterUser } from "./users";
 
 const getPrizeAmounts = <T extends Array<number>>(winners: Array<{ Rank: number }>, prizes: T): T => {
   const adjustedPrizes = [...prizes];
@@ -45,19 +45,19 @@ const getPrizeAmounts = <T extends Array<number>>(winners: Array<{ Rank: number 
 };
 
 export const lockLatePaymentUsers = async (week: number): Promise<void> => {
-	const dueWeek = await getPaymentDueWeek();
+  const dueWeek = await getPaymentDueWeek();
 
-	if (week < dueWeek) {
-		return;
-	}
+  if (week < dueWeek) {
+    return;
+  }
 
-	const payments = await getUsersWhoOwe();
+  const payments = await getUsersWhoOwe();
 
-	for (const payment of payments) {
-		await unregisterUser(payment.UserID);
-		await signOutUserFromAllDevices(payment.UserID);
-		await sendLockedOutEmail(payment.UserID, Math.abs(payment.balance), week);
-	}
+  for (const payment of payments) {
+    await unregisterUser(payment.UserID);
+    await signOutUserFromAllDevices(payment.UserID);
+    await sendLockedOutEmail(payment.UserID, Math.abs(payment.balance), week);
+  }
 };
 
 export const updateAllPayouts = async (week: number, trx?: Transaction<DB>): Promise<void> => {

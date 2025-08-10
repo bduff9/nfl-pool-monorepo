@@ -49,7 +49,6 @@ function Button({
   }) {
   const Comp = asChild ? Slot : "button";
 
-  //@ts-expect-error Refs fail here for some reason
   return <Comp className={cn(buttonVariants({ className, size, variant }))} data-slot="button" {...props} />;
 }
 

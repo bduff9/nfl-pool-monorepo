@@ -3,7 +3,7 @@
   "dependencies": {
     "@nfl-pool-monorepo/db": "*",
     "@nfl-pool-monorepo/utils": "*",
-    "zod": "3.25.67"
+    "zod": "3.25.76"
   },
   "description": "",
   "devDependencies": {

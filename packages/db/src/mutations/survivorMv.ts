@@ -1,7 +1,7 @@
 import { executeSqlFile } from "@nfl-pool-monorepo/utils/database";
 
 export const updateSurvivorMV = async (week: number): Promise<void> => {
-	const query = `
+  const query = `
 	set @week := ${week};
 	set foreign_key_checks = 0;
 	lock tables SurvivorMV write, SurvivorMV as S1 write, SurvivorMV as S2 write, Games read, Games as G read, SurvivorPicks read, SurvivorPicks as S read, SurvivorPicks as SP read, SurvivorPicks as SP2 read, Users read, Users as U read;
@@ -32,15 +32,15 @@ export const updateSurvivorMV = async (week: number): Promise<void> => {
 	unlock tables;
 	set foreign_key_checks = 1;
 `;
-	const recoverQuery = `
+  const recoverQuery = `
 	unlock tables;
 	set foreign_key_checks = 1;
 `;
 
-	try {
-		await executeSqlFile(query);
-	} catch (error) {
-		console.error('Error when populating SurvivorMV: ', error);
-		await executeSqlFile(recoverQuery);
-	}
+  try {
+    await executeSqlFile(query);
+  } catch (error) {
+    console.error("Error when populating SurvivorMV: ", error);
+    await executeSqlFile(recoverQuery);
+  }
 };

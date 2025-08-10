@@ -104,7 +104,7 @@ type Props = {
 const RootLayout: FC<Props> = async ({ children }) => {
   const { user } = await getCurrentSession();
   const cookieStore = await cookies();
-  const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
+  const defaultOpen = cookieStore.get("sidebar_state")?.value !== "false";
 
   return (
     <html className={cn("h-full", roboto.className)} lang="en">
@@ -123,12 +123,10 @@ const RootLayout: FC<Props> = async ({ children }) => {
             src="https://static.cloudflareinsights.com/beacon.min.js"
           />
         )}
-        <Script crossOrigin="anonymous" src="https://cdn.lgrckt-in.com/LogRocket.min.js" />
-        <Script>{`window.LogRocket && window.LogRocket.init(${env.NEXT_PUBLIC_LOGROCKET_PROJ})`}</Script>
       </head>
 
       <body className="h-full bg-black bg-[url('/bkgd-pitch.png')] bg-no-repeat bg-fixed bg-top bg-cover dark">
-        <Providers>
+        <Providers user={user}>
           {user ? (
             <SidebarProvider defaultOpen={defaultOpen}>
               <Suspense

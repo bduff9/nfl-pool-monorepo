@@ -10,7 +10,7 @@ import Footer from "./_components/Footer";
 import Header from "./_components/Header";
 
 type Props = {
-	children?: React.ReactNode;
+  children?: React.ReactNode;
   homeTeam: {
     TeamCity: string;
     TeamName: string;

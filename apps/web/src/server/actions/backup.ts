@@ -7,9 +7,10 @@ import { restoreBackupSchema, serverActionResultSchema } from "@/lib/zod";
 import { adminProcedure } from "@/lib/zsa.server";
 import "server-only";
 
-import { env } from "@/lib/env";
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { ZSAError } from "zsa";
+
+import { env } from "@/lib/env";
 
 export const restoreBackup = adminProcedure
   .input(restoreBackupSchema)
@@ -18,7 +19,10 @@ export const restoreBackup = adminProcedure
     const { backupName } = input;
 
     try {
-      const s3Client = new S3Client({ credentials: { accessKeyId: env.AWS_AK_ID, secretAccessKey: env.AWS_SAK_ID }, region: env.AWS_R });
+      const s3Client = new S3Client({
+        credentials: { accessKeyId: env.AWS_AK_ID, secretAccessKey: env.AWS_SAK_ID },
+        region: env.AWS_R,
+      });
       const getObjectCommand = new GetObjectCommand({
         Bucket: process.env.BACKUP_BUCKET_NAME,
         Key: backupName,
@@ -30,7 +34,7 @@ export const restoreBackup = adminProcedure
         throw new ZSAError("ERROR", "Failed to get S3 object body as a readable stream.");
       }
 
-      const sqlFile = await Body.transformToString("utf-8")
+      const sqlFile = await Body.transformToString("utf-8");
 
       await executeSqlFile(sqlFile);
       await db

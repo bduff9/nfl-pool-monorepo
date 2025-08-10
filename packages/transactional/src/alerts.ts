@@ -70,11 +70,11 @@ export const sendWeeklyEmails = async (week: number): Promise<void> => {
     .where("n.NotificationType", "=", "Essentials")
     .execute();
 
-	for (const user of emails) {
-		try {
-			await sendWeeklyEmail(user, week);
-		} catch (error) {
-			console.error(`Error sending weekly email to ${user.UserEmail}`, error);
-		}
-	}
+  for (const user of emails) {
+    try {
+      await sendWeeklyEmail(user, week);
+    } catch (error) {
+      console.error(`Error sending weekly email to ${user.UserEmail}`, error);
+    }
+  }
 };
