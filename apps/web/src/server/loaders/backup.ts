@@ -10,7 +10,10 @@ type Backup = {
   backupWhen: "AM" | "PM";
 };
 
-const client = new S3Client({});
+const client = new S3Client({
+  credentials: { accessKeyId: env.AWS_AK_ID, secretAccessKey: env.AWS_SAK_ID },
+  region: env.AWS_R,
+});
 
 export const getAdminBackups = cache(async () => {
   const backups: Backup[] = [];

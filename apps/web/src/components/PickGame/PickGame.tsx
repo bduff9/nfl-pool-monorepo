@@ -149,7 +149,8 @@ const PickGame: FC<PickGameProps> = ({
       </div>
       <div className="w-1/2 md:w-2/3 flex items-center text-center">
         {/** biome-ignore lint/a11y/useKeyWithClickEvents: This is a div with a click handler, but it's not a button */}
-        <div className={cn("cursor-pointer w-2/5 md:w-1/5 flex justify-center")} onClick={onClick}>
+        {/** biome-ignore lint/a11y/noStaticElementInteractions: This is a div with a click handler, but it's not a button */}
+        <div className={cn("cursor-pointer w-2/5 md:w-1/5 flex flex-wrap justify-center")} onClick={onClick}>
           <Image
             alt={`${pick.visitorTeam?.TeamCity} ${pick.visitorTeam?.TeamName}`}
             height={60}
@@ -161,7 +162,8 @@ const PickGame: FC<PickGameProps> = ({
             {pick.visitorTeam?.TeamName}
           </div>
         </div>
-        {/** biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
+        {/** biome-ignore lint/a11y/useKeyWithClickEvents: This is a div with a click handler, but it's not a button */}
+        {/** biome-ignore lint/a11y/noStaticElementInteractions: This is a div with a click handler, but it's not a button */}
         <div className={cn("hidden md:block relative cursor-pointer w-2/5 md:w-1/5")} onClick={onClick}>
           {pick.visitorTeam?.TeamCity}
           <br />
@@ -175,7 +177,8 @@ const PickGame: FC<PickGameProps> = ({
         <div className={cn("w-1/5 flex justify-center")}>
           <FaAt />
         </div>
-        {/** biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
+        {/** biome-ignore lint/a11y/useKeyWithClickEvents: This is a div with a click handler, but it's not a button */}
+        {/** biome-ignore lint/a11y/noStaticElementInteractions: This is a div with a click handler, but it's not a button */}
         <div className={cn("hidden md:block relative cursor-pointer w-2/5 md:w-1/5")} onClick={onClick}>
           {pick.homeTeam?.TeamCity}
           <br />
@@ -187,7 +190,8 @@ const PickGame: FC<PickGameProps> = ({
           )}
         </div>
         {/** biome-ignore lint/a11y/useKeyWithClickEvents: This is a div with a click handler, but it's not a button */}
-        <div className={cn("cursor-pointer w-2/5 md:w-1/5 flex justify-center")} onClick={onClick}>
+        {/** biome-ignore lint/a11y/noStaticElementInteractions: This is a div with a click handler, but it's not a button */}
+        <div className={cn("cursor-pointer w-2/5 md:w-1/5 flex flex-wrap justify-center")} onClick={onClick}>
           <Image
             alt={`${pick.homeTeam?.TeamCity} ${pick.homeTeam?.TeamName}`}
             height={60}

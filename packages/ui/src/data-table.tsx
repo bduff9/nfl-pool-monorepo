@@ -129,7 +129,7 @@ export function DataTable<TData, TValue>({
   return (
     <>
       {filters.length > 0 && (
-        <div className="flex items-center pb-4 gap-4">
+        <div className="flex flex-wrap items-center pb-4 gap-4">
           {filters.map((filter) => {
             if (filter.type === "week") {
               return (
@@ -238,14 +238,14 @@ export function DataTable<TData, TValue>({
       </div>
 
       {!hidePagination && (
-        <div className="flex gap-x-2 mt-6 items-center">
+        <div className="flex flex-wrap gap-x-2 mt-6 items-center">
           <Button disabled={!table.getCanPreviousPage()} onClick={() => table.firstPage()}>
             {"<<"}
           </Button>
           <Button disabled={!table.getCanPreviousPage()} onClick={() => table.previousPage()}>
             {"<"}
           </Button>
-          Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+          <span className="text-nowrap">{`Page ${table.getState().pagination.pageIndex + 1} of ${table.getPageCount()}`}</span>
           <Button disabled={!table.getCanNextPage()} onClick={() => table.nextPage()}>
             {">"}
           </Button>

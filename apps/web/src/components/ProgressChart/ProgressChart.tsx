@@ -67,37 +67,41 @@ const ProgressChart: FC<ProgressChartProps> = ({
     <motion.div layoutId={layoutId}>
       <div className="text-start">{type}</div>
       <div className={cn("flex overflow-hidden h-8 text-xs bg-gray-50 rounded-sm")}>
-        <div
-          aria-label={`${correct} ${correctLabel}`}
-          aria-valuemax={max}
-          aria-valuemin={0}
-          aria-valuenow={correct}
-          className={cn(
-            "flex flex-col justify-center items-center text-white text-center whitespace-nowrap transition-all bg-green-700",
-            !isOver && "in-progress",
-          )}
-          role="progressbar"
-          style={{ width: `${correctPercent}%` }}
-          title={`${correct} ${correctLabel}`}
-        >
-          {correct}
-        </div>
-        <div
-          aria-label={`${incorrect} ${incorrectLabel}`}
-          aria-valuemax={max}
-          aria-valuemin={0}
-          aria-valuenow={incorrect}
-          className={cn(
-            "flex flex-col justify-center items-center text-white text-center whitespace-nowrap transition-all bg-red-700",
-            !isOver && "in-progress",
-          )}
-          role="progressbar"
-          style={{ width: `${incorrectPercent}%` }}
-          title={`${incorrect} ${incorrectLabel}`}
-        >
-          {incorrect}
-        </div>
-        {typeof inProgress === "number" && (
+        {correct > 0 && (
+          <div
+            aria-label={`${correct} ${correctLabel}`}
+            aria-valuemax={max}
+            aria-valuemin={0}
+            aria-valuenow={correct}
+            className={cn(
+              "flex flex-col justify-center items-center text-white text-center whitespace-nowrap transition-all bg-green-700",
+              !isOver && "in-progress",
+            )}
+            role="progressbar"
+            style={{ width: `${correctPercent}%` }}
+            title={`${correct} ${correctLabel}`}
+          >
+            {correct}
+          </div>
+        )}
+        {incorrect > 0 && (
+          <div
+            aria-label={`${incorrect} ${incorrectLabel}`}
+            aria-valuemax={max}
+            aria-valuemin={0}
+            aria-valuenow={incorrect}
+            className={cn(
+              "flex flex-col justify-center items-center text-white text-center whitespace-nowrap transition-all bg-red-700",
+              !isOver && "in-progress",
+            )}
+            role="progressbar"
+            style={{ width: `${incorrectPercent}%` }}
+            title={`${incorrect} ${incorrectLabel}`}
+          >
+            {incorrect}
+          </div>
+        )}
+        {typeof inProgress === "number" && inProgress > 0 && (
           <div
             aria-label={`${inProgress} ${inProgressLabel}`}
             aria-valuemax={max}
