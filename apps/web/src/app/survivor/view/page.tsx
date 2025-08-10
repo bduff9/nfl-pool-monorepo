@@ -185,7 +185,6 @@ const ViewSurvivor: NP = async () => {
                             alt={`${pick.TeamCity} ${pick.TeamName}`}
                             className="m-auto"
                             height={70}
-                            layout="fixed"
                             src={`/NFLLogos/${pick.TeamLogo}`}
                             title={`${pick.TeamCity} ${pick.TeamName}`}
                             width={70}

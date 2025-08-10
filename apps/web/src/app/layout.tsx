@@ -69,7 +69,6 @@ export const metadata: Metadata = {
     },
     shortcut: "/favicon.ico",
   },
-  manifest: "/manifest.json",
   metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
   openGraph: {
     description: appDescription,

@@ -77,14 +77,14 @@ const ViewAllPicksClient: FC<Props> = ({ gamesForWeek, picksForWeek, weeklyRanki
   };
 
   return (
-    <div className="row min-vh-100">
-      <div className="col-12 text-center text-md-start">
+    <div className="row min-h-screen">
+      <div className="w-full text-center md:text-start">
         Current Viewing Mode
         <br />
         <div className="inline-flex rounded-md shadow-sm overflow-hidden">
           <Button
             className={cn(
-              "px-7 text-nowrap flex-grow flex-shrink-0 rounded-none",
+              "px-7 text-nowrap grow shrink-0 rounded-none",
               !isLive && "dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white",
             )}
             disabled={isLive}

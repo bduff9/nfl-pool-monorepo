@@ -82,7 +82,6 @@ const SurvivorTeam: FC<Props> = ({ isHome = false, isOnBye = false, loading, onC
       <Image
         alt={`${team?.TeamCity} ${team?.TeamName}`}
         height={70}
-        layout="intrinsic"
         src={`/NFLLogos/${team?.TeamLogo}`}
         title={`${team?.TeamCity} ${team?.TeamName}`}
         width={70}

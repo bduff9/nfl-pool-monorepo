@@ -247,17 +247,17 @@ const Support: NP = async ({ searchParams }) => {
       <CustomHead title={TITLE} />
       <div className="bg-gray-100/80 text-black pt-5 md:pt-3 min-h-screen pb-4 px-3 grow shrink-0 max-w-full" id="top">
         <SupportSearch currentQuery={query} />
-        <h2 className="text-4xl text-center mb-0" id="rules">
+        <h2 className="scroll-m-20 text-4xl font-semibold tracking-tight first:mt-0 text-center mb-0" id="rules">
           Rules
         </h2>
         <Separator className="my-4 h-px bg-gray-400" />
         {ruleMarkup}
-        <h2 className="text-4xl text-center mb-0" id="faq">
+        <h2 className="scroll-m-20 text-4xl font-semibold tracking-tight first:mt-0 text-center mb-0" id="faq">
           FAQ
         </h2>
         <Separator className="my-4 h-px bg-gray-400" />
         {faqMarkup}
-        <h2 className="text-4xl text-center mb-0" id="contact">
+        <h2 className="scroll-m-20 text-4xl font-semibold tracking-tight first:mt-0 text-center mb-0" id="contact">
           Contact Us
         </h2>
         <Separator className="my-4 h-px bg-gray-400" />

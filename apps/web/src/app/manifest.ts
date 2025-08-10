@@ -1,0 +1,38 @@
+import type { MetadataRoute } from "next";
+
+const manifest = (): MetadataRoute.Manifest => {
+  return {
+    background_color: "#8c8c8c",
+    description: "A confidence pool for the NFL regular season",
+    display: "standalone",
+    icons: [
+      {
+        sizes: "192x192",
+        src: "/icon-192x192.png",
+        type: "image/png",
+      },
+      {
+        sizes: "256x256",
+        src: "/icon-256x256.png",
+        type: "image/png",
+      },
+      {
+        sizes: "384x384",
+        src: "/icon-384x384.png",
+        type: "image/png",
+      },
+      {
+        sizes: "512x512",
+        src: "/icon-512x512.png",
+        type: "image/png",
+      },
+    ],
+    name: "NFL Confidence Pool",
+    scope: "/",
+    short_name: "NFL CP",
+    start_url: "/",
+    theme_color: "#8c8c8c",
+  };
+};
+
+export default manifest;
