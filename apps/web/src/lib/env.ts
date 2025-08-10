@@ -3,7 +3,6 @@ import { type } from "arktype";
 
 export const env = createEnv({
   client: {
-    NEXT_PUBLIC_API_URL: type("string.url"),
     NEXT_PUBLIC_ENV: type("string"),
     NEXT_PUBLIC_HAPPYKIT_ANALYTICS_KEY: type("string"),
     NEXT_PUBLIC_HAPPYKIT_FLAG_KEY: type("string"),
@@ -13,7 +12,6 @@ export const env = createEnv({
     NEXT_PUBLIC_SITE_URL: type("string.url"),
   },
   experimental__runtimeEnv: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_ENV: process.env.NEXT_PUBLIC_ENV,
     NEXT_PUBLIC_HAPPYKIT_ANALYTICS_KEY: process.env.NEXT_PUBLIC_HAPPYKIT_ANALYTICS_KEY,
     NEXT_PUBLIC_HAPPYKIT_FLAG_KEY: process.env.NEXT_PUBLIC_HAPPYKIT_FLAG_KEY,
@@ -40,18 +38,5 @@ export const env = createEnv({
     TWILIO_ACCOUNT_SID: type("string.alphanumeric"),
     TWILIO_AUTH_TOKEN: type("string.alphanumeric"),
     TWILIO_PHONE_NUMBER: type("string"),
-    VERCEL: type("string"),
-    VERCEL_ENV: type("'development' | 'preview' | 'production'"),
-    VERCEL_GIT_COMMIT_AUTHOR_LOGIN: type("string"),
-    VERCEL_GIT_COMMIT_AUTHOR_NAME: type("string"),
-    VERCEL_GIT_COMMIT_MESSAGE: type("string"),
-    VERCEL_GIT_COMMIT_REF: type("string"),
-    VERCEL_GIT_COMMIT_SHA: type("string"),
-    VERCEL_GIT_PREVIOUS_SHA: type("string"),
-    VERCEL_GIT_PROVIDER: type("string"),
-    VERCEL_GIT_REPO_ID: type("string"),
-    VERCEL_GIT_REPO_OWNER: type("string"),
-    VERCEL_GIT_REPO_SLUG: type("string"),
-    VERCEL_URL: type("string"),
   },
 });
