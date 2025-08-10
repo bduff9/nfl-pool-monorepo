@@ -92,6 +92,7 @@ const SurvivorDashboardIcon: FC<SurvivorDashboardIconProps> = ({
     <>
       <Image
         alt={`${pickForWeek.TeamCity} ${pickForWeek.TeamName}`}
+        className="mx-auto"
         height={206}
         layout="intrinsic"
         src={`/NFLLogos/${pickForWeek.TeamLogo}`}
