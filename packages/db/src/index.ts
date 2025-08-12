@@ -104,7 +104,17 @@ export interface Games {
   GameInRedzone: number | null;
   GameKickoff: Date;
   GameNumber: number;
-  GameStatus: Generated<"1st Quarter" | "2nd Quarter" | "3rd Quarter" | "4th Quarter" | "Final" | "Half Time" | "Invalid" | "Overtime" | "Pregame">;
+  GameStatus: Generated<
+    | "1st Quarter"
+    | "2nd Quarter"
+    | "3rd Quarter"
+    | "4th Quarter"
+    | "Final"
+    | "Half Time"
+    | "Invalid"
+    | "Overtime"
+    | "Pregame"
+  >;
   GameTimeLeftInQuarter: Generated<string>;
   GameTimeLeftInSeconds: Generated<number>;
   GameUpdated: Generated<Date>;
@@ -147,7 +157,24 @@ export interface Leagues {
 
 export interface Logs {
   LeagueID: number | null;
-  LogAction: "404" | "AUTH_ERROR" | "BACKUP_RESTORE" | "CREATE_ACCOUNT" | "EMAIL_ACTIVITY" | "LINK_ACCOUNT" | "LOGIN" | "LOGOUT" | "MESSAGE" | "PAID" | "REGISTER" | "SLACK" | "SUBMIT_PICKS" | "SUPPORT_SEARCH" | "SURVIVOR_PICK" | "UNSUBSCRIBE" | "VIEW_HTML_EMAIL";
+  LogAction:
+    | "404"
+    | "AUTH_ERROR"
+    | "BACKUP_RESTORE"
+    | "CREATE_ACCOUNT"
+    | "EMAIL_ACTIVITY"
+    | "LINK_ACCOUNT"
+    | "LOGIN"
+    | "LOGOUT"
+    | "MESSAGE"
+    | "PAID"
+    | "REGISTER"
+    | "SLACK"
+    | "SUBMIT_PICKS"
+    | "SUPPORT_SEARCH"
+    | "SURVIVOR_PICK"
+    | "UNSUBSCRIBE"
+    | "VIEW_HTML_EMAIL";
   LogAdded: Generated<Date>;
   LogAddedBy: string;
   LogData: Json | null;
