@@ -6,9 +6,10 @@ import type { inferServerActionReturnType, TAnyZodSafeFunctionHandler, ZSAError 
 
 import type { serverActionResultSchema } from "./zod";
 
-// biome-ignore lint/suspicious/noExplicitAny: We need to support any ZSA function
 export type FormZSA<
+  // biome-ignore lint/suspicious/noExplicitAny: We need to support any ZSA function
   TInput extends ZodType<any, ZodTypeDef, any> = ZodType<any, ZodTypeDef, any>,
+  // biome-ignore lint/suspicious/noExplicitAny: We need to support any ZSA function
   TOutput extends ZodType<any, ZodTypeDef, any> = typeof serverActionResultSchema,
 > = TAnyZodSafeFunctionHandler<TInput, TOutput, Promise<z.infer<TOutput>>, ZSAError<TInput, TOutput>>;
 
@@ -35,9 +36,7 @@ export const processFormState = (
 
   if (data.status === "Success") {
     if (successMessage) {
-      toast.success(successMessage, {
-        description: `${new Date().toTimeString()}`,
-      });
+      toast.success(successMessage);
     }
 
     redirect?.();

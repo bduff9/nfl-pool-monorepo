@@ -22,16 +22,12 @@ const sendPickReminderPushNotification = async (
   user: Pick<Selectable<Users>, "UserID" | "UserFirstName">,
   week: number,
   hoursLeft: number,
-): Promise<void> => {
-  try {
-    await sendPushNotification(
-      user.UserID,
-      `Hurry up, ${user.UserFirstName}!  Don't lose out on points for week ${week}, act now to submit your picks! There are only ${hoursLeft} hours left!`,
-      "pickReminder",
-    );
-  } catch (_error) {
-    console.error("Failed to send pick reminder push notification");
-  }
-};
+): Promise<void> =>
+  sendPushNotification(
+    user.UserID,
+    `Hurry up, ${user.UserFirstName}!`,
+    `Don't lose out on points for week ${week}, act now to submit your picks! There are only ${hoursLeft} hours left!`,
+    "pickReminder",
+  );
 
 export default sendPickReminderPushNotification;

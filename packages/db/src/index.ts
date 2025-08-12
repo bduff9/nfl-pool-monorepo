@@ -51,6 +51,35 @@ export interface ApiCalls {
   ApiCallYear: number;
 }
 
+export interface APICalls {
+  APICallAdded: Generated<Date>;
+  APICallAddedBy: string;
+  APICallDate: Generated<Date>;
+  APICallDeleted: Date | null;
+  APICallDeletedBy: string | null;
+  APICallError: string | null;
+  APICallID: Generated<number>;
+  APICallResponse: string | null;
+  APICallUpdated: Generated<Date>;
+  APICallUpdatedBy: string;
+  APICallURL: string;
+  APICallWeek: number | null;
+  APICallYear: number;
+}
+
+export interface Devices {
+  DeviceAdded: Generated<Date>;
+  DeviceAddedBy: string;
+  DeviceDeleted: Date | null;
+  DeviceDeletedBy: string | null;
+  DeviceID: Generated<number>;
+  DeviceSub: string;
+  DeviceType: string;
+  DeviceUpdated: Generated<Date>;
+  DeviceUpdatedBy: string;
+  UserID: number;
+}
+
 export interface Emails {
   EmailCreatedAt: Date;
   EmailHtml: string | null;
@@ -75,17 +104,7 @@ export interface Games {
   GameInRedzone: number | null;
   GameKickoff: Date;
   GameNumber: number;
-  GameStatus: Generated<
-    | "1st Quarter"
-    | "2nd Quarter"
-    | "3rd Quarter"
-    | "4th Quarter"
-    | "Final"
-    | "Half Time"
-    | "Invalid"
-    | "Overtime"
-    | "Pregame"
-  >;
+  GameStatus: Generated<"1st Quarter" | "2nd Quarter" | "3rd Quarter" | "4th Quarter" | "Final" | "Half Time" | "Invalid" | "Overtime" | "Pregame">;
   GameTimeLeftInQuarter: Generated<string>;
   GameTimeLeftInSeconds: Generated<number>;
   GameUpdated: Generated<Date>;
@@ -128,24 +147,7 @@ export interface Leagues {
 
 export interface Logs {
   LeagueID: number | null;
-  LogAction:
-    | "404"
-    | "AUTH_ERROR"
-    | "BACKUP_RESTORE"
-    | "CREATE_ACCOUNT"
-    | "EMAIL_ACTIVITY"
-    | "LINK_ACCOUNT"
-    | "LOGIN"
-    | "LOGOUT"
-    | "MESSAGE"
-    | "PAID"
-    | "REGISTER"
-    | "SLACK"
-    | "SUBMIT_PICKS"
-    | "SUPPORT_SEARCH"
-    | "SURVIVOR_PICK"
-    | "UNSUBSCRIBE"
-    | "VIEW_HTML_EMAIL";
+  LogAction: "404" | "AUTH_ERROR" | "BACKUP_RESTORE" | "CREATE_ACCOUNT" | "EMAIL_ACTIVITY" | "LINK_ACCOUNT" | "LOGIN" | "LOGOUT" | "MESSAGE" | "PAID" | "REGISTER" | "SLACK" | "SUBMIT_PICKS" | "SUPPORT_SEARCH" | "SURVIVOR_PICK" | "UNSUBSCRIBE" | "VIEW_HTML_EMAIL";
   LogAdded: Generated<Date>;
   LogAddedBy: string;
   LogData: Json | null;
@@ -396,7 +398,6 @@ export interface Users {
   UserIsAdmin: Generated<number>;
   UserLastName: string | null;
   UserName: string | null;
-  UserPasswordHash: string | null;
   UserPaymentAccount: string | null;
   UserPaymentType: "Paypal" | "Venmo" | "Zelle" | null;
   UserPhone: string | null;
@@ -450,6 +451,8 @@ export interface WeeklyMV {
 export interface DB {
   Accounts: Accounts;
   ApiCalls: ApiCalls;
+  APICalls: APICalls;
+  Devices: Devices;
   Emails: Emails;
   Games: Games;
   History: History;

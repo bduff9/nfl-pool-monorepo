@@ -18,9 +18,7 @@ export async function down(db: Kysely<any>): Promise<void> {
     .addColumn("APICallYear", "integer", (col) => col.notNull())
     .addColumn("APICallAdded", "timestamp", (col) => col.notNull().defaultTo(sql`CURRENT_TIMESTAMP`))
     .addColumn("APICallAddedBy", "varchar(50)", (col) => col.notNull())
-    .addColumn("APICallUpdated", "timestamp", (col) =>
-      col.notNull().defaultTo(sql`CURRENT_TIMESTAMP`).onUpdate("set default"),
-    )
+    .addColumn("APICallUpdated", "timestamp", (col) => col.notNull().defaultTo(sql`CURRENT_TIMESTAMP`))
     .addColumn("APICallUpdatedBy", "varchar(50)", (col) => col.notNull())
     .addColumn("APICallDeleted", "timestamp")
     .addColumn("APICallDeletedBy", "varchar(50)")

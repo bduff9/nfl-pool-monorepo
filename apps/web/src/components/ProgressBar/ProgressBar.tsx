@@ -40,7 +40,7 @@ export const ProgressBar: FC<ProgressBarProps> = ({ className, children }) => {
 
 type ProgressBarLinkProps = ComponentProps<typeof Link>;
 
-export const ProgressBarLink: FC<ProgressBarLinkProps> = ({ children, href, ...rest }) => {
+export const ProgressBarLink: FC<ProgressBarLinkProps> = ({ children, href, onClick, ...rest }) => {
   const progress = useProgressBar();
   const router = useRouter();
 
@@ -48,6 +48,15 @@ export const ProgressBarLink: FC<ProgressBarLinkProps> = ({ children, href, ...r
     <Link
       href={href}
       onClick={(e) => {
+        onClick?.(e);
+
+        if (e.defaultPrevented) {
+          return;
+        }
+
+        if (e.metaKey) {
+          return;
+        }
         e.preventDefault();
         progress.start();
 

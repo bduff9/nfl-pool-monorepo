@@ -3,6 +3,7 @@
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { sendPicksSubmittedEmail } from "@nfl-pool-monorepo/transactional/emails/picksSubmitted";
 import { sendQuickPickConfirmationEmail } from "@nfl-pool-monorepo/transactional/emails/quickPickConfirmation";
+import sendPicksSubmittedPushNotification from "@nfl-pool-monorepo/transactional/pushNotifications/picksSubmitted";
 import sendPicksSubmittedSMS from "@nfl-pool-monorepo/transactional/sms/picksSubmitted";
 import { sql } from "kysely";
 import { revalidatePath } from "next/cache";
@@ -398,7 +399,7 @@ export const submitMyPicks = authedProcedure
 
         const notification = await trx
           .selectFrom("Notifications as N")
-          .select(["N.NotificationEmail", "N.NotificationSMS"])
+          .select(["N.NotificationEmail", "N.NotificationSMS", "N.NotificationPushNotification"])
           .innerJoin("Users as U", "U.UserID", "N.UserID")
           .where("U.UserCommunicationsOptedOut", "=", 0)
           .where("N.NotificationType", "=", "PicksSubmitted")
@@ -411,6 +412,16 @@ export const submitMyPicks = authedProcedure
 
         if (notification?.NotificationSMS === 1) {
           await sendPicksSubmittedSMS(ctx.user, week, myTiebreaker.TiebreakerLastScore);
+        }
+
+        if (notification?.NotificationPushNotification === 1) {
+          const user = await db
+            .selectFrom("Users")
+            .select(["UserID", "UserFirstName"])
+            .where("UserID", "=", ctx.user.id)
+            .executeTakeFirstOrThrow();
+
+          await sendPicksSubmittedPushNotification(user, week);
         }
 
         await trx

@@ -21,6 +21,7 @@ import { Fragment } from "react";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import GameStatusDisplay from "@/components/GameStatusDisplay/GameStatusDisplay";
+import ScoreboardDate from "@/components/ScoreboardDate/ScoreboardDate";
 import ScoreboardTeam from "@/components/ScoreboardTeam/ScoreboardTeam";
 import { requireRegistered } from "@/lib/auth";
 import { formatDateForKickoff } from "@/lib/dates";
@@ -59,9 +60,7 @@ const Scoreboard: NP = async () => {
 
             return (
               <Fragment key={`game-${game.GameID}`}>
-                {differentKickoff && (
-                  <div className={cn("col-span-full text-left font-bold", !isFirst && "mt-3")}>{currentKickoff}</div>
-                )}
+                {differentKickoff && <ScoreboardDate isFirst={isFirst} kickoff={game.GameKickoff} />}
                 <div className="mb-3">
                   <div className={cn("p-3 flex bg-gray-100 border border-gray-500")}>
                     <div className={cn("flex flex-grow flex-wrap")}>

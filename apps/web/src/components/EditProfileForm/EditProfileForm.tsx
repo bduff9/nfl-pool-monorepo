@@ -1,17 +1,5 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@nfl-pool-monorepo/ui/components/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@nfl-pool-monorepo/ui/components/form";
-import { Input } from "@nfl-pool-monorepo/ui/components/input";
-import { Label } from "@nfl-pool-monorepo/ui/components/label";
-import { PhoneInput } from "@nfl-pool-monorepo/ui/components/phone-input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nfl-pool-monorepo/ui/components/select";
-import { Switch } from "@nfl-pool-monorepo/ui/components/switch";
-import { Tabs, TabsList, TabsTrigger } from "@nfl-pool-monorepo/ui/components/tabs";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@nfl-pool-monorepo/ui/components/tooltip";
-import { cn } from "@nfl-pool-monorepo/utils/styles";
-
 /*******************************************************************************
  * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
  * Copyright (C) 2015-present Brian Duffey
@@ -27,6 +15,19 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@nfl-pool-monorepo/ui/components/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@nfl-pool-monorepo/ui/components/form";
+import { Input } from "@nfl-pool-monorepo/ui/components/input";
+import { Label } from "@nfl-pool-monorepo/ui/components/label";
+import { PhoneInput } from "@nfl-pool-monorepo/ui/components/phone-input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nfl-pool-monorepo/ui/components/select";
+import { Switch } from "@nfl-pool-monorepo/ui/components/switch";
+import { Tabs, TabsList, TabsTrigger } from "@nfl-pool-monorepo/ui/components/tabs";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@nfl-pool-monorepo/ui/components/tooltip";
+import { cn } from "@nfl-pool-monorepo/utils/styles";
+
 import { PaymentMethod } from "@/lib/constants";
 import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
 import { editProfileSchema } from "@/lib/zod";
@@ -35,13 +36,18 @@ import type { getUserNotifications } from "@/server/loaders/notification";
 import type { getCurrentUser } from "@/server/loaders/user";
 import "client-only";
 
-import { type FC, useEffect } from "react";
+import { type FC, useEffect, useState } from "react";
 import { type SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { PiFootballDuotone, PiQuestionDuotone } from "react-icons/pi";
 import { toast } from "sonner";
 import type { z } from "zod";
 
+import { env } from "@/lib/env";
+import { urlBase64ToUint8Array } from "@/lib/strings";
+import { subscribeUser, unsubscribeUser } from "@/server/actions/device";
+
 import GoogleAuthButton from "../GoogleAuthButton/GoogleAuthButton";
+import InstallPrompt from "../InstallPrompt/InstallPrompt";
 import TextSeparator from "../TextSeparator/TextSeparator";
 
 type Props = {
@@ -64,6 +70,44 @@ export const correctPhoneNumber = (phoneNumber: string | null): string | null =>
 };
 
 const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasGoogle }) => {
+  const [isSupported, setIsSupported] = useState<boolean | null>(null);
+  const [subscription, setSubscription] = useState<PushSubscription | null>(null);
+
+  const registerServiceWorker = async () => {
+    const registration = await navigator.serviceWorker.register("/sw.js", {
+      scope: "/",
+      updateViaCache: "none",
+    });
+    const sub = await registration.pushManager.getSubscription();
+    setSubscription(sub);
+  };
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: We only want this to run on mount
+  useEffect(() => {
+    if ("serviceWorker" in navigator && "PushManager" in window) {
+      setIsSupported(true);
+      registerServiceWorker();
+    }
+  }, []);
+
+  const subscribeToPush = async () => {
+    const registration = await navigator.serviceWorker.ready;
+    const sub = await registration.pushManager.subscribe({
+      applicationServerKey: urlBase64ToUint8Array(env.NEXT_PUBLIC_VAPID_PUBLIC_KEY),
+      userVisibleOnly: true,
+    });
+
+    setSubscription(sub);
+
+    await subscribeUser({ agent: navigator.userAgent, subscription: JSON.stringify(sub) });
+  };
+
+  const unsubscribeFromPush = async () => {
+    await subscription?.unsubscribe();
+    setSubscription(null);
+    await unsubscribeUser({ agent: navigator.userAgent, subscription: JSON.stringify(subscription) });
+  };
+
   const form = useForm<z.infer<typeof editProfileSchema>>({
     context: { myNotifications },
     defaultValues: {
@@ -73,7 +117,6 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
       UserEmail: currentUser.UserEmail,
       UserFirstName: currentUser.UserFirstName ?? "",
       UserLastName: currentUser.UserLastName ?? "",
-      UserName: currentUser.UserName ?? "",
       UserPaymentAccount: currentUser.UserPaymentAccount ?? "",
       UserPaymentType: currentUser.UserPaymentType ?? "Paypal",
       UserPhone: correctPhoneNumber(currentUser.UserPhone) ?? "",
@@ -113,7 +156,7 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
     processFormState(
       result,
       () => {
-        form.reset({}, { keepValues: true });
+        form.reset(form.watch(), { keepValues: true });
       },
       "Your profile changes have been successfully saved",
     );
@@ -228,10 +271,8 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
                   Phone Number <span className="text-xs text-muted-foreground">(Optional)</span>&nbsp;
                   <TooltipProvider>
                     <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button type="button">
-                          <PiQuestionDuotone className="size-5" />
-                        </button>
+                      <TooltipTrigger type="button">
+                        <PiQuestionDuotone className="size-5" />
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[300px]">
                         If you would like to receive SMS notifications from the confidence pool, please enter a valid
@@ -292,7 +333,7 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
                     Payment Account&nbsp;
                     <TooltipProvider>
                       <Tooltip>
-                        <TooltipTrigger>
+                        <TooltipTrigger type="button">
                           <PiQuestionDuotone className="size-5" />
                         </TooltipTrigger>
                         <TooltipContent className="max-w-[300px]">
@@ -301,6 +342,7 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
                           <strong>
                             This is your responsibility as we will not be chasing people down to pay them.
                           </strong>
+                          . If entering phone number, please enter a valid phone number in the format +1 999 999 9999.
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -333,7 +375,7 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
                     Auto Picks Remaining
                     <TooltipProvider>
                       <Tooltip>
-                        <TooltipTrigger>
+                        <TooltipTrigger type="button">
                           <PiQuestionDuotone className="size-5" />
                         </TooltipTrigger>
                         <TooltipContent className="max-w-[300px]">
@@ -398,11 +440,13 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
           <div className="flex justify-end gap-x-4">
             <div title="Notifications sent to your email address">Email</div>
             <div title="Notifications sent to your phone via text message">SMS</div>
+            <div title="Notifications sent to your device via push notification">Push</div>
           </div>
 
           <div className="hidden md:flex justify-end gap-x-4">
             <div title="Notifications sent to your email address">Email</div>
             <div title="Notifications sent to your phone via text message">SMS</div>
+            <div title="Notifications sent to your device via push notification">Push</div>
           </div>
 
           {myNotifications.map((notification, i) => (
@@ -412,7 +456,7 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
                 {notification.NotificationTypeTooltip && (
                   <TooltipProvider>
                     <Tooltip>
-                      <TooltipTrigger>
+                      <TooltipTrigger className="-mt-[3px]" type="button">
                         <PiQuestionDuotone className="size-5" />
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[300px]">{notification.NotificationTypeTooltip}</TooltipContent>
@@ -447,6 +491,26 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
                   <FormField
                     control={form.control}
                     name={`notifications.${i}.NotificationSMS`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Switch
+                            checked={field.value === 1}
+                            onCheckedChange={(value) => field.onChange(value ? 1 : 0)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ) : (
+                  <div className="w-8" />
+                )}
+
+                {subscription && notification.NotificationTypeHasPushNotification === 1 ? (
+                  <FormField
+                    control={form.control}
+                    name={`notifications.${i}.NotificationPushNotification`}
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
@@ -520,10 +584,63 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
                     ) : (
                       <div className="w-8" />
                     )}
+
+                    {!!subscription && watchNotifications[i]?.NotificationPushNotification === 1 ? (
+                      <FormField
+                        control={form.control}
+                        name={`notifications.${i}.NotificationPushNotificationHoursBefore`}
+                        render={({ field, fieldState }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                className={cn(
+                                  "w-8 dark:bg-white px-1 text-center",
+                                  fieldState.error && "border-red-600",
+                                )}
+                                max={48}
+                                min={1}
+                                value={field.value ?? ""}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    ) : (
+                      <div className="w-8" />
+                    )}
                   </div>
                 )}
             </div>
           ))}
+
+          {isSupported !== null && (
+            <div className="col-span-full my-4 text-center">
+              {isSupported ? (
+                subscription ? (
+                  <div>
+                    <p>
+                      <Button onClick={unsubscribeFromPush} type="button" variant="danger">
+                        Click here to disable push notifications in the current browser.
+                      </Button>
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <InstallPrompt />
+                    <p>
+                      <Button onClick={subscribeToPush} type="button" variant="primary">
+                        Click here to enable push notifications in the current browser.
+                      </Button>
+                    </p>
+                  </>
+                )
+              ) : (
+                <p>Push notifications are not supported in this browser.</p>
+              )}
+            </div>
+          )}
 
           <TextSeparator className="col-span-full">Quick Login</TextSeparator>
           <div className="text-center">Linking your account makes logging in as simple as a single click</div>

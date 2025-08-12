@@ -8,6 +8,7 @@ export const env = createEnv({
     NEXT_PUBLIC_LOGTAIL_SOURCE_TOKEN: type("string"),
     NEXT_PUBLIC_SENTRY_DSN: type("string.url"),
     NEXT_PUBLIC_SITE_URL: type("string.url"),
+    NEXT_PUBLIC_VAPID_PUBLIC_KEY: type("string"),
   },
   experimental__runtimeEnv: {
     NEXT_PUBLIC_ENV: process.env.NEXT_PUBLIC_ENV,
@@ -15,6 +16,7 @@ export const env = createEnv({
     NEXT_PUBLIC_LOGTAIL_SOURCE_TOKEN: process.env.NEXT_PUBLIC_LOGTAIL_SOURCE_TOKEN,
     NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+    NEXT_PUBLIC_VAPID_PUBLIC_KEY: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
   },
   server: {
     AWS_AK_ID: type("string"),
@@ -34,5 +36,6 @@ export const env = createEnv({
     TWILIO_ACCOUNT_SID: type("string.alphanumeric"),
     TWILIO_AUTH_TOKEN: type("string.alphanumeric"),
     TWILIO_PHONE_NUMBER: type("string"),
+    VAPID_PRIVATE_KEY: type("string"),
   },
 });

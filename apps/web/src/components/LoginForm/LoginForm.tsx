@@ -17,6 +17,7 @@ import { useForm } from "react-hook-form";
 import type { z } from "zod";
 
 import FloatingLabelInput from "../FloatingLabelInput/FloatingLabelInput";
+import PasswordInput from "../PasswordInput/PasswordInput";
 import { ProgressBarLink } from "../ProgressBar/ProgressBar";
 import TextSeparator from "../TextSeparator/TextSeparator";
 
@@ -86,51 +87,11 @@ const LoginForm: FC<Props> = ({ error, isLogin }) => {
           />
         </div>
         <div className="mb-2">
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <FloatingLabelInput
-                    {...field}
-                    autoComplete={isLogin ? "current-password" : "new-password"}
-                    id="password"
-                    label="Password"
-                    placeholder=" "
-                    required
-                    title="Password"
-                    type="password"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <PasswordInput isLogin={isLogin} label="Password" name="password" required />
         </div>
         {!isLogin && (
           <div className="mb-2">
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <FloatingLabelInput
-                      {...field}
-                      autoComplete="new-password"
-                      id="confirmPassword"
-                      label="Confirm Password"
-                      placeholder=" "
-                      required
-                      title="Confirm Password"
-                      type="password"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <PasswordInput isLogin={false} label="Confirm Password" name="confirmPassword" required />
           </div>
         )}
         <div className="grid gap-2 mb-2">

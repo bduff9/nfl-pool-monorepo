@@ -14,30 +14,20 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { db } from "@nfl-pool-monorepo/db/src/kysely";
-import webpush from "web-push";
+import type { Users } from "@nfl-pool-monorepo/db/src";
+import type { Selectable } from "kysely";
 
-import type { EmailTypes } from "../emails/types";
+import { sendPushNotification } from ".";
 
-export const sendPushNotification = async (
-  userId: number,
-  title: string,
-  body: string,
-  type: (typeof EmailTypes)[number],
-): Promise<void> => {
-  try {
-    const subscriptions = await db.selectFrom("Devices").select("DeviceSub").where("UserID", "=", userId).execute();
+const sendPicksSubmittedPushNotification = async (
+  user: Pick<Selectable<Users>, "UserID" | "UserFirstName">,
+  week: number,
+): Promise<void> =>
+  sendPushNotification(
+    user.UserID,
+    `Week ${week} Picks Submitted`,
+    `Hi ${user.UserFirstName}, this is a confirmation that your picks have been submitted for week ${week}. Good luck!`,
+    "picksSubmitted",
+  );
 
-    for (const subscription of subscriptions) {
-      await webpush.sendNotification(
-        JSON.parse(subscription.DeviceSub) as webpush.PushSubscription,
-        JSON.stringify({
-          body,
-          title,
-        }),
-      );
-    }
-  } catch (error) {
-    console.error("Error sending push notification:", { body, error, title, type, userId });
-  }
-};
+export default sendPicksSubmittedPushNotification;

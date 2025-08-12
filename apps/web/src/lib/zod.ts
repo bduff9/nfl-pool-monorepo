@@ -63,7 +63,6 @@ export const editProfileSchema = z
     UserEmail: z.string().email(),
     UserFirstName: z.string().trim().min(2, "Please enter your first name"),
     UserLastName: z.string().trim().min(2, "Please enter your surname"),
-    UserName: z.string().trim().min(2),
     UserPaymentAccount: z.string().trim().min(2, "Payment account is required"),
     UserPaymentType: z.enum(PaymentMethod, {
       message: "Please select an account type",

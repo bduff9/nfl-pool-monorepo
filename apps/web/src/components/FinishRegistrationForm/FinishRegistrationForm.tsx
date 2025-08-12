@@ -261,7 +261,7 @@ const FinishRegistrationForm: FC<FinishRegistrationFormProps> = ({
                         <TooltipTrigger>
                           <PiQuestionDuotone className="size-5" />
                         </TooltipTrigger>
-                        <TooltipContent className="max-w-[300px] text-white">
+                        <TooltipContent className="max-w-[300px]">
                           You can choose to join or leave the survivor pool up until the start of the first game of the
                           season. For more questions,{" "}
                           <a className="underline" href="/support#survivorpool" target="survivorFAQ">
@@ -322,7 +322,7 @@ const FinishRegistrationForm: FC<FinishRegistrationFormProps> = ({
                       <TooltipTrigger>
                         <PiQuestionDuotone className="size-5" />
                       </TooltipTrigger>
-                      <TooltipContent className="max-w-[300px] text-white">
+                      <TooltipContent className="max-w-[300px]">
                         If you want to receive any prize money, you need to enter your exact payment account information
                         here (i.e. email, username or phone number for your account).{" "}
                         <strong>This is your responsibility as we will not be chasing people down to pay them.</strong>
