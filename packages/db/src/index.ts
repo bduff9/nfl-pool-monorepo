@@ -398,6 +398,7 @@ export interface Users {
   UserIsAdmin: Generated<number>;
   UserLastName: string | null;
   UserName: string | null;
+  UserPasswordHash: string | null;
   UserPaymentAccount: string | null;
   UserPaymentType: "Paypal" | "Venmo" | "Zelle" | null;
   UserPhone: string | null;
