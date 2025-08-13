@@ -127,9 +127,6 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
     resolver: zodResolver(editProfileSchema),
   });
 
-  //TODO: remove this
-  console.log("isDirty", form.formState.isDirty);
-
   const watchNotifications = useWatch({
     control: form.control,
     name: "notifications",
@@ -141,6 +138,13 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
   const errorCount = Object.keys(form.formState.errors).length;
 
   useBeforeUnload(form.formState.isDirty);
+
+  // Debug logging to help track when the hook is active
+  useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      console.log("EditProfileForm - Form dirty state changed:", form.formState.isDirty);
+    }
+  }, [form.formState.isDirty]);
 
   useEffect(() => {
     watchNotifications.forEach((_, i) => {

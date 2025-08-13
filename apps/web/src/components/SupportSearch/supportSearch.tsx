@@ -15,16 +15,28 @@ const SupportSearch: FC<Props> = ({ currentQuery }) => {
   const router = useRouter();
 
   useEffect(() => {
-    const hash = window.location.hash;
-    if (hash) {
-      const element = document.getElementById(hash);
-
-      if (element) {
-        setTimeout(() => {
-          element.scrollIntoView({ behavior: "smooth" });
-        }, 100);
-      }
+    if (!window) {
+      return;
     }
+
+    const hash = window.location.hash;
+    const id = hash.startsWith("#") ? hash.slice(1) : hash;
+
+    if (!id) {
+      return;
+    }
+
+    const element = document.getElementById(id);
+
+    if (!element) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      element.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+
+    return () => window.clearTimeout(timer);
   }, []);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
