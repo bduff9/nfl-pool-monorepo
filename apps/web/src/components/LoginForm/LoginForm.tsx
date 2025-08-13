@@ -105,7 +105,7 @@ const LoginForm: FC<Props> = ({ error, isLogin }) => {
                 : "Register"}
           </Button>
           <Button asChild variant="dark">
-            <ProgressBarLink href="/support#loginregistration" scroll={false}>
+            <ProgressBarLink href="/support#loginregistration">
               {isLogin ? "Trouble logging in?" : "Trouble registering?"}
             </ProgressBarLink>
           </Button>

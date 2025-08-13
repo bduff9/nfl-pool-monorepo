@@ -127,6 +127,9 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
     resolver: zodResolver(editProfileSchema),
   });
 
+  //TODO: remove this
+  console.log("isDirty", form.formState.isDirty);
+
   const watchNotifications = useWatch({
     control: form.control,
     name: "notifications",

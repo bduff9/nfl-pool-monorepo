@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   title: TITLE,
 };
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+// biome-ignore lint/suspicious/noExplicitAny: We need any here
 const resolveAttribute = <T extends Record<string, any>>(obj: T, key: string): T =>
   key.split(".").reduce((prev, curr) => prev?.[curr], obj);
 
@@ -61,7 +61,7 @@ type FuseHighlightProps<T> = {
   hit: T;
 };
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+// biome-ignore lint/suspicious/noExplicitAny: We need any here
 const FuseHighlight = <T extends Record<string, any>>({ attribute, hit }: FuseHighlightProps<T>): ReactNode => {
   const matches = typeof hit.item === "string" ? hit.matches?.[0] : hit.matches?.find((m: T) => m.key === attribute);
   const fallback = typeof hit.item === "string" ? hit.item : resolveAttribute(hit.item, attribute);

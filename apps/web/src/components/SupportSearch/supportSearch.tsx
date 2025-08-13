@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { type FC, type FormEvent, useRef } from "react";
+import { type FC, type FormEvent, useEffect, useRef } from "react";
 import { debounce } from "throttle-debounce";
 
 import FloatingLabelInput from "../FloatingLabelInput/FloatingLabelInput";
@@ -13,6 +13,19 @@ type Props = {
 const SupportSearch: FC<Props> = ({ currentQuery }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash) {
+      const element = document.getElementById(hash);
+
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+      }
+    }
+  }, []);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
