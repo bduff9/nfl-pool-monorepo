@@ -344,7 +344,7 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
                           <strong>
                             This is your responsibility as we will not be chasing people down to pay them.
                           </strong>
-                          . If entering phone number, please enter a valid phone number in the format +1 999 999 9999.
+                          If entering phone number, please enter a valid phone number in the format +1 999 999 9999.
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -532,7 +532,7 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
 
               {notification.NotificationTypeHasHours === 1 &&
                 (watchNotifications[i]?.NotificationEmail === 1 || watchNotifications[i]?.NotificationSMS === 1) && (
-                  <div className="col-span-full flex justify-end items-center gap-x-4">
+                  <div className="col-span-full flex justify-end items-center gap-x-4 mt-1">
                     <div>Send how many hours before?</div>
 
                     {watchNotifications[i]?.NotificationEmail === 1 ? (

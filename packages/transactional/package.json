@@ -12,7 +12,8 @@
     "react-dom": "19.1.1",
     "react-email": "4.2.8",
     "tailwindcss": "4.1.11",
-    "twilio": "5.8.0"
+    "twilio": "5.8.0",
+    "web-push": "3.6.7"
   },
   "devDependencies": {
     "@nfl-pool-monorepo/tsconfig": "*",
@@ -20,6 +21,7 @@
     "@types/node": "24.2.1",
     "@types/react": "19.1.9",
     "@types/react-dom": "19.1.7",
+    "@types/web-push": "~3.6.4",
     "postcss": "8.5.6",
     "typescript": "5.9.2"
   },

@@ -319,7 +319,7 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
             {(provided, snapshot) => (
               <div
                 className={cn(
-                  "w-full flex flex-wrap justify-start items-center p-3 mb-3 sticky top-0 min-h-[92px] bg-gray-100 gap-1 z-10",
+                  "w-full flex flex-wrap justify-center items-center p-3 mb-3 sticky top-0 min-h-[92px] bg-gray-100 gap-1 z-10",
                   snapshot.isDraggingOver && "bg-blue-300",
                 )}
                 ref={provided.innerRef}

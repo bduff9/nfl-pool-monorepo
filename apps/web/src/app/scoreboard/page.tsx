@@ -81,7 +81,7 @@ const Scoreboard: NP = async () => {
                         team={game.visitorTeam}
                       />
                     </div>
-                    <div className={cn("text-center pt-4 text-lg grow")}>
+                    <div className={cn("text-right pr-4 text-nowrap pt-4 text-lg grow")}>
                       <GameStatusDisplay
                         gameStatus={game.GameStatus}
                         kickoff={game.GameKickoff}

@@ -138,7 +138,7 @@ const PickGame: FC<PickGameProps> = ({
         isBackgrounded && "opacity-65",
       )}
     >
-      <div className="w-1/4 md:w-1/6 flex items-center justify-end">
+      <div className="w-1/4 md:w-1/6 flex items-center justify-center md:justify-end">
         <Point
           droppableId={`visitor-pick-for-game-${pick.GameID}`}
           isDragDisabled={loading !== null || hasStarted}
@@ -204,7 +204,7 @@ const PickGame: FC<PickGameProps> = ({
           </div>
         </div>
       </div>
-      <div className="w-1/4 md:w-1/6 flex items-center justify-start">
+      <div className="w-1/4 md:w-1/6 flex items-center justify-center md:justify-start">
         <Point
           droppableId={`home-pick-for-game-${pick.GameID}`}
           isDragDisabled={loading !== null || hasStarted}

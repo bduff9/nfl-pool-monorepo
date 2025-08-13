@@ -49,36 +49,36 @@ const TeamBlock: FC<TeamBlockProps> = ({ onClose, spread, team }) => (
           {team?.TeamCity} {team?.TeamName}
         </span>
       </h4>
-      <div className="flex flex-col">
+      <div className="flex">
         <div className="w-full md:w-1/2 text-start">Record:</div>
         <div className="w-full md:w-1/2 text-start md:text-end">
           {team?.record?.wins ?? 0}-{team?.record?.losses ?? 0}-{team?.record?.ties ?? 0}
         </div>
       </div>
-      <div className="flex flex-col">
+      <div className="flex">
         <div className="w-full md:w-1/2 text-start">Division:</div>
         <div className="w-full md:w-1/2 text-start md:text-end">{`${team?.TeamConference} ${team?.TeamDivision}`}</div>
       </div>
 
-      <div className="flex flex-col">
+      <div className="flex">
         <div className="w-full md:w-1/2 text-start">Spread:</div>
         <div className="w-full md:w-1/2 text-start md:text-end">{spread}</div>
       </div>
 
       <h5 className="mt-2 text-center">Rankings</h5>
-      <div className="flex flex-col">
+      <div className="flex">
         <div className="w-full md:w-1/2 text-start">Rushing Offense:</div>
         <div className="w-full md:w-1/2 text-start md:text-end">{team?.TeamRushOffenseRank}</div>
       </div>
-      <div className="flex flex-col">
+      <div className="flex">
         <div className="w-full md:w-1/2 text-start">Passing Offense:</div>
         <div className="w-full md:w-1/2 text-start md:text-end">{team?.TeamPassOffenseRank}</div>
       </div>
-      <div className="flex flex-col">
+      <div className="flex">
         <div className="w-full md:w-1/2 text-start">Rushing Defense:</div>
         <div className="w-full md:w-1/2 text-start md:text-end">{team?.TeamRushDefenseRank}</div>
       </div>
-      <div className="flex flex-col">
+      <div className="flex">
         <div className="w-full md:w-1/2 text-start">Passing Defense:</div>
         <div className="w-full md:w-1/2 text-start md:text-end">{team?.TeamPassDefenseRank}</div>
       </div>
