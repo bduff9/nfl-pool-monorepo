@@ -38,7 +38,7 @@ const InstallPrompt: FC = () => {
     );
   }
 
-  return null;
+  return <p>Push notifications are not supported in this browser.</p>;
 };
 
 export default InstallPrompt;

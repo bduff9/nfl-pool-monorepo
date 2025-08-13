@@ -87,6 +87,8 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
     if ("serviceWorker" in navigator && "PushManager" in window) {
       setIsSupported(true);
       registerServiceWorker();
+    } else {
+      setIsSupported(false);
     }
   }, []);
 
@@ -627,17 +629,14 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
                     </p>
                   </div>
                 ) : (
-                  <>
-                    <InstallPrompt />
                     <p>
                       <Button onClick={subscribeToPush} type="button" variant="primary">
                         Click here to enable push notifications in the current browser.
                       </Button>
                     </p>
-                  </>
                 )
               ) : (
-                <p>Push notifications are not supported in this browser.</p>
+                  <InstallPrompt />
               )}
             </div>
           )}
