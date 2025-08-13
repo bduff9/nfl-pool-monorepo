@@ -20,7 +20,7 @@ const InstallPrompt: FC = () => {
   if (isIOS) {
     return (
       <div>
-        <h3>Install App</h3>
+        <h3>Install App to Enable Push Notifications</h3>
         <p>
           To install this app on your iOS device, tap the share button
           <span aria-label="share icon" role="img">
