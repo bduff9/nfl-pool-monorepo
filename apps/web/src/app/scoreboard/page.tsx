@@ -63,7 +63,7 @@ const Scoreboard: NP = async () => {
                 {differentKickoff && <ScoreboardDate isFirst={isFirst} kickoff={game.GameKickoff} />}
                 <div className="mb-3">
                   <div className={cn("p-3 flex bg-gray-100 border border-gray-500")}>
-                    <div className={cn("flex flex-grow flex-wrap")}>
+                    <div className={cn("flex shrink flex-wrap")}>
                       <ScoreboardTeam
                         gameStatus={game.GameStatus}
                         hasPossession={game.GameHasPossession === game.HomeTeamID}
@@ -81,7 +81,7 @@ const Scoreboard: NP = async () => {
                         team={game.visitorTeam}
                       />
                     </div>
-                    <div className={cn("text-center pt-4 text-lg min-w-[320px] md:min-w-[128px]")}>
+                    <div className={cn("text-center pt-4 text-lg grow")}>
                       <GameStatusDisplay
                         gameStatus={game.GameStatus}
                         kickoff={game.GameKickoff}
