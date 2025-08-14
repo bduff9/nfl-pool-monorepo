@@ -531,7 +531,9 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
               </div>
 
               {notification.NotificationTypeHasHours === 1 &&
-                (watchNotifications[i]?.NotificationEmail === 1 || watchNotifications[i]?.NotificationSMS === 1) && (
+                (watchNotifications[i]?.NotificationEmail === 1 ||
+                  watchNotifications[i]?.NotificationSMS === 1 ||
+                  (!!subscription && watchNotifications[i]?.NotificationPushNotification === 1)) && (
                   <div className="col-span-full flex justify-end items-center gap-x-4 mt-1">
                     <div>Send how many hours before?</div>
 
@@ -629,14 +631,14 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
                     </p>
                   </div>
                 ) : (
-                    <p>
-                      <Button onClick={subscribeToPush} type="button" variant="primary">
-                        Click here to enable push notifications in the current browser.
-                      </Button>
-                    </p>
+                  <p>
+                    <Button onClick={subscribeToPush} type="button" variant="primary">
+                      Click here to enable push notifications in the current browser.
+                    </Button>
+                  </p>
                 )
               ) : (
-                  <InstallPrompt />
+                <InstallPrompt />
               )}
             </div>
           )}
