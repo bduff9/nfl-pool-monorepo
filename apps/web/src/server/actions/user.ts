@@ -279,8 +279,12 @@ export const login = createServerAction()
       .where("UserEmail", "=", email)
       .executeTakeFirst();
 
-    if (!user?.UserPasswordHash) {
-      throw new ZSAError("FORBIDDEN", "Please use the 'Register here' button to create an account");
+    if (!user) {
+      throw new ZSAError("FORBIDDEN", "Invalid email or password");
+    }
+
+    if (!user.UserPasswordHash) {
+      throw new ZSAError("FORBIDDEN", "Please use the 'Register here' button to set up your account");
     }
 
     const isPasswordValid = await verifyPasswordHash(user.UserPasswordHash, password);
