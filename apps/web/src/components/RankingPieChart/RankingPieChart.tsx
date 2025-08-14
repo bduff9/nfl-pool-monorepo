@@ -80,6 +80,8 @@ const RankingPieChart: FC<RankingPieChartProps> = ({ data, layoutId }) => {
     setActiveIndex(index);
   };
 
+  console.log({ activeIndex });
+
   return (
     <motion.div layoutId={layoutId}>
       <ResponsiveContainer minHeight="205px" width="100%">
