@@ -78,7 +78,7 @@ const ViewAllModal: FC<Props> = ({ closeModal, games, isOpen = false, saveChange
             Click a team logo to view the updated ranks in a &ldquo;What If&rdquo; version if that team were to win.
           </DialogDescription>
         </DialogHeader>
-        <div className="overflow-y-auto max-h-[98vh]">
+        <div className="overflow-y-auto max-h-[70vh]">
           {customGames.map((game) => (
             <div className="flex justify-around items-center text-center" key={`what-if-for-game-${game.GameID}`}>
               <div className={cn("w-5/12")}>
