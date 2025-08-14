@@ -85,11 +85,11 @@ const SurvivorDashboard: FC = async () => {
             <div className="md:h-6" />
           )}
           {isAliveInSurvivor && !mySurvivorPickForWeek ? (
-            <ProgressBarLink className={cn("block underline")} href="/survivor/set">
+            <ProgressBarLink className={cn("block underline md:mb-1")} href="/survivor/set">
               Click here to make your pick
             </ProgressBarLink>
           ) : (
-            <div className="md:h-6 md:mb-0.5" />
+            <div className="md:h-6 md:mb-1" />
           )}
           {!isAliveInSurvivor && <div className="md:h-6" />}
         </div>
