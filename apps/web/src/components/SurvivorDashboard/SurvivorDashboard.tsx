@@ -89,8 +89,9 @@ const SurvivorDashboard: FC = async () => {
               Click here to make your pick
             </ProgressBarLink>
           ) : (
-            <div className="md:h-6" />
+            <div className="md:h-6 md:mb-0.5" />
           )}
+          {!isAliveInSurvivor && <div className="md:h-6" />}
         </div>
         <SurvivorDashboardIcon
           isAlive={isAliveInSurvivor}

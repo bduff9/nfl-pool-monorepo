@@ -37,10 +37,10 @@ const SurvivorDashboardIcon: FC<SurvivorDashboardIconProps> = ({
   if (!isPlaying) {
     return (
       <>
-        <div className={cn("mx-auto size-48")}>
+        <div className={cn("mx-auto size-[206px]")}>
           <PiUserDuotone className="h-full w-full" />
         </div>
-        <h3 className="relative scroll-m-20 text-2xl font-semibold tracking-tight">Observer</h3>
+        <h3 className="-mt-4 relative scroll-m-20 text-2xl font-semibold tracking-tight">Observer</h3>
       </>
     );
   }
@@ -66,11 +66,13 @@ const SurvivorDashboardIcon: FC<SurvivorDashboardIconProps> = ({
 
     return (
       <>
-        <div className={cn("mx-auto size-48 grayscale relative")}>
+        <div className={cn("mx-auto size-[206px] grayscale relative")}>
           <PiFootballHelmetDuotone className="h-full w-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
           <PiQuestionMark className="h-full w-full text-red-600 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
         </div>
-        <h3 className="text-red-600 relative scroll-m-20 text-2xl font-semibold tracking-tight">You&lsquo;re Out</h3>
+        <h3 className="-mt-4 text-red-600 relative scroll-m-20 text-2xl font-semibold tracking-tight">
+          You&lsquo;re Out
+        </h3>
       </>
     );
   }
@@ -78,11 +80,11 @@ const SurvivorDashboardIcon: FC<SurvivorDashboardIconProps> = ({
   if (!pickForWeek) {
     return (
       <>
-        <div className={cn("mx-auto size-48 relative")}>
+        <div className={cn("mx-auto size-[206px] relative")}>
           <PiFootballHelmetDuotone className="h-full w-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
           <PiQuestionMark className="h-full w-full text-red-600 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
         </div>
-        <h3 className="text-red-600 relative scroll-m-20 text-2xl font-semibold tracking-tight">No Pick Made</h3>
+        <h3 className="-mt-4 text-red-600 relative scroll-m-20 text-2xl font-semibold tracking-tight">No Pick Made</h3>
       </>
     );
   }
