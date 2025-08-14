@@ -78,23 +78,19 @@ const SurvivorDashboard: FC = async () => {
               <div className="text-red-700">You have not submitted your survivor pick yet!</div>
             ))}
           {mySurvivorMv ? (
-            <ProgressBarLink
-              className={cn("block underline", (!isAliveInSurvivor || mySurvivorPickForWeek) && "md:mb-7")}
-              href="/survivor/view"
-            >
+            <ProgressBarLink className={cn("block underline")} href="/survivor/view">
               View Details
             </ProgressBarLink>
           ) : (
-            <div className="md:h-6 md:mb-7" />
+            <div className="md:h-6" />
           )}
           {isAliveInSurvivor && !mySurvivorPickForWeek ? (
-            <ProgressBarLink className={cn("block mb-4 underline")} href="/survivor/set">
+            <ProgressBarLink className={cn("block underline")} href="/survivor/set">
               Click here to make your pick
             </ProgressBarLink>
           ) : (
-            <div className="md:h-6 md:mb-4" />
+            <div className="md:h-6" />
           )}
-          {!isAliveInSurvivor && <div className="md:h-6" />}
         </div>
         <SurvivorDashboardIcon
           isAlive={isAliveInSurvivor}
