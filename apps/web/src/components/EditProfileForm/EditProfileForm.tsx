@@ -139,13 +139,6 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
 
   useBeforeUnload(form.formState.isDirty);
 
-  // Debug logging to help track when the hook is active
-  useEffect(() => {
-    if (process.env.NODE_ENV === "development") {
-      console.log("EditProfileForm - Form dirty state changed:", form.formState.isDirty);
-    }
-  }, [form.formState.isDirty]);
-
   useEffect(() => {
     watchNotifications.forEach((_, i) => {
       if (watchPhone.length < 10 || form.formState.errors.UserPhone?.message) {

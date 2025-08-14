@@ -67,8 +67,8 @@ const SurvivorDashboardIcon: FC<SurvivorDashboardIconProps> = ({
     return (
       <>
         <div className={cn("mx-auto size-48 grayscale relative")}>
-          <PiFootballHelmetDuotone className="h-full w-full" />
-          <PiQuestionMark className="h-full w-full text-red-600" />
+          <PiFootballHelmetDuotone className="h-full w-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+          <PiQuestionMark className="h-full w-full text-red-600 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
         </div>
         <h3 className="text-red-600 relative scroll-m-20 text-2xl font-semibold tracking-tight">You&lsquo;re Out</h3>
       </>
