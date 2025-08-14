@@ -74,7 +74,8 @@ type RankingPieChartProps = {
 };
 
 const RankingPieChart: FC<RankingPieChartProps> = ({ data, layoutId }) => {
-  const [activeIndex, setActiveIndex] = useState<number>(0);
+  const initialIndex = data.findIndex((d) => d.value > 0);
+  const [activeIndex, setActiveIndex] = useState<number>(initialIndex);
 
   const onPieEnter = (_: unknown, index: number) => {
     setActiveIndex(index);
