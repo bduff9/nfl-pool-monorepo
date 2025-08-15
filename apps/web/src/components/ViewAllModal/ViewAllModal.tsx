@@ -78,7 +78,7 @@ const ViewAllModal: FC<Props> = ({ closeModal, games, isOpen = false, saveChange
             Click a team logo to view the updated ranks in a &ldquo;What If&rdquo; version if that team were to win.
           </DialogDescription>
         </DialogHeader>
-        <div className="overflow-y-auto max-h-[70vh]">
+        <div className="overflow-y-auto max-h-[50vh]">
           {customGames.map((game) => (
             <div className="flex justify-around items-center text-center" key={`what-if-for-game-${game.GameID}`}>
               <div className={cn("w-5/12")}>
@@ -88,7 +88,7 @@ const ViewAllModal: FC<Props> = ({ closeModal, games, isOpen = false, saveChange
                     "rounded-full size-[90px] mx-auto",
                     game.WinnerTeamID === game.VisitorTeamID
                       ? "cursor-default bg-blue-300 border-blue-500 border-4"
-                      : "cursor-pointer hover:bg-blue-100 hover:border-blue-300 hover:border-4",
+                      : "cursor-pointer hover:bg-blue-100 hover:border-blue-300 hover:border-4 hover:text-blue-900",
                   )}
                   onClick={(event) => selectWinner(event, game.GameID, game.VisitorTeamID)}
                   onKeyDown={(event) => selectWinner(event, game.GameID, game.VisitorTeamID)}
@@ -118,7 +118,7 @@ const ViewAllModal: FC<Props> = ({ closeModal, games, isOpen = false, saveChange
                     "rounded-full size-[90px] mx-auto",
                     game.WinnerTeamID === game.HomeTeamID
                       ? "cursor-default bg-blue-300 border-blue-500 border-4"
-                      : "cursor-pointer hover:bg-blue-100 hover:border-blue-300 hover:border-4",
+                      : "cursor-pointer hover:bg-blue-100 hover:border-blue-300 hover:border-4 hover:text-blue-900",
                   )}
                   onClick={(event) => selectWinner(event, game.GameID, game.HomeTeamID)}
                   onKeyDown={(event) => selectWinner(event, game.GameID, game.HomeTeamID)}

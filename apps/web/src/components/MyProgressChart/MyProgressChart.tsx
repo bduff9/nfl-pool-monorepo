@@ -48,7 +48,7 @@ const MyProgressChart: FC<MyProgressChartProps> = ({
           aria-valuemin={0}
           aria-valuenow={correct}
           className={cn(
-            "flex flex-col justify-center items-center text-white text-center whitespace-nowrap transition-all rounded-sm  bg-green-700",
+            "flex flex-col justify-center items-center text-green-100 text-center whitespace-nowrap transition-all  bg-green-700",
             !isOver && "in-progress",
           )}
           role="progressbar"
@@ -62,7 +62,7 @@ const MyProgressChart: FC<MyProgressChartProps> = ({
             aria-valuemin={0}
             aria-valuenow={possible}
             className={cn(
-              "flex flex-col justify-center items-center text-white text-center whitespace-nowrap transition-all rounded-sm bg-green-300",
+              "flex flex-col justify-center items-center text-green-900 text-center whitespace-nowrap transition-all bg-green-300",
               !isOver && "in-progress",
             )}
             role="progressbar"

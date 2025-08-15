@@ -42,7 +42,7 @@ const ViewAllTable: FC<Props> = ({ games, picks, ranks }) => {
           <TableHead className={cn("sticky top-0 left-0 z-[2] opacity-0")} />
           {Array.from({ length: Object.keys(games).length }).map((_, i) => (
             <TableHead
-              className="sticky top-0 z-[1] opacity-0"
+              className="sticky top-0 z-[1] opacity-0 min-w-15"
               key={`placeholder-for-game-${
                 // biome-ignore lint/suspicious/noArrayIndexKey: This is a placeholder for a game header
                 i
@@ -81,7 +81,10 @@ const ViewAllTable: FC<Props> = ({ games, picks, ranks }) => {
 
           return (
             <TableRow key={`picks-for-user-${user.UserID}`}>
-              <TableHead className={cn("text-black font-semibold sticky left-0 z-[1] text-nowrap")} scope="row">
+              <TableHead
+                className={cn("text-black font-semibold sticky left-0 z-[1] text-nowrap bg-gray-50")}
+                scope="row"
+              >
                 {user.Tied === 1 && "T"}
                 {user.Rank}. {user.UserName}
                 <div className="hidden md:block">
@@ -120,8 +123,8 @@ const ViewAllTable: FC<Props> = ({ games, picks, ranks }) => {
                 if (!game) {
                   return (
                     <TableCell className="text-center" key={`td-skeleton-for-missing-game-${pick.GameID}`}>
-                      <Skeleton className="size-[60px]" />
-                      <Skeleton className="size-[20px]" />
+                      <Skeleton className="size-15" />
+                      <Skeleton className="size-5" />
                     </TableCell>
                   );
                 }
@@ -129,7 +132,7 @@ const ViewAllTable: FC<Props> = ({ games, picks, ranks }) => {
                 return (
                   <TableCell
                     className={cn(
-                      "text-center",
+                      "text-center min-w-15",
                       game.WinnerTeamID && pick.TeamID === game.WinnerTeamID && "bg-green-300",
                       game.WinnerTeamID && pick.TeamID !== game.WinnerTeamID && "bg-red-300",
                     )}
@@ -138,6 +141,7 @@ const ViewAllTable: FC<Props> = ({ games, picks, ranks }) => {
                     {pick.pickTeam ? (
                       <Image
                         alt={`${pick.pickTeam.TeamCity} ${pick.pickTeam.TeamName}`}
+                        className="size-15"
                         height={60}
                         src={`/NFLLogos/${pick.pickTeam.TeamLogo}`}
                         title={`${pick.pickTeam.TeamCity} ${pick.pickTeam.TeamName}`}
@@ -150,12 +154,7 @@ const ViewAllTable: FC<Props> = ({ games, picks, ranks }) => {
                         Pick
                       </h4>
                     )}
-                    {pick.PickPoints && (
-                      <>
-                        <br />
-                        {pick.PickPoints}
-                      </>
-                    )}
+                    {pick.PickPoints}
                   </TableCell>
                 );
               })}

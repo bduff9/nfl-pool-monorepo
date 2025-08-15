@@ -25,7 +25,6 @@ import { PhoneInput } from "@nfl-pool-monorepo/ui/components/phone-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nfl-pool-monorepo/ui/components/select";
 import { Switch } from "@nfl-pool-monorepo/ui/components/switch";
 import { Tabs, TabsList, TabsTrigger } from "@nfl-pool-monorepo/ui/components/tabs";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@nfl-pool-monorepo/ui/components/tooltip";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 
 import { PaymentMethod } from "@/lib/constants";
@@ -36,6 +35,7 @@ import type { getUserNotifications } from "@/server/loaders/notification";
 import type { getCurrentUser } from "@/server/loaders/user";
 import "client-only";
 
+import { Popover, PopoverContent, PopoverTrigger } from "@nfl-pool-monorepo/ui/components/popover";
 import { type FC, useEffect, useState } from "react";
 import { type SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { PiFootballDuotone, PiQuestionDuotone } from "react-icons/pi";
@@ -246,7 +246,7 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
             render={({ field, fieldState }) => (
               <FormItem>
                 <FormLabel className="h-5">
-                  Team Name <span className="text-xs text-muted-foreground">(Optional)</span>
+                  Team Name &nbsp;<span className="text-xs text-muted-foreground">(Optional)</span>
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -270,19 +270,17 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
             render={({ field, fieldState }) => (
               <FormItem>
                 <FormLabel className="h-5">
-                  Phone Number <span className="text-xs text-muted-foreground">(Optional)</span>&nbsp;
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger type="button">
-                        <PiQuestionDuotone className="size-5" />
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-[300px]">
-                        If you would like to receive SMS notifications from the confidence pool, please enter a valid
-                        phone number. This is not required, however, you will need to enable the notifications you would
-                        like to receive after you enter a valid phone number.
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  Phone Number &nbsp;<span className="text-xs text-muted-foreground">(Optional)</span>&nbsp;
+                  <Popover>
+                    <PopoverTrigger type="button">
+                      <PiQuestionDuotone className="size-5" />
+                    </PopoverTrigger>
+                    <PopoverContent className="max-w-[300px]">
+                      If you would like to receive SMS notifications from the confidence pool, please enter a valid
+                      phone number. This is not required, however, you will need to enable the notifications you would
+                      like to receive after you enter a valid phone number.
+                    </PopoverContent>
+                  </Popover>
                 </FormLabel>
                 <FormControl>
                   <PhoneInput
@@ -333,21 +331,17 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
                 <FormItem>
                   <FormLabel className="required h-5">
                     Payment Account&nbsp;
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger type="button">
-                          <PiQuestionDuotone className="size-5" />
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-[300px]">
-                          If you want to receive any prize money, you need to enter your exact payment account
-                          information here (i.e. email, username or phone number for your account).{" "}
-                          <strong>
-                            This is your responsibility as we will not be chasing people down to pay them.
-                          </strong>{" "}
-                          If entering phone number, please enter a valid phone number in the format +1 999 999 9999.
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <Popover>
+                      <PopoverTrigger type="button">
+                        <PiQuestionDuotone className="size-5" />
+                      </PopoverTrigger>
+                      <PopoverContent className="max-w-[300px]">
+                        If you want to receive any prize money, you need to enter your exact payment account information
+                        here (i.e. email, username or phone number for your account).{" "}
+                        <strong>This is your responsibility as we will not be chasing people down to pay them.</strong>{" "}
+                        If entering phone number, please enter a valid phone number in the format +1 999 999 9999.
+                      </PopoverContent>
+                    </Popover>
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -374,30 +368,28 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
               render={({ field, fieldState }) => (
                 <FormItem>
                   <FormLabel className="h-5">
-                    Auto Picks Remaining
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger type="button">
-                          <PiQuestionDuotone className="size-5" />
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-[300px]">
-                          These allow you to have the system automatically make a pick for you if you forget. Once a
-                          game starts, if you have not made a pick for that game, a winner will be chosen with your
-                          lowest point value based on the strategy you select below:
-                          <ul>
-                            <li>
-                              <strong>Home:</strong> the home team will be picked
-                            </li>
-                            <li>
-                              <strong>Away:</strong> the visiting team will be picked
-                            </li>
-                            <li>
-                              <strong>Random:</strong> a randomly selected team will be picked
-                            </li>
-                          </ul>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    Auto Picks Remaining&nbsp;
+                    <Popover>
+                      <PopoverTrigger type="button">
+                        <PiQuestionDuotone className="size-5" />
+                      </PopoverTrigger>
+                      <PopoverContent className="max-w-[300px]">
+                        These allow you to have the system automatically make a pick for you if you forget. Once a game
+                        starts, if you have not made a pick for that game, a winner will be chosen with your lowest
+                        point value based on the strategy you select below:
+                        <ul>
+                          <li>
+                            <strong>Home:</strong> the home team will be picked
+                          </li>
+                          <li>
+                            <strong>Away:</strong> the visiting team will be picked
+                          </li>
+                          <li>
+                            <strong>Random:</strong> a randomly selected team will be picked
+                          </li>
+                        </ul>
+                      </PopoverContent>
+                    </Popover>
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -456,14 +448,12 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
               <Label className="items-start">
                 {notification.NotificationTypeDescription}{" "}
                 {notification.NotificationTypeTooltip && (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger className="-mt-[3px]" type="button">
-                        <PiQuestionDuotone className="size-5" />
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-[300px]">{notification.NotificationTypeTooltip}</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <Popover>
+                    <PopoverTrigger className="-mt-[3px]" type="button">
+                      <PiQuestionDuotone className="size-5" />
+                    </PopoverTrigger>
+                    <PopoverContent className="max-w-[300px]">{notification.NotificationTypeTooltip}</PopoverContent>
+                  </Popover>
                 )}
               </Label>
 
