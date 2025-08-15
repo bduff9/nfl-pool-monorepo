@@ -343,7 +343,7 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
                           information here (i.e. email, username or phone number for your account).{" "}
                           <strong>
                             This is your responsibility as we will not be chasing people down to pay them.
-                          </strong>
+                          </strong>{" "}
                           If entering phone number, please enter a valid phone number in the format +1 999 999 9999.
                         </TooltipContent>
                       </Tooltip>
