@@ -55,12 +55,13 @@ const updateGames = (games: Awaited<ReturnType<typeof getGamesForWeek>>) => {
 };
 
 type Props = {
+  currentUserId: number;
   gamesForWeek: Awaited<ReturnType<typeof getGamesForWeek>>;
   picksForWeek: Awaited<ReturnType<typeof getAllPicksForWeek>>;
   weeklyRankings: Awaited<ReturnType<typeof getWeeklyRankings>>;
 };
 
-const ViewAllPicksClient: FC<Props> = ({ gamesForWeek, picksForWeek, weeklyRankings }) => {
+const ViewAllPicksClient: FC<Props> = ({ currentUserId, gamesForWeek, picksForWeek, weeklyRankings }) => {
   const [mode, setMode] = useState<"Live Results" | "What If">("Live Results");
   const [games, setGames] = useState<Record<number, Awaited<ReturnType<typeof getGamesForWeek>>[number]>>(
     updateGames(gamesForWeek),
@@ -130,9 +131,14 @@ const ViewAllPicksClient: FC<Props> = ({ gamesForWeek, picksForWeek, weeklyRanki
       </div>
       <div className="col-12">
         {isLive || !hasWhatIfBeenSet ? (
-          <ViewAllTable games={games} picks={picksForWeek} ranks={weeklyRankings} />
+          <ViewAllTable currentUserId={currentUserId} games={games} picks={picksForWeek} ranks={weeklyRankings} />
         ) : (
-          <ViewAllTable games={games} picks={picksForWeek} ranks={sortPicks(picksForWeek, games, weeklyRankings)} />
+          <ViewAllTable
+            currentUserId={currentUserId}
+            games={games}
+            picks={picksForWeek}
+            ranks={sortPicks(picksForWeek, games, weeklyRankings)}
+          />
         )}
       </div>
       {!isLive && (

@@ -29,12 +29,13 @@ import type { getAllPicksForWeek } from "@/server/loaders/pick";
 import type { getWeeklyRankings } from "@/server/loaders/weeklyMv";
 
 type Props = {
+  currentUserId: number;
   games: Record<number, Awaited<ReturnType<typeof getGamesForWeek>>[number]>;
   picks: Awaited<ReturnType<typeof getAllPicksForWeek>>;
   ranks: Awaited<ReturnType<typeof getWeeklyRankings>>;
 };
 
-const ViewAllTable: FC<Props> = ({ games, picks, ranks }) => {
+const ViewAllTable: FC<Props> = ({ currentUserId, games, picks, ranks }) => {
   return (
     <Table className="align-middle" parentClassName="rounded max-w-[98vw] max-h-[98vh] overflow-scroll">
       <TableHeader>
@@ -80,9 +81,15 @@ const ViewAllTable: FC<Props> = ({ games, picks, ranks }) => {
           const userPicks = picks.filter((pick) => pick.UserID === user.UserID);
 
           return (
-            <TableRow key={`picks-for-user-${user.UserID}`}>
+            <TableRow
+              className={cn(user.UserID === currentUserId && "bg-yellow-200")}
+              key={`picks-for-user-${user.UserID}`}
+            >
               <TableHead
-                className={cn("text-black font-semibold sticky left-0 z-[1] text-nowrap bg-gray-50")}
+                className={cn(
+                  "text-black font-semibold sticky left-0 z-[1] text-nowrap",
+                  user.UserID === currentUserId ? "bg-yellow-200" : "bg-gray-50",
+                )}
                 scope="row"
               >
                 {user.Tied === 1 && "T"}

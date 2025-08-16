@@ -26,6 +26,7 @@ import { requireRegistered } from "@/lib/auth";
 import type { NP } from "@/lib/types";
 import { getAllPicksForWeek } from "@/server/loaders/pick";
 import { getMyTiebreaker } from "@/server/loaders/tiebreaker";
+import { getCurrentUser } from "@/server/loaders/user";
 import { getSelectedWeek } from "@/server/loaders/week";
 import { getWeeklyRankings } from "@/server/loaders/weeklyMv";
 
@@ -45,6 +46,7 @@ const ViewAllPicks: NP = async () => {
   }
 
   const selectedWeek = await getSelectedWeek();
+  const currentUser = await getCurrentUser();
   const tiebreakerPromise = getMyTiebreaker(selectedWeek);
   const weeklyRankingsPromise = getWeeklyRankings(selectedWeek);
   const gamesForWeekPromise = getGamesForWeek(selectedWeek);
@@ -70,6 +72,7 @@ const ViewAllPicks: NP = async () => {
       <CustomHead title={`View all week ${selectedWeek} picks`} />
       <div className={cn("bg-gray-100/80 text-black my-3 mx-2 pt-3 flex-1 min-h-screen")}>
         <ViewAllPicksClient
+          currentUserId={currentUser.UserID}
           gamesForWeek={gamesForWeek}
           key={`view-all-for-week-${selectedWeek}`}
           picksForWeek={picksForWeek}
