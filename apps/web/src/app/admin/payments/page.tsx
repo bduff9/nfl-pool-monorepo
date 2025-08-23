@@ -24,16 +24,16 @@ import {
 import { DataTable } from "@nfl-pool-monorepo/ui/components/data-table";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { redirect } from "next/navigation";
+import type { FC } from "react";
 
 import { prizeColumns } from "@/components/AdminUserPayoutTable/AdminPayoutColumns";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import ManageAdminPayments from "@/components/ManageAdminPayments/ManageAdminPayments";
 import { requireAdmin } from "@/lib/auth";
-import type { NP } from "@/lib/types";
 import { getUserPayoutsForAdmin } from "@/server/loaders/payment";
 import { getRegisteredCount, getSurvivorCount } from "@/server/loaders/user";
 
-const AdminPaymentsPage: NP = async ({ searchParams }) => {
+const AdminPaymentsPage: FC<PageProps<"/admin/payments">> = async ({ searchParams }) => {
   const redirectUrl = await requireAdmin();
 
   if (redirectUrl) {

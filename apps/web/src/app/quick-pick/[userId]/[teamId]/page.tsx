@@ -16,14 +16,16 @@
 
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { redirect } from "next/navigation";
+import "server-only";
+
+import type { FC } from "react";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
-import type { NP } from "@/lib/types";
 import { quickPick } from "@/server/actions/pick";
 
-const QuickPickPage: NP = async ({ params }) => {
+const QuickPickPage: FC<PageProps<"/quick-pick/[userId]/[teamId]">> = async ({ params }) => {
   const { userId, teamId } = await params;
-  const [data, error] = await quickPick({ teamId: teamId as unknown as number, userId: userId as unknown as number });
+  const [data, error] = await quickPick({ teamId: Number(teamId), userId: Number(userId) });
 
   if (data) {
     return redirect("/picks/set");

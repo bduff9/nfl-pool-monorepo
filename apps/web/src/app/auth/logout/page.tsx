@@ -13,6 +13,9 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
+
+import "server-only";
+
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import type { FC } from "react";
@@ -27,7 +30,7 @@ export const metadata: Metadata = {
   title: TITLE,
 };
 
-const Logout: FC = async () => {
+const Logout: FC<PageProps<"/auth/logout">> = async () => {
   const redirectUrl = await requireLoggedIn();
 
   if (redirectUrl) {

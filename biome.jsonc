@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.1.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/latest/schema.json",
   "assist": {
     "actions": {
       "source": {
@@ -49,7 +49,8 @@
       "complexity": {},
       "correctness": {
         "noNodejsModules": "off",
-        "useImportExtensions": "off"
+        "useImportExtensions": "off",
+        "useUniqueElementIds": "off"
       },
       "recommended": true,
       "style": {
@@ -59,7 +60,8 @@
       },
       "suspicious": {
         "noConsole": "off",
-        "noReactSpecificProps": "off"
+        "noReactSpecificProps": "off",
+        "noUnknownAtRules": "off"
       }
     }
   }

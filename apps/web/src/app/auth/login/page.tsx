@@ -13,6 +13,7 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
+
 import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -20,6 +21,7 @@ import { redirect } from "next/navigation";
 import "server-only";
 
 import { getSystemYear } from "@nfl-pool-monorepo/db/src/queries/systemValue";
+import type { FC } from "react";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import GoogleAuthButton from "@/components/GoogleAuthButton/GoogleAuthButton";
@@ -27,7 +29,6 @@ import LoginForm from "@/components/LoginForm/LoginForm";
 import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import TextSeparator from "@/components/TextSeparator/TextSeparator";
 import { requireLoggedOut } from "@/lib/auth";
-import type { NP } from "@/lib/types";
 
 const TITLE = "Login";
 
@@ -35,7 +36,7 @@ export const metadata: Metadata = {
   title: TITLE,
 };
 
-const Login: NP = async ({ searchParams }) => {
+const Login: FC<PageProps<"/auth/login">> = async ({ searchParams }) => {
   const redirectUrl = await requireLoggedOut();
 
   if (redirectUrl) {

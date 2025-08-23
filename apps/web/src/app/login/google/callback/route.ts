@@ -2,6 +2,7 @@ import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import type { OAuth2Tokens } from "arctic";
 import { decodeIdToken } from "arctic";
 import { cookies } from "next/headers";
+import type { NextRequest } from "next/server";
 
 import { createSession, generateSessionToken, google, setSessionTokenCookie } from "@/lib/auth";
 import { getCurrentSession } from "@/server/loaders/sessions";
@@ -22,7 +23,7 @@ type GoogleClaims = {
   exp: number;
 };
 
-export const GET = async (request: Request): Promise<Response> => {
+export const GET = async (request: NextRequest, _ctx: RouteContext<"/login/google/callback">): Promise<Response> => {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");

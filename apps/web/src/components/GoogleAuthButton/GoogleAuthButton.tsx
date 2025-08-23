@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "@nfl-pool-monorepo/utils/styles";
 /*******************************************************************************
  * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
  * Copyright (C) 2015-present Brian Duffey
@@ -16,6 +15,8 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
+
+import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { useRouter } from "next/navigation";
 import { type FC, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
@@ -47,6 +48,7 @@ const GoogleAuthButton: FC<GoogleAuthButtonProps> = ({ isLinked = false, isRegis
       disabled={isLoading || isLinked}
       onClick={(): void => {
         setIsLoading(true);
+        //@ts-expect-error This works but is not typesafe
         router.push("/login/google");
       }}
       type="button"

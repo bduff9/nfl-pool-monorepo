@@ -2,6 +2,7 @@
 
 import "client-only";
 
+import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { type PropsWithChildren, useEffect, useId } from "react";
 
@@ -107,7 +108,7 @@ export const UseBeforeUnloadProvider = ({ children }: PropsWithChildren) => {
           lastKnownHref = window.location.href;
         },
         () => {
-          router.replace(lastKnownHref, { scroll: false });
+          router.replace(lastKnownHref as Route, { scroll: false });
         },
       );
     }

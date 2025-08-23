@@ -114,8 +114,8 @@ type TeamDetailProps = {
 const TeamDetail: FC<TeamDetailProps> = ({ game, onClose }) => {
   return (
     <div className="flex">
-      <TeamBlock onClose={onClose} spread={Number(game.GameVisitorSpread)} team={game.visitorTeam!} />
-      <TeamBlock onClose={onClose} spread={Number(game.GameHomeSpread)} team={game.homeTeam!} />
+      <TeamBlock onClose={onClose} spread={Number(game.GameVisitorSpread)} team={game.visitorTeam} />
+      <TeamBlock onClose={onClose} spread={Number(game.GameHomeSpread)} team={game.homeTeam} />
     </div>
   );
 };

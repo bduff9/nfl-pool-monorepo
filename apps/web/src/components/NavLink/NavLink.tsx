@@ -1,6 +1,5 @@
-import { cn } from "@nfl-pool-monorepo/utils/styles";
-import type { LinkProps } from "next/link";
-import { usePathname } from "next/navigation";
+"use client";
+
 /*******************************************************************************
  * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
  * Copyright (C) 2015-present Brian Duffey
@@ -16,12 +15,17 @@ import { usePathname } from "next/navigation";
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
+
+import { cn } from "@nfl-pool-monorepo/utils/styles";
+import type { Route } from "next";
+import { usePathname } from "next/navigation";
 import type { FC } from "react";
 
 import { ProgressBarLink } from "../ProgressBar/ProgressBar";
 
-type NavLinkProps = Partial<LinkProps> & {
+type NavLinkProps = {
   children: string;
+  href?: Route;
   isNested?: boolean;
   onClick?: () => void;
   show?: boolean;

@@ -441,7 +441,10 @@ export const register = createServerAction()
       const isStrongPassword = await verifyPasswordStrength(password);
 
       if (!isStrongPassword) {
-        throw new ZSAError("FORBIDDEN", "Passwords must be at least 8 characters and should not be reused from other sites");
+        throw new ZSAError(
+          "FORBIDDEN",
+          "Passwords must be at least 8 characters and should not be reused from other sites",
+        );
       }
 
       const hashedPassword = await hashPassword(password);

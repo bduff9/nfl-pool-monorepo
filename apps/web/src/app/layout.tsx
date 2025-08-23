@@ -15,7 +15,8 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { Metadata, Viewport } from "next";
 import { Roboto } from "next/font/google";
 import Script from "next/script";
-import { type FC, type ReactNode, Suspense } from "react";
+import { type FC, Suspense } from "react";
+import "server-only";
 
 import "./globals.css";
 
@@ -96,11 +97,7 @@ export const viewport: Viewport = {
   themeColor: appColor,
 };
 
-type Props = {
-  children: ReactNode;
-};
-
-const RootLayout: FC<Props> = async ({ children }) => {
+const RootLayout: FC<LayoutProps<"/">> = async ({ children }) => {
   const { user } = await getCurrentSession();
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get("sidebar_state")?.value !== "false";

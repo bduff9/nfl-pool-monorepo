@@ -17,15 +17,15 @@
 import { DataTable } from "@nfl-pool-monorepo/ui/components/data-table";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { redirect } from "next/navigation";
+import type { FC } from "react";
 
 import { emailColumns } from "@/components/AdminEmailsTable/AdminEmailsColumns";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import SendAdminEmails from "@/components/SendAdminEmails/SendAdminEmails";
 import { requireAdmin } from "@/lib/auth";
-import type { NP } from "@/lib/types";
 import { getAdminEmails } from "@/server/loaders/email";
 
-const AdminEmail: NP = async ({ searchParams }) => {
+const AdminEmail: FC<PageProps<"/admin/email">> = async ({ searchParams }) => {
   const redirectUrl = await requireAdmin();
 
   if (redirectUrl) {

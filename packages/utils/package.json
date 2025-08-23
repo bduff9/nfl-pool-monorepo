@@ -22,8 +22,8 @@
   "main": "index.js",
   "name": "@nfl-pool-monorepo/utils",
   "scripts": {
-    "check-types": "tsc --noEmit",
-    "lint": "biome check ./src --write"
+    "lint": "biome check ./src --write",
+    "typecheck": "tsc --noEmit"
   },
   "version": "1.0.0"
 }

@@ -19,6 +19,9 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { LuBadgeAlert } from "react-icons/lu";
+import "server-only";
+
+import type { FC } from "react";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import { OverallDashboardResults, OverallDashboardTitle } from "@/components/OverallDashboard/OverallDashboard.client";
@@ -26,7 +29,6 @@ import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import ProgressChart from "@/components/ProgressChart/ProgressChart";
 import RankingPieChart from "@/components/RankingPieChart/RankingPieChart";
 import { requireRegistered } from "@/lib/auth";
-import type { NP } from "@/lib/types";
 import {
   getMyOverallRank,
   getOverallMvCount,
@@ -42,7 +44,7 @@ export const metadata: Metadata = {
   title: TITLE,
 };
 
-const OverallRankings: NP = async () => {
+const OverallRankings: FC<PageProps<"/overall">> = async () => {
   const redirectUrl = await requireRegistered();
 
   if (redirectUrl) {

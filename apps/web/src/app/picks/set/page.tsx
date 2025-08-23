@@ -17,15 +17,17 @@
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import "server-only";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import MakePicksClient from "@/components/MakePicksClient/MakePicksClient";
 import { requireRegistered } from "@/lib/auth";
-import type { NP } from "@/lib/types";
 import { getMyWeeklyPicks } from "@/server/loaders/pick";
 import { getMyTiebreaker } from "@/server/loaders/tiebreaker";
 import { getSelectedWeek } from "@/server/loaders/week";
 import "server-only";
+
+import type { FC } from "react";
 
 const TITLE = "Make Weekly Picks";
 
@@ -33,7 +35,7 @@ export const metadata: Metadata = {
   title: TITLE,
 };
 
-const MakePicks: NP = async () => {
+const MakePicks: FC<PageProps<"/picks/set">> = async () => {
   const redirectUrl = await requireRegistered();
 
   if (redirectUrl) {

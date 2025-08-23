@@ -13,6 +13,7 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
+
 import type { SupportContent } from "@nfl-pool-monorepo/db/src";
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { Button } from "@nfl-pool-monorepo/ui/components/button";
@@ -20,13 +21,13 @@ import { Separator } from "@nfl-pool-monorepo/ui/components/separator";
 import Fuse, { type FuseResult } from "fuse.js";
 import type { Selectable } from "kysely";
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
+import type { FC, ReactNode } from "react";
+import "server-only";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import SlackLink from "@/components/SlackLink/slackLink";
 import SupportSearch from "@/components/SupportSearch/supportSearch";
-import type { NP } from "@/lib/types";
 import { writeLog } from "@/server/actions/logs";
 import { getCurrentSession } from "@/server/loaders/sessions";
 
@@ -176,7 +177,7 @@ const logSupportSearch = async (value: string): Promise<void> => {
   }
 };
 
-const Support: NP = async ({ searchParams }) => {
+const Support: FC<PageProps<"/support">> = async ({ searchParams }) => {
   const { session, user } = await getCurrentSession();
   const { faqs, rules, slackLink, supportEmail } = await getSupportContent();
   const { q = "" } = await searchParams;

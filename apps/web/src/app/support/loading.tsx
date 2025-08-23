@@ -17,6 +17,7 @@
 import { Separator } from "@nfl-pool-monorepo/ui/components/separator";
 import { Skeleton } from "@nfl-pool-monorepo/ui/components/skeleton";
 import type { FC } from "react";
+import "server-only";
 
 const SupportLoader: FC = async () => {
   return (

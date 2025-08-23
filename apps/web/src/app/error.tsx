@@ -4,6 +4,7 @@ import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import Image from "next/image";
 import { type FC, useEffect, useState } from "react";
+import "client-only";
 
 import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 

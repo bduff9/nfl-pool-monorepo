@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useMotionTemplate, useSpring } from "framer-motion";
+import type { Route } from "next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ComponentProps, FC, ReactNode } from "react";
@@ -38,7 +39,9 @@ export const ProgressBar: FC<ProgressBarProps> = ({ className, children }) => {
   );
 };
 
-type ProgressBarLinkProps = ComponentProps<typeof Link>;
+type ProgressBarLinkProps = Omit<ComponentProps<typeof Link>, "href"> & {
+  href: Route;
+};
 
 export const ProgressBarLink: FC<ProgressBarLinkProps> = ({ children, href, onClick, ...rest }) => {
   const progress = useProgressBar();
@@ -61,7 +64,7 @@ export const ProgressBarLink: FC<ProgressBarLinkProps> = ({ children, href, onCl
         progress.start();
 
         startTransition(() => {
-          router.push(href.toString());
+          router.push(href);
           progress.done();
         });
       }}

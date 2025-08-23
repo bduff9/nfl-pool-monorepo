@@ -16,13 +16,13 @@
 
 import { DataTable } from "@nfl-pool-monorepo/ui/components/data-table";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
+import type { FC } from "react";
 
 import { userColumns } from "@/components/AdminUserTable/AdminUserColumns";
 import CustomHead from "@/components/CustomHead/CustomHead";
-import type { NP } from "@/lib/types";
 import { getAdminUsers } from "@/server/loaders/user";
 
-const AdminUsersPage: NP = async ({ searchParams }) => {
+const AdminUsersPage: FC<PageProps<"/admin/users">> = async ({ searchParams }) => {
   const { count, results: users } = await getAdminUsers(await searchParams);
 
   return (

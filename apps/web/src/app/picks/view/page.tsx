@@ -19,14 +19,13 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { Suspense } from "react";
+import { type FC, Suspense } from "react";
 import { PiAtDuotone } from "react-icons/pi";
 import "server-only";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import MyPicksHead from "@/components/MyPicksHead/MyPicksHead";
 import { requireRegistered } from "@/lib/auth";
-import type { NP } from "@/lib/types";
 import { getMyWeeklyPicks } from "@/server/loaders/pick";
 import { getSelectedWeek } from "@/server/loaders/week";
 
@@ -36,7 +35,7 @@ export const metadata: Metadata = {
   title: TITLE,
 };
 
-const ViewPicks: NP = async () => {
+const ViewPicks: FC<PageProps<"/picks/view">> = async () => {
   const redirectUrl = await requireRegistered();
 
   if (redirectUrl) {

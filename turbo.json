@@ -34,13 +34,8 @@
         "VAPID_PRIVATE_KEY",
         "domain"
       ],
-      "outputs": [
-        ".next/**",
-        "!.next/cache/**",
-        "cdk.out/**"
-      ]
+      "outputs": [".next/**", "!.next/cache/**", "cdk.out/**"]
     },
-    "check-types": {},
     "clean": {
       "cache": false
     },
@@ -62,6 +57,7 @@
     },
     "topo": {
       "dependsOn": ["^topo"]
-    }
+    },
+    "typecheck": {}
   }
 }

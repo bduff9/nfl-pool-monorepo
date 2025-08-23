@@ -18,7 +18,7 @@ import type { NextRequest } from "next/server";
 
 import { unsubscribe } from "@/server/actions/email";
 
-export const GET = async (req: NextRequest): Promise<Response> => {
+export const GET = async (req: NextRequest, _ctx: RouteContext<"/api/email/unsubscribe">): Promise<Response> => {
   const { nextUrl } = req;
   const { searchParams } = nextUrl;
   const email = searchParams.get("email") ?? "";
@@ -47,7 +47,7 @@ export const GET = async (req: NextRequest): Promise<Response> => {
   });
 };
 
-export const POST = async (req: NextRequest): Promise<Response> => {
+export const POST = async (req: NextRequest, _ctx: RouteContext<"/api/email/unsubscribe">): Promise<Response> => {
   const formData = await req.formData();
   const email = formData.get("email") as string;
 

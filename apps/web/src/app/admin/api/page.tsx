@@ -17,14 +17,14 @@
 import { DataTable } from "@nfl-pool-monorepo/ui/components/data-table";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { redirect } from "next/navigation";
+import type { FC } from "react";
 
 import { apiCallColumns } from "@/components/ApiCallsTable/ApiCallsColumns";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import { requireAdmin } from "@/lib/auth";
-import type { NP } from "@/lib/types";
 import { loadAPICalls } from "@/server/loaders/apiCall";
 
-const AdminAPICalls: NP = async ({ searchParams }) => {
+const AdminAPICalls: FC<PageProps<"/admin/api">> = async ({ searchParams }) => {
   const redirectUrl = await requireAdmin();
 
   if (redirectUrl) {

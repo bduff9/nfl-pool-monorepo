@@ -14,8 +14,8 @@ export const stringToJSONSchema = z
       }
 
       return JSON.parse(str);
-    } catch (e) {
-      ctx.addIssue({ code: "custom", message: "Invalid JSON" });
+    } catch (error) {
+      ctx.addIssue({ code: "custom", message: "Invalid JSON", params: { error } });
 
       return z.NEVER;
     }

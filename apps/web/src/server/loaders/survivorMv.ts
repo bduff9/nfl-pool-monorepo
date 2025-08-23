@@ -4,7 +4,7 @@ import { cache } from "react";
 import "server-only";
 
 import { WEEKS_IN_SEASON } from "@nfl-pool-monorepo/utils/constants";
-import { jsonArrayFrom, jsonObjectFrom } from "kysely/helpers/mysql";
+import { jsonArrayFrom } from "kysely/helpers/mysql";
 
 import { getWeekInProgress } from "./game";
 import { getCurrentSession } from "./sessions";

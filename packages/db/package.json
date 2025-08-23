@@ -2,20 +2,20 @@
   "author": "",
   "dependencies": {
     "@nfl-pool-monorepo/utils": "*",
-    "kysely": "0.28.4",
+    "kysely": "0.28.5",
     "mysql2": "3.14.3"
   },
   "description": "",
   "devDependencies": {
     "kysely-codegen": "0.18.5",
-    "kysely-ctl": "0.15.1"
+    "kysely-ctl": "0.17.0"
   },
   "keywords": [],
   "license": "ISC",
   "main": "index.js",
   "name": "@nfl-pool-monorepo/db",
   "overrides": {
-    "kysely": "0.28.4"
+    "kysely": "0.28.5"
   },
   "scripts": {
     "codegen": "kysely-codegen --out-file ./src/index.ts",

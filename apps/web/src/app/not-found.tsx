@@ -22,6 +22,8 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
 import Image from "next/image";
 import type { FC } from "react";
 
+import "server-only";
+
 import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import Write404Log from "@/components/Write404Log/Write404Log";
 import { getCurrentSession } from "@/server/loaders/sessions";

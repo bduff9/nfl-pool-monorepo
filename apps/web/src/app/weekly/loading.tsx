@@ -16,13 +16,15 @@
 
 import { Skeleton } from "@nfl-pool-monorepo/ui/components/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@nfl-pool-monorepo/ui/components/table";
+import "server-only";
+
+import type { FC } from "react";
 
 import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import ProgressChartLoader from "@/components/ProgressChart/ProgressChartLoader";
 import RankingPieChartLoader from "@/components/RankingPieChart/RankingPieChartLoader";
-import type { NP } from "@/lib/types";
 
-const WeeklyRankingsLoader: NP = () => {
+const WeeklyRankingsLoader: FC = () => {
   return (
     <div className="h-full flex">
       <div className="bg-gray-100/80 text-black mx-2 pt-0 md:pt-3 min-h-screen pb-4 flex-1">

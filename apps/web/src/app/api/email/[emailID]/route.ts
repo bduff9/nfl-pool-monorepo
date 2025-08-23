@@ -15,12 +15,13 @@
  */
 
 import { DAYS_IN_MONTH, HOURS_IN_DAY, MINUTES_IN_HOUR, SECONDS_IN_MINUTE } from "@nfl-pool-monorepo/utils/constants";
+import type { NextRequest } from "next/server";
 
 import { addCustomStyling } from "@/lib/strings";
 import { getEmail } from "@/server/loaders/email";
 
-export const GET = async (_req: Request, { params }: { params: Promise<{ emailID: string }> }): Promise<Response> => {
-  const { emailID } = await params;
+export const GET = async (_req: NextRequest, ctx: RouteContext<"/api/email/[emailID]">): Promise<Response> => {
+  const { emailID } = await ctx.params;
   const cacheMaxAge = 6 * DAYS_IN_MONTH * HOURS_IN_DAY * MINUTES_IN_HOUR * SECONDS_IN_MINUTE; // 6 months
   const response = new Response();
 

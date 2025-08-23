@@ -18,6 +18,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import "server-only";
+
+import type { FC } from "react";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
@@ -25,7 +28,6 @@ import ProgressChart from "@/components/ProgressChart/ProgressChart";
 import RankingPieChart from "@/components/RankingPieChart/RankingPieChart";
 import { WeeklyDashboardResults, WeeklyDashboardTitle } from "@/components/WeeklyDashboard/WeeklyDashboard.client";
 import { requireRegistered } from "@/lib/auth";
-import type { NP } from "@/lib/types";
 import { getCurrentUser } from "@/server/loaders/user";
 import { getSelectedWeek, getWeekStatus } from "@/server/loaders/week";
 import { getMyWeeklyRank, getWeeklyMvCount, getWeeklyMvTiedCount, getWeeklyRankings } from "@/server/loaders/weeklyMv";
@@ -36,7 +38,7 @@ export const metadata: Metadata = {
   title: TITLE,
 };
 
-const WeeklyRankings: NP = async () => {
+const WeeklyRankings: FC<PageProps<"/weekly">> = async () => {
   const redirectUrl = await requireRegistered();
 
   if (redirectUrl) {

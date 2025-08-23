@@ -15,7 +15,8 @@
  */
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { Suspense } from "react";
+import { type FC, Suspense } from "react";
+import "server-only";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import OverallDashboard from "@/components/OverallDashboard/OverallDashboard";
@@ -23,7 +24,6 @@ import SurvivorDashboard from "@/components/SurvivorDashboard/SurvivorDashboard"
 import DashboardLoader from "@/components/WeeklyDashboard/DashboardLoader";
 import WeeklyDashboard from "@/components/WeeklyDashboard/WeeklyDashboard";
 import { requireRegistered } from "@/lib/auth";
-import type { NP } from "@/lib/types";
 
 const TITLE = "My Dashboard";
 
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   title: TITLE,
 };
 
-const Dashboard: NP = async () => {
+const Dashboard: FC<PageProps<"/">> = async () => {
   const redirectUrl = await requireRegistered();
 
   if (redirectUrl) {

@@ -11,8 +11,8 @@
   "license": "ISC",
   "name": "@nfl-pool-monorepo/types",
   "scripts": {
-    "check-types": "tsc --noEmit",
-    "lint": "biome lint ./src"
+    "lint": "biome lint ./src",
+    "typecheck": "tsc --noEmit"
   },
   "version": "1.0.0"
 }

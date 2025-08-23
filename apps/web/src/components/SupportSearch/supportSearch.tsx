@@ -43,7 +43,7 @@ const SupportSearch: FC<Props> = ({ currentQuery }) => {
     event.preventDefault();
 
     const q = inputRef.current?.value ?? "";
-    const url = `/support${q ? `?q=${encodeURIComponent(q)}` : ""}`;
+    const url = `/support${q ? `?q=${encodeURIComponent(q)}` : ""}` as "/support" | "/support?q=${string}";
 
     router.push(url);
   };

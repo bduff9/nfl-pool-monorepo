@@ -3,9 +3,9 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { FC } from "react";
 import { FaInfoCircle } from "react-icons/fa";
 import { PiAtDuotone } from "react-icons/pi";
+import "server-only";
 
 import { SURVIVOR_PICK_INSTRUCTIONS } from "@/lib/constants";
-import type { NP } from "@/lib/types";
 
 type SurvivorTeamLoaderProps = {
   isHome?: boolean;
@@ -29,7 +29,7 @@ const SurvivorTeamLoader: FC<SurvivorTeamLoaderProps> = ({ isHome = false }) => 
   );
 };
 
-const SetPicksLoadingPage: NP = () => {
+const SetPicksLoadingPage: FC = () => {
   return (
     <div className="h-full flex">
       <div className="bg-gray-100/80 text-black mx-2 md:pt-3 min-h-screen pb-4 flex-1">

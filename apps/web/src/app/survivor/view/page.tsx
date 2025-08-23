@@ -19,13 +19,15 @@ import { WEEKS_IN_SEASON } from "@nfl-pool-monorepo/utils/constants";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import Image from "next/image";
 import { redirect } from "next/navigation";
+import "server-only";
+
+import type { FC } from "react";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import ProgressChart from "@/components/ProgressChart/ProgressChart";
 import SurvivorDashboardIcon from "@/components/SurvivorDashboardIcon/SurvivorDashboardIcon";
 import { requireRegistered } from "@/lib/auth";
-import type { NP } from "@/lib/types";
 import { getWeekInProgress } from "@/server/loaders/game";
 import { getIsAliveInSurvivor, getMySurvivorPickForWeek } from "@/server/loaders/survivor";
 import {
@@ -38,7 +40,7 @@ import {
 import { getCurrentUser } from "@/server/loaders/user";
 import { getSelectedWeek, getWeekStatus } from "@/server/loaders/week";
 
-const ViewSurvivor: NP = async () => {
+const ViewSurvivor: FC<PageProps<"/survivor/view">> = async () => {
   const redirectUrl = await requireRegistered();
 
   if (redirectUrl) {

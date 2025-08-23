@@ -16,14 +16,14 @@
 
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { redirect } from "next/navigation";
+import type { FC } from "react";
 
 import BackupsTable from "@/components/BackupsTable/BackupsTable";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import { requireAdmin } from "@/lib/auth";
-import type { NP } from "@/lib/types";
 import { getAdminBackups } from "@/server/loaders/backup";
 
-const AdminBackupsPage: NP = async () => {
+const AdminBackupsPage: FC<PageProps<"/admin/backups">> = async () => {
   const redirectUrl = await requireAdmin();
 
   if (redirectUrl) {

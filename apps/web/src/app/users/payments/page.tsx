@@ -25,6 +25,7 @@ import {
 } from "@nfl-pool-monorepo/ui/components/table";
 import { redirect } from "next/navigation";
 import type { FC } from "react";
+import "server-only";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PaymentSelector from "@/components/PaymentSelector/PaymentSelector";
@@ -34,7 +35,7 @@ import { requireRegistered } from "@/lib/auth";
 import { getMyPayments } from "@/server/loaders/payment";
 import { getCurrentUser } from "@/server/loaders/user";
 
-const ViewPayments: FC = async () => {
+const ViewPayments: FC<PageProps<"/users/payments">> = async () => {
   const redirectUrl = await requireRegistered();
 
   if (redirectUrl) {

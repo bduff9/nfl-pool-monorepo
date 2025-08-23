@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import "server-only";
 
+import type { FC } from "react";
+
 import CustomHead from "@/components/CustomHead/CustomHead";
 import FinishRegistrationForm from "@/components/FinishRegistrationForm/FinishRegistrationForm";
-import type { NP } from "@/lib/types";
 import { finishRegistration } from "@/server/actions/user";
 import { getCurrentSession } from "@/server/loaders/sessions";
 import { getCurrentUser, userHasGoogle } from "@/server/loaders/user";
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
   title: TITLE,
 };
 
-const CreateProfile: NP = async () => {
+const CreateProfile: FC<PageProps<"/users/create">> = async () => {
   const { user } = await getCurrentSession();
 
   if (!user) {

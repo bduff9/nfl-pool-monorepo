@@ -17,7 +17,8 @@
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { Fragment } from "react";
+import { type FC, Fragment } from "react";
+import "server-only";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import GameStatusDisplay from "@/components/GameStatusDisplay/GameStatusDisplay";
@@ -25,7 +26,6 @@ import ScoreboardDate from "@/components/ScoreboardDate/ScoreboardDate";
 import ScoreboardTeam from "@/components/ScoreboardTeam/ScoreboardTeam";
 import { requireRegistered } from "@/lib/auth";
 import { formatDateForKickoff } from "@/lib/dates";
-import type { NP } from "@/lib/types";
 import { getGamesForWeekCached } from "@/server/loaders/game";
 import { getSelectedWeek } from "@/server/loaders/week";
 
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   title: TITLE,
 };
 
-const Scoreboard: NP = async () => {
+const Scoreboard: FC<PageProps<"/scoreboard">> = async () => {
   const redirectUrl = await requireRegistered();
 
   if (redirectUrl) {

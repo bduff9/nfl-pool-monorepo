@@ -15,16 +15,17 @@
  */
 
 import { redirect } from "next/navigation";
+import type { FC } from "react";
+import "server-only";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import EditProfileForm from "@/components/EditProfileForm/EditProfileForm";
 import { requireRegistered } from "@/lib/auth";
-import type { NP } from "@/lib/types";
 import { editMyProfile } from "@/server/actions/user";
 import { getUserNotifications } from "@/server/loaders/notification";
 import { getCurrentUser, userHasGoogle } from "@/server/loaders/user";
 
-const EditProfile: NP = async () => {
+const EditProfile: FC<PageProps<"/users/edit">> = async () => {
   const redirectPath = await requireRegistered();
 
   if (redirectPath) {

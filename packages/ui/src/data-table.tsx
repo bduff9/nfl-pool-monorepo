@@ -253,7 +253,7 @@ export function DataTable<TData, TValue>({
             {">>"}
           </Button>
           <Select
-            onValueChange={(value) => table.setPageSize(parseInt(value))}
+            onValueChange={(value) => table.setPageSize(parseInt(value, 10))}
             value={table.getState().pagination.pageSize.toString()}
           >
             <SelectTrigger className="dark:bg-white">

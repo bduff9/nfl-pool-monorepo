@@ -20,10 +20,10 @@ import { getGamesForWeek } from "@nfl-pool-monorepo/db/src/queries/game";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import type { FC } from "react";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import { requireRegistered } from "@/lib/auth";
-import type { NP } from "@/lib/types";
 import { getAllPicksForWeek } from "@/server/loaders/pick";
 import { getMyTiebreaker } from "@/server/loaders/tiebreaker";
 import { getCurrentUser } from "@/server/loaders/user";
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   title: TITLE,
 };
 
-const ViewAllPicks: NP = async () => {
+const ViewAllPicks: FC<PageProps<"/picks/viewall">> = async () => {
   const redirectUrl = await requireRegistered();
 
   if (redirectUrl) {

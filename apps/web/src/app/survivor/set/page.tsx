@@ -15,10 +15,12 @@
  */
 
 import { redirect } from "next/navigation";
+import "server-only";
+
+import type { FC } from "react";
 
 import MakeSurvivorPickClient from "@/components/MakeSurvivorPickClient/MakeSurvivorPickClient";
 import { requireRegistered } from "@/lib/auth";
-import type { NP } from "@/lib/types";
 import { getGamesForWeekCached, getWeekInProgress } from "@/server/loaders/game";
 import { getIsAliveInSurvivor, getMySurvivorPicks } from "@/server/loaders/survivor";
 import { getTeamsOnBye } from "@/server/loaders/team";
@@ -26,7 +28,7 @@ import { getSelectedWeek } from "@/server/loaders/week";
 
 import CustomHead from "../../../components/CustomHead/CustomHead";
 
-const SetSurvivorPage: NP = async () => {
+const SetSurvivorPage: FC<PageProps<"/survivor/set">> = async () => {
   const redirectUrl = await requireRegistered();
 
   if (redirectUrl) {

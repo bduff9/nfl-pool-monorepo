@@ -13,6 +13,9 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
+
+import "server-only";
+
 import { Skeleton } from "@nfl-pool-monorepo/ui/components/skeleton";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { type FC, Fragment } from "react";
