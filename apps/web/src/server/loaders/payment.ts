@@ -6,7 +6,6 @@ import "server-only";
 import { jsonArrayFrom } from "kysely/helpers/mysql";
 import { z } from "zod";
 
-import type { SearchParams } from "@/lib/types";
 import { stringToJSONSchema } from "@/lib/zod";
 
 import { getCurrentSession } from "./sessions";
@@ -26,7 +25,7 @@ export const getMyPayments = cache(async () => {
     .execute();
 });
 
-export const getUserPayoutsForAdmin = cache(async (params: SearchParams) => {
+export const getUserPayoutsForAdmin = cache(async (params: Awaited<PageProps<"/admin/payments">["searchParams"]>) => {
   const paramsSchema = z.object({
     sort: stringToJSONSchema.pipe(
       z

@@ -4,12 +4,11 @@ import { cache } from "react";
 import { z } from "zod";
 
 import { DEFAULT_PAGE_SIZE } from "@/lib/constants";
-import type { SearchParams } from "@/lib/types";
 import { stringToJSONSchema } from "@/lib/zod";
 
 import { getCurrentSession } from "./sessions";
 
-export const getAdminEmails = cache(async (params: SearchParams) => {
+export const getAdminEmails = cache(async (params: Awaited<PageProps<"/admin/email">["searchParams"]>) => {
   const paramsSchema = z.object({
     filter: stringToJSONSchema.pipe(
       z
@@ -68,7 +67,7 @@ export const getAdminEmails = cache(async (params: SearchParams) => {
   return { count: count.count ?? 0, results };
 });
 
-export const getEmail = cache(async (emailID: SearchParams[string]) => {
+export const getEmail = cache(async (emailID: string) => {
   const { user } = await getCurrentSession();
   const result = await db
     .selectFrom("Emails")

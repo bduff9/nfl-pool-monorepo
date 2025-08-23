@@ -5,12 +5,11 @@ import { cache } from "react";
 import { z } from "zod";
 
 import { DEFAULT_PAGE_SIZE } from "@/lib/constants";
-import type { SearchParams } from "@/lib/types";
 import { stringToJSONSchema } from "@/lib/zod";
 
 import { getCurrentSession } from "./sessions";
 
-export const getAdminUsers = cache(async (params: SearchParams) => {
+export const getAdminUsers = cache(async (params: Awaited<PageProps<"/admin/users">["searchParams"]>) => {
   const paramsSchema = z.object({
     filter: stringToJSONSchema.pipe(
       z

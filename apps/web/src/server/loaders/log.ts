@@ -4,10 +4,9 @@ import { cache } from "react";
 import { z } from "zod";
 
 import { DEFAULT_PAGE_SIZE } from "@/lib/constants";
-import type { SearchParams } from "@/lib/types";
 import { stringToJSONSchema } from "@/lib/zod";
 
-export const getAdminLogs = cache(async (params: SearchParams) => {
+export const getAdminLogs = cache(async (params: Awaited<PageProps<"/admin/logs">["searchParams"]>) => {
   const paramsSchema = z.object({
     filter: stringToJSONSchema.pipe(
       z
