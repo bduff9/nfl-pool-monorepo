@@ -1,14 +1,5 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@nfl-pool-monorepo/ui/components/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@nfl-pool-monorepo/ui/components/form";
-import { Input } from "@nfl-pool-monorepo/ui/components/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nfl-pool-monorepo/ui/components/select";
-import { Tabs, TabsList, TabsTrigger } from "@nfl-pool-monorepo/ui/components/tabs";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@nfl-pool-monorepo/ui/components/tooltip";
-import { cn } from "@nfl-pool-monorepo/utils/styles";
-
 /*******************************************************************************
  * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
  * Copyright (C) 2015-present Brian Duffey
@@ -24,6 +15,15 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@nfl-pool-monorepo/ui/components/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@nfl-pool-monorepo/ui/components/form";
+import { Input } from "@nfl-pool-monorepo/ui/components/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nfl-pool-monorepo/ui/components/select";
+import { Tabs, TabsList, TabsTrigger } from "@nfl-pool-monorepo/ui/components/tabs";
+import { cn } from "@nfl-pool-monorepo/utils/styles";
+
 import { PaymentMethod } from "@/lib/constants";
 import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
 import { getFirstName, getFullName, getLastName } from "@/lib/user";
@@ -33,6 +33,7 @@ import type { getCurrentUser } from "@/server/loaders/user";
 import "client-only";
 
 import type { Status } from "@nfl-pool-monorepo/types";
+import { Popover, PopoverContent, PopoverTrigger } from "@nfl-pool-monorepo/ui/components/popover";
 import { useRouter } from "next/navigation";
 import { type FC, useEffect, useState } from "react";
 import { type SubmitHandler, useForm, useWatch } from "react-hook-form";
@@ -256,20 +257,18 @@ const FinishRegistrationForm: FC<FinishRegistrationFormProps> = ({
                 <FormItem>
                   <FormLabel className="required h-5">
                     Add on survivor game?&nbsp;
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <PiQuestionDuotone className="size-5" />
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-[300px]">
-                          You can choose to join or leave the survivor pool up until the start of the first game of the
-                          season. For more questions,{" "}
-                          <a className="underline" href="/support#survivorpool" target="survivorFAQ">
-                            click here
-                          </a>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <Popover>
+                      <PopoverTrigger>
+                        <PiQuestionDuotone className="size-5" />
+                      </PopoverTrigger>
+                      <PopoverContent className="max-w-[300px]">
+                        You can choose to join or leave the survivor pool up until the start of the first game of the
+                        season. For more questions,{" "}
+                        <a className="underline" href="/support#survivorpool" target="survivorFAQ">
+                          click here
+                        </a>
+                      </PopoverContent>
+                    </Popover>
                   </FormLabel>
                   <FormControl>
                     <Tabs onValueChange={(value) => field.onChange(value === "Yes")} value={field.value ? "Yes" : "No"}>
@@ -317,18 +316,16 @@ const FinishRegistrationForm: FC<FinishRegistrationFormProps> = ({
               <FormItem>
                 <FormLabel className="required h-5">
                   Payment Account&nbsp;
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <PiQuestionDuotone className="size-5" />
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-[300px]">
-                        If you want to receive any prize money, you need to enter your exact payment account information
-                        here (i.e. email, username or phone number for your account).{" "}
-                        <strong>This is your responsibility as we will not be chasing people down to pay them.</strong>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <Popover>
+                    <PopoverTrigger>
+                      <PiQuestionDuotone className="size-5" />
+                    </PopoverTrigger>
+                    <PopoverContent className="max-w-[300px]">
+                      If you want to receive any prize money, you need to enter your exact payment account information
+                      here (i.e. email, username or phone number for your account).{" "}
+                      <strong>This is your responsibility as we will not be chasing people down to pay them.</strong>
+                    </PopoverContent>
+                  </Popover>
                 </FormLabel>
                 <FormControl>
                   <Input
