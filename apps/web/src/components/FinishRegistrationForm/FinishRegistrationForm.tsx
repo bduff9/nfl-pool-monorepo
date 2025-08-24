@@ -112,7 +112,7 @@ const FinishRegistrationForm: FC<FinishRegistrationFormProps> = ({
         result,
         () => {
           if (isTrusted) {
-            router.push("/");
+            router.push("/users/payments");
           }
         },
         "You have successfully submitted your registration!",
