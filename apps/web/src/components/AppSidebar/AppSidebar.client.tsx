@@ -23,11 +23,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from "@nfl-pool-monorepo/ui/components/sidebar";
 import { WEEKS_IN_SEASON } from "@nfl-pool-monorepo/utils/constants";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { usePathname, useRouter } from "next/navigation";
-import { type FC, Fragment, startTransition, useCallback } from "react";
+import { type FC, Fragment, startTransition, useCallback, useState } from "react";
 import { LuChevronDown, LuChevronLeft, LuChevronRight, LuEllipsisVertical, LuReply } from "react-icons/lu";
 
 import { processFormState } from "@/lib/zsa";
@@ -72,9 +73,11 @@ const AppSidebarClient: FC<Props> = ({
   user,
   weeklyMvCount,
 }) => {
+  const { setOpenMobile } = useSidebar();
   const pathname = usePathname();
   const router = useRouter();
   const progress = useProgressBar();
+  const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false);
   let currentPage = "";
 
   const goToPreviousWeek = (): void => {
@@ -347,7 +350,7 @@ const AppSidebarClient: FC<Props> = ({
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <DropdownMenu>
+            <DropdownMenu onOpenChange={setUserMenuOpen} open={userMenuOpen}>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton>
                   <Avatar className="size-10 rounded-lg">
@@ -366,16 +369,40 @@ const AppSidebarClient: FC<Props> = ({
               <DropdownMenuContent align="end" side="right">
                 {user.doneRegistering === 1 && (
                   <DropdownMenuItem>
-                    <ProgressBarLink href="/users/edit">Edit Account</ProgressBarLink>
+                    <ProgressBarLink
+                      href="/users/edit"
+                      onClick={() => {
+                        setUserMenuOpen(false);
+                        setOpenMobile(false);
+                      }}
+                    >
+                      Edit Account
+                    </ProgressBarLink>
                   </DropdownMenuItem>
                 )}
                 {user.doneRegistering === 1 && (
                   <DropdownMenuItem>
-                    <ProgressBarLink href="/users/payments">View Payments</ProgressBarLink>
+                    <ProgressBarLink
+                      href="/users/payments"
+                      onClick={() => {
+                        setUserMenuOpen(false);
+                        setOpenMobile(false);
+                      }}
+                    >
+                      View Payments
+                    </ProgressBarLink>
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuItem>
-                  <ProgressBarLink href="/auth/logout">Sign out</ProgressBarLink>
+                  <ProgressBarLink
+                    href="/auth/logout"
+                    onClick={() => {
+                      setUserMenuOpen(false);
+                      setOpenMobile(false);
+                    }}
+                  >
+                    Sign out
+                  </ProgressBarLink>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

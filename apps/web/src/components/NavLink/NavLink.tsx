@@ -16,6 +16,7 @@
  * Home: https://asitewithnoname.com/
  */
 
+import { useSidebar } from "@nfl-pool-monorepo/ui/components/sidebar";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { Route } from "next";
 import { usePathname } from "next/navigation";
@@ -32,6 +33,7 @@ type NavLinkProps = {
 };
 
 const NavLink: FC<NavLinkProps> = ({ children, href, isNested = false, onClick, show = true }) => {
+  const { setOpenMobile } = useSidebar();
   const pathname = usePathname();
   const isActive = pathname === href;
 
@@ -48,6 +50,9 @@ const NavLink: FC<NavLinkProps> = ({ children, href, isNested = false, onClick, 
           isNested ? "ps-8 text-lg font-normal" : "ps-4",
         )}
         href={href}
+        onClick={() => {
+          setOpenMobile(false);
+        }}
       >
         {children}
       </ProgressBarLink>
