@@ -43,7 +43,7 @@ const AdminEmail: FC<PageProps<"/admin/email">> = async ({ searchParams }) => {
         <div className="flex flex-col">
           <div className="w-full bg-gray-100/80 text-black mt-4 p-4 pt-2 border rounded">
             <div className="w-full text-center md:text-start">
-              {results.length} {count === 1 ? "email" : "emails"}
+              {count} {count === 1 ? "email" : "emails"}
             </div>
             <div className="w-full">
               <DataTable
