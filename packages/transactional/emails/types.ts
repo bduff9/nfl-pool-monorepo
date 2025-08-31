@@ -4,6 +4,7 @@ export const EmailTypes = [
   "invalidGames",
   "lockedOut",
   "newUser",
+  "passwordReset",
   "pickReminder",
   "picksSubmitted",
   "prizesSet",

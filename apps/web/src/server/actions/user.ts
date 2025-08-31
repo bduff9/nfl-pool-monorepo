@@ -1,5 +1,7 @@
 "use server";
 
+import { randomInt } from "crypto";
+
 import type { DB, Users } from "@nfl-pool-monorepo/db/src";
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { ensureUserIsInPublicLeague } from "@nfl-pool-monorepo/db/src/mutations/leagues";
@@ -7,9 +9,10 @@ import { insertUserHistoryRecord } from "@nfl-pool-monorepo/db/src/mutations/use
 import { populateUserData } from "@nfl-pool-monorepo/db/src/mutations/users";
 import { getPoolCost } from "@nfl-pool-monorepo/db/src/queries/systemValue";
 import { sendNewUserEmail } from "@nfl-pool-monorepo/transactional/emails/newUser";
+import { sendPasswordResetEmail } from "@nfl-pool-monorepo/transactional/emails/passwordReset";
 import { sendTrustedEmail } from "@nfl-pool-monorepo/transactional/emails/trusted";
 import { sendUntrustedEmail } from "@nfl-pool-monorepo/transactional/emails/untrusted";
-import { DEFAULT_AUTO_PICKS } from "@nfl-pool-monorepo/utils/constants";
+import { ADMIN_USER, DEFAULT_AUTO_PICKS } from "@nfl-pool-monorepo/utils/constants";
 import { type Selectable, sql, type Transaction } from "kysely";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
@@ -23,7 +26,14 @@ import {
   verifyPasswordHash,
   verifyPasswordStrength,
 } from "@/lib/auth";
-import { editProfileSchema, finishRegistrationSchema, loginSchema, serverActionResultSchema } from "@/lib/zod";
+import {
+  editProfileSchema,
+  finishRegistrationSchema,
+  forgotPasswordEmailSchema,
+  loginSchema,
+  serverActionResultSchema,
+  verifyOtpSchema,
+} from "@/lib/zod";
 import { adminProcedure, authedProcedure } from "@/lib/zsa.server";
 import "server-only";
 
@@ -420,70 +430,52 @@ export const register = createServerAction()
   .handler(async ({ input }) => {
     const { email, password } = input;
 
-    let user = await db
+    const existingUser = await db
       .selectFrom("Users")
-      .select(["UserID", "UserPasswordHash", "UserDoneRegistering", "UserTrusted"])
+      .select(["UserID"])
       .where("UserEmail", "=", email)
       .executeTakeFirst();
 
-    if (user) {
-      if (user.UserPasswordHash) {
-        throw new ZSAError("FORBIDDEN", "User already exists, please login");
-      }
-
-      if (user.UserTrusted === 0) {
-        throw new ZSAError(
-          "FORBIDDEN",
-          "Your account has been blocked.  Please reach out to an administrator to resolve.",
-        );
-      }
-
-      const isStrongPassword = await verifyPasswordStrength(password);
-
-      if (!isStrongPassword) {
-        throw new ZSAError(
-          "FORBIDDEN",
-          "Passwords must be at least 8 characters and should not be reused from other sites",
-        );
-      }
-
-      const hashedPassword = await hashPassword(password);
-
-      await db
-        .updateTable("Users")
-        .set({ UserPasswordHash: hashedPassword })
-        .where("UserID", "=", user.UserID)
-        .executeTakeFirstOrThrow();
-    } else {
-      const isValidMx = await mxExists(email);
-
-      if (!isValidMx) {
-        throw new ZSAError("FORBIDDEN", "It looks like your email is not valid, please double check it and try again");
-      }
-
-      const isStrongPassword = await verifyPasswordStrength(password);
-
-      if (!isStrongPassword) {
-        throw new ZSAError("FORBIDDEN", "Password is too weak");
-      }
-
-      const hashedPassword = await hashPassword(password);
-
-      await db
-        .insertInto("Users")
-        .values({
-          UserAddedBy: "ADMIN",
-          UserEmail: email,
-          UserPasswordHash: hashedPassword,
-          UserUpdatedBy: "ADMIN",
-        })
-        .executeTakeFirstOrThrow();
-      user = await db
-        .selectFrom("Users")
-        .select(["UserID", "UserDoneRegistering", "UserPasswordHash", "UserTrusted"])
-        .where("UserEmail", "=", email)
-        .executeTakeFirstOrThrow();
+    if (existingUser) {
+      throw new ZSAError(
+        "FORBIDDEN",
+        "User already exists. Please use the login page or reset your password if you forgot it.",
+      );
     }
+
+    const isValidMx = await mxExists(email);
+
+    if (!isValidMx) {
+      throw new ZSAError("FORBIDDEN", "It looks like your email is not valid, please double check it and try again");
+    }
+
+    const isStrongPassword = await verifyPasswordStrength(password);
+
+    if (!isStrongPassword) {
+      throw new ZSAError(
+        "FORBIDDEN",
+        "Passwords must be at least 8 characters and should not be reused from other sites",
+      );
+    }
+
+    const hashedPassword = await hashPassword(password);
+
+    const newUserResult = await db
+      .insertInto("Users")
+      .values({
+        UserAddedBy: "REGISTRATION",
+        UserEmail: email,
+        UserPasswordHash: hashedPassword,
+        UserUpdatedBy: "REGISTRATION",
+      })
+      .executeTakeFirstOrThrow();
+
+    const user = {
+      UserDoneRegistering: 0,
+      UserID: Number(newUserResult.insertId),
+      UserPasswordHash: hashedPassword,
+      UserTrusted: null,
+    };
 
     const systemValueResult = await db
       .selectFrom("SystemValues")
@@ -553,6 +545,136 @@ export const removeUserFromAdmin = adminProcedure
     }
 
     revalidatePath("/admin/users");
+
+    return {
+      metadata: {},
+      status: "Success",
+    };
+  });
+
+const generateOTP = (): string => {
+  return randomInt(100000, 999999).toString();
+};
+
+export const sendPasswordResetOTP = createServerAction()
+  .input(forgotPasswordEmailSchema)
+  .output(serverActionResultSchema)
+  .handler(async ({ input }) => {
+    const { email } = input;
+
+    const user = await db
+      .selectFrom("Users")
+      .select(["UserID", "UserFirstName", "UserEmail"])
+      .where("UserEmail", "=", email)
+      .executeTakeFirst();
+
+    if (!user) {
+      // Don't reveal that the user doesn't exist, but still return success
+      // This prevents email enumeration attacks
+      return {
+        metadata: {},
+        status: "Success",
+      };
+    }
+
+    const otp = generateOTP();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+    try {
+      await db.deleteFrom("VerificationRequests").where("VerificationRequestIdentifier", "=", email).execute();
+      await db
+        .insertInto("VerificationRequests")
+        .values({
+          VerificationRequestAddedBy: ADMIN_USER,
+          VerificationRequestExpires: expiresAt,
+          VerificationRequestIdentifier: email,
+          VerificationRequestToken: otp,
+          VerificationRequestUpdatedBy: ADMIN_USER,
+        })
+        .executeTakeFirstOrThrow();
+      await sendPasswordResetEmail(
+        {
+          UserEmail: user.UserEmail,
+          UserFirstName: user.UserFirstName,
+        },
+        otp,
+      );
+    } catch (error) {
+      console.error("Failed to send password reset OTP:", error);
+
+      throw new ZSAError("INTERNAL_SERVER_ERROR", "Failed to send password reset email. Please try again.");
+    }
+
+    return {
+      metadata: {},
+      status: "Success",
+    };
+  });
+
+export const verifyOTPAndResetPassword = createServerAction()
+  .input(verifyOtpSchema)
+  .output(serverActionResultSchema)
+  .handler(async ({ input }) => {
+    const { email, otp, newPassword } = input;
+
+    const verificationRequest = await db
+      .selectFrom("VerificationRequests")
+      .select(["VerificationRequestToken", "VerificationRequestExpires"])
+      .where("VerificationRequestIdentifier", "=", email)
+      .executeTakeFirst();
+
+    if (!verificationRequest) {
+      throw new ZSAError("FORBIDDEN", "Invalid or expired verification code. Please request a new one.");
+    }
+
+    if (new Date() > verificationRequest.VerificationRequestExpires) {
+      await db.deleteFrom("VerificationRequests").where("VerificationRequestIdentifier", "=", email).execute();
+
+      throw new ZSAError("FORBIDDEN", "Verification code has expired. Please request a new one.");
+    }
+
+    if (verificationRequest.VerificationRequestToken !== otp) {
+      throw new ZSAError("FORBIDDEN", "Invalid verification code. Please check your code and try again.");
+    }
+
+    const user = await db.selectFrom("Users").select(["UserID"]).where("UserEmail", "=", email).executeTakeFirst();
+
+    if (!user) {
+      throw new ZSAError("FORBIDDEN", "User not found.");
+    }
+
+    const isStrongPassword = await verifyPasswordStrength(newPassword);
+
+    if (!isStrongPassword) {
+      throw new ZSAError(
+        "FORBIDDEN",
+        "Passwords must be at least 8 characters and should not be reused from other sites",
+      );
+    }
+
+    try {
+      const hashedPassword = await hashPassword(newPassword);
+
+      await db
+        .updateTable("Users")
+        .set({
+          UserPasswordHash: hashedPassword,
+          UserUpdatedBy: "PASSWORD_RESET",
+        })
+        .where("UserID", "=", user.UserID)
+        .executeTakeFirstOrThrow();
+
+      await db.deleteFrom("VerificationRequests").where("VerificationRequestIdentifier", "=", email).execute();
+
+      const sessionToken = generateSessionToken();
+      const session = await createSession(sessionToken, user.UserID);
+
+      await setSessionTokenCookie(sessionToken, session.expiresAt);
+    } catch (error) {
+      console.error("Failed to reset password:", error);
+
+      throw new ZSAError("INTERNAL_SERVER_ERROR", "Failed to reset password. Please try again.");
+    }
 
     return {
       metadata: {},

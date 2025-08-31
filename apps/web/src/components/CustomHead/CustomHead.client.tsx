@@ -60,7 +60,7 @@ const CustomHeadClient: FC<Props> = ({ alerts, title }) => {
     <div className="w-full">
       {alerts.map((alert) => (
         <Alert key={alert} variant="destructive">
-					<LuCircleAlert />
+          <LuCircleAlert />
           <AlertTitle>{alert}</AlertTitle>
         </Alert>
       ))}

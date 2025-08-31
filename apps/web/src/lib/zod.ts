@@ -228,3 +228,29 @@ export const validateMyPicksSchema = z.object({
   unused: z.array(z.number().int().min(1).max(16)),
   week: weekSchema,
 });
+
+export const forgotPasswordEmailSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+});
+
+export const verifyOtpSchema = z
+  .object({
+    confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
+    email: z.string().email(),
+    newPassword: z.string().min(8, "Password must be at least 8 characters"),
+    otp: z.string().length(6, "OTP must be 6 digits").regex(/^\d+$/, "OTP must contain only numbers"),
+  })
+  .superRefine((data, ctx) => {
+    if (data.newPassword !== data.confirmPassword) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Passwords do not match",
+        path: ["confirmPassword"],
+      });
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Passwords do not match",
+        path: ["newPassword"],
+      });
+    }
+  });

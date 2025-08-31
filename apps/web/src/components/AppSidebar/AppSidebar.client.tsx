@@ -285,45 +285,44 @@ const AppSidebarClient: FC<Props> = ({
               <CollapsibleContent>
                 <SidebarGroupContent>
                   {!(hasSeasonStarted || user.playsSurvivor) && (
-                    <AlertDialog open={registerDialogOpen} onOpenChange={setRegisterDialogOpen}>
+                    <AlertDialog onOpenChange={setRegisterDialogOpen} open={registerDialogOpen}>
                       <AlertDialogTrigger asChild>
-                        <NavLink isNested>
-                          Register for Survivor
-                        </NavLink>
+                        <NavLink isNested>Register for Survivor</NavLink>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
                           <AlertDialogTitle>Register for Survivor Pool</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Are you sure you want to register for the survivor pool? You will be required to pick one team each week to win. If your team loses, you're eliminated from the pool.
+                            Are you sure you want to register for the survivor pool? You will be required to pick one
+                            team each week to win. If your team loses, you're eliminated from the pool.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={handleRegisterForSurvivor}>
-                            Register
-                          </AlertDialogAction>
+                          <AlertDialogAction onClick={handleRegisterForSurvivor}>Register</AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
                   )}
                   {!hasSeasonStarted && !!user.playsSurvivor && (
-                    <AlertDialog open={unregisterDialogOpen} onOpenChange={setUnregisterDialogOpen}>
+                    <AlertDialog onOpenChange={setUnregisterDialogOpen} open={unregisterDialogOpen}>
                       <AlertDialogTrigger asChild>
-                        <NavLink isNested>
-                          Drop out of Survivor
-                        </NavLink>
+                        <NavLink isNested>Drop out of Survivor</NavLink>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
                           <AlertDialogTitle>Drop out of Survivor Pool</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Are you sure you want to drop out of the survivor pool? This action cannot be undone, and you will not be able to rejoin once the season has started.
+                            Are you sure you want to drop out of the survivor pool? This action cannot be undone, and
+                            you will not be able to rejoin once the season has started.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={handleUnregisterForSurvivor} className={cn(buttonVariants({ variant: "destructive" }))}>
+                          <AlertDialogAction
+                            className={cn(buttonVariants({ variant: "destructive" }))}
+                            onClick={handleUnregisterForSurvivor}
+                          >
                             Drop Out
                           </AlertDialogAction>
                         </AlertDialogFooter>
