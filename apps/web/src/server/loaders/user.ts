@@ -1,4 +1,7 @@
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
+import { getUserPayments } from "@nfl-pool-monorepo/db/src/queries/payment";
+import { getPaymentDueDate } from "@nfl-pool-monorepo/db/src/queries/systemValue";
+import { formatDueDate } from "@nfl-pool-monorepo/utils/dates";
 import { sql } from "kysely";
 import { jsonArrayFrom } from "kysely/helpers/mysql";
 import { cache } from "react";
@@ -201,6 +204,26 @@ export const getCurrentUser = cache(async () => {
     ])
     .where("UserID", "=", user.id)
     .executeTakeFirstOrThrow();
+});
+
+export const getMyAlerts = cache(async (): Promise<string[]> => {
+  const { user } = await getCurrentSession();
+  const alerts: string[] = [];
+
+  if (!user) {
+    return alerts;
+  }
+
+  const userBalance = await getUserPayments(user.id);
+
+  if (userBalance < 0) {
+    const paymentDueDate = await getPaymentDueDate();
+    const dueDate = formatDueDate(paymentDueDate);
+
+    alerts.push(`Please pay $${Math.abs(userBalance)} by ${dueDate}`);
+  }
+
+  return alerts;
 });
 
 export const getRegisteredCount = cache(async () => {

@@ -1,5 +1,3 @@
-"use client";
-
 /*******************************************************************************
  * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
  * Copyright (C) 2015-present Brian Duffey
@@ -15,25 +13,22 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
+
 import type { FC } from "react";
-import { useContext, useEffect } from "react";
+import "server-only";
 
-import { TitleContext } from "@/lib/context";
+import { getMyAlerts } from "@/server/loaders/user";
 
-type CustomHeadProps = {
+import CustomHeadClient from "./CustomHead.client";
+
+type Props = {
   title: string;
 };
 
-const CustomHead: FC<CustomHeadProps> = ({ title }) => {
-  //FIXME: Do we want to bring in alerts here?  Will prob need to make this a server component and then render a child client component for the title
-  const [, setTitle] = useContext(TitleContext);
+const CustomHead: FC<Props> = async ({ title }) => {
+  const alerts = await getMyAlerts();
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: Only update based on title
-  useEffect(() => {
-    setTitle(title);
-  }, [title]);
-
-  return null;
+  return <CustomHeadClient alerts={alerts} title={title} />;
 };
 
 export default CustomHead;

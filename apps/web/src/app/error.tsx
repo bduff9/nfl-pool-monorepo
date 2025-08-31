@@ -2,13 +2,13 @@
 
 import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
-import Image from "next/image";
-import { type FC, useEffect, useState } from "react";
 import "client-only";
 
-import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
+import Image from "next/image";
+import { type FC, useEffect, useState } from "react";
 
-import CustomHead from "../components/CustomHead/CustomHead";
+import CustomHeadClient from "@/components/CustomHead/CustomHead.client";
+import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 
 type Props = {
   error: Error & { digest?: string };
@@ -39,7 +39,7 @@ const ErrorPage: FC<Props> = ({ error, reset }) => {
 
   return (
     <div className="flex flex-wrap">
-      <CustomHead title="Error Occurred" />
+      <CustomHeadClient alerts={[]} title="Error Occurred" />
       <div className="bg-gray-100/80 text-black absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-dark rounded-sm text-dark px-3 py-6 w-full md:w-1/2">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-center mb-6">
           Flag on the play!
