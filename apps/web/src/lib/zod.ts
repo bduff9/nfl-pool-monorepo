@@ -72,7 +72,7 @@ export const editProfileSchema = z
   })
   .superRefine((data, ctx) => {
     const emailResult = z.string().email().safeParse(data.UserPaymentAccount);
-    const phoneResult = isValidPhoneNumber(data.UserPaymentAccount);
+    const phoneResult = isValidPhoneNumber(data.UserPaymentAccount, "US");
     const userNameResult = z
       .string()
       .regex(/^[\w-]{3,20}$/)
@@ -123,7 +123,7 @@ export const finishRegistrationSchema = z
   })
   .superRefine((data, ctx) => {
     const emailResult = z.string().email().safeParse(data.UserPaymentAccount);
-    const phoneResult = isValidPhoneNumber(data.UserPaymentAccount);
+    const phoneResult = isValidPhoneNumber(data.UserPaymentAccount, "US");
     const userNameResult = z
       .string()
       .regex(/^[\w-]{3,20}$/)

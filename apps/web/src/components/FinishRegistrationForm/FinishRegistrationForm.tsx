@@ -323,7 +323,8 @@ const FinishRegistrationForm: FC<FinishRegistrationFormProps> = ({
                     <PopoverContent className="max-w-[300px]">
                       If you want to receive any prize money, you need to enter your exact payment account information
                       here (i.e. email, username or phone number for your account).{" "}
-                      <strong>This is your responsibility as we will not be chasing people down to pay them.</strong>
+                      <strong>This is your responsibility as we will not be chasing people down to pay them.</strong> If
+                      entering phone number, please enter a valid phone number in the format +1 999 999 9999.
                     </PopoverContent>
                   </Popover>
                 </FormLabel>
