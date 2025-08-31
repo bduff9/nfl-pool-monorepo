@@ -1,8 +1,19 @@
 "use client";
 
 import type { Status, User } from "@nfl-pool-monorepo/types";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@nfl-pool-monorepo/ui/components/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@nfl-pool-monorepo/ui/components/avatar";
-import { Button } from "@nfl-pool-monorepo/ui/components/button";
+import { Button, buttonVariants } from "@nfl-pool-monorepo/ui/components/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@nfl-pool-monorepo/ui/components/collapsible";
 import {
   DropdownMenu,
@@ -78,6 +89,8 @@ const AppSidebarClient: FC<Props> = ({
   const router = useRouter();
   const progress = useProgressBar();
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false);
+  const [registerDialogOpen, setRegisterDialogOpen] = useState<boolean>(false);
+  const [unregisterDialogOpen, setUnregisterDialogOpen] = useState<boolean>(false);
   let currentPage = "";
 
   const goToPreviousWeek = (): void => {
@@ -114,6 +127,32 @@ const AppSidebarClient: FC<Props> = ({
       router.refresh();
       progress.done();
     });
+  };
+
+  const handleRegisterForSurvivor = async (): Promise<void> => {
+    const result = await registerForSurvivor();
+
+    processFormState(
+      result,
+      () => {
+        router.refresh();
+        setRegisterDialogOpen(false);
+      },
+      "You have successfully registered for survivor!",
+    );
+  };
+
+  const handleUnregisterForSurvivor = async (): Promise<void> => {
+    const result = await unregisterForSurvivor();
+
+    processFormState(
+      result,
+      () => {
+        router.refresh();
+        setUnregisterDialogOpen(false);
+      },
+      "You have successfully dropped out of survivor!",
+    );
   };
 
   if (pathname.startsWith("/picks")) {
@@ -245,36 +284,52 @@ const AppSidebarClient: FC<Props> = ({
               </SidebarGroupLabel>
               <CollapsibleContent>
                 <SidebarGroupContent>
-                  <NavLink
-                    isNested
-                    onClick={async () => {
-                      const result = await registerForSurvivor();
-
-                      processFormState(
-                        result,
-                        () => router.refresh(),
-                        "You have successfully registered for survivor!",
-                      );
-                    }}
-                    show={!(hasSeasonStarted || user.playsSurvivor)}
-                  >
-                    Register for Survivor
-                  </NavLink>
-                  <NavLink
-                    isNested
-                    onClick={async () => {
-                      const result = await unregisterForSurvivor();
-
-                      processFormState(
-                        result,
-                        () => router.refresh(),
-                        "You have successfully dropped out of survivor!",
-                      );
-                    }}
-                    show={!hasSeasonStarted && !!user.playsSurvivor}
-                  >
-                    Drop out of Survivor
-                  </NavLink>
+                  {!(hasSeasonStarted || user.playsSurvivor) && (
+                    <AlertDialog open={registerDialogOpen} onOpenChange={setRegisterDialogOpen}>
+                      <AlertDialogTrigger asChild>
+                        <NavLink isNested>
+                          Register for Survivor
+                        </NavLink>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Register for Survivor Pool</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to register for the survivor pool? You will be required to pick one team each week to win. If your team loses, you're eliminated from the pool.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleRegisterForSurvivor}>
+                            Register
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+                  {!hasSeasonStarted && !!user.playsSurvivor && (
+                    <AlertDialog open={unregisterDialogOpen} onOpenChange={setUnregisterDialogOpen}>
+                      <AlertDialogTrigger asChild>
+                        <NavLink isNested>
+                          Drop out of Survivor
+                        </NavLink>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Drop out of Survivor Pool</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to drop out of the survivor pool? This action cannot be undone, and you will not be able to rejoin once the season has started.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleUnregisterForSurvivor} className={cn(buttonVariants({ variant: "destructive" }))}>
+                            Drop Out
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
                   <NavLink
                     href="/survivor/set"
                     isNested
