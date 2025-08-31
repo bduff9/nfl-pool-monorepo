@@ -34,9 +34,9 @@ const AdminLogsPage: FC<PageProps<"/admin/logs">> = async ({ searchParams }) => 
   const { count, results } = await getAdminLogs(await searchParams);
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title="View All Logs" />
-      <div className={cn("bg-gray-100/80 text-black mx-2 pt-3 flex-1 min-h-screen")}>
+      <div className={cn("bg-gray-100/80 text-black pt-3 flex-1 min-h-screen")}>
         <div className="flex flex-col min-h-screen px-4">
           <div className="w-full mb-2">
             {count} {count === 1 ? "log" : "logs"}

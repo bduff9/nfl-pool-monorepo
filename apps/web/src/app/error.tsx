@@ -38,7 +38,7 @@ const ErrorPage: FC<Props> = ({ error, reset }) => {
   }, []);
 
   return (
-    <div className="flex flex-wrap">
+    <div className="flex flex-wrap md:mx-3">
       <CustomHeadClient alerts={[]} title="Error Occurred" />
       <div className="bg-gray-100/80 text-black absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-dark rounded-sm text-dark px-3 py-6 w-full md:w-1/2">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-center mb-6">

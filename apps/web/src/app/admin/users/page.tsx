@@ -26,9 +26,9 @@ const AdminUsersPage: FC<PageProps<"/admin/users">> = async ({ searchParams }) =
   const { count, results: users } = await getAdminUsers(await searchParams);
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title="User Admin" />
-      <div className={cn("bg-gray-100/80 text-black mx-2 pt-5 md:pt-3 min-h-screen pb-4 flex-1")}>
+      <div className={cn("bg-gray-100/80 text-black pt-5 md:pt-3 min-h-screen pb-4 flex-1")}>
         <div className="flex flex-col min-h-screen py-4 px-6">
           <div className="w-full text-center md:text-start">
             {count} {count === 1 ? "User" : "Users"}

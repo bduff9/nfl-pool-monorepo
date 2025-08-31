@@ -68,9 +68,9 @@ const ViewAllPicks: FC<PageProps<"/picks/viewall">> = async () => {
   }
 
   return (
-    <div className="h-full flex">
+    <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title={`View all week ${selectedWeek} picks`} />
-      <div className={cn("bg-gray-100/80 text-black my-3 mx-2 pt-3 flex-1 min-h-screen")}>
+      <div className={cn("bg-gray-100/80 text-black pt-3 flex-1 min-h-screen")}>
         <ViewAllPicksClient
           currentUserId={currentUser.UserID}
           gamesForWeek={gamesForWeek}

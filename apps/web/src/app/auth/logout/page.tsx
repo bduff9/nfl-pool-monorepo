@@ -20,7 +20,6 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import type { FC } from "react";
 
-import CustomHead from "@/components/CustomHead/CustomHead";
 import LogoutClient from "@/components/LogoutClient/logout";
 import { requireLoggedIn } from "@/lib/auth";
 
@@ -39,7 +38,6 @@ const Logout: FC<PageProps<"/auth/logout">> = async () => {
 
   return (
     <div className="text-center w-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-      <CustomHead title={TITLE} />
       <LogoutClient />
     </div>
   );

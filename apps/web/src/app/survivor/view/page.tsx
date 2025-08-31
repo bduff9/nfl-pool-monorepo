@@ -89,9 +89,9 @@ const ViewSurvivor: FC<PageProps<"/survivor/view">> = async () => {
   }
 
   return (
-    <div className="h-full flex">
+    <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title="View Survivor Picks" />
-      <div className="bg-gray-100/80 text-black my-3 mx-2 pt-5 md:pt-3 min-h-screen pb-4 flex-1">
+      <div className="bg-gray-100/80 text-black pt-5 md:pt-3 min-h-screen pb-4 flex-1">
         <div className="flex flex-col min-h-screen">
           <div className="flex">
             <div className={cn("hidden md:inline-block w-1/3 text-center h-[205px]")}>

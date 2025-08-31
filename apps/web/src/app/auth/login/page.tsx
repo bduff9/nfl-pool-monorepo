@@ -23,7 +23,6 @@ import "server-only";
 import { getSystemYear } from "@nfl-pool-monorepo/db/src/queries/systemValue";
 import type { FC } from "react";
 
-import CustomHead from "@/components/CustomHead/CustomHead";
 import GoogleAuthButton from "@/components/GoogleAuthButton/GoogleAuthButton";
 import LoginForm from "@/components/LoginForm/LoginForm";
 import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
@@ -52,7 +51,6 @@ const Login: FC<PageProps<"/auth/login">> = async ({ searchParams }) => {
 
   return (
     <div className="bg-gray-100 text-gray-800 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-gray-800 rounded-lg p-4 shrink-0 grow w-full h-full lg:h-auto lg:w-[50%] xl:w-[33%]">
-      <CustomHead title={TITLE} />
       <div className="absolute -top-24 left-1/2 -translate-x-1/2 size-36">
         <Image
           alt="A football"

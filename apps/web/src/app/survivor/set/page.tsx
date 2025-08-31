@@ -61,9 +61,9 @@ const SetSurvivorPage: FC<PageProps<"/survivor/set">> = async () => {
   }
 
   return (
-    <div className="h-full flex">
+    <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title="Make Survivor Picks" />
-      <div className="bg-gray-100/80 text-black mx-2 pt-5 md:pt-3 min-h-screen pb-4 flex-1">
+      <div className="bg-gray-100/80 text-black pt-5 md:pt-3 min-h-screen pb-4 flex-1">
         <MakeSurvivorPickClient
           games={games}
           survivorPicks={survivorPicks}

@@ -33,9 +33,9 @@ const AdminBackupsPage: FC<PageProps<"/admin/backups">> = async () => {
   const { count, results } = await getAdminBackups();
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title="Backups Admin" />
-      <div className={cn("bg-gray-100/80 text-black mx-2 pt-3 flex-1 min-h-screen")}>
+      <div className={cn("bg-gray-100/80 text-black pt-3 flex-1 min-h-screen")}>
         <BackupsTable count={count} results={results} />
       </div>
     </div>

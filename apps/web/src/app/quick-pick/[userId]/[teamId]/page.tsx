@@ -32,7 +32,7 @@ const QuickPickPage: FC<PageProps<"/quick-pick/[userId]/[teamId]">> = async ({ p
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen flex flex-wrap md:mx-3">
       <CustomHead title="Quick Pick" />
       <div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2">
         <h2 className={cn("scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0")}>

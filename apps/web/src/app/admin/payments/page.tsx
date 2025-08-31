@@ -53,9 +53,9 @@ const AdminPaymentsPage: FC<PageProps<"/admin/payments">> = async ({ searchParam
     ]);
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title="Manage Payments" />
-      <div className={cn("text-black mx-2 flex-1 min-h-screen")}>
+      <div className={cn("text-black flex-1 min-h-screen")}>
         <ManageAdminPayments
           overallPrizes={overallPrizes}
           poolCost={poolCost}

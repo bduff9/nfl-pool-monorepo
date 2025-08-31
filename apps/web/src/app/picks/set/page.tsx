@@ -57,9 +57,9 @@ const MakePicks: FC<PageProps<"/picks/set">> = async () => {
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title={`Make week ${selectedWeek} picks`} />
-      <div className={cn("bg-gray-100/80 text-black md:mx-2 pt-3 flex-1 min-h-screen pb-[70px]")}>
+      <div className={cn("bg-gray-100/80 text-black pt-3 flex-1 min-h-screen pb-[70px]")}>
         <MakePicksClient selectedWeek={selectedWeek} tiebreaker={tiebreaker} weeklyPicks={myWeeklyPicks} />
       </div>
     </div>

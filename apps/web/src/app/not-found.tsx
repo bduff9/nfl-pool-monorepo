@@ -38,7 +38,7 @@ const NotFound: FC = async () => {
   const image = images[getRandomInteger(0, images.length)] ?? "";
 
   return (
-    <div className="flex flex-wrap">
+    <div className="flex flex-wrap md:mx-3">
       <CustomHead title="404" />
       <Write404Log user={user} />
       <div className="bg-gray-100/80 text-black absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 mx-3 border border-dark rounded-sm text-dark px-3 py-6 w-full md:w-1/2">

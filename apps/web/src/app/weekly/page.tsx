@@ -73,9 +73,9 @@ const WeeklyRankings: FC<PageProps<"/weekly">> = async () => {
   const behindMe = weeklyTotalCount - me - weeklyTiedCount;
 
   return (
-    <div className="h-full flex">
+    <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title={`Week ${selectedWeek} Ranks`} />
-      <div className="bg-gray-100/80 text-black my-3 mx-2 pt-0 md:pt-3 min-h-screen pb-4 flex-1">
+      <div className="bg-gray-100/80 text-black pt-0 md:pt-3 min-h-screen pb-4 flex-1">
         <div className="flex flex-wrap">
           <div className="hidden md:inline-block w-1/2 text-center h-[205px]">
             <WeeklyDashboardTitle selectedWeek={selectedWeek} />

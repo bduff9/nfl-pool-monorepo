@@ -34,9 +34,9 @@ const AdminAPICalls: FC<PageProps<"/admin/api">> = async ({ searchParams }) => {
   const { count, results } = await loadAPICalls(await searchParams);
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title="API History" />
-      <div className={cn("bg-gray-100/80 text-black mx-2 pt-3 flex-1 min-h-screen")}>
+      <div className={cn("bg-gray-100/80 text-black pt-3 flex-1 min-h-screen")}>
         <div className="flex flex-col min-h-screen py-4 px-6">
           <div className="w-full text-center md:text-start">
             {count} {count === 1 ? "API Call" : "API Calls"}

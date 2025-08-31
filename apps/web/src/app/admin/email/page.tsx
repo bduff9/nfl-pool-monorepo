@@ -35,9 +35,9 @@ const AdminEmail: FC<PageProps<"/admin/email">> = async ({ searchParams }) => {
   const { count, results } = await getAdminEmails(await searchParams);
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title="Email Users" />
-      <div className={cn("text-black mx-2 flex-1 min-h-screen")}>
+      <div className={cn("text-black flex-1 min-h-screen")}>
         <SendAdminEmails />
 
         <div className="flex flex-col">

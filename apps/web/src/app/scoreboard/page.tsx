@@ -47,9 +47,9 @@ const Scoreboard: FC<PageProps<"/scoreboard">> = async () => {
   let lastKickoff: string;
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title={TITLE} />
-      <div className="bg-gray-100/80 text-black md:mx-2 pt-5 md:pt-3 min-h-screen pb-4 flex-1">
+      <div className="bg-gray-100/80 text-black pt-5 md:pt-3 min-h-screen pb-4 flex-1">
         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-x-5 px-3">
           {games.map((game) => {
             const currentKickoff = formatDateForKickoff(game.GameKickoff);

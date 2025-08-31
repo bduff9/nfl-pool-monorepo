@@ -46,11 +46,11 @@ const BackupsTable: FC<Props> = ({ count, results }) => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen px-6">
       <div className="w-full text-center md:text-start">
         {count} {count === 1 ? "Backup" : "Backups"}
       </div>
-      <div className={cn("w-full h-auto md:h-[90vh] px-4")}>
+      <div className={cn("w-full h-auto md:h-[90vh]")}>
         <div className="bg-gray-100/80 rounded">
           <Table>
             <TableHeader>
