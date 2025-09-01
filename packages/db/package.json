@@ -3,12 +3,12 @@
   "dependencies": {
     "@nfl-pool-monorepo/utils": "*",
     "kysely": "0.28.5",
-    "mysql2": "3.14.3"
+    "mysql2": "3.14.4"
   },
   "description": "",
   "devDependencies": {
     "kysely-codegen": "0.18.5",
-    "kysely-ctl": "0.17.0"
+    "kysely-ctl": "0.18.0"
   },
   "keywords": [],
   "license": "ISC",
