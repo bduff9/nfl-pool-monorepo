@@ -294,7 +294,7 @@ export const login = createServerAction()
     }
 
     if (!user.UserPasswordHash) {
-      throw new ZSAError("FORBIDDEN", "Please use the 'Register here' button to set up your account");
+      throw new ZSAError("FORBIDDEN", "Please use the 'Forgot Password?' button to set up your account");
     }
 
     const isPasswordValid = await verifyPasswordHash(user.UserPasswordHash, password);
