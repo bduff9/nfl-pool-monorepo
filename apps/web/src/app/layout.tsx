@@ -15,7 +15,6 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { Metadata, Viewport } from "next";
 import { Roboto } from "next/font/google";
 import Script from "next/script";
-//@ts-expect-error Next patches this
 import { type FC, Suspense, unstable_ViewTransition as ViewTransition } from "react";
 import "server-only";
 

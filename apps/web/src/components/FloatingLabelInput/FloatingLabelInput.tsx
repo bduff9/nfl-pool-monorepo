@@ -6,7 +6,6 @@ type Props = { label: string; id: string } & ComponentProps<"input">;
 const FloatingLabelInput: FC<Props> = ({ className, label, id, ...props }) => {
   return (
     <div className="relative">
-      {/* @ts-expect-error This works at runtime */}
       <input
         className={cn(
           "block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-hidden focus:ring-0 focus:border-blue-600 peer",
