@@ -13,6 +13,8 @@ import { redirect } from "next/navigation";
 import { env } from "@/lib/env";
 import "server-only";
 
+import type { Route } from "next";
+
 import { getCurrentSession } from "@/server/loaders/sessions";
 
 export type SessionValidationResult = { session: Session; user: User } | { session: null; user: null };
@@ -186,7 +188,7 @@ export const mxExists = async (email: string): Promise<boolean> => {
   }
 };
 
-export const requireAdmin = async (): Promise<string | null> => {
+export const requireAdmin = async (): Promise<Route | null> => {
   const { user } = await getCurrentSession();
 
   if (!user) {
@@ -200,7 +202,7 @@ export const requireAdmin = async (): Promise<string | null> => {
   return null;
 };
 
-export const requireLoggedIn = async (): Promise<string | null> => {
+export const requireLoggedIn = async (): Promise<Route | null> => {
   const { user } = await getCurrentSession();
 
   if (!user) {
@@ -210,7 +212,7 @@ export const requireLoggedIn = async (): Promise<string | null> => {
   return null;
 };
 
-export const requireLoggedOut = async (): Promise<string | null> => {
+export const requireLoggedOut = async (): Promise<Route | null> => {
   const { user } = await getCurrentSession();
 
   if (user) {
@@ -220,7 +222,7 @@ export const requireLoggedOut = async (): Promise<string | null> => {
   return null;
 };
 
-export const requireRegistered = async (): Promise<string | null> => {
+export const requireRegistered = async (): Promise<Route | null> => {
   const { user } = await getCurrentSession();
 
   if (!user) {

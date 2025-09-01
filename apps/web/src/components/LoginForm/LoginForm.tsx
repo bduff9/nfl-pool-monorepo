@@ -11,6 +11,7 @@ import { processFormErrors, processFormState } from "@/lib/zsa";
 import { login, register } from "@/server/actions/user";
 import "client-only";
 
+import type { Route } from "next";
 import { redirect } from "next/navigation";
 import { type FC, useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -49,7 +50,7 @@ const LoginForm: FC<Props> = ({ error, isLogin }) => {
     processFormState(
       result,
       () => {
-        redirect(typeof redirectTo === "string" && redirectTo ? redirectTo : "/");
+        redirect(typeof redirectTo === "string" && redirectTo ? (redirectTo as Route) : "/");
       },
       isLogin ? "Successfully logged in!" : "Successfully registered!",
     );

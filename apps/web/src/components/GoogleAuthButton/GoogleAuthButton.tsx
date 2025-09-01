@@ -48,7 +48,6 @@ const GoogleAuthButton: FC<GoogleAuthButtonProps> = ({ isLinked = false, isRegis
       disabled={isLoading || isLinked}
       onClick={(): void => {
         setIsLoading(true);
-        //@ts-expect-error This works but is not typesafe
         router.push("/login/google");
       }}
       type="button"
