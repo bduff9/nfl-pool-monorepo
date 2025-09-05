@@ -28,11 +28,11 @@ export class CdkStackLocal extends Stack {
       DATABASE_URL: process.env.DATABASE_URL_LOCAL ?? "",
       domain: process.env.DOMAIN_LOCAL ?? "",
       EMAIL_FROM: process.env.EMAIL_FROM_LOCAL ?? "",
+      NEXT_PUBLIC_VAPID_PUBLIC_KEY: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "",
       TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID ?? "",
       TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN ?? "",
       TWILIO_PHONE_NUMBER: process.env.TWILIO_PHONE_NUMBER ?? "",
       VAPID_PRIVATE_KEY: process.env.VAPID_PRIVATE_KEY ?? "",
-      VAPID_PUBLIC_KEY: process.env.VAPID_PUBLIC_KEY ?? "",
     };
 
     const currentWeekUpdaterLocal = new NodejsFunction(this, "CurrentWeekUpdaterLocal", {
@@ -135,7 +135,7 @@ export class CdkStackLocal extends Stack {
       handler: "handler",
       retryAttempts: 0,
       runtime: lambda.Runtime.NODEJS_22_X,
-      timeout: Duration.seconds(60),
+      timeout: Duration.seconds(120),
     });
 
     const every5MinutesScheduleRule = new events.Rule(this, "every5MinutesScheduleRule", {
