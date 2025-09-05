@@ -19,6 +19,8 @@ import webpush from "web-push";
 
 import type { EmailTypes } from "../emails/types";
 
+webpush.setVapidDetails("mailto:info@asitewithnoname.com", process.env.VAPID_PUBLIC_KEY, process.env.VAPID_PRIVATE_KEY);
+
 export const sendPushNotification = async (
   userId: number,
   title: string,
