@@ -78,7 +78,7 @@ const ViewAllPicksClient: FC<Props> = ({ currentUserId, gamesForWeek, picksForWe
   };
 
   return (
-    <div className="row min-h-screen">
+    <div className="flex flex-col min-h-screen">
       <div className="w-full text-center md:text-start">
         Current Viewing Mode
         <br />
@@ -129,7 +129,7 @@ const ViewAllPicksClient: FC<Props> = ({ currentUserId, gamesForWeek, picksForWe
           </DropdownMenu>
         </div>
       </div>
-      <div className="col-12">
+      <div className="w-full">
         {isLive || !hasWhatIfBeenSet ? (
           <ViewAllTable currentUserId={currentUserId} games={games} picks={picksForWeek} ranks={weeklyRankings} />
         ) : (
@@ -143,7 +143,12 @@ const ViewAllPicksClient: FC<Props> = ({ currentUserId, gamesForWeek, picksForWe
       </div>
       {!isLive && (
         <ViewAllModal
-          closeModal={setIsModalOpen}
+          closeModal={(open: boolean) => {
+            setIsModalOpen(open);
+            setTimeout(() => {
+              document.body.style.pointerEvents = "";
+            }, 1);
+          }}
           games={gamesForWeek}
           isOpen={isModalOpen}
           saveChanges={saveModalChanges}

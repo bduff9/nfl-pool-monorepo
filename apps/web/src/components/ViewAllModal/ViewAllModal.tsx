@@ -31,14 +31,14 @@ import {
 } from "@nfl-pool-monorepo/ui/components/dialog";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import Image from "next/image";
-import type { Dispatch, FC, SetStateAction } from "react";
+import type { FC } from "react";
 import { useEffect, useState } from "react";
 import { PiAtDuotone } from "react-icons/pi";
 
 import { getAbbreviation } from "@/lib/strings";
 
 type Props = {
-  closeModal: Dispatch<SetStateAction<boolean>>;
+  closeModal: (open: boolean) => void;
   games: Awaited<ReturnType<typeof getGamesForWeek>>;
   isOpen?: boolean;
   saveChanges: (games: Awaited<ReturnType<typeof getGamesForWeek>>) => void;
@@ -112,7 +112,7 @@ const ViewAllModal: FC<Props> = ({ closeModal, games, isOpen = false, saveChange
                 <PiAtDuotone className="mx-auto" />
               </div>
               <div className={cn("w-5/12")}>
-                {/** biome-ignore lint/a11y/noStaticElementInteractions: We need this to be interative */}
+                {/** biome-ignore lint/a11y/noStaticElementInteractions: We need this to be interactive */}
                 <div
                   className={cn(
                     "rounded-full size-[90px] mx-auto",
