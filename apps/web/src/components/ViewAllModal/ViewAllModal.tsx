@@ -40,11 +40,11 @@ import { getAbbreviation } from "@/lib/strings";
 type Props = {
   closeModal: (open: boolean) => void;
   games: Awaited<ReturnType<typeof getGamesForWeek>>;
-  isOpen?: boolean;
+  isOpen: boolean;
   saveChanges: (games: Awaited<ReturnType<typeof getGamesForWeek>>) => void;
 };
 
-const ViewAllModal: FC<Props> = ({ closeModal, games, isOpen = false, saveChanges }) => {
+const ViewAllModal: FC<Props> = ({ closeModal, games, isOpen, saveChanges }) => {
   const [customGames, setCustomGames] = useState<Awaited<ReturnType<typeof getGamesForWeek>>>([]);
 
   useEffect(() => {
@@ -52,6 +52,18 @@ const ViewAllModal: FC<Props> = ({ closeModal, games, isOpen = false, saveChange
       setCustomGames(games);
     }
   }, [customGames, games]);
+
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        document.body.style.pointerEvents = "";
+      }, 0);
+
+      return () => clearTimeout(timer);
+    } else {
+      document.body.style.pointerEvents = "auto";
+    }
+  }, [isOpen]);
 
   const selectWinner = (
     event: React.MouseEvent<HTMLDivElement, MouseEvent> | React.KeyboardEvent<HTMLDivElement>,
@@ -70,7 +82,7 @@ const ViewAllModal: FC<Props> = ({ closeModal, games, isOpen = false, saveChange
   };
 
   return (
-    <Dialog modal={false} onOpenChange={closeModal} open={isOpen}>
+    <Dialog onOpenChange={closeModal} open={isOpen}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-center">What If Version</DialogTitle>
