@@ -147,7 +147,7 @@ const ViewAllPicksClient: FC<Props> = ({ currentUserId, gamesForWeek, picksForWe
             setIsModalOpen(open);
             setTimeout(() => {
               document.body.style.pointerEvents = "";
-            }, 1);
+            }, 500);
           }}
           games={gamesForWeek}
           isOpen={isModalOpen}
