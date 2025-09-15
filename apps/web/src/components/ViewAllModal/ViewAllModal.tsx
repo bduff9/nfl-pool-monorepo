@@ -54,15 +54,19 @@ const ViewAllModal: FC<Props> = ({ closeModal, games, isOpen, saveChanges }) => 
   }, [customGames, games]);
 
   useEffect(() => {
+    let timer: NodeJS.Timeout;
+
     if (isOpen) {
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         document.body.style.pointerEvents = "";
       }, 0);
-
-      return () => clearTimeout(timer);
     } else {
-      document.body.style.pointerEvents = "auto";
+      timer = setTimeout(() => {
+        document.body.style.pointerEvents = "auto";
+      }, 1500);
     }
+
+    return () => clearTimeout(timer);
   }, [isOpen]);
 
   const selectWinner = (
