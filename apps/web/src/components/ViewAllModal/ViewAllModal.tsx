@@ -70,7 +70,7 @@ const ViewAllModal: FC<Props> = ({ closeModal, games, isOpen = false, saveChange
   };
 
   return (
-    <Dialog onOpenChange={closeModal} open={isOpen}>
+    <Dialog modal={false} onOpenChange={closeModal} open={isOpen}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-center">What If Version</DialogTitle>

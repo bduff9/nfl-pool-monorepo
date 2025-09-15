@@ -143,12 +143,7 @@ const ViewAllPicksClient: FC<Props> = ({ currentUserId, gamesForWeek, picksForWe
       </div>
       {!isLive && (
         <ViewAllModal
-          closeModal={(open: boolean) => {
-            setIsModalOpen(open);
-            setTimeout(() => {
-              document.body.style.pointerEvents = "";
-            }, 500);
-          }}
+          closeModal={setIsModalOpen}
           games={gamesForWeek}
           isOpen={isModalOpen}
           saveChanges={saveModalChanges}
