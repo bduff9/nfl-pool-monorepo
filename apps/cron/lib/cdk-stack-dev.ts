@@ -76,6 +76,7 @@ export class CdkStackDev extends Stack {
       environment,
       functionName: "BackupNflDatabaseDev",
       handler: "handler",
+      memorySize: 256,
       retryAttempts: 0,
       runtime: lambda.Runtime.NODEJS_22_X,
       timeout: Duration.seconds(60),

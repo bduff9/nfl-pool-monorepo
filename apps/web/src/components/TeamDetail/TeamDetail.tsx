@@ -89,7 +89,7 @@ const TeamBlock: FC<TeamBlockProps> = ({ onClose, spread, team }) => (
         const lost = isHome ? game.WinnerTeamID === game.VisitorTeamID : game.WinnerTeamID === game.HomeTeamID;
 
         return (
-          <div className="flex flex-col" key={`history-for-game-${game.GameID}`}>
+          <div className="flex" key={`history-for-game-${game.GameID}`}>
             <div className="w-full md:w-1/2 text-start">
               Wk {game.GameWeek} {isHome ? "vs" : "@"} {isHome ? game.visitorTeamShortName : game.homeTeamShortName}
             </div>
