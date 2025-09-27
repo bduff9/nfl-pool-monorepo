@@ -310,7 +310,7 @@ export const login = createServerAction()
       );
     }
 
-    if (!user.UserDoneRegistering) {
+    if (user.UserDoneRegistering !== 1) {
       const systemValueResult = await db
         .selectFrom("SystemValues")
         .select(["SystemValueValue"])
@@ -331,12 +331,12 @@ export const login = createServerAction()
       const currentWeek = Number(currentWeekResult.GameWeek);
       const owesResult = await db
         .selectFrom("Payments")
-        .select(({ ref }) => [sql<number>`COALESCE(SUM(${ref("PaymentAmount")}), 0)`.as("owes")])
+        .select(({ ref }) => [sql<string>`COALESCE(SUM(${ref("PaymentAmount")}), 0)`.as("owes")])
         .where("UserID", "=", user.UserID)
         .executeTakeFirstOrThrow();
 
       if (currentWeek > lastWeekToRegister) {
-        if (owesResult.owes !== 0) {
+        if (Number(owesResult.owes) !== 0) {
           throw new ZSAError(
             "FORBIDDEN",
             "Your entry fee is past due, please pay immediately to regain access and avoid losing any points",

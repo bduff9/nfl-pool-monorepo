@@ -56,10 +56,10 @@ export const updateUserPaid = adminProcedure
       await db.transaction().execute(async (trx) => {
         const balanceResult = await trx
           .selectFrom("Payments")
-          .select(({ ref }) => sql<number>`SUM(${ref("PaymentAmount")})`.as("balance"))
+          .select(({ ref }) => sql<string>`SUM(${ref("PaymentAmount")})`.as("balance"))
           .where("UserID", "=", userID)
           .executeTakeFirstOrThrow();
-        const newOwed = balanceResult.balance + amountPaid;
+        const newOwed = Number(balanceResult.balance) + amountPaid;
 
         if (newOwed > 0) {
           throw new ZSAError("PRECONDITION_FAILED", "Amount paid is greater than owed, cancelling...");

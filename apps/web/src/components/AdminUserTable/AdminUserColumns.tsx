@@ -94,48 +94,50 @@ export const userColumns: ColumnDef<User>[] = [
                 </Button>
               </DialogTrigger>
               <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>
-                    User has paid ${row.original.UserPaid ?? 0} / ${row.original.UserOwes ?? 0}
-                  </DialogTitle>
-                  <DialogDescription />
-                </DialogHeader>
-                <div>
-                  <Label htmlFor="paid">How much did they just pay?</Label>
-                  <Input
-                    id="paid"
-                    max={row.original.UserOwes ?? undefined}
-                    onChange={(event) => setPaid(Number(event.target.value))}
-                    type="number"
-                    value={paid}
-                  />
-                </div>
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <Button variant="secondary">Cancel</Button>
-                  </DialogClose>
-                  <Button
-                    disabled={isPaidPending}
-                    onClick={async () => {
-                      const result = await updatePaid({
-                        amountPaid: paid,
-                        userID: row.original.UserID,
-                      });
+                <form
+                  onSubmit={async (event) => {
+                    event.preventDefault();
 
-                      processFormState(
-                        result,
-                        () => {
-                          setPaidModalOpen(false);
-                        },
-                        "Successfully updated user paid amount!",
-                      );
-                    }}
-                    variant="primary"
-                  >
-                    {isPaidPending && <PiFootballDuotone className="animate-spin" />}
-                    Save
-                  </Button>
-                </DialogFooter>
+                    const result = await updatePaid({
+                      amountPaid: paid,
+                      userID: row.original.UserID,
+                    });
+
+                    processFormState(
+                      result,
+                      () => {
+                        setPaidModalOpen(false);
+                      },
+                      "Successfully updated user paid amount!",
+                    );
+                  }}
+                >
+                  <DialogHeader>
+                    <DialogTitle>
+                      User has paid ${row.original.UserPaid ?? 0} / ${row.original.UserOwes ?? 0}
+                    </DialogTitle>
+                    <DialogDescription />
+                  </DialogHeader>
+                  <div>
+                    <Label htmlFor="paid">How much did they just pay?</Label>
+                    <Input
+                      id="paid"
+                      max={row.original.UserOwes ?? undefined}
+                      onChange={(event) => setPaid(Number(event.target.value))}
+                      type="number"
+                      value={paid}
+                    />
+                  </div>
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button variant="secondary">Cancel</Button>
+                    </DialogClose>
+                    <Button disabled={isPaidPending} type="submit" variant="primary">
+                      {isPaidPending && <PiFootballDuotone className="animate-spin" />}
+                      Save
+                    </Button>
+                  </DialogFooter>
+                </form>
               </DialogContent>
             </Dialog>
           )}

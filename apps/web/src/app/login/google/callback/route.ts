@@ -100,6 +100,7 @@ export const GET = async (request: NextRequest, _ctx: RouteContext<"/login/googl
 
   if (!user) {
     status = "New";
+
     const insertResult = await db
       .insertInto("Users")
       .values({
@@ -134,6 +135,12 @@ export const GET = async (request: NextRequest, _ctx: RouteContext<"/login/googl
         UserID: user.UserID,
       })
       .executeTakeFirstOrThrow();
+  }
+
+  if (status === "New") {
+    //TODO: insert registration verification here using userID, have to extract from register() to reuse here
+  } else {
+    //TODO: insert login verification here using userID, have to extract from login() to reuse here
   }
 
   const sessionToken = generateSessionToken();
