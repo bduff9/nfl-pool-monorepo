@@ -48,7 +48,8 @@
     "lint:package": "npmPkgJsonLint .",
     "lint:scripts": "biome check --write --no-errors-on-unmatched .",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsgo --noEmit",
+    "typecheck:tsc": "tsc --noEmit",
     "watch": "tsc -w"
   },
   "type": "module",

@@ -79,6 +79,15 @@
       "inputs": [
         "./**/*.{ts,tsx}"
       ]
+    },
+    "typecheck:tsc": {
+      "cache": true,
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "./**/*.{ts,tsx}"
+      ]
     }
   }
 }

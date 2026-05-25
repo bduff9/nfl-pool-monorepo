@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "entry": ["functions/**", "smoke.test.ts", "vitest.config.ts"],
-  "ignoreBinaries": ["biome", "npmPkgJsonLint", "vitest"],
+  "ignoreBinaries": ["biome", "npmPkgJsonLint", "tsgo", "vitest"],
   "ignoreDependencies": ["vitest"]
 }

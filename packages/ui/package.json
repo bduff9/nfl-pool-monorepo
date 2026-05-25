@@ -60,7 +60,8 @@
   "scripts": {
     "add-shadcn-component": "npx shadcn@latest add",
     "lint": "biome check ./src --write",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsgo --noEmit",
+    "typecheck:tsc": "tsc --noEmit"
   },
   "version": "1.0.0"
 }

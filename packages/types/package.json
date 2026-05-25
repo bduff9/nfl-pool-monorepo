@@ -12,7 +12,8 @@
   "name": "@nfl-pool-monorepo/types",
   "scripts": {
     "lint": "biome lint ./src",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsgo --noEmit",
+    "typecheck:tsc": "tsc --noEmit"
   },
   "version": "1.0.0"
 }
