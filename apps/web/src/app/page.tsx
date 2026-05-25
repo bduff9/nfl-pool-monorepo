@@ -20,6 +20,7 @@ import "server-only";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import OverallDashboard from "@/components/OverallDashboard/OverallDashboard";
+import PageContent from "@/components/PageContent/PageContent";
 import SurvivorDashboard from "@/components/SurvivorDashboard/SurvivorDashboard";
 import DashboardLoader from "@/components/WeeklyDashboard/DashboardLoader";
 import WeeklyDashboard from "@/components/WeeklyDashboard/WeeklyDashboard";
@@ -41,7 +42,7 @@ const Dashboard: FC<PageProps<"/">> = async () => {
   return (
     <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title={TITLE} />
-      <div className="bg-gray-100/80 text-black pt-5 md:pt-3 min-h-screen pb-4 w-full">
+      <PageContent className="pt-5 md:pt-3 pb-4 w-full">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-0 min-h-screen">
           <Suspense fallback={<DashboardLoader title="Weekly Rank" />}>
             <WeeklyDashboard />
@@ -53,7 +54,7 @@ const Dashboard: FC<PageProps<"/">> = async () => {
             <SurvivorDashboard />
           </Suspense>
         </div>
-      </div>
+      </PageContent>
     </div>
   );
 };

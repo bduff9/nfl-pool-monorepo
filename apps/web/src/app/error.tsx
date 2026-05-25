@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@nfl-pool-monorepo/ui/components/button";
+import { SidebarTrigger } from "@nfl-pool-monorepo/ui/components/sidebar";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import "client-only";
 
@@ -39,6 +40,11 @@ const ErrorPage: FC<Props> = ({ error, reset }) => {
 
   return (
     <div className="flex flex-wrap md:mx-3">
+      {isLoggedIn && (
+        <div className="w-full px-1 pt-1">
+          <SidebarTrigger className="size-10 md:size-7" />
+        </div>
+      )}
       <CustomHeadClient alerts={[]} title="Error Occurred" />
       <div className="bg-gray-100/80 text-black absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-dark rounded-sm text-dark px-3 py-6 w-full md:w-1/2">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-center mb-6">

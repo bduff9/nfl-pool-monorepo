@@ -24,6 +24,8 @@ import type { FC } from "react";
 
 import "server-only";
 
+import { SidebarTrigger } from "@nfl-pool-monorepo/ui/components/sidebar";
+
 import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import Write404Log from "@/components/Write404Log/Write404Log";
 import { getCurrentSession } from "@/server/loaders/sessions";
@@ -39,6 +41,11 @@ const NotFound: FC = async () => {
 
   return (
     <div className="flex flex-wrap md:mx-3">
+      {user && (
+        <div className="w-full px-1 pt-1">
+          <SidebarTrigger className="size-10 md:size-7" />
+        </div>
+      )}
       <CustomHead title="404" />
       <Write404Log user={user} />
       <div className="bg-gray-100/80 text-black absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 mx-3 border border-dark rounded-sm text-dark px-3 py-6 w-full md:w-1/2">

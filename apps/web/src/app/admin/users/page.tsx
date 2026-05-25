@@ -15,11 +15,11 @@
  */
 
 import { DataTable } from "@nfl-pool-monorepo/ui/components/data-table";
-import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { FC } from "react";
 
 import { userColumns } from "@/components/AdminUserTable/AdminUserColumns";
 import CustomHead from "@/components/CustomHead/CustomHead";
+import PageContent from "@/components/PageContent/PageContent";
 import { getAdminUsers } from "@/server/loaders/user";
 
 const AdminUsersPage: FC<PageProps<"/admin/users">> = async ({ searchParams }) => {
@@ -28,7 +28,7 @@ const AdminUsersPage: FC<PageProps<"/admin/users">> = async ({ searchParams }) =
   return (
     <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title="User Admin" />
-      <div className={cn("bg-gray-100/80 text-black pt-5 md:pt-3 min-h-screen pb-4 flex-1")}>
+      <PageContent className="pt-5 md:pt-3 pb-4">
         <div className="flex flex-col min-h-screen py-4 px-6">
           <div className="w-full text-center md:text-start">
             {count} {count === 1 ? "User" : "Users"}
@@ -105,7 +105,7 @@ const AdminUsersPage: FC<PageProps<"/admin/users">> = async ({ searchParams }) =
             </div>
           </div>
         </div>
-      </div>
+      </PageContent>
     </div>
   );
 };

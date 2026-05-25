@@ -20,6 +20,7 @@ import "server-only";
 
 import type { FC } from "react";
 
+import PageContent from "@/components/PageContent/PageContent";
 import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import ProgressChartLoader from "@/components/ProgressChart/ProgressChartLoader";
 import RankingPieChartLoader from "@/components/RankingPieChart/RankingPieChartLoader";
@@ -27,7 +28,7 @@ import RankingPieChartLoader from "@/components/RankingPieChart/RankingPieChartL
 const OverallRankingsLoader: FC = () => {
   return (
     <div className="h-full flex">
-      <div className="bg-gray-100/80 text-black mx-2 pt-0 md:pt-3 min-h-screen pb-4 flex-1">
+      <PageContent className="mx-2 pt-0 md:pt-3 pb-4">
         <div className="flex flex-wrap">
           <div className="hidden md:inline-block w-1/2 text-center h-[205px]">
             <h2 className="mb-0">Overall Rank</h2>
@@ -92,7 +93,7 @@ const OverallRankingsLoader: FC = () => {
             </TableBody>
           </Table>
         </div>
-      </div>
+      </PageContent>
     </div>
   );
 };

@@ -22,13 +22,13 @@ import {
   getWeeklyPrizeAmounts,
 } from "@nfl-pool-monorepo/db/src/queries/systemValue";
 import { DataTable } from "@nfl-pool-monorepo/ui/components/data-table";
-import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { redirect } from "next/navigation";
 import type { FC } from "react";
 
 import { prizeColumns } from "@/components/AdminUserPayoutTable/AdminPayoutColumns";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import ManageAdminPayments from "@/components/ManageAdminPayments/ManageAdminPayments";
+import PageContent from "@/components/PageContent/PageContent";
 import { requireAdmin } from "@/lib/auth";
 import { getUserPayoutsForAdmin } from "@/server/loaders/payment";
 import { getRegisteredCount, getSurvivorCount } from "@/server/loaders/user";
@@ -55,7 +55,7 @@ const AdminPaymentsPage: FC<PageProps<"/admin/payments">> = async ({ searchParam
   return (
     <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title="Manage Payments" />
-      <div className={cn("text-black flex-1 min-h-screen")}>
+      <PageContent>
         <ManageAdminPayments
           overallPrizes={overallPrizes}
           poolCost={poolCost}
@@ -66,10 +66,10 @@ const AdminPaymentsPage: FC<PageProps<"/admin/payments">> = async ({ searchParam
           weeklyPrizes={weeklyPrizes}
         />
 
-        <div className="flex flex-col bg-gray-100/80 rounded-md mt-6">
+        <div className="flex flex-col rounded-md mt-6">
           <DataTable columns={prizeColumns} data={winners} hidePagination rowCount={winners.length} />
         </div>
-      </div>
+      </PageContent>
     </div>
   );
 };

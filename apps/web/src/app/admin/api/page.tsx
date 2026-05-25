@@ -15,12 +15,12 @@
  */
 
 import { DataTable } from "@nfl-pool-monorepo/ui/components/data-table";
-import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { redirect } from "next/navigation";
 import type { FC } from "react";
 
 import { apiCallColumns } from "@/components/ApiCallsTable/ApiCallsColumns";
 import CustomHead from "@/components/CustomHead/CustomHead";
+import PageContent from "@/components/PageContent/PageContent";
 import { requireAdmin } from "@/lib/auth";
 import { loadAPICalls } from "@/server/loaders/apiCall";
 
@@ -36,7 +36,7 @@ const AdminAPICalls: FC<PageProps<"/admin/api">> = async ({ searchParams }) => {
   return (
     <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title="API History" />
-      <div className={cn("bg-gray-100/80 text-black pt-3 flex-1 min-h-screen")}>
+      <PageContent className="pt-3">
         <div className="flex flex-col min-h-screen py-4 px-6">
           <div className="w-full text-center md:text-start">
             {count} {count === 1 ? "API Call" : "API Calls"}
@@ -58,7 +58,7 @@ const AdminAPICalls: FC<PageProps<"/admin/api">> = async ({ searchParams }) => {
             </div>
           </div>
         </div>
-      </div>
+      </PageContent>
     </div>
   );
 };

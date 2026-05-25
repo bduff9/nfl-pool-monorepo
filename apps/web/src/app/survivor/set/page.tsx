@@ -27,6 +27,7 @@ import { getTeamsOnBye } from "@/server/loaders/team";
 import { getSelectedWeek } from "@/server/loaders/week";
 
 import CustomHead from "../../../components/CustomHead/CustomHead";
+import PageContent from "../../../components/PageContent/PageContent";
 
 const SetSurvivorPage: FC<PageProps<"/survivor/set">> = async () => {
   const redirectUrl = await requireRegistered();
@@ -63,7 +64,7 @@ const SetSurvivorPage: FC<PageProps<"/survivor/set">> = async () => {
   return (
     <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title="Make Survivor Picks" />
-      <div className="bg-gray-100/80 text-black pt-5 md:pt-3 min-h-screen pb-4 flex-1">
+      <PageContent className="pt-5 md:pt-3 pb-4">
         <MakeSurvivorPickClient
           games={games}
           survivorPicks={survivorPicks}
@@ -71,7 +72,7 @@ const SetSurvivorPage: FC<PageProps<"/survivor/set">> = async () => {
           week={selectedWeek}
           weekInProgress={weekInProgress}
         />
-      </div>
+      </PageContent>
     </div>
   );
 };

@@ -9,7 +9,6 @@ import {
   SidebarMenuItem,
   SidebarMenuSkeleton,
   SidebarProvider,
-  SidebarTrigger,
 } from "@nfl-pool-monorepo/ui/components/sidebar";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { Metadata, Viewport } from "next";
@@ -165,7 +164,6 @@ const RootLayout: FC<LayoutProps<"/">> = async ({ children }) => {
                   <AppSidebar user={user} />
                 </Suspense>
                 <main className="w-full relative">
-                  <SidebarTrigger className="text-black" />
                   <Suspense>{children}</Suspense>
                 </main>
               </SidebarProvider>

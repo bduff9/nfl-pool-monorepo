@@ -56,15 +56,13 @@ const CenterLabel: FC<{ data: Array<PieChartData> }> = ({ data }) => {
 };
 
 const RankingPieChart: FC<RankingPieChartProps> = ({ data, layoutId }) => {
-  const initialIndex = data.findIndex((d) => d.value > 0);
-
   return (
     <motion.div layoutId={layoutId}>
       <ResponsiveContainer minHeight="206px" width="100%">
         <PieChart height={400} width={400}>
           <Pie cx="50%" cy="50%" data={data} dataKey="value" innerRadius={60} outerRadius={80} />
           <CenterLabel data={data} />
-          <Tooltip defaultIndex={initialIndex >= 0 ? initialIndex : null} />
+          <Tooltip />
         </PieChart>
       </ResponsiveContainer>
     </motion.div>

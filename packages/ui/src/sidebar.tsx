@@ -3,7 +3,7 @@
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { PanelLeftIcon } from "lucide-react";
+import { MenuIcon, PanelLeftIcon } from "lucide-react";
 import * as React from "react";
 
 import { Button } from "./button";
@@ -250,7 +250,8 @@ function SidebarTrigger({ className, onClick, ...props }: React.ComponentProps<t
       variant="ghost"
       {...props}
     >
-      <PanelLeftIcon className={cn(!open && "text-white")} />
+      <MenuIcon className={cn("md:hidden", !open && "text-white")} />
+      <PanelLeftIcon className={cn("hidden md:block", !open && "text-white")} />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );

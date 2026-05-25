@@ -28,6 +28,7 @@ import type { FC } from "react";
 import "server-only";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
+import PageContent from "@/components/PageContent/PageContent";
 import PaymentSelector from "@/components/PaymentSelector/PaymentSelector";
 import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import TextSeparator from "@/components/TextSeparator/TextSeparator";
@@ -48,7 +49,7 @@ const ViewPayments: FC<PageProps<"/users/payments">> = async () => {
   return (
     <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title="View Payments" />
-      <div className="bg-gray-100/80 text-black pt-5 md:pt-3 min-h-screen pb-4 flex-1">
+      <PageContent className="pt-5 md:pt-3 pb-4">
         <Table>
           <TableHeader>
             <TableRow>
@@ -100,7 +101,7 @@ const ViewPayments: FC<PageProps<"/users/payments">> = async () => {
             Change the account to be paid out
           </ProgressBarLink>
         </div>
-      </div>
+      </PageContent>
     </div>
   );
 };

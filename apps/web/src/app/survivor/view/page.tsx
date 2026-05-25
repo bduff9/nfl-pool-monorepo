@@ -24,6 +24,7 @@ import "server-only";
 import type { FC } from "react";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
+import PageContent from "@/components/PageContent/PageContent";
 import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import ProgressChart from "@/components/ProgressChart/ProgressChart";
 import SurvivorDashboardIcon from "@/components/SurvivorDashboardIcon/SurvivorDashboardIcon";
@@ -91,7 +92,7 @@ const ViewSurvivor: FC<PageProps<"/survivor/view">> = async () => {
   return (
     <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title="View Survivor Picks" />
-      <div className="bg-gray-100/80 text-black pt-5 md:pt-3 min-h-screen pb-4 flex-1">
+      <PageContent className="pt-5 md:pt-3 pb-4">
         <div className="flex flex-col min-h-screen">
           <div className="flex">
             <div className={cn("hidden md:inline-block w-1/3 text-center h-[205px]")}>
@@ -206,7 +207,7 @@ const ViewSurvivor: FC<PageProps<"/survivor/view">> = async () => {
             </Table>
           </div>
         </div>
-      </div>
+      </PageContent>
     </div>
   );
 };

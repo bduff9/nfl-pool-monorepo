@@ -20,6 +20,7 @@ import "server-only";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import EditProfileForm from "@/components/EditProfileForm/EditProfileForm";
+import PageContent from "@/components/PageContent/PageContent";
 import { requireRegistered } from "@/lib/auth";
 import { editMyProfile } from "@/server/actions/user";
 import { getUserNotifications } from "@/server/loaders/notification";
@@ -42,14 +43,14 @@ const EditProfile: FC<PageProps<"/users/edit">> = async () => {
   return (
     <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title="Edit My Profile" />
-      <div className="bg-gray-100/80 text-black pt-5 md:pt-4 min-h-screen pb-6 px-3 grow shrink-0">
+      <PageContent className="pt-5 md:pt-4 pb-6 px-3 grow shrink-0">
         <EditProfileForm
           action={editMyProfile}
           currentUser={currentUser}
           hasGoogle={hasGoogle}
           myNotifications={myNotifications}
         />
-      </div>
+      </PageContent>
     </div>
   );
 };

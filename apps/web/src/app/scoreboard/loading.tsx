@@ -20,6 +20,8 @@ import { Skeleton } from "@nfl-pool-monorepo/ui/components/skeleton";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { type FC, Fragment } from "react";
 
+import PageContent from "@/components/PageContent/PageContent";
+
 const TeamLoader: FC = () => (
   <>
     <div>
@@ -50,7 +52,7 @@ const GameLoader: FC = () => (
 const ScoreboardLoader: FC = () => {
   return (
     <div className="h-full flex flex-col">
-      <div className="bg-gray-100/80 text-black mx-2 pt-5 md:pt-3 min-h-screen pb-4 flex-1">
+      <PageContent className="mx-2 pt-5 md:pt-3 pb-4">
         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-x-5 px-3">
           {Array.from({ length: 16 }).map((_, i) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: This is a loader and the key is not important
@@ -64,7 +66,7 @@ const ScoreboardLoader: FC = () => {
             </Fragment>
           ))}
         </div>
-      </div>
+      </PageContent>
     </div>
   );
 };

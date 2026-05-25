@@ -14,12 +14,12 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { redirect } from "next/navigation";
 import type { FC } from "react";
 
 import BackupsTable from "@/components/BackupsTable/BackupsTable";
 import CustomHead from "@/components/CustomHead/CustomHead";
+import PageContent from "@/components/PageContent/PageContent";
 import { requireAdmin } from "@/lib/auth";
 import { getAdminBackups } from "@/server/loaders/backup";
 
@@ -35,9 +35,9 @@ const AdminBackupsPage: FC<PageProps<"/admin/backups">> = async () => {
   return (
     <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title="Backups Admin" />
-      <div className={cn("bg-gray-100/80 text-black pt-3 flex-1 min-h-screen")}>
+      <PageContent className="pt-3">
         <BackupsTable count={count} results={results} />
-      </div>
+      </PageContent>
     </div>
   );
 };

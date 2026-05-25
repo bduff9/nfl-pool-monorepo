@@ -19,10 +19,12 @@ import { Skeleton } from "@nfl-pool-monorepo/ui/components/skeleton";
 import type { FC } from "react";
 import "server-only";
 
+import PageContent from "@/components/PageContent/PageContent";
+
 const SupportLoader: FC = async () => {
   return (
     <div className="h-full flex">
-      <div className="bg-gray-100/80 text-black m-3 px-3 md:pt-3 min-h-screen pb-3 flex-1" id="top">
+      <PageContent className="m-3 px-3 md:pt-3 pb-3" id="top">
         <div className="mb-2">
           <Skeleton className="w-full h-12 bg-gray-300" />
         </div>
@@ -68,7 +70,7 @@ const SupportLoader: FC = async () => {
           <br />
           <br />
         </div>
-      </div>
+      </PageContent>
     </div>
   );
 };

@@ -6,6 +6,7 @@ import type { FC } from "react";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import FinishRegistrationForm from "@/components/FinishRegistrationForm/FinishRegistrationForm";
+import PageContent from "@/components/PageContent/PageContent";
 import { finishRegistration } from "@/server/actions/user";
 import { getCurrentSession } from "@/server/loaders/sessions";
 import { getCurrentUser, userHasGoogle } from "@/server/loaders/user";
@@ -41,14 +42,14 @@ const CreateProfile: FC<PageProps<"/users/create">> = async () => {
   return (
     <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title={TITLE} />
-      <div className="bg-gray-100/80 text-black pt-5 md:pt-4 min-h-screen pb-6 px-3 grow shrink-0">
+      <PageContent className="pt-5 md:pt-4 pb-6 px-3 grow shrink-0">
         <FinishRegistrationForm
           currentUser={currentUser}
           finishRegistration={finishRegistration}
           hasGoogle={hasGoogle}
           seasonStatus={seasonStatus}
         />
-      </div>
+      </PageContent>
     </div>
   );
 };

@@ -15,12 +15,12 @@
  */
 
 import { DataTable } from "@nfl-pool-monorepo/ui/components/data-table";
-import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { redirect } from "next/navigation";
 import type { FC } from "react";
 
 import { emailColumns } from "@/components/AdminEmailsTable/AdminEmailsColumns";
 import CustomHead from "@/components/CustomHead/CustomHead";
+import PageContent from "@/components/PageContent/PageContent";
 import SendAdminEmails from "@/components/SendAdminEmails/SendAdminEmails";
 import { requireAdmin } from "@/lib/auth";
 import { getAdminEmails } from "@/server/loaders/email";
@@ -37,11 +37,11 @@ const AdminEmail: FC<PageProps<"/admin/email">> = async ({ searchParams }) => {
   return (
     <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title="Email Users" />
-      <div className={cn("text-black flex-1 min-h-screen")}>
+      <PageContent>
         <SendAdminEmails />
 
         <div className="flex flex-col">
-          <div className="w-full bg-gray-100/80 text-black mt-4 p-4 pt-2 border rounded">
+          <div className="w-full mt-4 p-4 pt-2 border rounded">
             <div className="w-full text-center md:text-start">
               {count} {count === 1 ? "email" : "emails"}
             </div>
@@ -55,7 +55,7 @@ const AdminEmail: FC<PageProps<"/admin/email">> = async ({ searchParams }) => {
             </div>
           </div>
         </div>
-      </div>
+      </PageContent>
     </div>
   );
 };

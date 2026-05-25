@@ -25,6 +25,7 @@ import "server-only";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import MyPicksHead from "@/components/MyPicksHead/MyPicksHead";
+import PageContent from "@/components/PageContent/PageContent";
 import { requireRegistered } from "@/lib/auth";
 import { getMyWeeklyPicks } from "@/server/loaders/pick";
 import { getSelectedWeek } from "@/server/loaders/week";
@@ -50,13 +51,13 @@ const ViewPicks: FC<PageProps<"/picks/view">> = async () => {
   return (
     <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title={`My Week ${selectedWeek} Picks`} />
-      <div className="text-black min-h-screen pb-4 flex-1">
+      <PageContent className="pb-4">
         <div className="flex flex-col min-h-screen">
           <Suspense>
             <MyPicksHead week={selectedWeek} />
           </Suspense>
           <div className="w-full">
-            <div className="bg-gray-100/80 text-black rounded table-responsive">
+            <div className="rounded table-responsive">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -132,7 +133,7 @@ const ViewPicks: FC<PageProps<"/picks/view">> = async () => {
             </div>
           </div>
         </div>
-      </div>
+      </PageContent>
     </div>
   );
 };

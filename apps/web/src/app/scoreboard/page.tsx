@@ -22,6 +22,7 @@ import "server-only";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import GameStatusDisplay from "@/components/GameStatusDisplay/GameStatusDisplay";
+import PageContent from "@/components/PageContent/PageContent";
 import ScoreboardDate from "@/components/ScoreboardDate/ScoreboardDate";
 import ScoreboardTeam from "@/components/ScoreboardTeam/ScoreboardTeam";
 import { requireRegistered } from "@/lib/auth";
@@ -49,7 +50,7 @@ const Scoreboard: FC<PageProps<"/scoreboard">> = async () => {
   return (
     <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title={TITLE} />
-      <div className="bg-gray-100/80 text-black pt-5 md:pt-3 min-h-screen pb-4 flex-1">
+      <PageContent className="pt-5 md:pt-3 pb-4">
         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-x-5 px-3">
           {games.map((game) => {
             const currentKickoff = formatDateForKickoff(game.GameKickoff);
@@ -94,7 +95,7 @@ const Scoreboard: FC<PageProps<"/scoreboard">> = async () => {
             );
           })}
         </div>
-      </div>
+      </PageContent>
     </div>
   );
 };

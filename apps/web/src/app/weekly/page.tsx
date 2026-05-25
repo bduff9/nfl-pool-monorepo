@@ -23,6 +23,7 @@ import "server-only";
 import type { FC } from "react";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
+import PageContent from "@/components/PageContent/PageContent";
 import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import ProgressChart from "@/components/ProgressChart/ProgressChart";
 import RankingPieChart from "@/components/RankingPieChart/RankingPieChart";
@@ -75,7 +76,7 @@ const WeeklyRankings: FC<PageProps<"/weekly">> = async () => {
   return (
     <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title={`Week ${selectedWeek} Ranks`} />
-      <div className="bg-gray-100/80 text-black pt-0 md:pt-3 min-h-screen pb-4 flex-1">
+      <PageContent className="pt-0 md:pt-3 pb-4">
         <div className="flex flex-wrap">
           <div className="hidden md:inline-block w-1/2 text-center h-[205px]">
             <WeeklyDashboardTitle selectedWeek={selectedWeek} />
@@ -179,7 +180,7 @@ const WeeklyRankings: FC<PageProps<"/weekly">> = async () => {
             </TableBody>
           </Table>
         </div>
-      </div>
+      </PageContent>
     </div>
   );
 };

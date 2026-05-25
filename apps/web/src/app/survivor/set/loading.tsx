@@ -5,6 +5,7 @@ import { FaInfoCircle } from "react-icons/fa";
 import { PiAtDuotone } from "react-icons/pi";
 import "server-only";
 
+import PageContent from "@/components/PageContent/PageContent";
 import { SURVIVOR_PICK_INSTRUCTIONS } from "@/lib/constants";
 
 type SurvivorTeamLoaderProps = {
@@ -32,7 +33,7 @@ const SurvivorTeamLoader: FC<SurvivorTeamLoaderProps> = ({ isHome = false }) => 
 const SetPicksLoadingPage: FC = () => {
   return (
     <div className="h-full flex">
-      <div className="bg-gray-100/80 text-black mx-2 md:pt-3 min-h-screen pb-4 flex-1">
+      <PageContent className="mx-2 md:pt-3 pb-4">
         <div className="flex flex-col min-h-screen">
           <h4 className="scroll-m-20 text-xl font-semibold tracking-tight mb-5 text-center">
             {SURVIVOR_PICK_INSTRUCTIONS}
@@ -72,7 +73,7 @@ const SetPicksLoadingPage: FC = () => {
             ))}
           </div>
         </div>
-      </div>
+      </PageContent>
     </div>
   );
 };

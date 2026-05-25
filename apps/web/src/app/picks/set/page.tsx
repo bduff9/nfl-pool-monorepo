@@ -14,13 +14,13 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import "server-only";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import MakePicksClient from "@/components/MakePicksClient/MakePicksClient";
+import PageContent from "@/components/PageContent/PageContent";
 import { requireRegistered } from "@/lib/auth";
 import { getMyWeeklyPicks } from "@/server/loaders/pick";
 import { getMyTiebreaker } from "@/server/loaders/tiebreaker";
@@ -59,9 +59,9 @@ const MakePicks: FC<PageProps<"/picks/set">> = async () => {
   return (
     <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title={`Make week ${selectedWeek} picks`} />
-      <div className={cn("bg-gray-100/80 text-black pt-3 flex-1 min-h-screen pb-[70px]")}>
+      <PageContent className="pt-3 pb-[70px]">
         <MakePicksClient selectedWeek={selectedWeek} tiebreaker={tiebreaker} weeklyPicks={myWeeklyPicks} />
-      </div>
+      </PageContent>
     </div>
   );
 };

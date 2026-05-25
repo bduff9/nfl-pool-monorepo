@@ -15,12 +15,12 @@
  */
 
 import { DataTable } from "@nfl-pool-monorepo/ui/components/data-table";
-import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { redirect } from "next/navigation";
 import type { FC } from "react";
 
 import { logColumns } from "@/components/AdminLogsTable/AdminLogColumns";
 import CustomHead from "@/components/CustomHead/CustomHead";
+import PageContent from "@/components/PageContent/PageContent";
 import { requireAdmin } from "@/lib/auth";
 import { getAdminLogs } from "@/server/loaders/log";
 
@@ -36,7 +36,7 @@ const AdminLogsPage: FC<PageProps<"/admin/logs">> = async ({ searchParams }) => 
   return (
     <div className="h-full flex flex-wrap md:mx-3">
       <CustomHead title="View All Logs" />
-      <div className={cn("bg-gray-100/80 text-black pt-3 flex-1 min-h-screen")}>
+      <PageContent className="pt-3">
         <div className="flex flex-col min-h-screen px-4">
           <div className="w-full mb-2">
             {count} {count === 1 ? "log" : "logs"}
@@ -54,7 +54,7 @@ const AdminLogsPage: FC<PageProps<"/admin/logs">> = async ({ searchParams }) => 
             />
           </div>
         </div>
-      </div>
+      </PageContent>
     </div>
   );
 };
