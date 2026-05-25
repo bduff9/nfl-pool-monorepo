@@ -140,14 +140,14 @@ const ViewSurvivor: FC<PageProps<"/survivor/view">> = async () => {
                   >
                     Player
                   </TableHead>
-                  {Array.from({ length: weekInProgress ?? WEEKS_IN_SEASON }).map((_, i) => (
+                  {Array.from({ length: weekInProgress ?? WEEKS_IN_SEASON }, (_, i) => i + 1).map((week) => (
                     <TableHead
                       className="text-black text-center font-semibold sticky z-[1] top-0 bg-gray-50"
-                      key={`header-for-week-${i + 1}`}
+                      key={`header-for-week-${week}`}
                       scope="col"
                     >
-                      <span className="hidden md:inline">{i + 1}</span>
-                      <span className="md:hidden">W{i + 1}</span>
+                      <span className="hidden md:inline">{week}</span>
+                      <span className="md:hidden">W{week}</span>
                     </TableHead>
                   ))}
                 </TableRow>

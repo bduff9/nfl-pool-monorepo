@@ -579,7 +579,7 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
                       <div className="w-8" />
                     )}
 
-                    {!!subscription && watchNotifications[i]?.NotificationPushNotification === 1 ? (
+                    {subscription && watchNotifications[i]?.NotificationPushNotification === 1 ? (
                       <FormField
                         control={form.control}
                         name={`notifications.${i}.NotificationPushNotificationHoursBefore`}

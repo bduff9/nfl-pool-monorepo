@@ -2,10 +2,8 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
     "allowJs": true,
-    "alwaysStrict": false,
     "declaration": true,
     "declarationMap": true,
-    "downlevelIteration": true,
     "erasableSyntaxOnly": true,
     "esModuleInterop": true,
     "exactOptionalPropertyTypes": true,

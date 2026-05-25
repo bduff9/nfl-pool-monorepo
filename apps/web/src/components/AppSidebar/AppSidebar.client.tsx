@@ -190,11 +190,11 @@ const AppSidebarClient: FC<Props> = ({
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-[--radix-popper-anchor-width]">
-                {Array.from({ length: WEEKS_IN_SEASON }).map((_, i) => (
-                  <Fragment key={`week-${i + 1}`}>
-                    {i + 1 === currentWeek && <DropdownMenuSeparator />}
-                    <DropdownMenuItem onClick={() => setSelectedWeek(i + 1)}>Week {i + 1}</DropdownMenuItem>
-                    {i + 1 === currentWeek && <DropdownMenuSeparator />}
+                {Array.from({ length: WEEKS_IN_SEASON }, (_, i) => i + 1).map((week) => (
+                  <Fragment key={`week-${week}`}>
+                    {week === currentWeek && <DropdownMenuSeparator />}
+                    <DropdownMenuItem onClick={() => setSelectedWeek(week)}>Week {week}</DropdownMenuItem>
+                    {week === currentWeek && <DropdownMenuSeparator />}
                   </Fragment>
                 ))}
               </DropdownMenuContent>

@@ -14,7 +14,7 @@
     "aws-cdk-lib": "2.213.0",
     "aws-lambda": "1.0.7",
     "constructs": "10.4.2",
-    "kysely": "0.28.5",
+    "kysely": "0.29.2",
     "mysqldump": "3.2.0",
     "source-map-support": "0.5.21"
   },
@@ -27,7 +27,7 @@
     "dotenv": "17.4.2",
     "knip": "6.14.2",
     "sync-dotenv": "2.7.0",
-    "typescript": "5.9.2"
+    "typescript": "6.0.3"
   },
   "engines": {
     "node": ">=22"

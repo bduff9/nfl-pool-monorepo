@@ -63,9 +63,9 @@
     "test": {
       "cache": true,
       "inputs": [
-        "**/*.test.ts",
-        "**/*.test.tsx",
-        "vitest.config.ts"
+        "**/*.ts",
+        "**/*.tsx",
+        "**/vitest.config.ts"
       ]
     },
     "topo": {
