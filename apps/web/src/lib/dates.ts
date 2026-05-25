@@ -53,21 +53,6 @@ export const formatTimeFromKickoff = (date: Date | string): string => {
   return toFormat.toLocaleTimeString("en-US", options);
 };
 
-export const formatTimestampForLog = (date: string): string => {
-  const options: Intl.DateTimeFormatOptions = {
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    month: "long",
-    timeZoneName: "short",
-    weekday: "long",
-    year: "numeric",
-  };
-  const toFormat = new Date(date);
-
-  return toFormat.toLocaleDateString("en-US", options);
-};
-
 type TimeParts = {
   days: number;
   hours: number;

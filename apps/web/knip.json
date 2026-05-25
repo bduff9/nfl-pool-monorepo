@@ -1,0 +1,9 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignoreBinaries": ["biome", "npmPkgJsonLint"],
+  "ignoreDependencies": ["@radix-ui/react-label", "@radix-ui/react-slot", "react-phone-number-input"],
+  "ignoreFiles": ["public/sw.js"],
+  "paths": {
+    "@/*": ["./src/*"]
+  }
+}

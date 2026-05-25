@@ -28,7 +28,7 @@ export type Session = {
 /**
  * Default is 30 days
  */
-export const DEFAULT_SESSION_LENGTH = 1000 * 60 * 60 * 24 * 30;
+const DEFAULT_SESSION_LENGTH = 1000 * 60 * 60 * 24 * 30;
 
 export const generateSessionToken = (): string => {
   const bytes = new Uint8Array(20);
@@ -116,9 +116,9 @@ export const invalidateSession = async (sessionToken: string): Promise<void> => 
   await db.deleteFrom("Sessions").where("SessionToken", "=", sessionToken).executeTakeFirstOrThrow();
 };
 
-export const invalidateAllSessions = async (userId: number): Promise<void> => {
-  await db.deleteFrom("Sessions").where("UserID", "=", userId).executeTakeFirstOrThrow();
-};
+// const invalidateAllSessions = async (userId: number): Promise<void> => {
+//   await db.deleteFrom("Sessions").where("UserID", "=", userId).executeTakeFirstOrThrow();
+// };
 
 export const setSessionTokenCookie = async (token: string, expiresAt: Date): Promise<void> => {
   const cookieStore = await cookies();

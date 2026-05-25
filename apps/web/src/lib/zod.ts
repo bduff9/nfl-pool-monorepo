@@ -28,9 +28,9 @@ export const serverActionResultSchema = z.object({
 
 export type ServerActionResult = z.infer<typeof serverActionResultSchema>;
 
-export const gameIdSchema = z.number().int().min(101).max(1816);
+const gameIdSchema = z.number().int().min(101).max(1816);
 
-export const teamIdSchema = z.number().int().min(1).max(33);
+const teamIdSchema = z.number().int().min(1).max(33);
 
 export const autoPickSchema = z.object({
   type: z.enum(AutoPickStrategy, { message: "Please select a valid auto pick strategy" }),

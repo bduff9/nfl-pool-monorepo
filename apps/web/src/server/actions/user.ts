@@ -1,6 +1,6 @@
 "use server";
 
-import { randomInt } from "crypto";
+import { randomInt } from "node:crypto";
 
 import type { DB, Users } from "@nfl-pool-monorepo/db/src";
 import { db } from "@nfl-pool-monorepo/db/src/kysely";

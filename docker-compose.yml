@@ -1,0 +1,25 @@
+services:
+  mysql-db:
+    image: mysql:8.0.26
+    platform: linux/amd64
+    container_name: nfl-pool-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: NFL
+      MYSQL_USER: bduff9
+      MYSQL_PASSWORD: bduff9
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./init-db:/docker-entrypoint-initdb.d
+      - mysql_data:/var/lib/mysql
+    networks:
+      - db-network
+
+volumes:
+  mysql_data:
+
+networks:
+  db-network:
+    driver: bridge

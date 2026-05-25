@@ -1,9 +1,15 @@
 {
   "app": "npx tsx bin/cdk-typescript.ts",
+  "context": {
+    "@aws-cdk/aws-iam:minimizePolicies": true,
+    "@aws-cdk/aws-lambda-nodejs:useLatestRuntimeVersion": true,
+    "@aws-cdk/aws-lambda:recognizeVersionProps": true,
+    "@aws-cdk/core:checkSecretUsage": true,
+    "@aws-cdk/core:includePrefixInUniqueNameGeneration": true,
+    "@aws-cdk/core:stackRelativeExports": true,
+    "@aws-cdk/core:target-partitions": ["aws", "aws-cn"]
+  },
   "watch": {
-    "include": [
-      "**"
-    ],
     "exclude": [
       "README.md",
       "cdk*.json",
@@ -13,18 +19,7 @@
       "package*.json",
       "node_modules",
       "test"
-    ]
-  },
-  "context": {
-    "@aws-cdk/core:stackRelativeExports": true,
-    "@aws-cdk/aws-lambda:recognizeVersionProps": true,
-    "@aws-cdk/core:checkSecretUsage": true,
-    "@aws-cdk/aws-iam:minimizePolicies": true,
-    "@aws-cdk/core:target-partitions": [
-      "aws",
-      "aws-cn"
     ],
-    "@aws-cdk/core:includePrefixInUniqueNameGeneration": true,
-    "@aws-cdk/aws-lambda-nodejs:useLatestRuntimeVersion": true
+    "include": ["**"]
   }
 }

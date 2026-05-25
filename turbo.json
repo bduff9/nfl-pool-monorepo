@@ -19,7 +19,6 @@
         "LOGFLARE_API_KEY",
         "LOGFLARE_SOURCE_TOKEN",
         "LOGTAIL_SOURCE_TOKEN",
-        "LOGTAIL_URL",
         "NEXT_PUBLIC_ENV",
         "NEXT_PUBLIC_LOGROCKET_PROJ",
         "NEXT_PUBLIC_LOGTAIL_SOURCE_TOKEN",
@@ -43,11 +42,21 @@
       "cache": false,
       "persistent": true
     },
+    "env": {
+      "cache": false
+    },
     "format": {
       "dependsOn": ["^topo"]
     },
     "format:fix": {
       "dependsOn": ["^topo"]
+    },
+    "knip": {
+      "cache": true,
+      "inputs": [
+        "**/*.tsx",
+        "**/*.ts"
+      ]
     },
     "lint": {
       "dependsOn": ["^topo"]
@@ -55,9 +64,20 @@
     "lint:fix": {
       "dependsOn": ["^topo"]
     },
+    "test": {
+      "cache": true
+    },
     "topo": {
       "dependsOn": ["^topo"]
     },
-    "typecheck": {}
+    "typecheck": {
+      "cache": true,
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "./**/*.{ts,tsx}"
+      ]
+    }
   }
 }

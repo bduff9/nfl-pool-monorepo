@@ -1,8 +1,3 @@
-/**
- * The name of the cookie used to redirect a user back where they were trying to go prior to the auth flow
- */
-export const REDIRECT_COOKIE_NAME = "REDIRECT_COOKIE_NAME";
-
 export const PaymentMethod = ["Paypal", "Venmo", "Zelle"] as const;
 
 export const AutoPickStrategy = ["Away", "Home", "Random"] as const;

@@ -2,10 +2,10 @@ import {
   Duration,
   aws_events as events,
   aws_lambda as lambda,
-  aws_s3 as s3,
   Stack,
-  aws_events_targets as targets,
   type StackProps,
+  aws_s3 as s3,
+  aws_events_targets as targets,
 } from "aws-cdk-lib";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import type { Construct } from "constructs";

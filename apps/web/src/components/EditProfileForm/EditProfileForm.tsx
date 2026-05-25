@@ -57,7 +57,7 @@ type Props = {
   myNotifications: Awaited<ReturnType<typeof getUserNotifications>>;
 };
 
-export const correctPhoneNumber = (phoneNumber: string | null): string | null => {
+const correctPhoneNumber = (phoneNumber: string | null): string | null => {
   if (!phoneNumber) {
     return null;
   }
