@@ -1,21 +1,22 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
+import { arktypeResolver } from "@hookform/resolvers/arktype";
 import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@nfl-pool-monorepo/ui/components/form";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 
 import { formatError } from "@/lib/auth.client";
-import { loginSchema } from "@/lib/zod";
-import { processFormErrors, processFormState } from "@/lib/zsa";
+import { processFormErrors } from "@/lib/form-errors";
+import { loginSchema } from "@/lib/validation";
 import { login, register } from "@/server/actions/user";
 import "client-only";
 
 import type { Route } from "next";
 import { redirect } from "next/navigation";
+import { useAction } from "next-safe-action/hooks";
 import { type FC, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import type { z } from "zod";
+import { toast } from "sonner";
 
 import FloatingLabelInput from "../FloatingLabelInput/FloatingLabelInput";
 import PasswordInput from "../PasswordInput/PasswordInput";
@@ -28,14 +29,14 @@ type Props = {
 };
 
 const LoginForm: FC<Props> = ({ error, isLogin }) => {
-  const form = useForm<z.infer<typeof loginSchema>>({
+  const form = useForm<typeof loginSchema.infer>({
     defaultValues: {
       confirmPassword: "",
       email: "",
       isLogin,
       password: "",
     },
-    resolver: zodResolver(loginSchema),
+    resolver: arktypeResolver(loginSchema),
   });
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: Only need to run on isLogin change
@@ -43,17 +44,39 @@ const LoginForm: FC<Props> = ({ error, isLogin }) => {
     form.setValue("isLogin", isLogin);
   }, [isLogin]);
 
-  const onSubmit = async (values: z.infer<typeof loginSchema>) => {
-    const result = await (isLogin ? login(values) : register(values));
-    const redirectTo = result[0]?.metadata.redirectTo;
+  const { execute: executeLogin, isPending: isLoginPending } = useAction(login, {
+    onError: ({ error }) => {
+      toast.error("Something went wrong!", {
+        description: error.serverError ?? "Please check the information you are submitting.",
+      });
+    },
+    onSuccess: ({ data }) => {
+      const redirectTo = data?.metadata?.redirectTo;
+      toast.success("Successfully logged in!");
+      redirect(typeof redirectTo === "string" && redirectTo ? (redirectTo as Route) : "/");
+    },
+  });
 
-    processFormState(
-      result,
-      () => {
-        redirect(typeof redirectTo === "string" && redirectTo ? (redirectTo as Route) : "/");
-      },
-      isLogin ? "Successfully logged in!" : "Successfully registered!",
-    );
+  const { execute: executeRegister, isPending: isRegisterPending } = useAction(register, {
+    onError: ({ error }) => {
+      toast.error("Something went wrong!", {
+        description: error.serverError ?? "Please check the information you are submitting.",
+      });
+    },
+    onSuccess: ({ data }) => {
+      const result = data as { metadata?: Record<string, boolean | number | string>; status?: string };
+      const redirectTo = result?.metadata?.redirectTo;
+      toast.success("Successfully registered!");
+      redirect(typeof redirectTo === "string" && redirectTo ? (redirectTo as Route) : "/");
+    },
+  });
+
+  const onSubmit = (values: typeof loginSchema.infer) => {
+    if (isLogin) {
+      executeLogin(values);
+    } else {
+      executeRegister(values);
+    }
   };
 
   return (
@@ -96,14 +119,8 @@ const LoginForm: FC<Props> = ({ error, isLogin }) => {
           </div>
         )}
         <div className="grid gap-2 mb-2">
-          <Button disabled={form.formState.isSubmitting} type="submit" variant="primary">
-            {isLogin
-              ? form.formState.isSubmitting
-                ? "Logging in..."
-                : "Login"
-              : form.formState.isSubmitting
-                ? "Registering..."
-                : "Register"}
+          <Button disabled={isLoginPending || isRegisterPending} type="submit" variant="primary">
+            {isLogin ? (isLoginPending ? "Logging in..." : "Login") : isRegisterPending ? "Registering..." : "Register"}
           </Button>
           {isLogin && (
             <Button asChild variant="outline">

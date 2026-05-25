@@ -5,12 +5,12 @@ import "client-only";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@nfl-pool-monorepo/ui/components/table";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import dynamic from "next/dynamic";
-import { type FC, useState } from "react";
+import { useAction } from "next-safe-action/hooks";
+import { type FC, useRef, useState } from "react";
 import { PiDatabaseDuotone, PiFootballDuotone } from "react-icons/pi";
 import { toast } from "sonner";
 
 import { formatDateForBackup } from "@/lib/dates";
-import { processFormState } from "@/lib/zsa";
 import { restoreBackup } from "@/server/actions/backup";
 import type { getAdminBackups } from "@/server/loaders/backup";
 
@@ -23,26 +23,32 @@ type Props = {
 
 const BackupsTable: FC<Props> = ({ count, results }) => {
   const [loading, setLoading] = useState<null | string>(null);
-  const [callback, setCallback] = useState<(() => Promise<void>) | null>(null);
+  const [callback, setCallback] = useState<(() => void) | null>(null);
+  const toastIdRef = useRef<string | number | undefined>(undefined);
 
-  const restoreABackup = async (backupName: string): Promise<void> => {
-    const toastId = toast.loading("Restoring...", {
+  const { execute: executeRestore } = useAction(restoreBackup, {
+    onError: ({ error }) => {
+      toast.error("Something went wrong!", {
+        description: error.serverError ?? "Please check the information you are submitting.",
+      });
+    },
+    onSettled: () => {
+      if (toastIdRef.current) toast.dismiss(toastIdRef.current);
+      setCallback(null);
+      setLoading(null);
+    },
+    onSuccess: () => {
+      toast.success(`Successfully restored backup ${loading}!`);
+    },
+  });
+
+  const restoreABackup = (backupName: string): void => {
+    toastIdRef.current = toast.loading("Restoring...", {
       closeButton: false,
       dismissible: false,
       duration: Infinity,
     });
-    const result = await restoreBackup({ backupName });
-
-    processFormState(
-      result,
-      () => {
-        /* NOOP */
-      },
-      `Successfully restored backup ${backupName}!`,
-    );
-    toast.dismiss(toastId);
-    setCallback(null);
-    setLoading(null);
+    executeRestore({ backupName });
   };
 
   return (

@@ -3,6 +3,7 @@
   "config": {},
   "contributors": [],
   "dependencies": {
+    "arktype": "2.2.0",
     "clsx": "2.1.1",
     "mysql2": "3.22.3",
     "mysqldump": "3.2.0",
@@ -10,7 +11,7 @@
   },
   "description": "Utility functions for the NFL Pool.",
   "devDependencies": {
-    "@nfl-pool-monorepo/tsconfig": "*"
+    "@nfl-pool-monorepo/tsconfig": "workspace:*"
   },
   "engines": {
     "node": ">=22"
@@ -22,7 +23,7 @@
     "./dates": "./src/dates.ts",
     "./numbers": "./src/numbers.ts",
     "./styles": "./src/styles.ts",
-    "./zod": "./src/zod.ts"
+    "./validation": "./src/validation.ts"
   },
   "homepage": "",
   "keywords": [],

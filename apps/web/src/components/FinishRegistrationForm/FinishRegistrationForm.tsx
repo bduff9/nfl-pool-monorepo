@@ -16,7 +16,7 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { zodResolver } from "@hookform/resolvers/zod";
+import { arktypeResolver } from "@hookform/resolvers/arktype";
 import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@nfl-pool-monorepo/ui/components/form";
 import { Input } from "@nfl-pool-monorepo/ui/components/input";
@@ -25,26 +25,28 @@ import { Tabs, TabsList, TabsTrigger } from "@nfl-pool-monorepo/ui/components/ta
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 
 import { PaymentMethod } from "@/lib/constants";
+import { processFormErrors } from "@/lib/form-errors";
 import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
 import { getFirstName, getFullName, getLastName } from "@/lib/user";
-import { finishRegistrationSchema } from "@/lib/zod";
-import { type FormZSA, processFormErrors, processFormState } from "@/lib/zsa";
+import { finishRegistrationSchema } from "@/lib/validation";
+import type { finishRegistration } from "@/server/actions/user";
 import type { getCurrentUser } from "@/server/loaders/user";
 import "client-only";
 
 import type { Status } from "@nfl-pool-monorepo/types";
 import { Popover, PopoverContent, PopoverTrigger } from "@nfl-pool-monorepo/ui/components/popover";
 import { useRouter } from "next/navigation";
+import { useAction } from "next-safe-action/hooks";
 import { type FC, useEffect, useState } from "react";
 import { type SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { PiFootballDuotone, PiQuestionDuotone } from "react-icons/pi";
-import type { z } from "zod";
+import { toast } from "sonner";
 
 import GoogleAuthButton from "../GoogleAuthButton/GoogleAuthButton";
 
 type FinishRegistrationFormProps = {
   currentUser: Awaited<ReturnType<typeof getCurrentUser>>;
-  finishRegistration: FormZSA<typeof finishRegistrationSchema>;
+  finishRegistration: typeof finishRegistration;
   hasGoogle: boolean;
   seasonStatus: Status;
 };
@@ -56,7 +58,7 @@ const FinishRegistrationForm: FC<FinishRegistrationFormProps> = ({
   seasonStatus,
 }) => {
   const router = useRouter();
-  const form = useForm<z.infer<typeof finishRegistrationSchema>>({
+  const form = useForm<typeof finishRegistrationSchema.infer>({
     defaultValues: {
       UserEmail: currentUser.UserEmail,
       UserFirstName: getFirstName(currentUser),
@@ -68,12 +70,33 @@ const FinishRegistrationForm: FC<FinishRegistrationFormProps> = ({
       UserReferredByRaw: currentUser.UserReferredByRaw || "",
       UserTeamName: currentUser.UserTeamName || "",
     },
-    resolver: zodResolver(finishRegistrationSchema),
+    resolver: arktypeResolver(finishRegistrationSchema),
   });
   const [showUntrusted, setShowUntrusted] = useState<boolean>(
     !currentUser.UserTrusted && !!currentUser.UserReferredByRaw,
   );
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const { execute, isPending } = useAction(finishRegistration, {
+    onError: ({ error }) => {
+      console.error("Error during finish registration submit:", error);
+      toast.error("Something went wrong!", {
+        description:
+          typeof error.serverError === "string"
+            ? error.serverError
+            : "Please check the information you are submitting.",
+      });
+    },
+    onSuccess: ({ data }) => {
+      const result = data as { metadata?: Record<string, boolean | number | string>; status?: string };
+      const isTrusted = result?.metadata?.isTrusted;
+      setShowUntrusted(!isTrusted);
+      toast.success("You have successfully submitted your registration!");
+      if (isTrusted) {
+        router.push("/users/payments");
+      }
+    },
+  });
+
   const userName = useWatch({ control: form.control, name: "UserName" });
   const userFirstName = useWatch({
     control: form.control,
@@ -100,28 +123,8 @@ const FinishRegistrationForm: FC<FinishRegistrationFormProps> = ({
     form.setValue("UserName", fullName, { shouldValidate: true });
   }, [userName, userFirstName, userLastName, form.setValue]);
 
-  const onSubmit: SubmitHandler<z.infer<typeof finishRegistrationSchema>> = async (data) => {
-    setIsLoading(true);
-
-    try {
-      const result = await finishRegistration(data);
-      const isTrusted = result[0]?.metadata.isTrusted;
-
-      setShowUntrusted(!isTrusted);
-      processFormState(
-        result,
-        () => {
-          if (isTrusted) {
-            router.push("/users/payments");
-          }
-        },
-        "You have successfully submitted your registration!",
-      );
-    } catch (error) {
-      console.error("Error during finish registration submit:", error);
-    } finally {
-      setIsLoading(false);
-    }
+  const onSubmit: SubmitHandler<typeof finishRegistrationSchema.infer> = (data) => {
+    execute(data);
   };
 
   if (showUntrusted) {
@@ -347,8 +350,8 @@ const FinishRegistrationForm: FC<FinishRegistrationFormProps> = ({
             <GoogleAuthButton isLinked={hasGoogle} />
           </div>
           <div className="grid md:col-span-2 text-center">
-            <Button disabled={isLoading} type="submit" variant="primary">
-              {isLoading ? (
+            <Button disabled={isPending} type="submit" variant="primary">
+              {isPending ? (
                 <>
                   <PiFootballDuotone className="animate-spin" />
                   Submitting...

@@ -5,7 +5,7 @@
   "dependencies": {},
   "description": "Shared TypeScript types for the NFL Pool.",
   "devDependencies": {
-    "@nfl-pool-monorepo/tsconfig": "*"
+    "@nfl-pool-monorepo/tsconfig": "workspace:*"
   },
   "engines": {
     "node": ">=22"

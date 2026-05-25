@@ -1,8 +1,7 @@
-import type { DB, Users } from "@nfl-pool-monorepo/db/src";
 import { ADMIN_USER, DEFAULT_AUTO_PICKS } from "@nfl-pool-monorepo/utils/constants";
 import { type Selectable, sql, type Transaction } from "kysely";
-import { ZSAError } from "zsa";
 
+import type { DB, Users } from "../index";
 import { db } from "../kysely";
 import { getPublicLeague } from "../queries/league";
 import { getSurvivorCost } from "../queries/systemValue";
@@ -256,7 +255,7 @@ export const registerUserForSurvivor = async (trx: Transaction<DB>, userId: numb
     .where("GameKickoff", ">", sql<Date>`CURRENT_TIMESTAMP`)
     .execute();
 
-  if (result.length === 0) throw new ZSAError("PRECONDITION_FAILED", "Season has already started!");
+  if (result.length === 0) throw new Error("Season has already started!");
 
   const { UserEmail } = await trx
     .selectFrom("Users")
@@ -331,7 +330,7 @@ export const unregisterUserForSurvivor = async (
     .where("GameKickoff", ">", sql<Date>`CURRENT_TIMESTAMP`)
     .execute();
 
-  if (result.length === 0 && !override) throw new ZSAError("PRECONDITION_FAILED", "Season has already started!");
+  if (result.length === 0 && !override) throw new Error("Season has already started!");
 
   const { UserEmail } = await trx
     .selectFrom("Users")

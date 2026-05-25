@@ -1,15 +1,19 @@
-import { z } from "zod";
+import { type } from "arktype";
 
-export const env = z
-  .object({
-    AWS_AK_ID: z.string(),
-    AWS_R: z.literal("us-east-2"),
-    AWS_SAK_ID: z.string(),
-    DATABASE_URL: z.string().url(),
-    domain: z.string().url(),
-    EMAIL_FROM: z.string(),
-    TWILIO_ACCOUNT_SID: z.string(),
-    TWILIO_AUTH_TOKEN: z.string(),
-    TWILIO_PHONE_NUMBER: z.string(),
-  })
-  .parse(process.env);
+const envSchema = type({
+  AWS_AK_ID: "string",
+  AWS_R: "'us-east-2'",
+  AWS_SAK_ID: "string",
+  DATABASE_URL: "string.url",
+  domain: "string.url",
+  EMAIL_FROM: "string",
+  TWILIO_ACCOUNT_SID: "string",
+  TWILIO_AUTH_TOKEN: "string",
+  TWILIO_PHONE_NUMBER: "string",
+});
+
+const result = envSchema(process.env);
+if (result instanceof type.errors) {
+  throw new Error(`Invalid environment variables: ${result.summary}`);
+}
+export const env = result;

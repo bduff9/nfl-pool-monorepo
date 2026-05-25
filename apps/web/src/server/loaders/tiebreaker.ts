@@ -2,7 +2,7 @@ import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { cache } from "react";
 import "server-only";
 
-import { weekSchema } from "@nfl-pool-monorepo/utils/zod";
+import { weekSchema } from "@nfl-pool-monorepo/utils/validation";
 
 import { getCurrentSession } from "./sessions";
 
@@ -13,7 +13,7 @@ export const getMyTiebreaker = cache(async (week: number) => {
     throw new Error("Not logged in");
   }
 
-  weekSchema.parse(week);
+  weekSchema.assert(week);
 
   return db
     .selectFrom("Tiebreakers")

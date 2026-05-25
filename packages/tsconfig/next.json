@@ -10,7 +10,12 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "noEmit": true,
     "paths": {
-      "@/*": ["../../apps/web/src/*"]
+      "@/*": ["../../apps/web/src/*"],
+      "@nfl-pool-monorepo/api/*": ["../../packages/api/*"],
+      "@nfl-pool-monorepo/db/*": ["../../packages/db/*"],
+      "@nfl-pool-monorepo/transactional/*": ["../../packages/transactional/*"],
+      "@nfl-pool-monorepo/types": ["../../packages/types/index.ts"],
+      "@nfl-pool-monorepo/utils/*": ["../../packages/utils/*"]
     },
     "resolveJsonModule": true,
     "skipLibCheck": true,

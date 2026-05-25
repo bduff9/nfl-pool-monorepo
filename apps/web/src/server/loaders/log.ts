@@ -1,33 +1,23 @@
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
+import { type } from "arktype";
 import { sql } from "kysely";
 import { cache } from "react";
-import { z } from "zod";
 
 import { DEFAULT_PAGE_SIZE } from "@/lib/constants";
-import { stringToJSONSchema } from "@/lib/zod";
+
+import { coerceNumber, parseJsonParam } from "./param-parsing";
 
 export const getAdminLogs = cache(async (params: Awaited<PageProps<"/admin/logs">["searchParams"]>) => {
-  const paramsSchema = z.object({
-    filter: stringToJSONSchema.pipe(
-      z
-        .array(z.object({ id: z.enum(["LogAction", "UserName"]), value: z.string() }))
-        .optional()
-        .default([]),
-    ),
-    page: z.coerce.number().optional().default(1),
-    pageSize: z
-      .union([z.coerce.number(), z.literal("all")])
-      .optional()
-      .default(DEFAULT_PAGE_SIZE),
-    sort: stringToJSONSchema.pipe(
-      z
-        .array(z.object({ desc: z.boolean(), id: z.enum(["LogAction", "UserName", "LogMessage", "LogAdded"]) }))
-        .optional()
-        .default([{ desc: true, id: "LogAdded" }]),
-    ),
-  });
+  const sortSchema = type({
+    desc: "boolean",
+    id: type.enumerated("LogAction", "UserName", "LogMessage", "LogAdded"),
+  }).array();
+  const filterSchema = type({ id: type.enumerated("LogAction", "UserName"), value: "string" }).array();
 
-  const { filter, page, pageSize, sort } = paramsSchema.parse(params);
+  const sort = parseJsonParam(params?.sort, sortSchema, [{ desc: true, id: "LogAdded" as const }]);
+  const filter = parseJsonParam(params?.filter, filterSchema, []);
+  const page = coerceNumber(params?.page, 1);
+  const pageSize = params?.pageSize === "all" ? ("all" as const) : coerceNumber(params?.pageSize, DEFAULT_PAGE_SIZE);
 
   let countResult = db
     .selectFrom("Logs as l")

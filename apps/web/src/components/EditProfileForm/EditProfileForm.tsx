@@ -16,7 +16,7 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { zodResolver } from "@hookform/resolvers/zod";
+import { arktypeResolver } from "@hookform/resolvers/arktype";
 import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@nfl-pool-monorepo/ui/components/form";
 import { Input } from "@nfl-pool-monorepo/ui/components/input";
@@ -28,19 +28,20 @@ import { Tabs, TabsList, TabsTrigger } from "@nfl-pool-monorepo/ui/components/ta
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 
 import { PaymentMethod } from "@/lib/constants";
+import { processFormErrors } from "@/lib/form-errors";
 import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
-import { editProfileSchema } from "@/lib/zod";
-import { type FormZSA, processFormErrors, processFormState } from "@/lib/zsa";
+import { editProfileSchema } from "@/lib/validation";
+import type { editMyProfile } from "@/server/actions/user";
 import type { getUserNotifications } from "@/server/loaders/notification";
 import type { getCurrentUser } from "@/server/loaders/user";
 import "client-only";
 
 import { Popover, PopoverContent, PopoverTrigger } from "@nfl-pool-monorepo/ui/components/popover";
-import { type FC, useEffect, useState } from "react";
-import { type SubmitHandler, useForm, useWatch } from "react-hook-form";
+import { useAction } from "next-safe-action/hooks";
+import { type FC, useEffect, useRef, useState } from "react";
+import { type Resolver, type SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { PiFootballDuotone, PiQuestionDuotone } from "react-icons/pi";
 import { toast } from "sonner";
-import type { z } from "zod";
 
 import { env } from "@/lib/env";
 import { urlBase64ToUint8Array } from "@/lib/strings";
@@ -51,7 +52,7 @@ import InstallPrompt from "../InstallPrompt/InstallPrompt";
 import TextSeparator from "../TextSeparator/TextSeparator";
 
 type Props = {
-  action: FormZSA<typeof editProfileSchema>;
+  action: typeof editMyProfile;
   currentUser: Awaited<ReturnType<typeof getCurrentUser>>;
   hasGoogle: boolean;
   myNotifications: Awaited<ReturnType<typeof getUserNotifications>>;
@@ -110,7 +111,7 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
     await unsubscribeUser({ agent: navigator.userAgent, subscription: JSON.stringify(subscription) });
   };
 
-  const form = useForm<z.infer<typeof editProfileSchema>>({
+  const form = useForm<typeof editProfileSchema.infer>({
     context: { myNotifications },
     defaultValues: {
       notifications: myNotifications,
@@ -124,7 +125,7 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
       UserPhone: correctPhoneNumber(currentUser.UserPhone) ?? "",
       UserTeamName: currentUser.UserTeamName ?? "",
     },
-    resolver: zodResolver(editProfileSchema),
+    resolver: arktypeResolver(editProfileSchema) as unknown as Resolver<typeof editProfileSchema.infer>,
   });
 
   const watchNotifications = useWatch({
@@ -137,6 +138,26 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
   });
   const errorCount = Object.keys(form.formState.errors).length;
 
+  const toastIdRef = useRef<string | number | undefined>(undefined);
+
+  const { execute, isPending } = useAction(action, {
+    onError: ({ error }) => {
+      toast.error("Something went wrong!", {
+        description:
+          typeof error.serverError === "string"
+            ? error.serverError
+            : "Please check the information you are submitting.",
+      });
+    },
+    onSettled: () => {
+      if (toastIdRef.current) toast.dismiss(toastIdRef.current);
+    },
+    onSuccess: () => {
+      toast.success("Your profile changes have been successfully saved");
+      form.reset(form.watch(), { keepValues: true });
+    },
+  });
+
   useBeforeUnload(form.formState.isDirty);
 
   useEffect(() => {
@@ -147,22 +168,13 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
     });
   }, [form.formState.errors.UserPhone?.message, watchPhone, form.setValue, watchNotifications.forEach]);
 
-  const onSubmit: SubmitHandler<z.infer<typeof editProfileSchema>> = async (data) => {
-    const toastId = toast.loading("Saving...", {
+  const onSubmit: SubmitHandler<typeof editProfileSchema.infer> = (data) => {
+    toastIdRef.current = toast.loading("Saving...", {
       closeButton: false,
       dismissible: false,
       duration: Infinity,
     });
-    const result = await action(data);
-
-    processFormState(
-      result,
-      () => {
-        form.reset(form.watch(), { keepValues: true });
-      },
-      "Your profile changes have been successfully saved",
-    );
-    toast.dismiss(toastId);
+    execute(data);
   };
 
   return (
@@ -449,7 +461,7 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
                 {notification.NotificationTypeDescription}{" "}
                 {notification.NotificationTypeTooltip && (
                   <Popover>
-                    <PopoverTrigger className="-mt-[3px]" type="button">
+                    <PopoverTrigger className="mt-[-3px]" type="button">
                       <PiQuestionDuotone className="size-5" />
                     </PopoverTrigger>
                     <PopoverContent className="max-w-[300px]">{notification.NotificationTypeTooltip}</PopoverContent>
@@ -641,8 +653,8 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
           </div>
           <div />
           <div className="grid border-t border-black pt-3 mt-3 col-span-full">
-            <Button disabled={form.formState.isSubmitting} type="submit" variant="primary">
-              {form.formState.isSubmitting ? (
+            <Button disabled={isPending} type="submit" variant="primary">
+              {isPending ? (
                 <>
                   <PiFootballDuotone className="animate-spin" />
                   Saving...

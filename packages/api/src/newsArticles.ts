@@ -16,8 +16,9 @@
 
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { getRandomInteger } from "@nfl-pool-monorepo/utils/numbers";
+import { type } from "arktype";
 
-import { type APINewsArticle, newsArticlesSchema } from "./zod";
+import { type APINewsArticle, newsArticlesSchema } from "./validation";
 
 const getAPINewsURL = (week: number, from: string): string =>
   `https://newsapi.org/v2/everything?q=+nfl week ${week} -fantasy -college -roundup&excludeDomains=engadget.com,androidcentral.com&from=${from}&apiKey=${process.env.API_NEWS_KEY}`;
@@ -33,9 +34,9 @@ export const getArticlesForWeek = async (week: number) => {
   const url = getAPINewsURL(week, firstGameDate);
   const response = await fetch(url);
   const jsonResponse = await response.json();
-  const apiResults = newsArticlesSchema.safeParse(jsonResponse);
-  const filteredArticles = apiResults.success
-    ? apiResults.data.articles.filter((article) => !!article.author && !!article.urlToImage)
+  const apiResults = newsArticlesSchema(jsonResponse);
+  const filteredArticles = !(apiResults instanceof type.errors)
+    ? apiResults.articles.filter((article) => !!article.author && !!article.urlToImage)
     : [];
 
   if (filteredArticles.length <= 3) {

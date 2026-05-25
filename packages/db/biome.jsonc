@@ -1,3 +1,15 @@
 {
-  "extends": ["../../biome.jsonc"]
+  "extends": ["../../biome.jsonc"],
+  "overrides": [
+    {
+      "includes": ["**/*.test.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noNonNullAssertion": "off"
+          }
+        }
+      }
+    }
+  ]
 }

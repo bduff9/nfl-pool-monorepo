@@ -1,21 +1,22 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
+import { arktypeResolver } from "@hookform/resolvers/arktype";
 import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@nfl-pool-monorepo/ui/components/form";
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "@nfl-pool-monorepo/ui/components/input-otp";
 
 import { formatError } from "@/lib/auth.client";
-import { forgotPasswordEmailSchema, verifyOtpSchema } from "@/lib/zod";
+import { forgotPasswordEmailSchema, verifyOtpSchema } from "@/lib/validation";
 import { sendPasswordResetOTP, verifyOTPAndResetPassword } from "@/server/actions/user";
 import "client-only";
 
 import { redirect } from "next/navigation";
+import { useAction } from "next-safe-action/hooks";
 import { type FC, useEffect, useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
-import type { z } from "zod";
+import { toast } from "sonner";
 
-import { processFormErrors, processFormState } from "@/lib/zsa";
+import { processFormErrors } from "@/lib/form-errors";
 
 import FloatingLabelInput from "../FloatingLabelInput/FloatingLabelInput";
 
@@ -28,23 +29,22 @@ type Step = "email" | "otp";
 const ForgotPasswordForm: FC<Props> = ({ error }) => {
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
-  const emailForm = useForm<z.infer<typeof forgotPasswordEmailSchema>>({
+  const emailForm = useForm<typeof forgotPasswordEmailSchema.infer>({
     defaultValues: {
       email: "",
     },
-    resolver: zodResolver(forgotPasswordEmailSchema),
+    resolver: arktypeResolver(forgotPasswordEmailSchema),
   });
 
-  const otpForm = useForm<z.infer<typeof verifyOtpSchema>>({
+  const otpForm = useForm<typeof verifyOtpSchema.infer>({
     defaultValues: {
       confirmPassword: "",
       email: "",
       newPassword: "",
       otp: "",
     },
-    resolver: zodResolver(verifyOtpSchema),
+    resolver: arktypeResolver(verifyOtpSchema),
   });
 
   useEffect(() => {
@@ -58,45 +58,39 @@ const ForgotPasswordForm: FC<Props> = ({ error }) => {
     }
   }, [error, step, emailForm, otpForm]);
 
-  const handleEmailSubmit: SubmitHandler<z.infer<typeof forgotPasswordEmailSchema>> = async (data) => {
-    setIsLoading(true);
+  const { execute: executeSendOTP, isPending: isSendingOTP } = useAction(sendPasswordResetOTP, {
+    onError: ({ error }) => {
+      toast.error("Something went wrong!", {
+        description: error.serverError ?? "Please check the information you are submitting.",
+      });
+    },
+    onSuccess: ({ input }) => {
+      toast.success("Please check your email for the verification code.");
+      emailForm.reset();
+      setEmail(input.email);
+      otpForm.setValue("email", input.email);
+      setStep("otp");
+    },
+  });
 
-    try {
-      const result = await sendPasswordResetOTP(data);
+  const { execute: executeVerifyOTP, isPending: isVerifyingOTP } = useAction(verifyOTPAndResetPassword, {
+    onError: ({ error }) => {
+      toast.error("Something went wrong!", {
+        description: error.serverError ?? "Please check the information you are submitting.",
+      });
+    },
+    onSuccess: () => {
+      toast.success("Your password has been successfully reset");
+      redirect("/");
+    },
+  });
 
-      processFormState(
-        result,
-        () => {
-          emailForm.reset();
-          setEmail(data.email);
-          // Always proceed to OTP step even if email doesn't exist (security)
-          otpForm.setValue("email", data.email);
-          setStep("otp");
-        },
-        "Please check your email for the verification code.",
-      );
-    } finally {
-      setIsLoading(false);
-    }
+  const handleEmailSubmit: SubmitHandler<typeof forgotPasswordEmailSchema.infer> = (data) => {
+    executeSendOTP(data);
   };
 
-  const handleOtpSubmit: SubmitHandler<z.infer<typeof verifyOtpSchema>> = async (data) => {
-    setIsLoading(true);
-
-    try {
-      const result = await verifyOTPAndResetPassword(data);
-
-      processFormState(
-        result,
-        () => {
-          // Redirect to dashboard on success (user is auto-logged in)
-          redirect("/");
-        },
-        "Your password has been successfully reset",
-      );
-    } finally {
-      setIsLoading(false);
-    }
+  const handleOtpSubmit: SubmitHandler<typeof verifyOtpSchema.infer> = (data) => {
+    executeVerifyOTP(data);
   };
 
   const handleBackToEmail = () => {
@@ -121,7 +115,7 @@ const ForgotPasswordForm: FC<Props> = ({ error }) => {
                 <FormControl>
                   <FloatingLabelInput
                     autoComplete="email"
-                    disabled={isLoading}
+                    disabled={isSendingOTP}
                     id="email"
                     label="Email"
                     placeholder="Email"
@@ -138,8 +132,8 @@ const ForgotPasswordForm: FC<Props> = ({ error }) => {
             <div className="text-red-600 text-sm text-center">{emailForm.formState.errors.root.message}</div>
           )}
 
-          <Button className="w-full" disabled={isLoading} type="submit">
-            {isLoading ? "Sending..." : "Send Verification Code"}
+          <Button className="w-full" disabled={isSendingOTP} type="submit">
+            {isSendingOTP ? "Sending..." : "Send Verification Code"}
           </Button>
         </form>
       </Form>
@@ -186,7 +180,7 @@ const ForgotPasswordForm: FC<Props> = ({ error }) => {
               <FormControl>
                 <FloatingLabelInput
                   autoComplete="new-password"
-                  disabled={isLoading}
+                  disabled={isVerifyingOTP}
                   id="newPassword"
                   label="New Password"
                   placeholder=" "
@@ -207,7 +201,7 @@ const ForgotPasswordForm: FC<Props> = ({ error }) => {
               <FormControl>
                 <FloatingLabelInput
                   autoComplete="new-password"
-                  disabled={isLoading}
+                  disabled={isVerifyingOTP}
                   id="confirmPassword"
                   label="Confirm New Password"
                   placeholder=" "
@@ -225,11 +219,17 @@ const ForgotPasswordForm: FC<Props> = ({ error }) => {
         )}
 
         <div className="space-y-2">
-          <Button className="w-full" disabled={isLoading} type="submit">
-            {isLoading ? "Resetting..." : "Reset Password"}
+          <Button className="w-full" disabled={isVerifyingOTP} type="submit">
+            {isVerifyingOTP ? "Resetting..." : "Reset Password"}
           </Button>
 
-          <Button className="w-full" disabled={isLoading} onClick={handleBackToEmail} type="button" variant="outline">
+          <Button
+            className="w-full"
+            disabled={isVerifyingOTP}
+            onClick={handleBackToEmail}
+            type="button"
+            variant="outline"
+          >
             Use Different Email
           </Button>
         </div>

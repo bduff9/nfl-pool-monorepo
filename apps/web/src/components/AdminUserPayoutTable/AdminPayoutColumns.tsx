@@ -3,11 +3,11 @@
 import { SortableColumnHeader } from "@nfl-pool-monorepo/ui/components/data-table";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { ColumnDef } from "@tanstack/react-table";
-import { useState } from "react";
+import { useAction } from "next-safe-action/hooks";
+import { useRef, useState } from "react";
 import { FaDollarSign } from "react-icons/fa";
 import { toast } from "sonner";
 
-import { processFormState } from "@/lib/zsa";
 import { insertUserPayout } from "@/server/actions/payment";
 import type { getUserPayoutsForAdmin } from "@/server/loaders/payment";
 
@@ -75,23 +75,30 @@ export const prizeColumns: ColumnDef<Prize>[] = [
     accessorKey: "UserBalance",
     cell: ({ row }) => {
       const [modalOpen, setModalOpen] = useState<null | typeof row.original>(null);
+      const toastIdRef = useRef<string | number | undefined>(undefined);
+
+      const { execute: executeInsertPayout } = useAction(insertUserPayout, {
+        onError: ({ error }) => {
+          toast.error("Something went wrong!", {
+            description: error.serverError ?? "Please check the information you are submitting.",
+          });
+        },
+        onSettled: () => {
+          if (toastIdRef.current) toast.dismiss(toastIdRef.current);
+        },
+        onSuccess: () => {
+          toast.success("Successfully updated user payout amount!");
+          setModalOpen(null);
+        },
+      });
 
       const addUserPayout = async (userID: number, amount: number): Promise<void> => {
-        const toastId = toast.loading("Saving...", {
+        toastIdRef.current = toast.loading("Saving...", {
           closeButton: false,
           dismissible: false,
           duration: Infinity,
         });
-        const result = await insertUserPayout({ amount, userID });
-
-        processFormState(
-          result,
-          () => {
-            setModalOpen(null);
-          },
-          "Successfully updated user payout amount!",
-        );
-        toast.dismiss(toastId);
+        executeInsertPayout({ amount, userID });
       };
 
       return (

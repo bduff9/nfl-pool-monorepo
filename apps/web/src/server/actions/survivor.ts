@@ -5,18 +5,17 @@ import { registerUserForSurvivor, unregisterUserForSurvivor } from "@nfl-pool-mo
 import { sql } from "kysely";
 import { revalidatePath } from "next/cache";
 
-import { makeSurvivorPickSchema, serverActionResultSchema } from "@/lib/zod";
-import { adminProcedure, authedProcedure } from "@/lib/zsa.server";
+import { adminActionClient, authActionClient } from "@/lib/safe-action";
+import { makeSurvivorPickSchema, serverActionResultSchema } from "@/lib/validation";
 import "server-only";
 
-import { z } from "zod";
-import { ZSAError } from "zsa";
+import { type } from "arktype";
 
-export const makeSurvivorPick = authedProcedure
-  .input(makeSurvivorPickSchema)
-  .output(serverActionResultSchema)
-  .handler(async ({ ctx, input }) => {
-    const { gameID, teamID, week } = input;
+export const makeSurvivorPick = authActionClient
+  .inputSchema(makeSurvivorPickSchema)
+  .outputSchema(serverActionResultSchema)
+  .action(async ({ ctx, parsedInput }) => {
+    const { gameID, teamID, week } = parsedInput;
     const mv = await db
       .selectFrom("SurvivorMV")
       .select("IsAliveOverall")
@@ -24,7 +23,7 @@ export const makeSurvivorPick = authedProcedure
       .executeTakeFirst();
 
     if (ctx.user.playsSurvivor === 0 || mv?.IsAliveOverall === 0) {
-      throw new ZSAError("PRECONDITION_FAILED", "Cannot make pick, user is already out of survivor");
+      throw new Error("Cannot make pick, user is already out of survivor");
     }
 
     const gamesStarted = await db
@@ -35,7 +34,7 @@ export const makeSurvivorPick = authedProcedure
       .executeTakeFirstOrThrow();
 
     if (gamesStarted.count > 0) {
-      throw new ZSAError("PRECONDITION_FAILED", "Week has already started, no more survivor picks can be made");
+      throw new Error("Week has already started, no more survivor picks can be made");
     }
 
     const game = await db
@@ -47,11 +46,11 @@ export const makeSurvivorPick = authedProcedure
 
     if (game.HomeTeamID !== teamID && game.VisitorTeamID !== teamID) {
       console.error("Invalid game and team sent for week", {
-        input,
+        input: parsedInput,
         user: ctx.user,
       });
 
-      throw new ZSAError("ERROR", "Invalid game and team in week sent");
+      throw new Error("Invalid game and team in week sent");
     }
 
     try {
@@ -83,11 +82,11 @@ export const makeSurvivorPick = authedProcedure
     } catch (error) {
       console.error(`Failed to make survivor pick for week ${week}`, error);
 
-      if (error instanceof ZSAError) {
+      if (error instanceof Error) {
         throw error;
       }
 
-      throw new ZSAError("INTERNAL_SERVER_ERROR", `Failed to make survivor pick for week ${week}`);
+      throw new Error(`Failed to make survivor pick for week ${week}`);
     }
 
     revalidatePath("/survivor/set");
@@ -98,9 +97,9 @@ export const makeSurvivorPick = authedProcedure
     };
   });
 
-export const registerForSurvivor = authedProcedure.output(serverActionResultSchema).handler(async ({ ctx }) => {
+export const registerForSurvivor = authActionClient.outputSchema(serverActionResultSchema).action(async ({ ctx }) => {
   if (ctx.user.playsSurvivor) {
-    throw new ZSAError("ERROR", "Already registered for survivor");
+    throw new Error("Already registered for survivor");
   }
 
   try {
@@ -110,11 +109,11 @@ export const registerForSurvivor = authedProcedure.output(serverActionResultSche
   } catch (error) {
     console.error("Failed to register user for survivor", error);
 
-    if (error instanceof ZSAError) {
+    if (error instanceof Error) {
       throw error;
     }
 
-    throw new ZSAError("INTERNAL_SERVER_ERROR", "Failed to register user for survivor");
+    throw new Error("Failed to register user for survivor");
   }
 
   revalidatePath("/", "layout");
@@ -125,16 +124,16 @@ export const registerForSurvivor = authedProcedure.output(serverActionResultSche
   };
 });
 
-export const toggleUserSurvivor = adminProcedure
-  .input(
-    z.object({
-      playsSurvivor: z.number().int().min(0).max(1),
-      userID: z.number().int(),
+export const toggleUserSurvivor = adminActionClient
+  .inputSchema(
+    type({
+      playsSurvivor: "0 <= number.integer <= 1",
+      userID: "number.integer",
     }),
   )
-  .output(serverActionResultSchema)
-  .handler(async ({ input }) => {
-    const { userID, playsSurvivor } = input;
+  .outputSchema(serverActionResultSchema)
+  .action(async ({ parsedInput }) => {
+    const { userID, playsSurvivor } = parsedInput;
 
     try {
       await db.transaction().execute(async (trx) => {
@@ -147,11 +146,11 @@ export const toggleUserSurvivor = adminProcedure
     } catch (error) {
       console.error("Failed to toggle user survivor", error);
 
-      if (error instanceof ZSAError) {
+      if (error instanceof Error) {
         throw error;
       }
 
-      throw new ZSAError("INTERNAL_SERVER_ERROR", "Failed to toggle user survivor");
+      throw new Error("Failed to toggle user survivor");
     }
 
     revalidatePath("/admin/users");
@@ -162,9 +161,9 @@ export const toggleUserSurvivor = adminProcedure
     };
   });
 
-export const unregisterForSurvivor = authedProcedure.output(serverActionResultSchema).handler(async ({ ctx }) => {
+export const unregisterForSurvivor = authActionClient.outputSchema(serverActionResultSchema).action(async ({ ctx }) => {
   if (!ctx.user.playsSurvivor) {
-    throw new ZSAError("ERROR", "Not registered for survivor");
+    throw new Error("Not registered for survivor");
   }
 
   try {
@@ -174,11 +173,11 @@ export const unregisterForSurvivor = authedProcedure.output(serverActionResultSc
   } catch (error) {
     console.error("Failed to unregister user for survivor", error);
 
-    if (error instanceof ZSAError) {
+    if (error instanceof Error) {
       throw error;
     }
 
-    throw new ZSAError("INTERNAL_SERVER_ERROR", "Failed to unregister user for survivor");
+    throw new Error("Failed to unregister user for survivor");
   }
 
   revalidatePath("/", "layout");

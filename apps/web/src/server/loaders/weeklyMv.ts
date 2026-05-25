@@ -2,12 +2,12 @@ import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { cache } from "react";
 import "server-only";
 
-import { weekSchema } from "@nfl-pool-monorepo/utils/zod";
+import { weekSchema } from "@nfl-pool-monorepo/utils/validation";
 
 import { getCurrentSession } from "./sessions";
 
 export const getWeeklyMvCount = cache(async (week: number) => {
-  weekSchema.parse(week);
+  weekSchema.assert(week);
 
   const { count } = await db
     .selectFrom("WeeklyMV")
@@ -25,7 +25,7 @@ export const getWeeklyMvTiedCount = cache(async (week: number) => {
     throw new Error("Not logged in");
   }
 
-  weekSchema.parse(week);
+  weekSchema.assert(week);
 
   const { tied } = await db
     .selectFrom("WeeklyMV as W1")
@@ -47,7 +47,7 @@ export const getMyWeeklyRank = cache(async (week: number) => {
     throw new Error("Not logged in");
   }
 
-  weekSchema.parse(week);
+  weekSchema.assert(week);
 
   return db
     .selectFrom("WeeklyMV")
@@ -58,7 +58,7 @@ export const getMyWeeklyRank = cache(async (week: number) => {
 });
 
 export const getWeeklyRankings = cache((week: number) => {
-  weekSchema.parse(week);
+  weekSchema.assert(week);
 
   return db.selectFrom("WeeklyMV").selectAll().where("Week", "=", week).orderBy("Rank asc").execute();
 });

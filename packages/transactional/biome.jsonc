@@ -1,3 +1,10 @@
 {
-  "extends": ["../../biome.jsonc"]
+  "extends": ["../../biome.jsonc"],
+  "linter": {
+    "rules": {
+      "style": {
+        "useComponentExportOnlyModules": "off"
+      }
+    }
+  }
 }

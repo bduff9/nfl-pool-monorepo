@@ -6,11 +6,11 @@
     "@aws-sdk/client-s3": "3.1053.0",
     "@hello-pangea/dnd": "18.0.1",
     "@hookform/resolvers": "5.4.0",
-    "@nfl-pool-monorepo/db": "*",
-    "@nfl-pool-monorepo/transactional": "*",
-    "@nfl-pool-monorepo/types": "*",
-    "@nfl-pool-monorepo/ui": "*",
-    "@nfl-pool-monorepo/utils": "*",
+    "@nfl-pool-monorepo/db": "workspace:*",
+    "@nfl-pool-monorepo/transactional": "workspace:*",
+    "@nfl-pool-monorepo/types": "workspace:*",
+    "@nfl-pool-monorepo/ui": "workspace:*",
+    "@nfl-pool-monorepo/utils": "workspace:*",
     "@node-rs/argon2": "2.0.2",
     "@oslojs/crypto": "1.0.1",
     "@oslojs/encoding": "1.1.0",
@@ -33,6 +33,7 @@
     "logrocket": "12.1.1",
     "lucide-react": "1.16.0",
     "next": "16.2.6",
+    "next-safe-action": "8.5.2",
     "nuqs": "2.8.9",
     "quill": "2.0.3",
     "react": "19.2.6",
@@ -45,14 +46,11 @@
     "server-only": "0.0.1",
     "sonner": "2.0.7",
     "throttle-debounce": "5.0.2",
-    "web-push": "3.6.7",
-    "zod": "3.25.76",
-    "zsa": "0.6.0",
-    "zsa-react": "0.2.3"
+    "web-push": "3.6.7"
   },
   "description": "Web application for the NFL Pool.",
   "devDependencies": {
-    "@nfl-pool-monorepo/tsconfig": "*",
+    "@nfl-pool-monorepo/tsconfig": "workspace:*",
     "@tailwindcss/postcss": "4.3.0",
     "@types/node": "25.9.1",
     "@types/quill": "2.0.14",
@@ -80,9 +78,6 @@
   "license": "MIT",
   "main": "next.config.ts",
   "name": "web",
-  "overrides": {
-    "react-is": "19.2.6"
-  },
   "private": true,
   "repository": "",
   "scripts": {

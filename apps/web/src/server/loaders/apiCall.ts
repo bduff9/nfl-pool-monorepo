@@ -1,38 +1,23 @@
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
+import { type } from "arktype";
 import { sql } from "kysely";
 import { cache } from "react";
-import { z } from "zod";
 
 import { DEFAULT_PAGE_SIZE } from "@/lib/constants";
-import { stringToJSONSchema } from "@/lib/zod";
+
+import { coerceNumber, parseJsonParam } from "./param-parsing";
 
 export const loadAPICalls = cache(async (params: Awaited<PageProps<"/admin/api">["searchParams"]>) => {
-  const paramsSchema = z.object({
-    filter: stringToJSONSchema.pipe(
-      z
-        .array(z.object({ id: z.enum(["ApiCallWeek"]), value: z.string() }))
-        .optional()
-        .default([]),
-    ),
-    page: z.coerce.number().optional().default(1),
-    pageSize: z
-      .union([z.coerce.number(), z.literal("all")])
-      .optional()
-      .default(DEFAULT_PAGE_SIZE),
-    sort: stringToJSONSchema.pipe(
-      z
-        .array(
-          z.object({
-            desc: z.boolean(),
-            id: z.enum(["ApiCallID", "ApiCallUrl", "ApiCallYear", "ApiCallWeek", "ApiCallDate"]),
-          }),
-        )
-        .optional()
-        .default([{ desc: true, id: "ApiCallID" }]),
-    ),
-  });
+  const sortSchema = type({
+    desc: "boolean",
+    id: type.enumerated("ApiCallID", "ApiCallUrl", "ApiCallYear", "ApiCallWeek", "ApiCallDate"),
+  }).array();
+  const filterSchema = type({ id: type.enumerated("ApiCallWeek"), value: "string" }).array();
 
-  const { filter, page, pageSize, sort } = paramsSchema.parse(params);
+  const sort = parseJsonParam(params?.sort, sortSchema, [{ desc: true, id: "ApiCallID" as const }]);
+  const filter = parseJsonParam(params?.filter, filterSchema, []);
+  const page = coerceNumber(params?.page, 1);
+  const pageSize = params?.pageSize === "all" ? ("all" as const) : coerceNumber(params?.pageSize, DEFAULT_PAGE_SIZE);
 
   let countResult = db.selectFrom("ApiCalls").select(sql<number>`COUNT(*)`.as("count"));
   let queryResult = db.selectFrom("ApiCalls").selectAll();

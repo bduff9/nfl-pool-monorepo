@@ -4,12 +4,12 @@ import { jsonArrayFrom, jsonObjectFrom } from "kysely/helpers/mysql";
 import { cache } from "react";
 import "server-only";
 
-import { weekSchema } from "@nfl-pool-monorepo/utils/zod";
+import { weekSchema } from "@nfl-pool-monorepo/utils/validation";
 
 import { getCurrentSession } from "./sessions";
 
 export const getAllPicksForWeek = cache(async (week: number) => {
-  weekSchema.parse(week);
+  weekSchema.assert(week);
 
   return db
     .selectFrom("Picks as P")
@@ -34,7 +34,7 @@ export const getMyWeeklyPicks = cache(async (week: number) => {
     throw new Error("Not logged in");
   }
 
-  weekSchema.parse(week);
+  weekSchema.assert(week);
 
   return db
     .selectFrom("Picks as P")

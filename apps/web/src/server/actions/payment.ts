@@ -4,23 +4,22 @@ import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { sql } from "kysely";
 import { revalidatePath } from "next/cache";
 
-import { serverActionResultSchema } from "@/lib/zod";
-import { adminProcedure } from "@/lib/zsa.server";
+import { adminActionClient } from "@/lib/safe-action";
+import { serverActionResultSchema } from "@/lib/validation";
 import "server-only";
 
-import { z } from "zod";
-import { ZSAError } from "zsa";
+import { type } from "arktype";
 
-export const insertUserPayout = adminProcedure
-  .input(
-    z.object({
-      amount: z.number(),
-      userID: z.number(),
+export const insertUserPayout = adminActionClient
+  .inputSchema(
+    type({
+      amount: "number",
+      userID: "number",
     }),
   )
-  .output(serverActionResultSchema)
-  .handler(async ({ ctx, input }) => {
-    const { userID, amount } = input;
+  .outputSchema(serverActionResultSchema)
+  .action(async ({ ctx, parsedInput }) => {
+    const { userID, amount } = parsedInput;
 
     await db
       .insertInto("Payments")
@@ -41,16 +40,16 @@ export const insertUserPayout = adminProcedure
     };
   });
 
-export const updateUserPaid = adminProcedure
-  .input(
-    z.object({
-      amountPaid: z.number().int(),
-      userID: z.number().int(),
+export const updateUserPaid = adminActionClient
+  .inputSchema(
+    type({
+      amountPaid: "number.integer",
+      userID: "number.integer",
     }),
   )
-  .output(serverActionResultSchema)
-  .handler(async ({ ctx, input }) => {
-    const { userID, amountPaid } = input;
+  .outputSchema(serverActionResultSchema)
+  .action(async ({ ctx, parsedInput }) => {
+    const { userID, amountPaid } = parsedInput;
 
     try {
       await db.transaction().execute(async (trx) => {
@@ -62,7 +61,7 @@ export const updateUserPaid = adminProcedure
         const newOwed = Number(balanceResult.balance) + amountPaid;
 
         if (newOwed > 0) {
-          throw new ZSAError("PRECONDITION_FAILED", "Amount paid is greater than owed, cancelling...");
+          throw new Error("Amount paid is greater than owed, cancelling...");
         }
 
         await trx
@@ -106,11 +105,11 @@ export const updateUserPaid = adminProcedure
     } catch (error) {
       console.error("Failed to update user paid amount", error);
 
-      if (error instanceof ZSAError) {
+      if (error instanceof Error) {
         throw error;
       }
 
-      throw new ZSAError("INTERNAL_SERVER_ERROR", "Failed to update user paid amount");
+      throw new Error("Failed to update user paid amount");
     }
 
     revalidatePath("/admin/users");

@@ -20,21 +20,21 @@ import { type FC, useEffect, useRef } from "react";
 
 import "quill/dist/quill.bubble.css";
 
-import { zodResolver } from "@hookform/resolvers/zod";
+import { arktypeResolver } from "@hookform/resolvers/arktype";
 import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@nfl-pool-monorepo/ui/components/form";
 import { Input } from "@nfl-pool-monorepo/ui/components/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nfl-pool-monorepo/ui/components/select";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
+import { useAction } from "next-safe-action/hooks";
 import { useForm, useWatch } from "react-hook-form";
 import { PiFootballDuotone } from "react-icons/pi";
 import { useQuill } from "react-quilljs";
 import { toast } from "sonner";
-import type { z } from "zod";
 
 import { AdminEmailTo, AdminEmailType } from "@/lib/constants";
-import { sendAdminEmailSchema } from "@/lib/zod";
-import { processFormErrors, processFormState } from "@/lib/zsa";
+import { processFormErrors } from "@/lib/form-errors";
+import { sendAdminEmailSchema } from "@/lib/validation";
 import { sendAdminEmail } from "@/server/actions/email";
 
 import PreviewAdminEmail from "../PreviewAdminEmail/PreviewAdminEmail";
@@ -89,7 +89,7 @@ const quillFormats = [
 ];
 
 const SendAdminEmails: FC = () => {
-  const form = useForm<z.infer<typeof sendAdminEmailSchema>>({
+  const form = useForm<typeof sendAdminEmailSchema.infer>({
     defaultValues: {
       body: "",
       preview: "",
@@ -97,7 +97,7 @@ const SendAdminEmails: FC = () => {
       userEmail: null,
       userFirstName: null,
     },
-    resolver: zodResolver(sendAdminEmailSchema),
+    resolver: arktypeResolver(sendAdminEmailSchema),
   });
   const emailType = useWatch({ control: form.control, name: "emailType" });
   const sendTo = useWatch({ control: form.control, name: "sendTo" });
@@ -128,6 +128,23 @@ const SendAdminEmails: FC = () => {
     };
   }, [quill, form.setValue]);
 
+  const toastIdRef = useRef<string | number | undefined>(undefined);
+
+  const { execute, isPending } = useAction(sendAdminEmail, {
+    onError: ({ error }) => {
+      toast.error("Something went wrong!", {
+        description: error.serverError ?? "Please check the information you are submitting.",
+      });
+    },
+    onSettled: () => {
+      if (toastIdRef.current) toast.dismiss(toastIdRef.current);
+    },
+    onSuccess: () => {
+      toast.success("Successfully sent email!");
+      form.reset();
+    },
+  });
+
   const updatePreview = async (): Promise<void> => {
     previewPayload.current = {
       body,
@@ -136,22 +153,13 @@ const SendAdminEmails: FC = () => {
     };
   };
 
-  const onSubmit = async (values: z.infer<typeof sendAdminEmailSchema>): Promise<void> => {
-    const toastId = toast.loading("Sending email...", {
+  const onSubmit = (values: typeof sendAdminEmailSchema.infer): void => {
+    toastIdRef.current = toast.loading("Sending email...", {
       closeButton: false,
       dismissible: false,
       duration: Infinity,
     });
-    const result = await sendAdminEmail(values);
-
-    processFormState(
-      result,
-      () => {
-        form.reset();
-      },
-      `Successfully sent email!`,
-    );
-    toast.dismiss(toastId);
+    execute(values);
   };
 
   return (
@@ -341,8 +349,8 @@ const SendAdminEmails: FC = () => {
               )}
 
               <div className="w-full md:col-span-2 grid">
-                <Button disabled={form.formState.isSubmitting} type="submit" variant="primary">
-                  {form.formState.isSubmitting ? (
+                <Button disabled={isPending} type="submit" variant="primary">
+                  {isPending ? (
                     <>
                       <PiFootballDuotone aria-hidden="true" className="animate-spin hidden md:inline-block" />
                       Sending...

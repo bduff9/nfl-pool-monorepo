@@ -4,7 +4,7 @@ import {
   parseTeamsFromApi,
   updateTeamData,
 } from "@nfl-pool-monorepo/api/src/utils";
-import type { ApiMatchup, NFLWeekArray } from "@nfl-pool-monorepo/api/src/zod";
+import type { ApiMatchup, NFLWeekArray } from "@nfl-pool-monorepo/api/src/validation";
 import { ADMIN_USER } from "@nfl-pool-monorepo/utils/constants";
 import type { Transaction, UpdateObject } from "kysely";
 

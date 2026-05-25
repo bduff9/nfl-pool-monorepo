@@ -1,13 +1,13 @@
 "use client";
 
 import { cn } from "@nfl-pool-monorepo/utils/styles";
-import { type FC, useOptimistic, useState } from "react";
+import { useAction } from "next-safe-action/hooks";
+import { type FC, useOptimistic, useRef, useState } from "react";
 import { FaAt, FaInfoCircle, FaTimesCircle } from "react-icons/fa";
 import { toast } from "sonner";
 
 import { SURVIVOR_PICK_INSTRUCTIONS } from "@/lib/constants";
 import { formatDateForKickoff, formatTimeFromKickoff } from "@/lib/dates";
-import { processFormState } from "@/lib/zsa";
 import { makeSurvivorPick } from "@/server/actions/survivor";
 import type { getGamesForWeekCached } from "@/server/loaders/game";
 import type { getMySurvivorPicks } from "@/server/loaders/survivor";
@@ -39,25 +39,36 @@ const MakeSurvivorPickClient: FC<Props> = ({ games, survivorPicks, teamsOnBye, w
       return pick;
     });
   });
+  const toastIdRef = useRef<string | number | undefined>(undefined);
 
-  const setSurvivorPick = async (gameID: number, teamID: number | null): Promise<void> => {
+  const { execute: executeSurvivorPick } = useAction(makeSurvivorPick, {
+    onError: ({ error }) => {
+      toast.error("Something went wrong!", {
+        description: error.serverError ?? "Please check the information you are submitting.",
+      });
+    },
+    onSettled: () => {
+      if (toastIdRef.current) toast.dismiss(toastIdRef.current);
+      setLoading(null);
+    },
+    onSuccess: () => {
+      toast.success(`Successfully saved survivor pick for week ${week}`);
+    },
+  });
+
+  const setSurvivorPick = (gameID: number, teamID: number | null): void => {
     if (loading) return;
 
     setLoading(teamID);
 
-    const toastId = toast.loading("Saving survivor pick...", {
+    toastIdRef.current = toast.loading("Saving survivor pick...", {
       closeButton: false,
       dismissible: false,
       duration: Infinity,
     });
 
     setOptimisticPick(teamID);
-
-    const result = await makeSurvivorPick({ gameID, teamID, week });
-
-    processFormState(result, undefined, `Successfully saved survivor pick for week ${week}`);
-    toast.dismiss(toastId);
-    setLoading(null);
+    executeSurvivorPick({ gameID, teamID, week });
   };
 
   return (

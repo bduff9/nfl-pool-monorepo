@@ -14,6 +14,13 @@
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "paths": {
+      "@nfl-pool-monorepo/api/*": ["../../packages/api/*"],
+      "@nfl-pool-monorepo/db/*": ["../../packages/db/*"],
+      "@nfl-pool-monorepo/transactional/*": ["../../packages/transactional/*"],
+      "@nfl-pool-monorepo/types": ["../../packages/types/index.ts"],
+      "@nfl-pool-monorepo/utils/*": ["../../packages/utils/*"]
+    },
     "strict": true,
     "strictNullChecks": true,
     "strictPropertyInitialization": false,

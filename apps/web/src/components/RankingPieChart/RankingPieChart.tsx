@@ -57,8 +57,8 @@ const CenterLabel: FC<{ data: Array<PieChartData> }> = ({ data }) => {
 
 const RankingPieChart: FC<RankingPieChartProps> = ({ data, layoutId }) => {
   return (
-    <motion.div layoutId={layoutId}>
-      <ResponsiveContainer minHeight="206px" width="100%">
+    <motion.div className="min-h-[206px] w-full" layoutId={layoutId}>
+      <ResponsiveContainer height={206} width="100%">
         <PieChart height={400} width={400}>
           <Pie cx="50%" cy="50%" data={data} dataKey="value" innerRadius={60} outerRadius={80} />
           <CenterLabel data={data} />

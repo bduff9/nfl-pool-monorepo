@@ -19,11 +19,12 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@nfl-pool-monorepo/ui/components/tabs";
 
 import type { AdminEmailType } from "@/lib/constants";
-import { processFormState } from "@/lib/zsa";
 import { getEmailPreview } from "@/server/actions/email";
 import "client-only";
 
+import { useAction } from "next-safe-action/hooks";
 import { type FC, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 type Props = {
   emailType: (typeof AdminEmailType)[number];
@@ -41,67 +42,68 @@ const PreviewAdminEmail: FC<Props> = ({ emailType, payload, userFirstName }) => 
   const [subjectPreview, setSubjectPreview] = useState<string>("");
   const [textPreview, setTextPreview] = useState<string>("");
 
-  useMemo(async (): Promise<void> => {
+  const { execute: fetchHtmlPreview } = useAction(getEmailPreview, {
+    onError: ({ error }) => {
+      toast.error("Something went wrong!", {
+        description: error.serverError ?? "Please check the information you are submitting.",
+      });
+    },
+    onSuccess: ({ data }) => {
+      setHtmlPreview(data.metadata.html);
+    },
+  });
+
+  const { execute: fetchSubjectPreview } = useAction(getEmailPreview, {
+    onError: ({ error }) => {
+      toast.error("Something went wrong!", {
+        description: error.serverError ?? "Please check the information you are submitting.",
+      });
+    },
+    onSuccess: ({ data }) => {
+      setSubjectPreview(data.metadata.subject);
+    },
+  });
+
+  const { execute: fetchTextPreview } = useAction(getEmailPreview, {
+    onError: ({ error }) => {
+      toast.error("Something went wrong!", {
+        description: error.serverError ?? "Please check the information you are submitting.",
+      });
+    },
+    onSuccess: ({ data }) => {
+      setTextPreview(data.metadata.text);
+    },
+  });
+
+  useMemo((): void => {
     if (!body || !subject || !preview) {
       setHtmlPreview("");
 
       return;
     }
 
-    const result = await getEmailPreview({
-      body,
-      emailFormat: "html",
-      emailType,
-      preview,
-      subject,
-      userFirstName,
-    });
+    fetchHtmlPreview({ body, emailFormat: "html", emailType, preview, subject, userFirstName });
+  }, [body, preview, subject, emailType, userFirstName, fetchHtmlPreview]);
 
-    processFormState(result, () => {
-      setHtmlPreview((result[0]?.metadata.html as string | null) ?? "");
-    });
-  }, [body, preview, subject, emailType, userFirstName]);
-
-  useMemo(async (): Promise<void> => {
+  useMemo((): void => {
     if (!subject) {
       setSubjectPreview("");
 
       return;
     }
 
-    const result = await getEmailPreview({
-      body,
-      emailFormat: "subject",
-      emailType,
-      preview,
-      subject,
-      userFirstName,
-    });
+    fetchSubjectPreview({ body, emailFormat: "subject", emailType, preview, subject, userFirstName });
+  }, [body, preview, subject, emailType, userFirstName, fetchSubjectPreview]);
 
-    processFormState(result, () => {
-      setSubjectPreview((result[0]?.metadata.subject as string | null) ?? "");
-    });
-  }, [body, preview, subject, emailType, userFirstName]);
-  useMemo(async (): Promise<void> => {
+  useMemo((): void => {
     if (!body) {
       setTextPreview("");
 
       return;
     }
 
-    const result = await getEmailPreview({
-      body,
-      emailFormat: "text",
-      emailType,
-      preview,
-      subject,
-      userFirstName,
-    });
-
-    processFormState(result, () => {
-      setTextPreview((result[0]?.metadata.text as string | null) ?? "");
-    });
-  }, [body, preview, subject, emailType, userFirstName]);
+    fetchTextPreview({ body, emailFormat: "text", emailType, preview, subject, userFirstName });
+  }, [body, preview, subject, emailType, userFirstName, fetchTextPreview]);
 
   return (
     <div className="w-full bg-white p-2 rounded-md border">

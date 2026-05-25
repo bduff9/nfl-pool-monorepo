@@ -39,10 +39,11 @@ import {
 import { WEEKS_IN_SEASON } from "@nfl-pool-monorepo/utils/constants";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { usePathname, useRouter } from "next/navigation";
+import { useAction } from "next-safe-action/hooks";
 import { type FC, Fragment, startTransition, useCallback, useState } from "react";
 import { LuChevronDown, LuChevronLeft, LuChevronRight, LuEllipsisVertical, LuReply } from "react-icons/lu";
+import { toast } from "sonner";
 
-import { processFormState } from "@/lib/zsa";
 import { registerForSurvivor, unregisterForSurvivor } from "@/server/actions/survivor";
 import { setSelectedWeek } from "@/server/actions/week";
 import type { getMyTiebreaker } from "@/server/loaders/tiebreaker";
@@ -91,6 +92,33 @@ const AppSidebarClient: FC<Props> = ({
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false);
   const [registerDialogOpen, setRegisterDialogOpen] = useState<boolean>(false);
   const [unregisterDialogOpen, setUnregisterDialogOpen] = useState<boolean>(false);
+
+  const { execute: executeRegister } = useAction(registerForSurvivor, {
+    onError: ({ error }) => {
+      toast.error("Something went wrong!", {
+        description: error.serverError ?? "Please check the information you are submitting.",
+      });
+    },
+    onSuccess: () => {
+      toast.success("You have successfully registered for survivor!");
+      router.refresh();
+      setRegisterDialogOpen(false);
+    },
+  });
+
+  const { execute: executeUnregister } = useAction(unregisterForSurvivor, {
+    onError: ({ error }) => {
+      toast.error("Something went wrong!", {
+        description: error.serverError ?? "Please check the information you are submitting.",
+      });
+    },
+    onSuccess: () => {
+      toast.success("You have successfully dropped out of survivor!");
+      router.refresh();
+      setUnregisterDialogOpen(false);
+    },
+  });
+
   let currentPage = "";
 
   const goToPreviousWeek = (): void => {
@@ -129,30 +157,12 @@ const AppSidebarClient: FC<Props> = ({
     });
   };
 
-  const handleRegisterForSurvivor = async (): Promise<void> => {
-    const result = await registerForSurvivor();
-
-    processFormState(
-      result,
-      () => {
-        router.refresh();
-        setRegisterDialogOpen(false);
-      },
-      "You have successfully registered for survivor!",
-    );
+  const handleRegisterForSurvivor = (): void => {
+    executeRegister();
   };
 
-  const handleUnregisterForSurvivor = async (): Promise<void> => {
-    const result = await unregisterForSurvivor();
-
-    processFormState(
-      result,
-      () => {
-        router.refresh();
-        setUnregisterDialogOpen(false);
-      },
-      "You have successfully dropped out of survivor!",
-    );
+  const handleUnregisterForSurvivor = (): void => {
+    executeUnregister();
   };
 
   if (pathname.startsWith("/picks")) {

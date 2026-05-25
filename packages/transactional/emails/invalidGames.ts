@@ -1,8 +1,8 @@
 import { parseTeamsFromApi } from "@nfl-pool-monorepo/api/src/utils";
+import type { ApiMatchup } from "@nfl-pool-monorepo/api/src/validation";
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import type { getGamesForWeek } from "@nfl-pool-monorepo/db/src/queries/game";
 
-import type { ApiMatchup } from "./../../api/src/zod";
 import { getBaseEmailClass, getBrowserLink, getUnsubscribeLink, sendEmail, updateEmailClass } from ".";
 import { getHtml, getPlainText, getSubject } from "./templates/InvalidGamesEmail";
 

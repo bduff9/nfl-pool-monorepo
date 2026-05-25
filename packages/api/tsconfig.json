@@ -1,6 +1,11 @@
 {
 	"compilerOptions": {
 		"jsx": "preserve",
+		"paths": {
+			"@nfl-pool-monorepo/api/*": ["./*"],
+			"@nfl-pool-monorepo/db/*": ["../db/*"],
+			"@nfl-pool-monorepo/transactional/*": ["../transactional/*"]
+		},
 		"types": ["node"]
 	},
 	"extends": "@nfl-pool-monorepo/tsconfig/base.json",

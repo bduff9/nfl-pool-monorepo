@@ -20,6 +20,7 @@ apps/*/node_modules
 
 # other lockfiles that's not pnpm-lock.yaml
 yarn.lock
+package-lock.json
 
 # local env files
 .env

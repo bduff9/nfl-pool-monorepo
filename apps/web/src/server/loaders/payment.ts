@@ -1,13 +1,12 @@
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
+import { type } from "arktype";
 import { sql } from "kysely";
 import { cache } from "react";
 import "server-only";
 
 import { jsonArrayFrom } from "kysely/helpers/mysql";
-import { z } from "zod";
 
-import { stringToJSONSchema } from "@/lib/zod";
-
+import { parseJsonParam } from "./param-parsing";
 import { getCurrentSession } from "./sessions";
 
 export const getMyPayments = cache(async () => {
@@ -26,15 +25,8 @@ export const getMyPayments = cache(async () => {
 });
 
 export const getUserPayoutsForAdmin = cache(async (params: Awaited<PageProps<"/admin/payments">["searchParams"]>) => {
-  const paramsSchema = z.object({
-    sort: stringToJSONSchema.pipe(
-      z
-        .array(z.object({ desc: z.boolean(), id: z.enum(["UserName", "UserWon", "UserPaymentType"]) }))
-        .optional()
-        .default([{ desc: false, id: "UserName" }]),
-    ),
-  });
-  const { sort } = paramsSchema.parse(params);
+  const sortSchema = type({ desc: "boolean", id: type.enumerated("UserName", "UserWon", "UserPaymentType") }).array();
+  const sort = parseJsonParam(params?.sort, sortSchema, [{ desc: false, id: "UserName" as const }]);
 
   let queryResult = db
     .selectFrom("Users as u")

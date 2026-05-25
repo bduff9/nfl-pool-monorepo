@@ -8,24 +8,23 @@ import {
   getPlainText as getCustomPlainText,
 } from "@nfl-pool-monorepo/transactional/emails/templates/CustomEmail";
 
-import { emailPreviewSchema, sendAdminEmailSchema, serverActionResultSchema } from "@/lib/zod";
-import { authedProcedure } from "@/lib/zsa.server";
+import { actionClient, authActionClient } from "@/lib/safe-action";
+import { emailPreviewSchema, sendAdminEmailSchema, serverActionResultSchema } from "@/lib/validation";
 import "server-only";
 
-import { z } from "zod";
-import { createServerAction, ZSAError } from "zsa";
+import { type } from "arktype";
 
 import { getCurrentSession } from "../loaders/sessions";
 
-export const getEmailPreview = authedProcedure
-  .input(emailPreviewSchema)
-  .output(serverActionResultSchema)
-  .handler(async ({ ctx, input }) => {
+export const getEmailPreview = authActionClient
+  .inputSchema(emailPreviewSchema)
+  .outputSchema(serverActionResultSchema)
+  .action(async ({ ctx, parsedInput }) => {
     if (ctx.user.isAdmin === 0) {
-      throw new ZSAError("FORBIDDEN", "User is not an admin");
+      throw new Error("User is not an admin");
     }
 
-    const { emailType, subject, body, emailFormat, preview, userFirstName } = input;
+    const { emailType, subject, body, emailFormat, preview, userFirstName } = parsedInput;
     let html = "";
     let text = "";
 
@@ -50,7 +49,7 @@ export const getEmailPreview = authedProcedure
         });
       }
     } else {
-      throw new ZSAError("FORBIDDEN", `Invalid email type: ${emailType}`);
+      throw new Error(`Invalid email type: ${emailType}`);
     }
 
     return {
@@ -63,15 +62,15 @@ export const getEmailPreview = authedProcedure
     };
   });
 
-export const sendAdminEmail = authedProcedure
-  .input(sendAdminEmailSchema)
-  .output(serverActionResultSchema)
-  .handler(async ({ ctx, input }) => {
+export const sendAdminEmail = authActionClient
+  .inputSchema(sendAdminEmailSchema)
+  .outputSchema(serverActionResultSchema)
+  .action(async ({ ctx, parsedInput }) => {
     if (ctx.user.isAdmin === 0) {
-      throw new ZSAError("FORBIDDEN", "User is not an admin");
+      throw new Error("User is not an admin");
     }
 
-    const { emailType, preview, sendTo, subject, body, userFirstName, userEmail } = input;
+    const { emailType, preview, sendTo, subject, body, userFirstName, userEmail } = parsedInput;
     let users: { UserEmail: string | null; UserFirstName: string | null }[] = [];
     const promises: Promise<void>[] = [];
 
@@ -118,11 +117,11 @@ export const sendAdminEmail = authedProcedure
       } catch (error) {
         console.error("Failed to send admin email", error);
 
-        if (error instanceof ZSAError) {
+        if (error instanceof Error) {
           throw error;
         }
 
-        throw new ZSAError("INTERNAL_SERVER_ERROR", "Failed to send admin email");
+        throw new Error("Failed to send admin email");
       }
     }
 
@@ -134,16 +133,16 @@ export const sendAdminEmail = authedProcedure
     };
   });
 
-export const unsubscribe = createServerAction()
-  .input(
-    z.object({
-      email: z.string().email(),
+export const unsubscribe = actionClient
+  .inputSchema(
+    type({
+      email: "string.email",
     }),
   )
-  .output(serverActionResultSchema)
-  .handler(async ({ input }) => {
+  .outputSchema(serverActionResultSchema)
+  .action(async ({ parsedInput }) => {
     const { user } = await getCurrentSession();
-    const { email } = input;
+    const { email } = parsedInput;
 
     try {
       await db.transaction().execute(async () => {
@@ -170,11 +169,11 @@ export const unsubscribe = createServerAction()
     } catch (error) {
       console.error("Failed to unsubscribe", error);
 
-      if (error instanceof ZSAError) {
+      if (error instanceof Error) {
         throw error;
       }
 
-      throw new ZSAError("INTERNAL_SERVER_ERROR", "Failed to unsubscribe");
+      throw new Error("Failed to unsubscribe");
     }
 
     return {

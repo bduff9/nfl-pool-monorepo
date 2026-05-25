@@ -13,10 +13,10 @@ import {
   useReactTable,
   type VisibilityState,
 } from "@tanstack/react-table";
+import { type } from "arktype";
 import { parseAsIndex, parseAsInteger, parseAsJson, useQueryState, useQueryStates } from "nuqs";
 import type { HTMLAttributes, ReactNode } from "react";
 import { LuArrowDown, LuArrowUp, LuArrowUpDown } from "react-icons/lu";
-import { z } from "zod";
 
 import { Button } from "./button";
 import { Input } from "./input";
@@ -73,30 +73,34 @@ export function DataTable<TData, TValue>({
     shallow: false,
     urlKeys: paginationUrlKeys,
   });
-  const sortingSchema = z.array(
-    z.object({
-      desc: z.boolean(),
-      id: z.string(),
-    }),
-  );
+  const sortingSchema = type({
+    desc: "boolean",
+    id: "string",
+  }).array();
+  const parseSorting = (value: unknown) => {
+    const result = sortingSchema(value);
+    if (result instanceof type.errors) throw new Error(result.summary);
+    return result;
+  };
   const [sorting, setSorting] = useQueryState<SortingState>(
     urlSort,
-    parseAsJson(sortingSchema.parse).withDefault(defaultSort).withOptions({
+    parseAsJson(parseSorting).withDefault(defaultSort).withOptions({
       history: "push",
       shallow: false,
     }),
   );
-  const filterSchema = z.array(
-    z
-      .object({
-        id: z.string(),
-        value: z.unknown(),
-      })
-      .transform((o) => ({ id: o.id, value: o.value as unknown })),
-  );
+  const filterSchema = type({
+    id: "string",
+    value: "unknown",
+  }).array();
+  const parseFilters = (value: unknown) => {
+    const result = filterSchema(value);
+    if (result instanceof type.errors) throw new Error(result.summary);
+    return result as ColumnFiltersState;
+  };
   const [columnFilters, setColumnFilters] = useQueryState<ColumnFiltersState>(
     urlFilter,
-    parseAsJson(filterSchema.parse).withDefault([]).withOptions({
+    parseAsJson(parseFilters).withDefault([]).withOptions({
       history: "push",
       shallow: false,
     }),

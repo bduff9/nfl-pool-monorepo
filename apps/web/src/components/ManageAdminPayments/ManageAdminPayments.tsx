@@ -20,18 +20,18 @@ import { WEEKS_IN_SEASON } from "@nfl-pool-monorepo/utils/constants";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import "client-only";
 
-import { zodResolver } from "@hookform/resolvers/zod";
+import { arktypeResolver } from "@hookform/resolvers/arktype";
 import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@nfl-pool-monorepo/ui/components/form";
 import { Input } from "@nfl-pool-monorepo/ui/components/input";
 import { Table, TableBody, TableCell, TableRow } from "@nfl-pool-monorepo/ui/components/table";
-import type { FC } from "react";
-import { type SubmitHandler, useForm, useWatch } from "react-hook-form";
+import { useAction } from "next-safe-action/hooks";
+import { type FC, useRef } from "react";
+import { type Resolver, type SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
-import type { z } from "zod";
 
-import { payoutsSchema } from "@/lib/zod";
-import { processFormErrors, processFormState } from "@/lib/zsa";
+import { processFormErrors } from "@/lib/form-errors";
+import { payoutsSchema } from "@/lib/validation";
 import { updatePayouts } from "@/server/actions/systemValue";
 
 type CalculatedRowProps = {
@@ -107,7 +107,7 @@ const ManageAdminPayments: FC<Props> = ({
   survivorPrizes,
   weeklyPrizes,
 }) => {
-  const form = useForm<z.infer<typeof payoutsSchema>>({
+  const form = useForm<typeof payoutsSchema.infer>({
     defaultValues: {
       overall1stPrize: overallPrizes[1],
       overall2ndPrize: overallPrizes[2],
@@ -117,7 +117,7 @@ const ManageAdminPayments: FC<Props> = ({
       weekly1stPrize: weeklyPrizes[1],
       weekly2ndPrize: weeklyPrizes[2],
     },
-    resolver: zodResolver(payoutsSchema),
+    resolver: arktypeResolver(payoutsSchema) as unknown as Resolver<typeof payoutsSchema.infer>,
   });
 
   const overall1stPrize = useWatch({
@@ -160,23 +160,29 @@ const ManageAdminPayments: FC<Props> = ({
   const survivorRemaining =
     (survivorCost ?? 0) * (survivorCount ?? 0) - (survivor1stPrize ?? 0) - (survivor2ndPrize ?? 0);
   const hasBeenSaved = weeklyPrizes.reduce((acc, prize) => acc + prize) > 0;
+  const toastIdRef = useRef<string | number | undefined>(undefined);
 
-  const onSubmit: SubmitHandler<z.infer<typeof payoutsSchema>> = async (data) => {
-    const toastId = toast.loading("Setting payouts...", {
+  const { execute, isPending } = useAction(updatePayouts, {
+    onError: ({ error }) => {
+      toast.error("Something went wrong!", {
+        description: error.serverError ?? "Please check the information you are submitting.",
+      });
+    },
+    onSettled: () => {
+      if (toastIdRef.current) toast.dismiss(toastIdRef.current);
+    },
+    onSuccess: () => {
+      toast.success("Successfully set payouts!");
+    },
+  });
+
+  const onSubmit: SubmitHandler<typeof payoutsSchema.infer> = (data) => {
+    toastIdRef.current = toast.loading("Setting payouts...", {
       closeButton: false,
       dismissible: false,
       duration: Infinity,
     });
-    const result = await updatePayouts(data);
-
-    processFormState(
-      result,
-      () => {
-        /* NOOP */
-      },
-      "Successfully set payouts!",
-    );
-    toast.dismiss(toastId);
+    execute(data);
   };
 
   return (
@@ -364,7 +370,12 @@ const ManageAdminPayments: FC<Props> = ({
 
                   <div />
 
-                  <Button className="col-span-full" disabled={hasBeenSaved} type="submit" variant="primary">
+                  <Button
+                    className="col-span-full"
+                    disabled={hasBeenSaved || isPending}
+                    type="submit"
+                    variant="primary"
+                  >
                     {hasBeenSaved ? "Saved" : "Save"}
                   </Button>
                 </div>

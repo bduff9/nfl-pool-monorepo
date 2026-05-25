@@ -26,6 +26,7 @@ import {
   verifyPasswordHash,
   verifyPasswordStrength,
 } from "@/lib/auth";
+import { actionClient, adminActionClient, authActionClient } from "@/lib/safe-action";
 import {
   editProfileSchema,
   finishRegistrationSchema,
@@ -33,19 +34,17 @@ import {
   loginSchema,
   serverActionResultSchema,
   verifyOtpSchema,
-} from "@/lib/zod";
-import { adminProcedure, authedProcedure } from "@/lib/zsa.server";
+} from "@/lib/validation";
 import "server-only";
 
-import { z } from "zod";
-import { createServerAction, ZSAError } from "zsa";
+import { type } from "arktype";
 
 import { updateUserNotifications } from "./notification";
 
-export const editMyProfile = authedProcedure
-  .input(editProfileSchema)
-  .output(serverActionResultSchema)
-  .handler(async ({ ctx, input }) => {
+export const editMyProfile = authActionClient
+  .inputSchema(editProfileSchema)
+  .outputSchema(serverActionResultSchema)
+  .action(async ({ ctx, parsedInput }) => {
     const {
       notifications,
       UserAutoPickStrategy,
@@ -56,7 +55,7 @@ export const editMyProfile = authedProcedure
       UserPaymentType,
       UserPaymentAccount,
       UserTeamName,
-    } = input;
+    } = parsedInput;
 
     await db.transaction().execute(async (trx) => {
       await trx
@@ -119,12 +118,12 @@ const registerUser = (
   return Promise.allSettled(promises);
 };
 
-export const finishRegistration = authedProcedure
-  .input(finishRegistrationSchema)
-  .output(serverActionResultSchema)
-  .handler(async ({ ctx, input }) => {
+export const finishRegistration = authActionClient
+  .inputSchema(finishRegistrationSchema)
+  .outputSchema(serverActionResultSchema)
+  .action(async ({ ctx, parsedInput }) => {
     if (ctx.user.doneRegistering === 1) {
-      throw new ZSAError("FORBIDDEN", "User has already finished registration");
+      throw new Error("User has already finished registration");
     }
 
     const user = await db
@@ -134,11 +133,11 @@ export const finishRegistration = authedProcedure
       .executeTakeFirst();
 
     if (!user) {
-      throw new ZSAError("FORBIDDEN", "User not found");
+      throw new Error("User not found");
     }
 
     if (user.UserTrusted === 0) {
-      throw new ZSAError("FORBIDDEN", "User has been blocked");
+      throw new Error("User has been blocked");
     }
 
     let isTrusted = user.UserTrusted === 1;
@@ -152,7 +151,7 @@ export const finishRegistration = authedProcedure
             .selectFrom("Users")
             .select("UserID")
             .where("UserID", "<>", ctx.user.id)
-            .where("UserName", "=", input.UserReferredByRaw)
+            .where("UserName", "=", parsedInput.UserReferredByRaw)
             .where("UserTrusted", "=", 1)
             .executeTakeFirst();
 
@@ -169,7 +168,7 @@ export const finishRegistration = authedProcedure
             doneRegistering = true;
             isTrusted = true;
           } else {
-            await sendUntrustedEmail(input);
+            await sendUntrustedEmail(parsedInput);
             isTrusted = false;
           }
         } else {
@@ -183,9 +182,9 @@ export const finishRegistration = authedProcedure
 
         if (doneRegistering) {
           await registerUser(trx, {
-            ...input,
+            ...parsedInput,
             UserID: ctx.user.id,
-            UserPlaysSurvivor: input.UserPlaysSurvivor ? 1 : 0,
+            UserPlaysSurvivor: parsedInput.UserPlaysSurvivor ? 1 : 0,
           });
         }
 
@@ -198,7 +197,7 @@ export const finishRegistration = authedProcedure
           UserPaymentType,
           UserPaymentAccount,
           UserPlaysSurvivor,
-        } = input;
+        } = parsedInput;
 
         await trx
           .updateTable("Users")
@@ -237,7 +236,7 @@ export const finishRegistration = authedProcedure
           .values({
             LogAction: "REGISTER",
             LogAddedBy: user.UserEmail,
-            LogMessage: `${input.UserName} has finished registration`,
+            LogMessage: `${parsedInput.UserName} has finished registration`,
             LogUpdatedBy: user.UserEmail,
             UserID: ctx.user.id,
           })
@@ -246,7 +245,11 @@ export const finishRegistration = authedProcedure
     } catch (error) {
       console.error("Failed to register user", error);
 
-      throw new ZSAError("ERROR", "Failed to register user");
+      if (error instanceof Error) {
+        throw error;
+      }
+
+      throw new Error("Failed to register user");
     }
 
     revalidatePath("/users/create");
@@ -259,16 +262,14 @@ export const finishRegistration = authedProcedure
     };
   });
 
-export const getUserDropdown = adminProcedure
-  .output(
-    z.array(
-      z.object({
-        UserID: z.number(),
-        UserName: z.string().nullable(),
-      }),
-    ),
+export const getUserDropdown = adminActionClient
+  .outputSchema(
+    type({
+      UserID: "number",
+      UserName: "string | null",
+    }).array(),
   )
-  .handler(async () => {
+  .action(async () => {
     return db
       .selectFrom("Users")
       .select(["UserID", "UserName"])
@@ -277,11 +278,11 @@ export const getUserDropdown = adminProcedure
       .execute();
   });
 
-export const login = createServerAction()
-  .input(loginSchema)
-  .output(serverActionResultSchema)
-  .handler(async ({ input }) => {
-    const { email, password } = input;
+export const login = actionClient
+  .inputSchema(loginSchema)
+  .outputSchema(serverActionResultSchema)
+  .action(async ({ parsedInput }) => {
+    const { email, password } = parsedInput;
 
     const user = await db
       .selectFrom("Users")
@@ -290,24 +291,21 @@ export const login = createServerAction()
       .executeTakeFirst();
 
     if (!user) {
-      throw new ZSAError("FORBIDDEN", "Invalid email or password");
+      throw new Error("Invalid email or password");
     }
 
     if (!user.UserPasswordHash) {
-      throw new ZSAError("FORBIDDEN", "Please use the 'Forgot Password?' button to set up your account");
+      throw new Error("Please use the 'Forgot Password?' button to set up your account");
     }
 
     const isPasswordValid = await verifyPasswordHash(user.UserPasswordHash, password);
 
     if (!isPasswordValid) {
-      throw new ZSAError("FORBIDDEN", "Invalid email or password");
+      throw new Error("Invalid email or password");
     }
 
     if (user.UserTrusted === 0) {
-      throw new ZSAError(
-        "FORBIDDEN",
-        "Your account has been blocked.  Please reach out to an administrator to resolve.",
-      );
+      throw new Error("Your account has been blocked.  Please reach out to an administrator to resolve.");
     }
 
     if (user.UserDoneRegistering !== 1) {
@@ -318,7 +316,7 @@ export const login = createServerAction()
         .executeTakeFirst();
 
       if (!systemValueResult) {
-        throw new ZSAError("FORBIDDEN", "System error, please contact an administrator");
+        throw new Error("System error, please contact an administrator");
       }
 
       const lastWeekToRegister = Number(systemValueResult.SystemValueValue);
@@ -337,13 +335,12 @@ export const login = createServerAction()
 
       if (currentWeek > lastWeekToRegister) {
         if (Number(owesResult.owes) !== 0) {
-          throw new ZSAError(
-            "FORBIDDEN",
+          throw new Error(
             "Your entry fee is past due, please pay immediately to regain access and avoid losing any points",
           );
         }
 
-        throw new ZSAError("FORBIDDEN", "Sorry, registration is over for this year, please try again next season!");
+        throw new Error("Sorry, registration is over for this year, please try again next season!");
       }
     }
 
@@ -360,14 +357,14 @@ export const login = createServerAction()
     };
   });
 
-export const markUserAsTrusted = adminProcedure
-  .input(z.object({ referredByUserId: z.number(), userId: z.number() }))
-  .output(serverActionResultSchema)
-  .handler(async ({ ctx, input }) => {
-    const { userId, referredByUserId } = input;
+export const markUserAsTrusted = adminActionClient
+  .inputSchema(type({ referredByUserId: "number", userId: "number" }))
+  .outputSchema(serverActionResultSchema)
+  .action(async ({ ctx, parsedInput }) => {
+    const { userId, referredByUserId } = parsedInput;
 
     if (userId === referredByUserId) {
-      throw new ZSAError("PRECONDITION_FAILED", "User cannot refer themselves");
+      throw new Error("User cannot refer themselves");
     }
 
     try {
@@ -389,7 +386,7 @@ export const markUserAsTrusted = adminProcedure
           .executeTakeFirstOrThrow();
 
         if (user.UserTrusted === 1 || user.UserReferredBy !== null) {
-          throw new ZSAError("PRECONDITION_FAILED", "User is already trusted");
+          throw new Error("User is already trusted");
         }
 
         await trx
@@ -409,11 +406,11 @@ export const markUserAsTrusted = adminProcedure
     } catch (error) {
       console.error("Failed to mark user as trusted", error);
 
-      if (error instanceof ZSAError) {
+      if (error instanceof Error) {
         throw error;
       }
 
-      throw new ZSAError("INTERNAL_SERVER_ERROR", "Failed to mark user as trusted");
+      throw new Error("Failed to mark user as trusted");
     }
 
     revalidatePath("/admin/users");
@@ -424,11 +421,11 @@ export const markUserAsTrusted = adminProcedure
     };
   });
 
-export const register = createServerAction()
-  .input(loginSchema)
-  .output(serverActionResultSchema)
-  .handler(async ({ input }) => {
-    const { email, password } = input;
+export const register = actionClient
+  .inputSchema(loginSchema)
+  .outputSchema(serverActionResultSchema)
+  .action(async ({ parsedInput }) => {
+    const { email, password } = parsedInput;
 
     const existingUser = await db
       .selectFrom("Users")
@@ -437,25 +434,19 @@ export const register = createServerAction()
       .executeTakeFirst();
 
     if (existingUser) {
-      throw new ZSAError(
-        "FORBIDDEN",
-        "User already exists. Please use the login page or reset your password if you forgot it.",
-      );
+      throw new Error("User already exists. Please use the login page or reset your password if you forgot it.");
     }
 
     const isValidMx = await mxExists(email);
 
     if (!isValidMx) {
-      throw new ZSAError("FORBIDDEN", "It looks like your email is not valid, please double check it and try again");
+      throw new Error("It looks like your email is not valid, please double check it and try again");
     }
 
     const isStrongPassword = await verifyPasswordStrength(password);
 
     if (!isStrongPassword) {
-      throw new ZSAError(
-        "FORBIDDEN",
-        "Passwords must be at least 8 characters and should not be reused from other sites",
-      );
+      throw new Error("Passwords must be at least 8 characters and should not be reused from other sites");
     }
 
     const hashedPassword = await hashPassword(password);
@@ -484,7 +475,7 @@ export const register = createServerAction()
       .executeTakeFirst();
 
     if (!systemValueResult) {
-      throw new ZSAError("FORBIDDEN", "System error, please contact an administrator");
+      throw new Error("System error, please contact an administrator");
     }
 
     const lastWeekToRegister = Number(systemValueResult.SystemValueValue);
@@ -496,7 +487,7 @@ export const register = createServerAction()
     const currentWeek = Number(currentWeekResult.GameWeek);
 
     if (currentWeek > lastWeekToRegister) {
-      throw new ZSAError("FORBIDDEN", "Sorry, registration is over for this year, please try again next season!");
+      throw new Error("Sorry, registration is over for this year, please try again next season!");
     }
 
     const sessionToken = generateSessionToken();
@@ -510,15 +501,15 @@ export const register = createServerAction()
     };
   });
 
-export const removeUserFromAdmin = adminProcedure
-  .input(
-    z.object({
-      userID: z.number(),
+export const removeUserFromAdmin = adminActionClient
+  .inputSchema(
+    type({
+      userID: "number",
     }),
   )
-  .output(serverActionResultSchema)
-  .handler(async ({ input }) => {
-    const { userID } = input;
+  .outputSchema(serverActionResultSchema)
+  .action(async ({ parsedInput }) => {
+    const { userID } = parsedInput;
 
     try {
       await db.transaction().execute(async (trx) => {
@@ -529,7 +520,7 @@ export const removeUserFromAdmin = adminProcedure
           .executeTakeFirstOrThrow();
 
         if (userToRemove.UserTrusted === 1) {
-          throw new ZSAError("PRECONDITION_FAILED", "Cannot delete a trusted user");
+          throw new Error("Cannot delete a trusted user");
         }
 
         await trx.deleteFrom("Users").where("UserID", "=", userID).executeTakeFirstOrThrow();
@@ -537,11 +528,11 @@ export const removeUserFromAdmin = adminProcedure
     } catch (error) {
       console.error("Failed to remove user", error);
 
-      if (error instanceof ZSAError) {
+      if (error instanceof Error) {
         throw error;
       }
 
-      throw new ZSAError("INTERNAL_SERVER_ERROR", "Failed to remove user");
+      throw new Error("Failed to remove user");
     }
 
     revalidatePath("/admin/users");
@@ -556,11 +547,11 @@ const generateOTP = (): string => {
   return randomInt(100000, 999999).toString();
 };
 
-export const sendPasswordResetOTP = createServerAction()
-  .input(forgotPasswordEmailSchema)
-  .output(serverActionResultSchema)
-  .handler(async ({ input }) => {
-    const { email } = input;
+export const sendPasswordResetOTP = actionClient
+  .inputSchema(forgotPasswordEmailSchema)
+  .outputSchema(serverActionResultSchema)
+  .action(async ({ parsedInput }) => {
+    const { email } = parsedInput;
 
     const user = await db
       .selectFrom("Users")
@@ -569,8 +560,6 @@ export const sendPasswordResetOTP = createServerAction()
       .executeTakeFirst();
 
     if (!user) {
-      // Don't reveal that the user doesn't exist, but still return success
-      // This prevents email enumeration attacks
       return {
         metadata: {},
         status: "Success",
@@ -602,7 +591,7 @@ export const sendPasswordResetOTP = createServerAction()
     } catch (error) {
       console.error("Failed to send password reset OTP:", error);
 
-      throw new ZSAError("INTERNAL_SERVER_ERROR", "Failed to send password reset email. Please try again.");
+      throw new Error("Failed to send password reset email. Please try again.");
     }
 
     return {
@@ -611,11 +600,11 @@ export const sendPasswordResetOTP = createServerAction()
     };
   });
 
-export const verifyOTPAndResetPassword = createServerAction()
-  .input(verifyOtpSchema)
-  .output(serverActionResultSchema)
-  .handler(async ({ input }) => {
-    const { email, otp, newPassword } = input;
+export const verifyOTPAndResetPassword = actionClient
+  .inputSchema(verifyOtpSchema)
+  .outputSchema(serverActionResultSchema)
+  .action(async ({ parsedInput }) => {
+    const { email, otp, newPassword } = parsedInput;
 
     const verificationRequest = await db
       .selectFrom("VerificationRequests")
@@ -624,32 +613,29 @@ export const verifyOTPAndResetPassword = createServerAction()
       .executeTakeFirst();
 
     if (!verificationRequest) {
-      throw new ZSAError("FORBIDDEN", "Invalid or expired verification code. Please request a new one.");
+      throw new Error("Invalid or expired verification code. Please request a new one.");
     }
 
     if (new Date() > verificationRequest.VerificationRequestExpires) {
       await db.deleteFrom("VerificationRequests").where("VerificationRequestIdentifier", "=", email).execute();
 
-      throw new ZSAError("FORBIDDEN", "Verification code has expired. Please request a new one.");
+      throw new Error("Verification code has expired. Please request a new one.");
     }
 
     if (verificationRequest.VerificationRequestToken !== otp) {
-      throw new ZSAError("FORBIDDEN", "Invalid verification code. Please check your code and try again.");
+      throw new Error("Invalid verification code. Please check your code and try again.");
     }
 
     const user = await db.selectFrom("Users").select(["UserID"]).where("UserEmail", "=", email).executeTakeFirst();
 
     if (!user) {
-      throw new ZSAError("FORBIDDEN", "User not found.");
+      throw new Error("User not found.");
     }
 
     const isStrongPassword = await verifyPasswordStrength(newPassword);
 
     if (!isStrongPassword) {
-      throw new ZSAError(
-        "FORBIDDEN",
-        "Passwords must be at least 8 characters and should not be reused from other sites",
-      );
+      throw new Error("Passwords must be at least 8 characters and should not be reused from other sites");
     }
 
     try {
@@ -673,7 +659,7 @@ export const verifyOTPAndResetPassword = createServerAction()
     } catch (error) {
       console.error("Failed to reset password:", error);
 
-      throw new ZSAError("INTERNAL_SERVER_ERROR", "Failed to reset password. Please try again.");
+      throw new Error("Failed to reset password. Please try again.");
     }
 
     return {

@@ -26,7 +26,7 @@ import { ADMIN_USER, WEEKS_IN_SEASON } from "@nfl-pool-monorepo/utils/constants"
 import type { Selectable } from "kysely";
 
 import { parseTeamsFromApi } from "./utils";
-import type { ApiMatchup, NFLWeekArray } from "./zod";
+import type { ApiMatchup, NFLWeekArray } from "./validation";
 
 type Game = Awaited<ReturnType<typeof getGamesForWeek>>[number];
 type PoolPick = Pick<Selectable<Picks>, "PickID" | "PickPoints">;
@@ -283,7 +283,7 @@ export const healWeek = async (week: number, allAPIWeeks: NFLWeekArray): Promise
   const validAPIGames: Array<ApiMatchup> = [];
   const invalidAPIGames: Array<ApiMatchup> = [];
 
-  if (!currentAPIWeek || !currentAPIWeek.matchup) return;
+  if (!currentAPIWeek?.matchup) return;
 
   const apiGames = currentAPIWeek.matchup;
   const teams = await getTeamsFromDB();

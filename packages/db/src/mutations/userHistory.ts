@@ -1,6 +1,6 @@
-import type { DB, Users } from "@nfl-pool-monorepo/db/src";
 import type { Selectable, Transaction } from "kysely";
 
+import type { DB, Users } from "../index";
 import { getPublicLeague } from "../queries/league";
 import { getSystemYear } from "../queries/systemValue";
 

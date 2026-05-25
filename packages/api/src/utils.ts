@@ -18,7 +18,7 @@ import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { ADMIN_USER } from "@nfl-pool-monorepo/utils/constants";
 import type { Selectable, Transaction } from "kysely";
 
-import type { ApiMatchup, ApiTeam } from "./zod";
+import type { ApiMatchup, ApiTeam } from "./validation";
 
 export const getDbGameFromApi = (week: number, homeTeamId: string, visitingTeamId: string) => {
   return db

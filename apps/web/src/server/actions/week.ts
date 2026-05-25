@@ -4,18 +4,18 @@ import { cookies } from "next/headers";
 import "server-only";
 
 import { DAYS_IN_WEEK, HOURS_IN_DAY, MINUTES_IN_HOUR, SECONDS_IN_MINUTE } from "@nfl-pool-monorepo/utils/constants";
-import { weekSchema } from "@nfl-pool-monorepo/utils/zod";
+import { weekSchema } from "@nfl-pool-monorepo/utils/validation";
 
-import { serverActionResultSchema } from "@/lib/zod";
-import { authedProcedure } from "@/lib/zsa.server";
+import { authActionClient } from "@/lib/safe-action";
+import { serverActionResultSchema } from "@/lib/validation";
 
-export const setSelectedWeek = authedProcedure
-  .input(weekSchema)
-  .output(serverActionResultSchema)
-  .handler(async ({ input }) => {
+export const setSelectedWeek = authActionClient
+  .inputSchema(weekSchema)
+  .outputSchema(serverActionResultSchema)
+  .action(async ({ parsedInput }) => {
     const cookieStore = await cookies();
 
-    cookieStore.set("selectedWeek", input.toString(), {
+    cookieStore.set("selectedWeek", parsedInput.toString(), {
       maxAge: DAYS_IN_WEEK * HOURS_IN_DAY * MINUTES_IN_HOUR * SECONDS_IN_MINUTE,
     });
 

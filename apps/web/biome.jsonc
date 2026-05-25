@@ -1,3 +1,15 @@
 {
-  "extends": ["../../biome.jsonc"]
+  "extends": ["../../biome.jsonc"],
+  "overrides": [
+    {
+      "includes": ["src/app/**/page.tsx", "src/app/**/layout.tsx", "src/components/ProgressBar/ProgressBar.tsx"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useComponentExportOnlyModules": "off"
+          }
+        }
+      }
+    }
+  ]
 }

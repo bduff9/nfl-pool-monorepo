@@ -5,7 +5,7 @@ import "server-only";
 
 import type { Logs } from "@nfl-pool-monorepo/db/src";
 
-import type { ServerActionResult } from "@/lib/zod";
+import type { ServerActionResult } from "@/lib/validation";
 import { getCurrentSession } from "@/server/loaders/sessions";
 
 export const writeLog = async ({

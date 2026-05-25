@@ -1,6 +1,7 @@
 import { type getDbGameFromApi, getGameStatusFromAPI, parseTeamsFromApi } from "@nfl-pool-monorepo/api/src/utils";
-import type { ApiMatchup } from "@nfl-pool-monorepo/api/src/zod";
-import { weekSchema } from "@nfl-pool-monorepo/utils/zod";
+import type { ApiMatchup } from "@nfl-pool-monorepo/api/src/validation";
+import { weekSchema } from "@nfl-pool-monorepo/utils/validation";
+import { type } from "arktype";
 import { differenceInHours } from "date-fns";
 import { sql } from "kysely";
 import { jsonArrayFrom, jsonObjectFrom } from "kysely/helpers/mysql";
@@ -42,9 +43,9 @@ export const getCurrentWeekInProgress = async (): Promise<number | null> => {
 };
 
 export const getGamesForWeek = async (week: number) => {
-  const result = weekSchema.safeParse(week);
+  const result = weekSchema(week);
 
-  if (!result.success) {
+  if (result instanceof type.errors) {
     console.error(`Invalid week: ${week}`);
 
     return [];

@@ -52,9 +52,9 @@ export const POST = async (req: NextRequest, _ctx: RouteContext<"/api/email/unsu
   const email = formData.get("email") as string;
 
   try {
-    const [data] = await unsubscribe({ email });
+    const result = await unsubscribe({ email });
 
-    if (data) {
+    if (result?.data) {
       return new Response("<h1>You have been successfully unsubscribed</h1>", {
         headers: {
           "Content-Type": "text/html",

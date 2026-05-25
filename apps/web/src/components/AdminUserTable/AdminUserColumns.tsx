@@ -17,13 +17,13 @@ import { Label } from "@nfl-pool-monorepo/ui/components/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nfl-pool-monorepo/ui/components/select";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { ColumnDef } from "@tanstack/react-table";
+import { useAction } from "next-safe-action/hooks";
 import { useEffect, useState } from "react";
 import { FaDollarSign, FaEnvelope, FaThumbsDown, FaThumbsUp } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { PiFootballDuotone, PiIslandDuotone } from "react-icons/pi";
-import { useServerAction } from "zsa-react";
+import { toast } from "sonner";
 
-import { processFormState } from "@/lib/zsa";
 import { updateUserPaid } from "@/server/actions/payment";
 import { toggleUserSurvivor } from "@/server/actions/survivor";
 import { getUserDropdown, markUserAsTrusted, removeUserFromAdmin } from "@/server/actions/user";
@@ -54,24 +54,71 @@ export const userColumns: ColumnDef<User>[] = [
       const [userList, setUserList] = useState<{ UserID: number; UserName: string | null }[]>([]);
       const [referredByUserId, setReferredByUserId] = useState<number>(0);
       const [deleteUserModalOpen, setDeleteUserModalOpen] = useState<boolean>(false);
-      const { execute: updatePaid, isPending: isPaidPending } = useServerAction(updateUserPaid);
-      const { execute: loadUsers } = useServerAction(getUserDropdown);
-      const { execute: trustUser, isPending: isTrustUserPending } = useServerAction(markUserAsTrusted);
-      const { execute: deleteUser, isPending: isDeleteUserPending } = useServerAction(removeUserFromAdmin);
-      const { isPending: isSurvivorPending } = useServerAction(toggleUserSurvivor);
+
+      const { execute: updatePaid, isPending: isPaidPending } = useAction(updateUserPaid, {
+        onError: ({ error }) => {
+          toast.error("Something went wrong!", {
+            description: error.serverError ?? "Please check the information you are submitting.",
+          });
+        },
+        onSuccess: () => {
+          toast.success("Successfully updated user paid amount!");
+          setPaidModalOpen(false);
+        },
+      });
+
+      const { execute: loadUsers } = useAction(getUserDropdown, {
+        onError: ({ error }) => {
+          toast.error("Failed to load user list", {
+            description: error.serverError ?? "Please try refreshing the page.",
+          });
+        },
+        onSuccess: ({ data }) => {
+          setUserList(data ?? []);
+        },
+      });
+
+      const { execute: trustUser, isPending: isTrustUserPending } = useAction(markUserAsTrusted, {
+        onError: ({ error }) => {
+          toast.error("Something went wrong!", {
+            description: error.serverError ?? "Please check the information you are submitting.",
+          });
+        },
+        onSuccess: () => {
+          toast.success("Successfully marked user as trusted!");
+          setTrustUserModalOpen(false);
+        },
+      });
+
+      const { execute: deleteUser, isPending: isDeleteUserPending } = useAction(removeUserFromAdmin, {
+        onError: ({ error }) => {
+          toast.error("Something went wrong!", {
+            description: error.serverError ?? "Please check the information you are submitting.",
+          });
+        },
+        onSuccess: () => {
+          toast.success("Successfully removed user!");
+          setDeleteUserModalOpen(false);
+        },
+      });
+
+      const { execute: toggleSurvivor, isPending: isSurvivorPending } = useAction(toggleUserSurvivor, {
+        onError: ({ error }) => {
+          toast.error("Something went wrong!", {
+            description: error.serverError ?? "Please check the information you are submitting.",
+          });
+        },
+        onSuccess: () => {
+          toast.success("Successfully updated user survivor status!");
+        },
+      });
 
       useEffect(() => {
-        const getUserList = async () => {
-          if (row.original.UserTrusted === 1) {
-            return;
-          }
+        if (row.original.UserTrusted === 1) {
+          return;
+        }
 
-          const [users] = await loadUsers();
-
-          setUserList(users ?? []);
-        };
-
-        getUserList();
+        loadUsers();
       }, [loadUsers, row.original.UserTrusted]);
 
       return (
@@ -95,21 +142,12 @@ export const userColumns: ColumnDef<User>[] = [
               </DialogTrigger>
               <DialogContent>
                 <form
-                  onSubmit={async (event) => {
+                  onSubmit={(event) => {
                     event.preventDefault();
-
-                    const result = await updatePaid({
+                    updatePaid({
                       amountPaid: paid,
                       userID: row.original.UserID,
                     });
-
-                    processFormState(
-                      result,
-                      () => {
-                        setPaidModalOpen(false);
-                      },
-                      "Successfully updated user paid amount!",
-                    );
                   }}
                 >
                   <DialogHeader>
@@ -183,19 +221,11 @@ export const userColumns: ColumnDef<User>[] = [
                     </DialogClose>
                     <Button
                       disabled={isTrustUserPending}
-                      onClick={async () => {
-                        const result = await trustUser({
+                      onClick={() => {
+                        trustUser({
                           referredByUserId,
                           userId: row.original.UserID,
                         });
-
-                        processFormState(
-                          result,
-                          () => {
-                            setTrustUserModalOpen(false);
-                          },
-                          "Successfully marked user as trusted!",
-                        );
                       }}
                       variant="primary"
                     >
@@ -228,18 +258,10 @@ export const userColumns: ColumnDef<User>[] = [
                     </DialogClose>
                     <Button
                       disabled={isDeleteUserPending}
-                      onClick={async () => {
-                        const result = await deleteUser({
+                      onClick={() => {
+                        deleteUser({
                           userID: row.original.UserID,
                         });
-
-                        processFormState(
-                          result,
-                          () => {
-                            setDeleteUserModalOpen(false);
-                          },
-                          "Successfully removed user!",
-                        );
                       }}
                       variant="destructive"
                     >
@@ -253,13 +275,11 @@ export const userColumns: ColumnDef<User>[] = [
           {row.original.UserDoneRegistering === 1 && (
             <Button
               disabled={isSurvivorPending}
-              onClick={async () => {
-                const result = await toggleUserSurvivor({
+              onClick={() => {
+                toggleSurvivor({
                   playsSurvivor: row.original.UserPlaysSurvivor === 1 ? 0 : 1,
                   userID: row.original.UserID,
                 });
-
-                processFormState(result, () => {}, "Successfully updated user survivor status!");
               }}
               variant="ghost"
             >

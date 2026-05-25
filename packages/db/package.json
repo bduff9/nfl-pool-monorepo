@@ -3,13 +3,17 @@
   "config": {},
   "contributors": [],
   "dependencies": {
-    "@nfl-pool-monorepo/utils": "*",
+    "@nfl-pool-monorepo/utils": "workspace:*",
     "arktype": "2.2.0",
+    "date-fns": "4.3.0",
     "kysely": "0.29.2",
-    "mysql2": "3.22.3"
+    "mysql2": "3.22.3",
+    "react": "19.2.6"
   },
   "description": "Database package for the NFL Pool.",
   "devDependencies": {
+    "@nfl-pool-monorepo/tsconfig": "workspace:*",
+    "@types/react": "19.2.15",
     "c12": "4.0.0-beta.5",
     "citty": "0.2.2",
     "confbox": "0.2.4",
@@ -38,7 +42,7 @@
     "codegen": "kysely-codegen --out-file ./src/index.ts",
     "db:downgrade": "kysely migrate down",
     "db:generate": "kysely migrate make --",
-    "db:migrate": "kysely migrate latest && npm run codegen",
+    "db:migrate": "kysely migrate latest && pnpm run codegen",
     "db:migrate:prod": "kysely migrate latest",
     "env": "sync-dotenv",
     "lint": "biome check ./src --write && npmPkgJsonLint .",

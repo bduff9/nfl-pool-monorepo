@@ -10,13 +10,12 @@ import { revalidatePath } from "next/cache";
 import "server-only";
 
 import { getLowestUnusedPoint } from "@nfl-pool-monorepo/db/src/queries/pick";
-import { weekSchema } from "@nfl-pool-monorepo/utils/zod";
-import { z } from "zod";
-import { createServerAction, ZSAError } from "zsa";
+import { weekSchema } from "@nfl-pool-monorepo/utils/validation";
+import { type } from "arktype";
 
 import type { AutoPickStrategy } from "@/lib/constants";
-import { autoPickSchema, serverActionResultSchema, setMyPickSchema, validateMyPicksSchema } from "@/lib/zod";
-import { authedProcedure } from "@/lib/zsa.server";
+import { actionClient, authActionClient } from "@/lib/safe-action";
+import { autoPickSchema, serverActionResultSchema, setMyPickSchema, validateMyPicksSchema } from "@/lib/validation";
 
 import { getCurrentSession } from "../loaders/sessions";
 
@@ -28,11 +27,11 @@ const shouldAutoPickHome = (type: (typeof AutoPickStrategy)[number]): boolean =>
   return !!Math.round(Math.random());
 };
 
-export const autoPickMyPicks = authedProcedure
-  .input(autoPickSchema)
-  .output(serverActionResultSchema)
-  .handler(async ({ ctx, input }) => {
-    const { week, type } = input;
+export const autoPickMyPicks = authActionClient
+  .inputSchema(autoPickSchema)
+  .outputSchema(serverActionResultSchema)
+  .action(async ({ ctx, parsedInput }) => {
+    const { week, type } = parsedInput;
 
     try {
       await db.transaction().execute(async (trx) => {
@@ -89,11 +88,11 @@ export const autoPickMyPicks = authedProcedure
     } catch (error) {
       console.error("Failed to auto pick for week", type, week, error);
 
-      if (error instanceof ZSAError) {
+      if (error instanceof Error) {
         throw error;
       }
 
-      throw new ZSAError("INTERNAL_SERVER_ERROR", "Failed to auto pick for week");
+      throw new Error("Failed to auto pick for week");
     }
 
     revalidatePath("/picks/set");
@@ -104,18 +103,18 @@ export const autoPickMyPicks = authedProcedure
     };
   });
 
-export const quickPick = createServerAction()
-  .input(
-    z.object({
-      teamId: z.coerce.number().int().positive().max(33),
-      userId: z.coerce.number().int().positive(),
+export const quickPick = actionClient
+  .inputSchema(
+    type({
+      teamId: type("string | number").pipe((v) => Number(v), type("0 < number.integer <= 33")),
+      userId: type("string | number").pipe((v) => Number(v), type("number.integer > 0")),
     }),
   )
-  .output(serverActionResultSchema)
-  .handler(async ({ input }) => {
+  .outputSchema(serverActionResultSchema)
+  .action(async ({ parsedInput }) => {
     const { user } = await getCurrentSession();
     const givenUserID = user?.id;
-    const { teamId, userId } = input;
+    const { teamId, userId } = parsedInput;
 
     if (givenUserID && givenUserID !== userId) {
       console.error("Passed user ID does not match context", { teamId, user, userId });
@@ -138,7 +137,7 @@ export const quickPick = createServerAction()
     if (!game) {
       console.error("No matching game found", { teamId, user, userId });
 
-      throw new ZSAError("NOT_FOUND", "No matching game found");
+      throw new Error("No matching game found");
     }
 
     const pick = await db
@@ -151,7 +150,7 @@ export const quickPick = createServerAction()
     if (pick.TeamID || pick.PickPoints) {
       console.error("Pick has already been made", { game, pick, teamId, user, userId });
 
-      throw new ZSAError("PRECONDITION_FAILED", "Pick has already been made");
+      throw new Error("Pick has already been made");
     }
 
     const lowestPoint = await getLowestUnusedPoint(game.GameWeek, userId);
@@ -164,10 +163,7 @@ export const quickPick = createServerAction()
         userId,
       });
 
-      throw new ZSAError(
-        "INTERNAL_SERVER_ERROR",
-        "Quick pick failed because you have not made this pick but also you have no points left to use",
-      );
+      throw new Error("Quick pick failed because you have not made this pick but also you have no points left to use");
     }
 
     await db
@@ -188,11 +184,11 @@ export const quickPick = createServerAction()
     };
   });
 
-export const resetMyPicksForWeek = authedProcedure
-  .input(z.object({ week: weekSchema }))
-  .output(serverActionResultSchema)
-  .handler(async ({ ctx, input }) => {
-    const { week } = input;
+export const resetMyPicksForWeek = authActionClient
+  .inputSchema(type({ week: weekSchema }))
+  .outputSchema(serverActionResultSchema)
+  .action(async ({ ctx, parsedInput }) => {
+    const { week } = parsedInput;
 
     try {
       await db.transaction().execute(async (trx) => {
@@ -220,11 +216,11 @@ export const resetMyPicksForWeek = authedProcedure
     } catch (error) {
       console.error("Failed to reset picks for week", week, error);
 
-      if (error instanceof ZSAError) {
+      if (error instanceof Error) {
         throw error;
       }
 
-      throw new ZSAError("INTERNAL_SERVER_ERROR", "Failed to reset picks for week");
+      throw new Error("Failed to reset picks for week");
     }
 
     revalidatePath("/picks/set");
@@ -235,11 +231,11 @@ export const resetMyPicksForWeek = authedProcedure
     };
   });
 
-export const setMyPick = authedProcedure
-  .input(setMyPickSchema)
-  .output(serverActionResultSchema)
-  .handler(async ({ ctx, input }) => {
-    const { gameID, points, teamID, week } = input;
+export const setMyPick = authActionClient
+  .inputSchema(setMyPickSchema)
+  .outputSchema(serverActionResultSchema)
+  .action(async ({ ctx, parsedInput }) => {
+    const { gameID, points, teamID, week } = parsedInput;
 
     try {
       await db.transaction().execute(async (trx) => {
@@ -257,7 +253,7 @@ export const setMyPick = authedProcedure
           const hasStarted = oldPick.GameKickoff < new Date();
 
           if (hasStarted) {
-            throw new ZSAError("PRECONDITION_FAILED", "Game has already started!");
+            throw new Error("Game has already started!");
           }
 
           await trx
@@ -285,11 +281,11 @@ export const setMyPick = authedProcedure
             .executeTakeFirst();
 
           if (!newPick) {
-            throw new ZSAError("PRECONDITION_FAILED", "No pick found that can be changed!");
+            throw new Error("No pick found that can be changed!");
           }
 
           if (newPick.HomeTeamID !== teamID && newPick.VisitorTeamID !== teamID) {
-            throw new ZSAError("PRECONDITION_FAILED", "Invalid team passed for pick!");
+            throw new Error("Invalid team passed for pick!");
           }
 
           const gamesInWeek = await trx
@@ -299,7 +295,7 @@ export const setMyPick = authedProcedure
             .executeTakeFirstOrThrow();
 
           if (points > gamesInWeek.count) {
-            throw new ZSAError("PRECONDITION_FAILED", "Invalid point value passed for week!");
+            throw new Error("Invalid point value passed for week!");
           }
 
           await trx
@@ -317,11 +313,11 @@ export const setMyPick = authedProcedure
     } catch (error) {
       console.error("Failed to set pick", week, error);
 
-      if (error instanceof ZSAError) {
+      if (error instanceof Error) {
         throw error;
       }
 
-      throw new ZSAError("INTERNAL_SERVER_ERROR", "Failed to set pick");
+      throw new Error("Failed to set pick");
     }
 
     revalidatePath("/picks/set");
@@ -332,11 +328,11 @@ export const setMyPick = authedProcedure
     };
   });
 
-export const submitMyPicks = authedProcedure
-  .input(z.object({ week: weekSchema }))
-  .output(serverActionResultSchema)
-  .handler(async ({ ctx, input }) => {
-    const { week } = input;
+export const submitMyPicks = authActionClient
+  .inputSchema(type({ week: weekSchema }))
+  .outputSchema(serverActionResultSchema)
+  .action(async ({ ctx, parsedInput }) => {
+    const { week } = parsedInput;
 
     try {
       await db.transaction().execute(async (trx) => {
@@ -361,11 +357,11 @@ export const submitMyPicks = authedProcedure
           const hasGameStarted = pick.GameKickoff < new Date();
 
           if (pick.PickPoints !== point) {
-            throw new ZSAError("PRECONDITION_FAILED", `Missing point value found! (${point})`);
+            throw new Error(`Missing point value found! (${point})`);
           }
 
           if (pick.TeamID === null && !hasGameStarted) {
-            throw new ZSAError("PRECONDITION_FAILED", "Missing team pick found!");
+            throw new Error("Missing team pick found!");
           }
         }
 
@@ -384,7 +380,7 @@ export const submitMyPicks = authedProcedure
           .executeTakeFirstOrThrow();
 
         if (myTiebreaker.TiebreakerLastScore < 1 && !lastGameHasStarted) {
-          throw new ZSAError("PRECONDITION_FAILED", "Tiebreaker last score must be greater than zero!");
+          throw new Error("Tiebreaker last score must be greater than zero!");
         }
 
         await trx
@@ -438,11 +434,11 @@ export const submitMyPicks = authedProcedure
     } catch (error) {
       console.error("Failed to submit picks", week, error);
 
-      if (error instanceof ZSAError) {
+      if (error instanceof Error) {
         throw error;
       }
 
-      throw new ZSAError("INTERNAL_SERVER_ERROR", "Failed to submit picks");
+      throw new Error("Failed to submit picks");
     }
 
     revalidatePath("/picks/view");
@@ -453,11 +449,11 @@ export const submitMyPicks = authedProcedure
     };
   });
 
-export const validateMyPicks = authedProcedure
-  .input(validateMyPicksSchema)
-  .output(serverActionResultSchema)
-  .handler(async ({ ctx, input }) => {
-    const { lastScore, unused, week } = input;
+export const validateMyPicks = authActionClient
+  .inputSchema(validateMyPicksSchema)
+  .outputSchema(serverActionResultSchema)
+  .action(async ({ ctx, parsedInput }) => {
+    const { lastScore, unused, week } = parsedInput;
 
     try {
       await db.transaction().execute(async (trx) => {
@@ -481,7 +477,7 @@ export const validateMyPicks = authedProcedure
                 .executeTakeFirst();
 
         if (!unusedCount || unusedCount.count > 0) {
-          throw new ZSAError("PRECONDITION_FAILED", "Points are not in sync");
+          throw new Error("Points are not in sync");
         }
 
         const tiebreaker = await trx
@@ -492,17 +488,17 @@ export const validateMyPicks = authedProcedure
           .executeTakeFirstOrThrow();
 
         if (tiebreaker.TiebreakerLastScore !== lastScore) {
-          throw new ZSAError("PRECONDITION_FAILED", "Tiebreaker last score on FE does not match BE");
+          throw new Error("Tiebreaker last score on FE does not match BE");
         }
       });
     } catch (error) {
       console.error("Failed to validate picks", week, error);
 
-      if (error instanceof ZSAError) {
+      if (error instanceof Error) {
         throw error;
       }
 
-      throw new ZSAError("INTERNAL_SERVER_ERROR", "Failed to validate picks");
+      throw new Error("Failed to validate picks");
     }
 
     revalidatePath("/picks/set");

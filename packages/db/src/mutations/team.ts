@@ -1,6 +1,6 @@
+import type { ApiTeam } from "@nfl-pool-monorepo/api/src/validation";
 import { ADMIN_USER } from "@nfl-pool-monorepo/utils/constants";
 
-import type { ApiTeam } from "./../../../api/src/zod";
 import { db } from "../kysely";
 
 export const updateTeamByeWeeks = async (week: number): Promise<void> => {

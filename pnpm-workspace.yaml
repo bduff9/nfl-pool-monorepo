@@ -1,0 +1,18 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+allowBuilds:
+  '@sentry/cli': true
+  aws-sdk: false
+  esbuild: true
+  msw: true
+  sharp: true
+
+overrides:
+  "@types/react": "19.2.15"
+  "@types/react-dom": "19.2.3"
+  "kysely": "0.29.2"
+  "react-is": "19.2.6"
+
+strictPeerDependencies: false

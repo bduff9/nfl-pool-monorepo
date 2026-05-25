@@ -25,9 +25,9 @@ import { quickPick } from "@/server/actions/pick";
 
 const QuickPickPage: FC<PageProps<"/quick-pick/[userId]/[teamId]">> = async ({ params }) => {
   const { userId, teamId } = await params;
-  const [data, error] = await quickPick({ teamId: Number(teamId), userId: Number(userId) });
+  const result = await quickPick({ teamId: Number(teamId), userId: Number(userId) });
 
-  if (data) {
+  if (result?.data) {
     return redirect("/picks/set");
   }
 
@@ -38,7 +38,7 @@ const QuickPickPage: FC<PageProps<"/quick-pick/[userId]/[teamId]">> = async ({ p
         <h2 className={cn("scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0")}>
           Quick pick failed!
         </h2>
-        <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">{error.message}</h3>
+        <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">{result?.serverError ?? "Unknown error"}</h3>
       </div>
     </div>
   );

@@ -2,48 +2,27 @@ import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { getUserPayments } from "@nfl-pool-monorepo/db/src/queries/payment";
 import { getPaymentDueDate } from "@nfl-pool-monorepo/db/src/queries/systemValue";
 import { formatDueDate } from "@nfl-pool-monorepo/utils/dates";
+import { type } from "arktype";
 import { sql } from "kysely";
 import { jsonArrayFrom } from "kysely/helpers/mysql";
 import { cache } from "react";
-import { z } from "zod";
 
 import { DEFAULT_PAGE_SIZE } from "@/lib/constants";
-import { stringToJSONSchema } from "@/lib/zod";
 
+import { coerceNumber, parseJsonParam } from "./param-parsing";
 import { getCurrentSession } from "./sessions";
 
 export const getAdminUsers = cache(async (params: Awaited<PageProps<"/admin/users">["searchParams"]>) => {
-  const paramsSchema = z.object({
-    filter: stringToJSONSchema.pipe(
-      z
-        .array(
-          z.object({
-            id: z.enum(["UserStatus2", "UserStatus3", "UserIsOwing"]),
-            value: z.string(),
-          }),
-        )
-        .optional()
-        .default([]),
-    ),
-    page: z.coerce.number().optional().default(1),
-    pageSize: z
-      .union([z.coerce.number(), z.literal("all")])
-      .optional()
-      .default(DEFAULT_PAGE_SIZE),
-    sort: stringToJSONSchema.pipe(
-      z
-        .array(
-          z.object({
-            desc: z.boolean(),
-            id: z.enum(["UserName", "UserEmail"]),
-          }),
-        )
-        .optional()
-        .default([{ desc: false, id: "UserName" }]),
-    ),
-  });
+  const sortSchema = type({ desc: "boolean", id: type.enumerated("UserName", "UserEmail") }).array();
+  const filterSchema = type({
+    id: type.enumerated("UserStatus2", "UserStatus3", "UserIsOwing"),
+    value: "string",
+  }).array();
 
-  const { filter, page, pageSize, sort } = paramsSchema.parse(params);
+  const sort = parseJsonParam(params?.sort, sortSchema, [{ desc: false, id: "UserName" as const }]);
+  const filter = parseJsonParam(params?.filter, filterSchema, []);
+  const page = coerceNumber(params?.page, 1);
+  const pageSize = params?.pageSize === "all" ? ("all" as const) : coerceNumber(params?.pageSize, DEFAULT_PAGE_SIZE);
 
   let countResult = db.selectFrom("Users as u").select(sql<number>`COUNT(*)`.as("count"));
   let queryResult = db.selectFrom("Users as u").select(({ ref, selectFrom }) => [

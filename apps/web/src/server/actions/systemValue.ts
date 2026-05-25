@@ -7,15 +7,14 @@ import { updateAllPayouts } from "@nfl-pool-monorepo/db/src/mutations/payment";
 import { getCurrentWeekInProgress } from "@nfl-pool-monorepo/db/src/queries/game";
 import { sendPrizesSetEmail } from "@nfl-pool-monorepo/transactional/emails/prizesSet";
 import { revalidatePath } from "next/cache";
-import { ZSAError } from "zsa";
 
-import { payoutsSchema, serverActionResultSchema } from "@/lib/zod";
-import { adminProcedure } from "@/lib/zsa.server";
+import { adminActionClient } from "@/lib/safe-action";
+import { payoutsSchema, serverActionResultSchema } from "@/lib/validation";
 
-export const updatePayouts = adminProcedure
-  .input(payoutsSchema)
-  .output(serverActionResultSchema)
-  .handler(async ({ input }) => {
+export const updatePayouts = adminActionClient
+  .inputSchema(payoutsSchema)
+  .outputSchema(serverActionResultSchema)
+  .action(async ({ parsedInput }) => {
     const {
       overall1stPrize,
       overall2ndPrize,
@@ -24,7 +23,7 @@ export const updatePayouts = adminProcedure
       survivor2ndPrize,
       weekly1stPrize,
       weekly2ndPrize,
-    } = input;
+    } = parsedInput;
     const weeklyPrizes = JSON.stringify([0, weekly1stPrize, weekly2ndPrize]);
     const overallPrizes = JSON.stringify([0, overall1stPrize, overall2ndPrize, overall3rdPrize]);
     const survivorPrizes = JSON.stringify([0, survivor1stPrize, survivor2ndPrize]);
@@ -52,13 +51,13 @@ export const updatePayouts = adminProcedure
         await updateAllPayouts(week ?? 1, trx);
       });
     } catch (error) {
-      console.error("Failed to save payouts", error, input);
+      console.error("Failed to save payouts", error, parsedInput);
 
-      if (error instanceof ZSAError) {
+      if (error instanceof Error) {
         throw error;
       }
 
-      throw new ZSAError("INTERNAL_SERVER_ERROR", "Failed to save payouts");
+      throw new Error("Failed to save payouts");
     }
 
     const users = await db

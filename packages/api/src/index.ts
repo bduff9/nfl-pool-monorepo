@@ -16,9 +16,9 @@
 
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { getSystemYear } from "@nfl-pool-monorepo/db/src/queries/systemValue";
-import { ZodError } from "zod";
+import { type } from "arktype";
 
-import { type ApiMatchup, EntireSeasonResponseSchema, type NFLWeekArray, SingleWeekResponseSchema } from "./zod";
+import { type ApiMatchup, EntireSeasonResponseSchema, type NFLWeekArray, SingleWeekResponseSchema } from "./validation";
 
 const callApi = async (year: number, week?: number): Promise<[string, unknown]> => {
   let url = `${process.env.API_HOST}/fflnetdynamic${year}/nfl_sched.json`;
@@ -45,7 +45,16 @@ export const getEntireSeasonFromApi = async (year?: number): Promise<NFLWeekArra
 
   try {
     const [url, response] = await callApi(year);
-    const result = EntireSeasonResponseSchema.parse(response);
+    const result = EntireSeasonResponseSchema(response);
+
+    if (result instanceof type.errors) {
+      console.error("API returned invalid data for entire season, cannot parse", {
+        error: result.summary,
+        year,
+      });
+
+      return [];
+    }
 
     try {
       await db
@@ -66,17 +75,10 @@ export const getEntireSeasonFromApi = async (year?: number): Promise<NFLWeekArra
 
     return result.fullNflSchedule.nflSchedule;
   } catch (error) {
-    if (error instanceof ZodError) {
-      console.error("API returned invalid data for entire season, cannot parse", {
-        error,
-        year,
-      });
-    } else {
-      console.error("Unexpected error when trying to call API for entire season", {
-        error,
-        year,
-      });
-    }
+    console.error("Unexpected error when trying to call API for entire season", {
+      error,
+      year,
+    });
 
     if (error instanceof Error) {
       try {
@@ -108,7 +110,17 @@ export const getSingleWeekFromApi = async (week: number, year?: number): Promise
 
   try {
     const [url, response] = await callApi(year, week);
-    const result = SingleWeekResponseSchema.parse(response);
+    const result = SingleWeekResponseSchema(response);
+
+    if (result instanceof type.errors) {
+      console.error("API returned invalid data for week", {
+        error: result.summary,
+        week,
+        year,
+      });
+
+      return [];
+    }
 
     try {
       await db
@@ -131,19 +143,11 @@ export const getSingleWeekFromApi = async (week: number, year?: number): Promise
 
     return result.nflSchedule.matchup;
   } catch (error) {
-    if (error instanceof ZodError) {
-      console.error("API returned invalid data for week", {
-        error,
-        week,
-        year,
-      });
-    } else {
-      console.error("Unexpected error when trying to call API for week", {
-        error,
-        week,
-        year,
-      });
-    }
+    console.error("Unexpected error when trying to call API for week", {
+      error,
+      week,
+      year,
+    });
 
     if (error instanceof Error) {
       try {

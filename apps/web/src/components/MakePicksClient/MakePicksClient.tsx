@@ -17,7 +17,6 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
 
 import type { AutoPickStrategy } from "@/lib/constants";
 import { parseDragData } from "@/lib/strings";
-import { processFormState } from "@/lib/zsa";
 import { autoPickMyPicks, resetMyPicksForWeek, setMyPick, submitMyPicks, validateMyPicks } from "@/server/actions/pick";
 import { updateMyTiebreakerScore } from "@/server/actions/tiebreaker";
 import type { getMyWeeklyPicks } from "@/server/loaders/pick";
@@ -26,8 +25,9 @@ import "client-only";
 
 import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
+import { useAction } from "next-safe-action/hooks";
 import type { FC, FocusEventHandler, ReactNode } from "react";
-import { Fragment, useCallback, useOptimistic, useState, useTransition } from "react";
+import { Fragment, useCallback, useOptimistic, useRef, useState, useTransition } from "react";
 import { FaCloudUploadAlt, FaRedo, FaSave } from "react-icons/fa";
 import { PiFootballDuotone, PiRobotDuotone } from "react-icons/pi";
 import { toast } from "sonner";
@@ -60,6 +60,92 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
     title: string;
   } | null>(null);
   const lastGame = optimisticPicks[optimisticPicks.length - 1];
+  const toastIdRef = useRef<string | number | undefined>(undefined);
+
+  const { execute: executeSetMyPick } = useAction(setMyPick, {
+    onError: ({ error }) => {
+      toast.error("Something went wrong!", {
+        description: error.serverError ?? "Please check the information you are submitting.",
+      });
+    },
+  });
+
+  const { execute: executeUpdateTiebreaker } = useAction(updateMyTiebreakerScore, {
+    onError: ({ error }) => {
+      toast.error("Something went wrong!", {
+        description: error.serverError ?? "Please check the information you are submitting.",
+      });
+    },
+  });
+
+  const { execute: executeResetPicks } = useAction(resetMyPicksForWeek, {
+    onError: ({ error }) => {
+      toast.error("Something went wrong!", {
+        description: error.serverError ?? "Please check the information you are submitting.",
+      });
+    },
+    onSettled: () => {
+      setLoading(null);
+      setCallback(null);
+    },
+    onSuccess: () => {
+      toast.success(`Successfully reset your picks for week ${selectedWeek}`);
+    },
+  });
+
+  const { execute: executeAutoPick } = useAction(autoPickMyPicks, {
+    onError: ({ error }) => {
+      toast.error("Something went wrong!", {
+        description: error.serverError ?? "Please check the information you are submitting.",
+      });
+    },
+    onSettled: () => {
+      if (toastIdRef.current) toast.dismiss(toastIdRef.current);
+      setLoading(null);
+    },
+    onSuccess: () => {
+      toast.success(`Successfully auto picked your picks for week ${selectedWeek}`);
+    },
+  });
+
+  const { execute: executeValidatePicks } = useAction(validateMyPicks, {
+    onError: ({ error }) => {
+      toast.error("Something went wrong!", {
+        description: error.serverError ?? "Please check the information you are submitting.",
+      });
+    },
+    onSettled: () => {
+      if (toastIdRef.current) toast.dismiss(toastIdRef.current);
+      setLoading(null);
+    },
+    onSuccess: () => {
+      toast.success(
+        <>
+          <div className="mb-3">Successfully saved your picks for week {selectedWeek}!</div>
+          <div>
+            Please note that you will still need to submit your picks when ready as they are only saved, not submitted.
+          </div>
+        </>,
+      );
+    },
+  });
+
+  const { execute: executeSubmitPicks } = useAction(submitMyPicks, {
+    onError: ({ error }) => {
+      toast.error("Something went wrong!", {
+        description: error.serverError ?? "Please check the information you are submitting.",
+      });
+    },
+    onSettled: () => {
+      if (toastIdRef.current) toast.dismiss(toastIdRef.current);
+      setLoading(null);
+      setCallback(null);
+    },
+    onSuccess: () => {
+      toast.success(`Successfully submitted your picks for week ${selectedWeek}`);
+      redirect("/picks/view");
+    },
+  });
 
   const onDragEnd = useCallback(
     (result: DropResult): void => {
@@ -85,7 +171,7 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
             ? (pick?.visitorTeam ?? null)
             : null;
 
-      startPicksUpdating(async () => {
+      startPicksUpdating(() => {
         setOptimisticPicks((picks) =>
           picks.map((pick) => {
             if (pick.GameKickoff < new Date()) {
@@ -114,17 +200,15 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
           }),
         );
 
-        const result = await setMyPick({
+        executeSetMyPick({
           gameID,
           points,
           teamID: pickTeam?.TeamID ?? null,
           week: selectedWeek,
         });
-
-        processFormState(result);
       });
     },
-    [optimisticPicks, selectedWeek, setOptimisticPicks],
+    [executeSetMyPick, optimisticPicks, selectedWeek, setOptimisticPicks],
   );
 
   const onDragStart = useCallback((initial: DragStart): void => {
@@ -174,19 +258,17 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
 
     setTiebreakerLastScoreError(null);
 
-    startPicksUpdating(async () => {
-      const result = await updateMyTiebreakerScore({
+    startPicksUpdating(() => {
+      executeUpdateTiebreaker({
         score: tiebreakerLastScore,
         week: selectedWeek,
       });
-
-      processFormState(result);
     });
   };
 
   const resetPicks = async (): Promise<void> => {
     setLoading("reset");
-    startPicksUpdating(async () => {
+    startPicksUpdating(() => {
       setOptimisticPicks(
         optimisticPicks.map((pick) => {
           if (pick.GameKickoff > new Date()) {
@@ -202,110 +284,65 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
         }),
       );
 
-      const result = await resetMyPicksForWeek({ week: selectedWeek });
-
-      processFormState(
-        result,
-        () => {
-          /* NOOP */
-        },
-        `Successfully reset your picks for week ${selectedWeek}`,
-      );
-      setLoading(null);
-      setCallback(null);
+      executeResetPicks({ week: selectedWeek });
     });
   };
 
-  const autoPick = async (type: (typeof AutoPickStrategy)[number]): Promise<void> => {
+  const autoPick = (type: (typeof AutoPickStrategy)[number]): void => {
     setLoading("autopick");
-    const toastId = toast.loading("Auto picking...", {
+    toastIdRef.current = toast.loading("Auto picking...", {
       closeButton: false,
       dismissible: false,
       duration: Infinity,
     });
-    const result = await autoPickMyPicks({ type, week: selectedWeek });
-
-    processFormState(
-      result,
-      () => {
-        /* NOOP */
-      },
-      `Successfully auto picked your picks for week ${selectedWeek}`,
-    );
-    toast.dismiss(toastId);
-    setLoading(null);
+    executeAutoPick({ type, week: selectedWeek });
   };
 
-  const savePicks = async (): Promise<void> => {
+  const savePicks = (): void => {
     setLoading("save");
-    const toastId = toast.loading("Saving...", {
+    toastIdRef.current = toast.loading("Saving...", {
       closeButton: false,
       dismissible: false,
       duration: Infinity,
     });
-    const result = await validateMyPicks({
+    executeValidatePicks({
       lastScore: tiebreaker.TiebreakerLastScore ?? 0,
       unused: available,
       week: selectedWeek,
     });
-
-    processFormState(
-      result,
-      () => {
-        /* NOOP */
-      },
-      <>
-        <div className="mb-3">Successfully saved your picks for week {selectedWeek}!</div>
-        <div>
-          Please note that you will still need to submit your picks when ready as they are only saved, not submitted.
-        </div>
-      </>,
-    );
-    toast.dismiss(toastId);
-    setLoading(null);
   };
 
   const submitPicks = async (): Promise<void> => {
     setLoading("submit");
-    const toastId = toast.loading("Submitting...", {
+
+    if (available.length > 0) {
+      toast.error("Something went wrong!", {
+        description: "Missing point value found! Please use all points before submitting",
+      });
+      setLoading(null);
+      setCallback(null);
+
+      return;
+    }
+
+    const lastGameHasStarted = lastGame && lastGame.GameKickoff < new Date();
+
+    if ((tiebreaker.TiebreakerLastScore ?? 0) < 1 && !lastGameHasStarted) {
+      toast.error("Something went wrong!", {
+        description: "Tiebreaker last score must be greater than zero",
+      });
+      setLoading(null);
+      setCallback(null);
+
+      return;
+    }
+
+    toastIdRef.current = toast.loading("Submitting...", {
       closeButton: false,
       dismissible: false,
       duration: Infinity,
     });
-
-    try {
-      if (available.length > 0) {
-        toast.error("Something went wrong!", {
-          description: "Missing point value found! Please use all points before submitting",
-        });
-
-        return;
-      }
-
-      const lastGameHasStarted = lastGame && lastGame.GameKickoff < new Date();
-
-      if ((tiebreaker.TiebreakerLastScore ?? 0) < 1 && !lastGameHasStarted) {
-        toast.error("Something went wrong!", {
-          description: "Tiebreaker last score must be greater than zero",
-        });
-
-        return;
-      }
-
-      const result = await submitMyPicks({ week: selectedWeek });
-
-      processFormState(
-        result,
-        () => {
-          redirect("/picks/view");
-        },
-        `Successfully submitted your picks for week ${selectedWeek}`,
-      );
-    } finally {
-      toast.dismiss(toastId);
-      setLoading(null);
-      setCallback(null);
-    }
+    executeSubmitPicks({ week: selectedWeek });
   };
 
   return (

@@ -4,16 +4,15 @@ import { revalidatePath } from "next/cache";
 import "server-only";
 
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
-import { ZSAError } from "zsa";
 
-import { serverActionResultSchema, updateMyTiebreakerScoreSchema } from "@/lib/zod";
-import { authedProcedure } from "@/lib/zsa.server";
+import { authActionClient } from "@/lib/safe-action";
+import { serverActionResultSchema, updateMyTiebreakerScoreSchema } from "@/lib/validation";
 
-export const updateMyTiebreakerScore = authedProcedure
-  .input(updateMyTiebreakerScoreSchema)
-  .output(serverActionResultSchema)
-  .handler(async ({ ctx, input }) => {
-    const { week, score } = input;
+export const updateMyTiebreakerScore = authActionClient
+  .inputSchema(updateMyTiebreakerScoreSchema)
+  .outputSchema(serverActionResultSchema)
+  .action(async ({ ctx, parsedInput }) => {
+    const { week, score } = parsedInput;
 
     try {
       await db.transaction().execute(async (trx) => {
@@ -25,7 +24,7 @@ export const updateMyTiebreakerScore = authedProcedure
           .executeTakeFirstOrThrow();
 
         if (lastGame.GameKickoff < new Date()) {
-          throw new ZSAError("PRECONDITION_FAILED", "Game has already started!");
+          throw new Error("Game has already started!");
         }
 
         const myTiebreaker = await trx
@@ -36,7 +35,7 @@ export const updateMyTiebreakerScore = authedProcedure
           .executeTakeFirstOrThrow();
 
         if (myTiebreaker.TiebreakerHasSubmitted) {
-          throw new ZSAError("PRECONDITION_FAILED", "Tiebreaker has already been submitted!");
+          throw new Error("Tiebreaker has already been submitted!");
         }
 
         await trx
@@ -52,11 +51,11 @@ export const updateMyTiebreakerScore = authedProcedure
     } catch (error) {
       console.error("Failed to update my tiebreaker score", week, error);
 
-      if (error instanceof ZSAError) {
+      if (error instanceof Error) {
         throw error;
       }
 
-      throw new ZSAError("INTERNAL_SERVER_ERROR", "Failed to update my tiebreaker score");
+      throw new Error("Failed to update my tiebreaker score");
     }
 
     revalidatePath("/picks/set");

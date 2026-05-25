@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { cache } from "react";
 import "server-only";
 
-import { weekSchema } from "@nfl-pool-monorepo/utils/zod";
+import { weekSchema } from "@nfl-pool-monorepo/utils/validation";
 
 import { getCurrentSession } from "./sessions";
 
@@ -67,7 +67,7 @@ export const getWeekStart = cache(async (week: number) => {
     throw new Error("Not logged in");
   }
 
-  weekSchema.parse(week);
+  weekSchema.assert(week);
 
   const { GameKickoff } = await db
     .selectFrom("Games")
@@ -86,7 +86,7 @@ export const getWeekStatus = cache(async (week: number) => {
     throw new Error("Not logged in");
   }
 
-  weekSchema.parse(week);
+  weekSchema.assert(week);
 
   const { Completed, InProgress, NotStarted } = await db
     .selectFrom("Games")
