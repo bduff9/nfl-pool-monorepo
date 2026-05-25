@@ -1,12 +1,25 @@
 {
+  "author": "",
+  "config": {},
+  "contributors": [],
+  "dependencies": {},
+  "description": "Shared TypeScript configurations for the NFL Pool.",
+  "devDependencies": {},
+  "engines": {
+    "node": ">=22"
+  },
+  "homepage": "",
+  "keywords": [],
   "license": "MIT",
+  "main": "index.js",
   "name": "@nfl-pool-monorepo/tsconfig",
   "private": true,
   "publishConfig": {
     "access": "public"
   },
+  "repository": "",
   "scripts": {
-    "lint": "biome check . --write"
+    "lint": "biome check . --write && npmPkgJsonLint ."
   },
   "version": "0.0.0"
 }

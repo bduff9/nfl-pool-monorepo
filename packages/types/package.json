@@ -1,17 +1,27 @@
 {
   "author": "",
-  "description": "",
+  "config": {},
+  "contributors": [],
+  "dependencies": {},
+  "description": "Shared TypeScript types for the NFL Pool.",
   "devDependencies": {
     "@nfl-pool-monorepo/tsconfig": "*"
+  },
+  "engines": {
+    "node": ">=22"
   },
   "exports": {
     ".": "./src/index.ts"
   },
+  "homepage": "",
   "keywords": [],
   "license": "ISC",
+  "main": "index.js",
   "name": "@nfl-pool-monorepo/types",
+  "private": true,
+  "repository": "",
   "scripts": {
-    "lint": "biome lint ./src",
+    "lint": "biome lint ./src && npmPkgJsonLint .",
     "typecheck": "tsgo --noEmit",
     "typecheck:tsc": "tsc --noEmit"
   },

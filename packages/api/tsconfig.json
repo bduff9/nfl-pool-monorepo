@@ -1,4 +1,8 @@
 {
+	"compilerOptions": {
+		"jsx": "preserve",
+		"types": ["node"]
+	},
 	"extends": "@nfl-pool-monorepo/tsconfig/base.json",
 	"include": [
 		"src/**/*.ts"

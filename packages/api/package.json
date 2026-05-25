@@ -1,21 +1,32 @@
 {
   "author": "",
+  "config": {},
+  "contributors": [],
   "dependencies": {
     "@nfl-pool-monorepo/db": "*",
     "@nfl-pool-monorepo/utils": "*",
     "zod": "3.25.76"
   },
-  "description": "",
+  "description": "API package for the NFL Pool.",
   "devDependencies": {
-    "@nfl-pool-monorepo/tsconfig": "*"
+    "@nfl-pool-monorepo/tsconfig": "*",
+    "@types/node": "25.9.1"
   },
+  "engines": {
+    "node": ">=22"
+  },
+  "homepage": "",
   "keywords": [],
   "license": "ISC",
   "main": "index.js",
   "name": "@nfl-pool-monorepo/api",
+  "private": true,
+  "repository": "",
   "scripts": {
-    "lint": "biome check ./src --write",
-    "test": "vitest run"
+    "lint": "biome check ./src --write && npmPkgJsonLint .",
+    "test": "vitest run",
+    "typecheck": "tsgo --noEmit",
+    "typecheck:tsc": "tsc --noEmit"
   },
   "version": "1.0.0"
 }

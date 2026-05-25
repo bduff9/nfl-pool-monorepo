@@ -1,5 +1,7 @@
 {
   "author": "",
+  "config": {},
+  "contributors": [],
   "dependencies": {
     "@hookform/resolvers": "5.4.0",
     "@nfl-pool-monorepo/utils": "*",
@@ -11,11 +13,11 @@
     "@radix-ui/react-dropdown-menu": "2.1.16",
     "@radix-ui/react-icons": "1.3.2",
     "@radix-ui/react-label": "2.1.8",
-    "@radix-ui/react-popover": "^1.1.15",
-    "@radix-ui/react-scroll-area": "^1.2.10",
+    "@radix-ui/react-popover": "1.1.15",
+    "@radix-ui/react-scroll-area": "1.2.10",
     "@radix-ui/react-select": "2.2.6",
     "@radix-ui/react-separator": "1.1.8",
-    "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-slot": "1.2.4",
     "@radix-ui/react-switch": "1.2.6",
     "@radix-ui/react-tabs": "1.1.13",
     "@radix-ui/react-tooltip": "1.2.8",
@@ -37,7 +39,7 @@
     "tailwindcss-animate": "1.0.7",
     "zod": "3.25.76"
   },
-  "description": "",
+  "description": "UI components for the NFL Pool.",
   "devDependencies": {
     "@nfl-pool-monorepo/tsconfig": "*",
     "@tailwindcss/postcss": "4.3.0",
@@ -49,19 +51,25 @@
     "react-dom": "19.2.6",
     "tailwindcss": "4.3.0"
   },
+  "engines": {
+    "node": ">=22"
+  },
   "exports": {
     "./components/*": "./src/*.tsx",
     "./globals.css": "./src/styles/globals.css",
     "./postcss.config": "./postcss.config.mjs",
     "./tailwind.config": "./tailwind.config.ts"
   },
+  "homepage": "",
   "keywords": [],
   "license": "ISC",
   "main": "index.js",
   "name": "@nfl-pool-monorepo/ui",
+  "private": true,
+  "repository": "",
   "scripts": {
     "add-shadcn-component": "npx shadcn@latest add",
-    "lint": "biome check ./src --write",
+    "lint": "biome check ./src --write && npmPkgJsonLint .",
     "typecheck": "tsgo --noEmit",
     "typecheck:tsc": "tsc --noEmit"
   },

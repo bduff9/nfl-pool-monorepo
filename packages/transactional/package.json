@@ -1,4 +1,7 @@
 {
+  "author": "",
+  "config": {},
+  "contributors": [],
   "dependencies": {
     "@aws-sdk/client-ses": "3.1053.0",
     "@nfl-pool-monorepo/api": "*",
@@ -16,10 +19,11 @@
     "twilio": "6.0.2",
     "web-push": "3.6.7"
   },
+  "description": "Transactional emails and notifications for the NFL Pool.",
   "devDependencies": {
     "@nfl-pool-monorepo/tsconfig": "*",
     "@tailwindcss/postcss": "4.3.0",
-    "@types/html-to-text": "~9.0.4",
+    "@types/html-to-text": "9.0.4",
     "@types/node": "25.9.1",
     "@types/react": "19.2.15",
     "@types/react-dom": "19.2.3",
@@ -27,11 +31,21 @@
     "postcss": "8.5.15",
     "typescript": "6.0.3"
   },
+  "engines": {
+    "node": ">=22"
+  },
+  "homepage": "",
+  "keywords": [],
+  "license": "ISC",
+  "main": "index.js",
   "name": "@nfl-pool-monorepo/transactional",
   "private": true,
+  "repository": "",
   "scripts": {
     "dev": "cp .env ../../node_modules/react-email/dist/preview && email dev --dir emails/templates",
-    "lint": "biome check . --write"
+    "lint": "biome check . --write && npmPkgJsonLint .",
+    "typecheck": "tsgo --noEmit",
+    "typecheck:tsc": "tsc --noEmit"
   },
   "version": "0.1.0"
 }

@@ -1,14 +1,19 @@
 {
   "author": "",
+  "config": {},
+  "contributors": [],
   "dependencies": {
     "clsx": "2.1.1",
     "mysql2": "3.22.3",
     "mysqldump": "3.2.0",
     "tailwind-merge": "3.6.0"
   },
-  "description": "",
+  "description": "Utility functions for the NFL Pool.",
   "devDependencies": {
     "@nfl-pool-monorepo/tsconfig": "*"
+  },
+  "engines": {
+    "node": ">=22"
   },
   "exports": {
     ".": "./src",
@@ -19,12 +24,15 @@
     "./styles": "./src/styles.ts",
     "./zod": "./src/zod.ts"
   },
+  "homepage": "",
   "keywords": [],
   "license": "ISC",
   "main": "index.js",
   "name": "@nfl-pool-monorepo/utils",
+  "private": true,
+  "repository": "",
   "scripts": {
-    "lint": "biome check ./src --write",
+    "lint": "biome check ./src --write && npmPkgJsonLint .",
     "test": "vitest run",
     "typecheck": "tsgo --noEmit",
     "typecheck:tsc": "tsc --noEmit"
