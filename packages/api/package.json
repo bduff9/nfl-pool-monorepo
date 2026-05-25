@@ -7,13 +7,15 @@
   },
   "description": "",
   "devDependencies": {
+    "@nfl-pool-monorepo/tsconfig": "*"
   },
   "keywords": [],
   "license": "ISC",
   "main": "index.js",
   "name": "@nfl-pool-monorepo/api",
   "scripts": {
-    "lint": "biome check ./src --write"
+    "lint": "biome check ./src --write",
+    "test": "vitest run"
   },
   "version": "1.0.0"
 }

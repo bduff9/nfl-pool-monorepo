@@ -94,6 +94,7 @@
     "lint:scripts": "biome check --write --no-errors-on-unmatched .",
     "lint:styles": "stylelint \"src/**/*.css\" --fix",
     "start": "next start",
+    "test": "vitest run",
     "typecheck": "next typegen && tsc --noEmit"
   },
   "version": "0.1.0"

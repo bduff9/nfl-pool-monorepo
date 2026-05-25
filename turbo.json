@@ -52,11 +52,7 @@
       "dependsOn": ["^topo"]
     },
     "knip": {
-      "cache": true,
-      "inputs": [
-        "**/*.tsx",
-        "**/*.ts"
-      ]
+      "cache": true
     },
     "lint": {
       "dependsOn": ["^topo"]
@@ -65,7 +61,12 @@
       "dependsOn": ["^topo"]
     },
     "test": {
-      "cache": true
+      "cache": true,
+      "inputs": [
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "vitest.config.ts"
+      ]
     },
     "topo": {
       "dependsOn": ["^topo"]

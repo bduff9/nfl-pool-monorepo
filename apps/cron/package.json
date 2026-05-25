@@ -21,7 +21,6 @@
   "description": "Cron jobs for the NFL Pool.",
   "devDependencies": {
     "@types/aws-lambda": "8.10.152",
-    "@types/jest": "30.0.0",
     "@types/node": "24.3.0",
     "@types/source-map-support": "0.5.10",
     "aws-cdk": "2.1027.0",
@@ -48,6 +47,7 @@
     "lint": "pnpm lint:scripts && pnpm lint:package",
     "lint:package": "npmPkgJsonLint .",
     "lint:scripts": "biome check --write --no-errors-on-unmatched .",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "watch": "tsc -w"
   },

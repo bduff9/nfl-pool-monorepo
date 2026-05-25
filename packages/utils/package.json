@@ -23,6 +23,7 @@
   "name": "@nfl-pool-monorepo/utils",
   "scripts": {
     "lint": "biome check ./src --write",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "version": "1.0.0"

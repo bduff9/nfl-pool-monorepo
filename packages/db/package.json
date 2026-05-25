@@ -23,7 +23,8 @@
     "db:generate": "kysely migrate make --",
     "db:migrate": "kysely migrate latest && npm run codegen",
     "db:migrate:prod": "kysely migrate latest",
-    "lint": "biome check ./src --write"
+    "lint": "biome check ./src --write",
+    "test": "vitest run"
   },
   "version": "1.0.0"
 }

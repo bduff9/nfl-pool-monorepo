@@ -1,8 +1,14 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "ignoreBinaries": ["biome", "npmPkgJsonLint"],
-  "ignoreDependencies": ["@radix-ui/react-label", "@radix-ui/react-slot", "react-phone-number-input"],
-  "ignoreFiles": ["public/sw.js"],
+  "ignoreBinaries": ["biome", "npmPkgJsonLint", "vitest"],
+  "ignoreDependencies": [
+    "@radix-ui/react-label",
+    "@radix-ui/react-slot",
+    "react-phone-number-input",
+    "vitest",
+    "vite-tsconfig-paths"
+  ],
+  "ignoreFiles": ["public/sw.js", "vitest.config.ts", "src/**/*.test.ts"],
   "paths": {
     "@/*": ["./src/*"]
   }
