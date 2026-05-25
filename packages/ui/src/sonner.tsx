@@ -7,7 +7,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme();
 
   return (
-    //@ts-expect-error undefined is causing many issues
+    // @ts-expect-error exactOptionalPropertyTypes mismatch with sonner's ToasterProps spread
     <Sonner
       className="toaster group"
       style={

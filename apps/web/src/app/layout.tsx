@@ -15,7 +15,7 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { Metadata, Viewport } from "next";
 import { Roboto } from "next/font/google";
 import Script from "next/script";
-import { type FC, Suspense, unstable_ViewTransition as ViewTransition } from "react";
+import { type FC, Suspense, ViewTransition } from "react";
 import "server-only";
 
 import { Analytics } from "@vercel/analytics/next";

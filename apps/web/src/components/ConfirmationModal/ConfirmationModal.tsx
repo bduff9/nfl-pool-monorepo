@@ -23,7 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@nfl-pool-monorepo/ui/components/dialog";
-import { Loader2 } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import type { FC, ReactNode } from "react";
 import { useState } from "react";
 
@@ -73,7 +73,7 @@ const ConfirmationModal: FC<ConfirmationModal> = ({
           <Button disabled={loading} onClick={handleAccept}>
             {loading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                 Loading...
               </>
             ) : (

@@ -2,6 +2,7 @@
   "author": "",
   "dependencies": {
     "@nfl-pool-monorepo/utils": "*",
+    "arktype": "2.2.0",
     "kysely": "0.29.2",
     "mysql2": "3.22.3"
   },

@@ -18,10 +18,7 @@
 
 import { motion } from "framer-motion";
 import type { FC } from "react";
-import { useState } from "react";
-import { Pie, PieChart, ResponsiveContainer, Sector, Tooltip } from "recharts";
-import type { PieSectorDataItem } from "recharts/types/polar/Pie";
-import type { ActiveShape } from "recharts/types/util/types";
+import { Customized, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 type PieChartData = {
   fill: string;
@@ -30,73 +27,39 @@ type PieChartData = {
   total: number;
   value: number;
 };
-type ActiveShapeProps = {
-  cx: number;
-  cy: number;
-  midAngle: number;
-  innerRadius: number;
-  outerRadius: number;
-  startAngle: number;
-  endAngle: number;
-  fill: string;
-  payload: PieChartData;
-  percent: number;
-  value: number;
-};
-
-const renderActiveShape: ActiveShape<PieSectorDataItem> = (props: unknown) => {
-  const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload } = props as ActiveShapeProps;
-
-  return (
-    <g>
-      <text dy={22} fontSize="4rem" textAnchor="middle" x={cx} y={cy}>
-        {payload.myPlace}
-      </text>
-      <Sector
-        cx={cx}
-        cy={cy}
-        endAngle={endAngle}
-        fill={fill}
-        innerRadius={innerRadius}
-        outerRadius={outerRadius}
-        startAngle={startAngle}
-      />
-      <text dy={100} fontSize="1rem" textAnchor="middle" x={cx} y={cy}>
-        Out of {payload.total}
-      </text>
-    </g>
-  );
-};
 
 type RankingPieChartProps = {
   data: Array<PieChartData>;
   layoutId: string;
 };
 
+const CenterLabel: FC<{ data: Array<PieChartData> }> = ({ data }) => {
+  const item = data[0];
+
+  if (!item) return null;
+
+  return (
+    <g style={{ pointerEvents: "none" }}>
+      <text dy={22} fontSize="4rem" textAnchor="middle" x="50%" y="50%">
+        {item.myPlace}
+      </text>
+      <text dy={100} fontSize="1rem" textAnchor="middle" x="50%" y="50%">
+        Out of {item.total}
+      </text>
+    </g>
+  );
+};
+
 const RankingPieChart: FC<RankingPieChartProps> = ({ data, layoutId }) => {
   const initialIndex = data.findIndex((d) => d.value > 0);
-  const [activeIndex, setActiveIndex] = useState<number>(initialIndex);
-
-  const onPieEnter = (_: unknown, index: number) => {
-    setActiveIndex(index);
-  };
 
   return (
     <motion.div layoutId={layoutId}>
       <ResponsiveContainer minHeight="206px" width="100%">
         <PieChart height={400} width={400}>
-          <Pie
-            activeIndex={activeIndex}
-            activeShape={renderActiveShape}
-            cx="50%"
-            cy="50%"
-            data={data}
-            dataKey="value"
-            innerRadius={60}
-            onMouseEnter={onPieEnter}
-            outerRadius={80}
-          />
-          <Tooltip />
+          <Pie cx="50%" cy="50%" data={data} dataKey="value" innerRadius={60} outerRadius={80} />
+          <Customized component={() => <CenterLabel data={data} />} />
+          <Tooltip defaultIndex={initialIndex} />
         </PieChart>
       </ResponsiveContainer>
     </motion.div>

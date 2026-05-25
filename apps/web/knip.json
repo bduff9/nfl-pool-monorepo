@@ -4,9 +4,8 @@
   "ignoreDependencies": [
     "@radix-ui/react-label",
     "@radix-ui/react-slot",
-    "react-phone-number-input",
-    "vitest",
-    "vite-tsconfig-paths"
+    "enhanced-resolve",
+    "react-phone-number-input"
   ],
   "ignoreFiles": ["public/sw.js", "vitest.config.ts", "src/**/*.test.ts"],
   "paths": {
