@@ -1,5 +1,9 @@
 import { getSingleWeekFromApi } from "@nfl-pool-monorepo/api/src";
 import { getDbGameFromApi, parseTeamsFromApi } from "@nfl-pool-monorepo/api/src/utils";
+import {
+  updateBestPlacementOverall,
+  updateBestPlacementWeekly,
+} from "@nfl-pool-monorepo/db/src/mutations/bestPlacement";
 import { updateDBGame, updateSpreads } from "@nfl-pool-monorepo/db/src/mutations/game";
 import { updateOverallMV } from "@nfl-pool-monorepo/db/src/mutations/overallMv";
 import { lockLatePaymentUsers, updateAllPayouts } from "@nfl-pool-monorepo/db/src/mutations/payment";
@@ -87,6 +91,8 @@ export const handler: Handler<never, void> = async (_event, _context) => {
     await updateWeeklyMV(currentWeek);
     await updateOverallMV(currentWeek);
     await updateSurvivorMV(currentWeek);
+    await updateBestPlacementWeekly(currentWeek);
+    await updateBestPlacementOverall(currentWeek);
   }
 
   if (gamesLeft === 0) {

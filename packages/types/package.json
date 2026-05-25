@@ -16,7 +16,7 @@
   "homepage": "",
   "keywords": [],
   "license": "ISC",
-  "main": "index.js",
+  "main": "./src/index.ts",
   "name": "@nfl-pool-monorepo/types",
   "private": true,
   "repository": "",
