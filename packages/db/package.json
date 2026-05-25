@@ -8,8 +8,19 @@
   },
   "description": "",
   "devDependencies": {
+    "c12": "4.0.0-beta.5",
+    "citty": "0.2.2",
+    "confbox": "0.2.4",
+    "consola": "3.4.2",
+    "jiti": "2.7.0",
     "kysely-codegen": "0.20.0",
-    "kysely-ctl": "0.21.0"
+    "kysely-ctl": "0.21.0",
+    "nypm": "^0.6.6",
+    "ofetch": "^1.5.1",
+    "pathe": "2.0.3",
+    "pkg-types": "2.3.1",
+    "std-env": "4.1.0",
+    "sync-dotenv": "2.7.0"
   },
   "keywords": [],
   "license": "ISC",
@@ -21,6 +32,7 @@
     "db:generate": "kysely migrate make --",
     "db:migrate": "kysely migrate latest && npm run codegen",
     "db:migrate:prod": "kysely migrate latest",
+    "env": "sync-dotenv",
     "lint": "biome check ./src --write",
     "test": "vitest run"
   },

@@ -50,20 +50,28 @@ export interface ApiCalls {
   ApiCallYear: number;
 }
 
-export interface APICalls {
-  APICallAdded: Generated<Date>;
-  APICallAddedBy: string;
-  APICallDate: Generated<Date>;
-  APICallDeleted: Date | null;
-  APICallDeletedBy: string | null;
-  APICallError: string | null;
-  APICallID: Generated<number>;
-  APICallResponse: string | null;
-  APICallUpdated: Generated<Date>;
-  APICallUpdatedBy: string;
-  APICallURL: string;
-  APICallWeek: number | null;
-  APICallYear: number;
+export interface BestPlacementOverall {
+  BestPlacementOverallID: Generated<number>;
+  BestRank: number | null;
+  CanAchieveFirst: Generated<number>;
+  CanAchieveSecond: Generated<number>;
+  CanAchieveThird: Generated<number>;
+  LastUpdated: Generated<Date>;
+  ScenarioCount: Generated<number>;
+  UndecidedGamesAtCalc: Generated<number>;
+  UserID: number;
+}
+
+export interface BestPlacementWeekly {
+  BestPlacementWeeklyID: Generated<number>;
+  BestRank: number | null;
+  CanAchieveFirst: Generated<number>;
+  CanAchieveSecond: Generated<number>;
+  LastUpdated: Generated<Date>;
+  ScenarioCount: Generated<number>;
+  UndecidedGamesAtCalc: Generated<number>;
+  UserID: number;
+  Week: number;
 }
 
 export interface Devices {
@@ -478,7 +486,8 @@ export interface WeeklyMV {
 export interface DB {
   Accounts: Accounts;
   ApiCalls: ApiCalls;
-  APICalls: APICalls;
+  BestPlacementOverall: BestPlacementOverall;
+  BestPlacementWeekly: BestPlacementWeekly;
   Devices: Devices;
   Emails: Emails;
   Games: Games;
