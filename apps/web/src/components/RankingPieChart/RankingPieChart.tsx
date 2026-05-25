@@ -18,7 +18,7 @@
 
 import { motion } from "framer-motion";
 import type { FC } from "react";
-import { Customized, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { Pie, PieChart, ResponsiveContainer, Tooltip, useChartHeight, useChartWidth } from "recharts";
 
 type PieChartData = {
   fill: string;
@@ -34,16 +34,21 @@ type RankingPieChartProps = {
 };
 
 const CenterLabel: FC<{ data: Array<PieChartData> }> = ({ data }) => {
+  const width = useChartWidth();
+  const height = useChartHeight();
   const item = data[0];
 
   if (!item) return null;
 
+  const cx = (width ?? 0) / 2;
+  const cy = (height ?? 0) / 2;
+
   return (
     <g style={{ pointerEvents: "none" }}>
-      <text dy={22} fontSize="4rem" textAnchor="middle" x="50%" y="50%">
+      <text dy={22} fontSize="4rem" textAnchor="middle" x={cx} y={cy}>
         {item.myPlace}
       </text>
-      <text dy={100} fontSize="1rem" textAnchor="middle" x="50%" y="50%">
+      <text dy={100} fontSize="1rem" textAnchor="middle" x={cx} y={cy}>
         Out of {item.total}
       </text>
     </g>
@@ -58,8 +63,8 @@ const RankingPieChart: FC<RankingPieChartProps> = ({ data, layoutId }) => {
       <ResponsiveContainer minHeight="206px" width="100%">
         <PieChart height={400} width={400}>
           <Pie cx="50%" cy="50%" data={data} dataKey="value" innerRadius={60} outerRadius={80} />
-          <Customized component={() => <CenterLabel data={data} />} />
-          <Tooltip defaultIndex={initialIndex} />
+          <CenterLabel data={data} />
+          <Tooltip defaultIndex={initialIndex >= 0 ? initialIndex : null} />
         </PieChart>
       </ResponsiveContainer>
     </motion.div>

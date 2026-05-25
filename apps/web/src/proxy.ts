@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 export const proxy = (request: NextRequest): NextResponse => {
-  if (request.method === "GET") {
+  if (request.method === "GET" || request.method === "HEAD") {
     const response = NextResponse.next();
     const token = request.cookies.get("session")?.value ?? null;
 
