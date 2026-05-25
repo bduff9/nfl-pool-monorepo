@@ -78,6 +78,8 @@ export const getTimeRemaining = (end: Date): TimeParts => {
   };
 };
 
+const pluralize = (value: number, unit: string): string => `${value} ${unit}${value === 1 ? "" : "s"}`;
+
 export const getTimeRemainingString = ({ days, hours, minutes, seconds, total }: TimeParts): string => {
   if (total <= 0) {
     return "";
@@ -87,22 +89,22 @@ export const getTimeRemainingString = ({ days, hours, minutes, seconds, total }:
   let hasParts = 0;
 
   if (days > 0) {
-    remaining += `${days} days, `;
+    remaining += `${pluralize(days, "day")}, `;
     hasParts++;
   }
 
   if ((hours > 0 || hasParts > 0) && hasParts < 2) {
-    remaining += `${hours} hours, `;
+    remaining += `${pluralize(hours, "hour")}, `;
     hasParts++;
   }
 
   if ((minutes > 0 || hasParts > 0) && hasParts < 2) {
-    remaining += `${minutes} minutes, `;
+    remaining += `${pluralize(minutes, "minute")}, `;
     hasParts++;
   }
 
   if ((seconds > 0 || hasParts > 0) && hasParts < 2) {
-    remaining += `${seconds} seconds, `;
+    remaining += `${pluralize(seconds, "second")}, `;
     hasParts++;
   }
 
