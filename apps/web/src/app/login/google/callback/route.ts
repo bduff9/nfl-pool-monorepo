@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 
 import { createSession, generateSessionToken, google, setSessionTokenCookie } from "@/lib/auth";
+import { AuthVerificationError, verifyLoginEligibility, verifyRegistrationEligibility } from "@/lib/auth-verification";
 import { getCurrentSession } from "@/server/loaders/sessions";
 
 type GoogleClaims = {
@@ -137,10 +138,25 @@ export const GET = async (request: NextRequest, _ctx: RouteContext<"/login/googl
       .executeTakeFirstOrThrow();
   }
 
-  if (status === "New") {
-    //TODO: insert registration verification here using userID, have to extract from register() to reuse here
-  } else {
-    //TODO: insert login verification here using userID, have to extract from login() to reuse here
+  try {
+    if (status === "New") {
+      await verifyRegistrationEligibility();
+    } else {
+      const existingUser = await db
+        .selectFrom("Users")
+        .select(["UserID", "UserDoneRegistering", "UserTrusted"])
+        .where("UserID", "=", user.UserID)
+        .executeTakeFirstOrThrow();
+      await verifyLoginEligibility(existingUser);
+    }
+  } catch (error) {
+    if (error instanceof AuthVerificationError) {
+      return new Response(error.message, {
+        status: error.statusCode,
+      });
+    }
+
+    throw error;
   }
 
   const sessionToken = generateSessionToken();
@@ -148,9 +164,11 @@ export const GET = async (request: NextRequest, _ctx: RouteContext<"/login/googl
 
   await setSessionTokenCookie(sessionToken, session.expiresAt);
 
+  const redirectTo = cookieStore.get("redirect_to")?.value ?? "/";
+
   return new Response(null, {
     headers: {
-      Location: "/",
+      Location: redirectTo,
     },
     status: 302,
   });

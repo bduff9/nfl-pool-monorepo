@@ -13,7 +13,7 @@ import { sendPasswordResetEmail } from "@nfl-pool-monorepo/transactional/emails/
 import { sendTrustedEmail } from "@nfl-pool-monorepo/transactional/emails/trusted";
 import { sendUntrustedEmail } from "@nfl-pool-monorepo/transactional/emails/untrusted";
 import { ADMIN_USER, DEFAULT_AUTO_PICKS } from "@nfl-pool-monorepo/utils/constants";
-import { type Selectable, sql, type Transaction } from "kysely";
+import type { Selectable, Transaction } from "kysely";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -26,6 +26,7 @@ import {
   verifyPasswordHash,
   verifyPasswordStrength,
 } from "@/lib/auth";
+import { verifyLoginEligibility, verifyRegistrationEligibility } from "@/lib/auth-verification";
 import { actionClient, adminActionClient, authActionClient } from "@/lib/safe-action";
 import {
   editProfileSchema,
@@ -304,45 +305,7 @@ export const login = actionClient
       throw new Error("Invalid email or password");
     }
 
-    if (user.UserTrusted === 0) {
-      throw new Error("Your account has been blocked.  Please reach out to an administrator to resolve.");
-    }
-
-    if (user.UserDoneRegistering !== 1) {
-      const systemValueResult = await db
-        .selectFrom("SystemValues")
-        .select(["SystemValueValue"])
-        .where("SystemValueName", "=", "PaymentDueWeek")
-        .executeTakeFirst();
-
-      if (!systemValueResult) {
-        throw new Error("System error, please contact an administrator");
-      }
-
-      const lastWeekToRegister = Number(systemValueResult.SystemValueValue);
-
-      const currentWeekResult = await db
-        .selectFrom("Games")
-        .select(({ ref }) => [sql<string>`COALESCE(MIN(${ref("GameWeek")}), 18)`.as("GameWeek")])
-        .where("GameStatus", "<>", "Final")
-        .executeTakeFirstOrThrow();
-      const currentWeek = Number(currentWeekResult.GameWeek);
-      const owesResult = await db
-        .selectFrom("Payments")
-        .select(({ ref }) => [sql<string>`COALESCE(SUM(${ref("PaymentAmount")}), 0)`.as("owes")])
-        .where("UserID", "=", user.UserID)
-        .executeTakeFirstOrThrow();
-
-      if (currentWeek > lastWeekToRegister) {
-        if (Number(owesResult.owes) !== 0) {
-          throw new Error(
-            "Your entry fee is past due, please pay immediately to regain access and avoid losing any points",
-          );
-        }
-
-        throw new Error("Sorry, registration is over for this year, please try again next season!");
-      }
-    }
+    await verifyLoginEligibility(user);
 
     const sessionToken = generateSessionToken();
     const session = await createSession(sessionToken, user.UserID);
@@ -468,27 +431,7 @@ export const register = actionClient
       UserTrusted: null,
     };
 
-    const systemValueResult = await db
-      .selectFrom("SystemValues")
-      .select(["SystemValueValue"])
-      .where("SystemValueName", "=", "PaymentDueWeek")
-      .executeTakeFirst();
-
-    if (!systemValueResult) {
-      throw new Error("System error, please contact an administrator");
-    }
-
-    const lastWeekToRegister = Number(systemValueResult.SystemValueValue);
-    const currentWeekResult = await db
-      .selectFrom("Games")
-      .select(({ ref }) => [sql<string>`COALESCE(MIN(${ref("GameWeek")}), 18)`.as("GameWeek")])
-      .where("GameStatus", "<>", "Final")
-      .executeTakeFirstOrThrow();
-    const currentWeek = Number(currentWeekResult.GameWeek);
-
-    if (currentWeek > lastWeekToRegister) {
-      throw new Error("Sorry, registration is over for this year, please try again next season!");
-    }
+    await verifyRegistrationEligibility();
 
     const sessionToken = generateSessionToken();
     const session = await createSession(sessionToken, user.UserID);
