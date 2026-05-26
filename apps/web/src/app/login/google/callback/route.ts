@@ -164,7 +164,9 @@ export const GET = async (request: NextRequest, _ctx: RouteContext<"/login/googl
 
   await setSessionTokenCookie(sessionToken, session.expiresAt);
 
-  const redirectTo = cookieStore.get("redirect_to")?.value ?? "/";
+  const rawRedirect = cookieStore.get("redirect_to")?.value ?? "/";
+  // Ensure redirect is a relative path, not an external URL
+  const redirectTo = rawRedirect.startsWith("/") && !rawRedirect.startsWith("//") ? rawRedirect : "/";
 
   return new Response(null, {
     headers: {
