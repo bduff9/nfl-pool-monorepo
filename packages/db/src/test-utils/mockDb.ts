@@ -15,6 +15,8 @@ const CHAIN_METHODS = [
   "values",
   "deleteFrom",
   "onConflict",
+  "columns",
+  "expression",
 ] as const;
 
 type ChainMethod = (typeof CHAIN_METHODS)[number];
