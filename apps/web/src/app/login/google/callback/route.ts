@@ -1,6 +1,7 @@
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import type { OAuth2Tokens } from "arctic";
 import { decodeIdToken } from "arctic";
+import { type } from "arktype";
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 
@@ -8,21 +9,20 @@ import { createSession, generateSessionToken, google, setSessionTokenCookie } fr
 import { AuthVerificationError, verifyLoginEligibility, verifyRegistrationEligibility } from "@/lib/auth-verification";
 import { getCurrentSession } from "@/server/loaders/sessions";
 
-type GoogleClaims = {
-  iss: string;
-  azp: string;
-  aud: string;
-  sub: string;
-  email: string;
-  email_verified: boolean;
-  at_hash: string;
-  name: string;
-  picture: string;
-  given_name: string;
-  family_name: string;
-  iat: number;
-  exp: number;
-};
+const googleClaimsSchema = type({
+  aud: "string",
+  azp: "string",
+  email: "string.email",
+  email_verified: "boolean",
+  exp: "number",
+  family_name: "string",
+  given_name: "string",
+  iat: "number",
+  iss: "string",
+  name: "string",
+  picture: "string",
+  sub: "string",
+});
 
 export const GET = async (request: NextRequest, _ctx: RouteContext<"/login/google/callback">): Promise<Response> => {
   const url = new URL(request.url);
@@ -54,7 +54,16 @@ export const GET = async (request: NextRequest, _ctx: RouteContext<"/login/googl
     });
   }
 
-  const claims = decodeIdToken(tokens.idToken()) as GoogleClaims;
+  const claims = googleClaimsSchema(decodeIdToken(tokens.idToken()));
+
+  if (claims instanceof type.errors) {
+    console.error("Invalid Google ID token claims", claims.summary);
+
+    return new Response(null, {
+      status: 400,
+    });
+  }
+
   const googleUserId = claims.sub;
   const { user: signedInUser } = await getCurrentSession();
   let status: "New" | "Existing" | "Linked" = "Linked";

@@ -97,11 +97,12 @@ export const UseBeforeUnloadProvider = ({ children }: PropsWithChildren) => {
   // This Provider has to be rendered in the layout phase wrapping the page.
   // biome-ignore lint/correctness/useExhaustiveDependencies: router.replace is not needed in the deps
   useEffect(() => {
-    // biome-ignore lint/suspicious/noExplicitAny: Popstate handler is not known
-    let nextjsPopStateHandler: (...args: any[]) => void;
+    type PopStateHandler = (event: PopStateEvent) => void;
+    type AddEventListenerArgs = Parameters<typeof window.addEventListener>;
 
-    // biome-ignore lint/suspicious/noExplicitAny: Popstate handler is not known
-    function popStateHandler(...args: any[]) {
+    let nextjsPopStateHandler: PopStateHandler;
+
+    const popStateHandler: PopStateHandler = (...args) => {
       useBeforeUnload.ensureSafeNavigation(
         () => {
           nextjsPopStateHandler(...args);
@@ -111,19 +112,17 @@ export const UseBeforeUnloadProvider = ({ children }: PropsWithChildren) => {
           router.replace(lastKnownHref as Route, { scroll: false });
         },
       );
-    }
+    };
 
     addEventListener("popstate", popStateHandler);
 
     const originalAddEventListener = window.addEventListener;
 
-    // biome-ignore lint/suspicious/noExplicitAny: Popstate handler is not known
-    window.addEventListener = (...args: any[]) => {
+    window.addEventListener = (...args: AddEventListenerArgs) => {
       if (args[0] === "popstate") {
-        nextjsPopStateHandler = args[1];
+        nextjsPopStateHandler = args[1] as PopStateHandler;
         window.addEventListener = originalAddEventListener;
       } else {
-        // @ts-expect-error spread can only be used on tuples or into a spread argument
         originalAddEventListener(...args);
       }
     };

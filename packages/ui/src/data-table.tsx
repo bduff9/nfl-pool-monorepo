@@ -95,10 +95,10 @@ export function DataTable<TData extends RowData, TValue>({
     id: "string",
     value: "unknown",
   }).array();
-  const parseFilters = (value: unknown) => {
+  const parseFilters = (value: unknown): ColumnFiltersState => {
     const result = filterSchema(value);
     if (result instanceof type.errors) throw new Error(result.summary);
-    return result as ColumnFiltersState;
+    return result;
   };
   const [columnFilters, setColumnFilters] = useQueryState<ColumnFiltersState>(
     urlFilter,

@@ -72,13 +72,13 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
     <style
       // biome-ignore lint/security/noDangerouslySetInnerHtml: The CSS is generated from a safe, predefined set of themes and is not user-provided.
       dangerouslySetInnerHTML={{
-        __html: Object.entries(THEMES)
+        __html: (Object.entries(THEMES) as Array<[keyof typeof THEMES, string]>)
           .map(
             ([theme, prefix]) => `
 ${prefix} [data-chart=${id}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
-    const color = itemConfig.theme?.[theme as keyof typeof itemConfig.theme] || itemConfig.color;
+    const color = itemConfig.theme?.[theme] || itemConfig.color;
     return color ? `  --color-${key}: ${color};` : null;
   })
   .join("\n")}
@@ -131,8 +131,7 @@ function ChartTooltipContent({
     const [item] = payload;
     const key = `${labelKey || item?.dataKey || item?.name || "value"}`;
     const itemConfig = getPayloadConfigFromPayload(config, item, key);
-    const value =
-      !labelKey && typeof label === "string" ? config[label as keyof typeof config]?.label || label : itemConfig?.label;
+    const value = !labelKey && typeof label === "string" ? config[label]?.label || label : itemConfig?.label;
 
     if (labelFormatter) {
       return <div className={cn("font-medium", labelClassName)}>{labelFormatter(value, payload)}</div>;

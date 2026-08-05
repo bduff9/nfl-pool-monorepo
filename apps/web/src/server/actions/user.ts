@@ -270,22 +270,6 @@ export const finishRegistration = authActionClient
     };
   });
 
-export const getUserDropdown = adminActionClient
-  .outputSchema(
-    type({
-      UserID: "number",
-      UserName: "string | null",
-    }).array(),
-  )
-  .action(async () => {
-    return db
-      .selectFrom("Users")
-      .select(["UserID", "UserName"])
-      .where("UserTrusted", "=", 1)
-      .orderBy("UserName", "asc")
-      .execute();
-  });
-
 export const login = actionClient
   .inputSchema(loginSchema)
   .outputSchema(serverActionResultSchema)

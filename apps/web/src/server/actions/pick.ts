@@ -176,7 +176,12 @@ export const quickPick = actionClient
       })
       .where("PickID", "=", pick.PickID)
       .executeTakeFirstOrThrow();
-    await sendQuickPickConfirmationEmail(userId, teamId, lowestPoint, game.GameWeek);
+
+    try {
+      await sendQuickPickConfirmationEmail(userId, teamId, lowestPoint, game.GameWeek);
+    } catch (error) {
+      console.error("Failed to send quick pick confirmation email", { error, teamId, userId });
+    }
 
     return {
       metadata: {},

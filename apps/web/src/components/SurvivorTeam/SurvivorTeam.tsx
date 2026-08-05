@@ -36,26 +36,43 @@ type Props = {
   weekInProgress: number | null;
 };
 
+const getSurvivorTeamStateClasses = (
+  pick: Props["pick"],
+  weekInProgress: number | null,
+  isOnBye: boolean,
+  loading: Props["loading"],
+  isHome: boolean,
+): string => {
+  if (pick) {
+    if (pick.SurvivorPickWeek < (weekInProgress ?? 0)) {
+      return "cursor-default border-4 text-green-800 border-green-400 bg-green-200";
+    }
+
+    if (pick.SurvivorPickWeek === (weekInProgress ?? 0)) {
+      return "cursor-default border-4 text-blue-800 border-blue-400 bg-blue-200";
+    }
+
+    return "cursor-default border-4 text-yellow-800 border-yellow-400 bg-yellow-200";
+  }
+
+  if (isOnBye) {
+    return "border border-black bg-gray-100";
+  }
+
+  return cn(
+    "border-b border-e border-black bg-gray-100 hover:bg-blue-200 hover:border-blue-400 hover:border-4",
+    loading ? "bg-gray-300 grayscale" : "cursor-pointer",
+    !isHome && "border-s",
+  );
+};
+
 const SurvivorTeam: FC<Props> = ({ isHome = false, isOnBye = false, loading, onClick, pick, team, weekInProgress }) => {
   const isDisabled = !onClick || !!pick || !!loading;
 
   return (
     <button
       className={cn(
-        ...(pick
-          ? [
-              "cursor-default border-4",
-              pick.SurvivorPickWeek < (weekInProgress ?? 0) && "text-green-800 border-green-400 bg-green-200",
-              pick.SurvivorPickWeek === (weekInProgress ?? 0) && "text-blue-800 border-blue-400 bg-blue-200",
-              pick.SurvivorPickWeek > (weekInProgress ?? 0) && "text-yellow-800 border-yellow-400 bg-yellow-200",
-            ]
-          : isOnBye
-            ? "border border-black bg-gray-100"
-            : [
-                "border-b border-e border-black bg-gray-100 hover:bg-blue-200 hover:border-blue-400 hover:border-4",
-                loading ? "bg-gray-300 grayscale" : "cursor-pointer",
-                !isHome && "border-s",
-              ]),
+        getSurvivorTeamStateClasses(pick, weekInProgress, isOnBye, loading, isHome),
         "relative p-2 text-center h-[152px] flex flex-col items-center justify-center",
         isOnBye ? "w-1/2 md:w-1/4 lg:w-1/6" : "w-1/2",
       )}

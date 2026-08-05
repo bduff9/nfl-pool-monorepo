@@ -23,7 +23,7 @@ export const restoreBackup = adminActionClient
         region: env.AWS_R,
       });
       const getObjectCommand = new GetObjectCommand({
-        Bucket: process.env.BACKUP_BUCKET_NAME,
+        Bucket: env.BACKUP_BUCKET_NAME,
         Key: backupName,
       });
 

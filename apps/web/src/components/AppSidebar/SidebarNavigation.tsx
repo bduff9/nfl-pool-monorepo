@@ -27,22 +27,23 @@ import type { getMyTiebreaker } from "@/server/loaders/tiebreaker";
 
 import NavLink from "../NavLink/NavLink";
 
+type SurvivorDialogState = {
+  isPending: boolean;
+  onConfirm: () => void;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+};
+
 type SidebarNavigationProps = {
   currentPage: string;
   hasSeasonStarted: boolean;
   isAliveInSurvivor: boolean;
-  isRegisterPending: boolean;
-  isUnregisterPending: boolean;
   myTiebreaker: Awaited<ReturnType<typeof getMyTiebreaker>>;
-  onRegisterForSurvivor: () => void;
-  onUnregisterForSurvivor: () => void;
   overallMvCount: number;
-  registerDialogOpen: boolean;
+  registerDialog: SurvivorDialogState;
   selectedWeekStatus: Status;
-  setRegisterDialogOpen: (open: boolean) => void;
-  setUnregisterDialogOpen: (open: boolean) => void;
   survivorMvCount: number;
-  unregisterDialogOpen: boolean;
+  unregisterDialog: SurvivorDialogState;
   user: User;
   weeklyMvCount: number;
 };
@@ -52,18 +53,12 @@ export const SidebarNavigation: FC<SidebarNavigationProps> = ({
   currentPage,
   hasSeasonStarted,
   isAliveInSurvivor,
-  isRegisterPending,
-  isUnregisterPending,
   myTiebreaker,
-  onRegisterForSurvivor,
-  onUnregisterForSurvivor,
   overallMvCount,
-  registerDialogOpen,
+  registerDialog,
   selectedWeekStatus,
-  setRegisterDialogOpen,
-  setUnregisterDialogOpen,
   survivorMvCount,
-  unregisterDialogOpen,
+  unregisterDialog,
   user,
   weeklyMvCount,
 }) => {
@@ -146,7 +141,7 @@ export const SidebarNavigation: FC<SidebarNavigationProps> = ({
           <CollapsibleContent>
             <SidebarGroupContent>
               {!(hasSeasonStarted || user.playsSurvivor) && (
-                <AlertDialog onOpenChange={setRegisterDialogOpen} open={registerDialogOpen}>
+                <AlertDialog onOpenChange={registerDialog.setOpen} open={registerDialog.open}>
                   <AlertDialogTrigger asChild>
                     <NavLink isNested>Register for Survivor</NavLink>
                   </AlertDialogTrigger>
@@ -160,7 +155,7 @@ export const SidebarNavigation: FC<SidebarNavigationProps> = ({
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction disabled={isRegisterPending} onClick={onRegisterForSurvivor}>
+                      <AlertDialogAction disabled={registerDialog.isPending} onClick={registerDialog.onConfirm}>
                         Register
                       </AlertDialogAction>
                     </AlertDialogFooter>
@@ -168,7 +163,7 @@ export const SidebarNavigation: FC<SidebarNavigationProps> = ({
                 </AlertDialog>
               )}
               {!hasSeasonStarted && !!user.playsSurvivor && (
-                <AlertDialog onOpenChange={setUnregisterDialogOpen} open={unregisterDialogOpen}>
+                <AlertDialog onOpenChange={unregisterDialog.setOpen} open={unregisterDialog.open}>
                   <AlertDialogTrigger asChild>
                     <NavLink isNested>Drop out of Survivor</NavLink>
                   </AlertDialogTrigger>
@@ -184,8 +179,8 @@ export const SidebarNavigation: FC<SidebarNavigationProps> = ({
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction
                         className={cn(buttonVariants({ variant: "destructive" }))}
-                        disabled={isUnregisterPending}
-                        onClick={onUnregisterForSurvivor}
+                        disabled={unregisterDialog.isPending}
+                        onClick={unregisterDialog.onConfirm}
                       >
                         Drop Out
                       </AlertDialogAction>

@@ -29,7 +29,13 @@ export const getAdminBackups = cache(async () => {
 
     parts.splice(0, 1);
 
-    const amPm = parts.splice(parts.length - 1, 1)[0]?.replace(".sql", "") as "AM" | "PM";
+    const amPm = parts.splice(parts.length - 1, 1)[0]?.replace(".sql", "");
+
+    if (amPm !== "AM" && amPm !== "PM") {
+      console.error("Backup filename did not contain a valid AM/PM segment", { name });
+      continue;
+    }
+
     const date = new Date(parts.join("-"));
     const backup: Backup = {
       backupDate: date,

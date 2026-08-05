@@ -41,6 +41,20 @@ import {
 import { getCurrentUser } from "@/server/loaders/user";
 import { getSelectedWeek, getWeekStatus } from "@/server/loaders/week";
 
+const getPickCellColor = (
+  pick: Awaited<ReturnType<typeof getSurvivorRankings>>[number]["allPicks"][number],
+): string => {
+  if (pick.TeamID === null) {
+    return "bg-red-700";
+  }
+
+  if (pick.WinnerTeamID === null) {
+    return "";
+  }
+
+  return pick.WinnerTeamID === pick.TeamID ? "bg-green-700" : "bg-red-700";
+};
+
 const ViewSurvivor: FC<PageProps<"/survivor/view">> = async () => {
   const redirectUrl = await requireRegistered();
 
@@ -171,16 +185,7 @@ const ViewSurvivor: FC<PageProps<"/survivor/view">> = async () => {
                     </TableHead>
                     {row.allPicks.map((pick) => (
                       <TableCell
-                        className={cn(
-                          "",
-                          pick.TeamID === null
-                            ? "bg-red-700"
-                            : pick.WinnerTeamID && pick.WinnerTeamID === pick.TeamID
-                              ? "bg-green-700"
-                              : pick.WinnerTeamID && pick.WinnerTeamID !== pick.TeamID
-                                ? "bg-red-700"
-                                : "",
-                        )}
+                        className={cn(getPickCellColor(pick))}
                         key={`pick-for-user-${row.UserID}-week-${pick.SurvivorPickWeek}`}
                       >
                         {pick.TeamID ? (

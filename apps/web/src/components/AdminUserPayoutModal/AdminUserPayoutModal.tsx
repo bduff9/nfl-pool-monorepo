@@ -28,7 +28,7 @@ import {
 } from "@nfl-pool-monorepo/ui/components/dialog";
 import { Input } from "@nfl-pool-monorepo/ui/components/input";
 import { Label } from "@nfl-pool-monorepo/ui/components/label";
-import { type ChangeEvent, type FC, useCallback, useEffect, useState } from "react";
+import { type ChangeEvent, type FC, useCallback, useEffect, useRef, useState } from "react";
 import { PiFootballDuotone } from "react-icons/pi";
 
 import type { getUserPayoutsForAdmin } from "@/server/loaders/payment";
@@ -45,10 +45,18 @@ const AdminUserPayoutModal: FC<Props> = ({ handleClose, show = false, updateAmou
   const remainingToPay = Number(winner?.UserWon ?? 0) + Number(winner?.UserPaidOut ?? 0);
   const [toPay, setToPay] = useState<number>(remainingToPay);
   const [loading, setLoading] = useState<boolean>(false);
+  const wasShowingRef = useRef(show);
 
+  // Only reset the in-progress edit when the modal transitions from closed to open, not on every
+  // remainingToPay change - otherwise a background data refresh while the modal is open would
+  // silently clobber whatever the admin is currently typing.
   useEffect(() => {
-    setToPay(remainingToPay);
-  }, [remainingToPay]);
+    if (show && !wasShowingRef.current) {
+      setToPay(remainingToPay);
+    }
+
+    wasShowingRef.current = show;
+  }, [show, remainingToPay]);
 
   const handleSave = async (): Promise<void> => {
     if (!winner) {

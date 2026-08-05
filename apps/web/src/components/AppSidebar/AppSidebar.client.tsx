@@ -171,6 +171,20 @@ const AppSidebarClient: FC<Props> = ({
     executeUnregister();
   };
 
+  const registerDialog = {
+    isPending: isRegisterPending,
+    onConfirm: handleRegisterForSurvivor,
+    open: registerDialogOpen,
+    setOpen: setRegisterDialogOpen,
+  };
+
+  const unregisterDialog = {
+    isPending: isUnregisterPending,
+    onConfirm: handleUnregisterForSurvivor,
+    open: unregisterDialogOpen,
+    setOpen: setUnregisterDialogOpen,
+  };
+
   const handleEditAccountClick = useCallback(() => {
     setUserMenuOpen(false);
     setOpenMobile(false);
@@ -258,18 +272,12 @@ const AppSidebarClient: FC<Props> = ({
         currentPage={currentPage}
         hasSeasonStarted={hasSeasonStarted}
         isAliveInSurvivor={isAliveInSurvivor}
-        isRegisterPending={isRegisterPending}
-        isUnregisterPending={isUnregisterPending}
         myTiebreaker={myTiebreaker}
-        onRegisterForSurvivor={handleRegisterForSurvivor}
-        onUnregisterForSurvivor={handleUnregisterForSurvivor}
         overallMvCount={overallMvCount}
-        registerDialogOpen={registerDialogOpen}
+        registerDialog={registerDialog}
         selectedWeekStatus={selectedWeekStatus}
-        setRegisterDialogOpen={setRegisterDialogOpen}
-        setUnregisterDialogOpen={setUnregisterDialogOpen}
         survivorMvCount={survivorMvCount}
-        unregisterDialogOpen={unregisterDialogOpen}
+        unregisterDialog={unregisterDialog}
         user={user}
         weeklyMvCount={weeklyMvCount}
       />

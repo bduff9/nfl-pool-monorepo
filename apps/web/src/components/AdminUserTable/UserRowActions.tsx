@@ -16,26 +16,27 @@ import { Label } from "@nfl-pool-monorepo/ui/components/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nfl-pool-monorepo/ui/components/select";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { useAction } from "next-safe-action/hooks";
-import { type ChangeEvent, type FC, type FormEvent, useCallback, useEffect, useState } from "react";
+import { type ChangeEvent, type FC, type FormEvent, useCallback, useState } from "react";
 import { FaDollarSign, FaThumbsDown, FaThumbsUp } from "react-icons/fa";
 import { PiFootballDuotone, PiIslandDuotone } from "react-icons/pi";
 import { toast } from "sonner";
 
 import { updateUserPaid } from "@/server/actions/payment";
 import { toggleUserSurvivor } from "@/server/actions/survivor";
-import { getUserDropdown, markUserAsTrusted, removeUserFromAdmin } from "@/server/actions/user";
+import { markUserAsTrusted, removeUserFromAdmin } from "@/server/actions/user";
+import type { getTrustedUsersDropdown } from "@/server/loaders/user";
 
 import type { User } from "./AdminUserColumns";
 
 type UserRowActionsProps = {
+  trustedUsers: Awaited<ReturnType<typeof getTrustedUsersDropdown>>;
   user: User;
 };
 
-export const UserRowActions: FC<UserRowActionsProps> = ({ user }) => {
+export const UserRowActions: FC<UserRowActionsProps> = ({ trustedUsers, user }) => {
   const [paid, setPaid] = useState<number>(0);
   const [paidModalOpen, setPaidModalOpen] = useState<boolean>(false);
   const [trustUserModalOpen, setTrustUserModalOpen] = useState<boolean>(false);
-  const [userList, setUserList] = useState<{ UserID: number; UserName: string | null }[]>([]);
   const [referredByUserId, setReferredByUserId] = useState<number>(0);
   const [deleteUserModalOpen, setDeleteUserModalOpen] = useState<boolean>(false);
 
@@ -48,17 +49,6 @@ export const UserRowActions: FC<UserRowActionsProps> = ({ user }) => {
     onSuccess: () => {
       toast.success("Successfully updated user paid amount!");
       setPaidModalOpen(false);
-    },
-  });
-
-  const { execute: loadUsers } = useAction(getUserDropdown, {
-    onError: ({ error }) => {
-      toast.error("Failed to load user list", {
-        description: error.serverError ?? "Please try refreshing the page.",
-      });
-    },
-    onSuccess: ({ data }) => {
-      setUserList(data ?? []);
     },
   });
 
@@ -96,14 +86,6 @@ export const UserRowActions: FC<UserRowActionsProps> = ({ user }) => {
       toast.success("Successfully updated user survivor status!");
     },
   });
-
-  useEffect(() => {
-    if (user.UserTrusted === 1) {
-      return;
-    }
-
-    loadUsers();
-  }, [loadUsers, user.UserTrusted]);
 
   const handlePaidSubmit = useCallback(
     (event: FormEvent<HTMLFormElement>) => {
@@ -223,7 +205,7 @@ export const UserRowActions: FC<UserRowActionsProps> = ({ user }) => {
                     <SelectValue placeholder="-- Select a user --" />
                   </SelectTrigger>
                   <SelectContent>
-                    {userList.map((otherUser) => (
+                    {trustedUsers.map((otherUser) => (
                       <SelectItem key={`user-${otherUser.UserID}`} value={otherUser.UserID.toString()}>
                         {otherUser.UserName}
                       </SelectItem>

@@ -18,11 +18,11 @@ import { DataTable } from "@nfl-pool-monorepo/ui/components/data-table";
 import { redirect } from "next/navigation";
 import type { FC } from "react";
 
-import { userColumns } from "@/components/AdminUserTable/AdminUserColumns";
+import { getUserColumns } from "@/components/AdminUserTable/AdminUserColumns";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
 import { requireAdmin } from "@/lib/auth";
-import { getAdminUsers } from "@/server/loaders/user";
+import { getAdminUsers, getTrustedUsersDropdown } from "@/server/loaders/user";
 
 const AdminUsersPage: FC<PageProps<"/admin/users">> = async ({ searchParams }) => {
   const redirectUrl = await requireAdmin();
@@ -31,7 +31,11 @@ const AdminUsersPage: FC<PageProps<"/admin/users">> = async ({ searchParams }) =
     return redirect(redirectUrl);
   }
 
-  const { count, results: users } = await getAdminUsers(await searchParams);
+  const [{ count, results: users }, trustedUsers] = await Promise.all([
+    getAdminUsers(await searchParams),
+    getTrustedUsersDropdown(),
+  ]);
+  const userColumns = getUserColumns(trustedUsers);
 
   return (
     <div className="h-full flex flex-wrap md:mx-3">

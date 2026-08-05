@@ -25,6 +25,8 @@ const PhoneInput: React.ForwardRefExoticComponent<PhoneInputProps> = React.forwa
   React.ElementRef<typeof RPNInput.default>,
   PhoneInputProps
 >(({ className, onChange, ...props }, ref) => {
+  // react-phone-number-input might trigger the onChange event as undefined when a valid phone
+  // number is not entered. To prevent this, the value is coerced to an empty string.
   const handleChange = React.useCallback(
     (value: RPNInput.Value) => onChange?.(value || ("" as RPNInput.Value)),
     [onChange],
@@ -38,15 +40,6 @@ const PhoneInput: React.ForwardRefExoticComponent<PhoneInputProps> = React.forwa
       inputComponent={InputComponent}
       onChange={handleChange}
       ref={ref}
-      /**
-       * Handles the onChange event.
-       *
-       * react-phone-number-input might trigger the onChange event as undefined
-       * when a valid phone number is not entered. To prevent this,
-       * the value is coerced to an empty string.
-       *
-       * @param {E164Number | undefined} value - The entered value
-       */
       smartCaret={false}
       {...props}
     />
@@ -75,6 +68,7 @@ const CountrySelect = ({ disabled, value: selectedCountry, options: countryList,
     <Popover>
       <PopoverTrigger asChild>
         <Button
+          aria-label={`Country: ${selectedCountry}`}
           className="flex gap-1 rounded-e-none rounded-s-lg border-r-0 px-3 focus:z-10 dark:bg-white"
           disabled={disabled}
           type="button"

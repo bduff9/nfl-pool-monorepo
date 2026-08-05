@@ -6,13 +6,15 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { FaEnvelope } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 
-import type { getAdminUsers } from "@/server/loaders/user";
+import type { getAdminUsers, getTrustedUsersDropdown } from "@/server/loaders/user";
 
 import { UserRowActions } from "./UserRowActions";
 
 export type User = Awaited<ReturnType<typeof getAdminUsers>>["results"][number];
 
-export const userColumns: ColumnDef<DataTableFeatures, User>[] = [
+export const getUserColumns = (
+  trustedUsers: Awaited<ReturnType<typeof getTrustedUsersDropdown>>,
+): ColumnDef<DataTableFeatures, User>[] => [
   {
     accessorKey: "UserName",
     cell: ({ row }) => {
@@ -31,7 +33,7 @@ export const userColumns: ColumnDef<DataTableFeatures, User>[] = [
     header: ({ column }) => <SortableColumnHeader column={column} title="Name" />,
   },
   {
-    cell: ({ row }) => <UserRowActions user={row.original} />,
+    cell: ({ row }) => <UserRowActions trustedUsers={trustedUsers} user={row.original} />,
     header: "",
     id: "Actions",
   },

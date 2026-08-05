@@ -222,6 +222,15 @@ export const getSurvivorCount = cache(async () => {
   return result?.count ?? 0;
 });
 
+export const getTrustedUsersDropdown = cache(async () => {
+  return db
+    .selectFrom("Users")
+    .select(["UserID", "UserName"])
+    .where("UserTrusted", "=", 1)
+    .orderBy("UserName", "asc")
+    .execute();
+});
+
 export const userHasGoogle = cache(async (userId: number): Promise<boolean> => {
   const result = await db
     .selectFrom("Accounts")
