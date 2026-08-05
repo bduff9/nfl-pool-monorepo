@@ -20,11 +20,16 @@ export const signOut = async (): Promise<void> => {
       .where("UserID", "=", user.id)
       .executeTakeFirstOrThrow();
 
-    await writeLog({
-      LogAction: "LOGOUT",
-      LogData: null,
-      LogMessage: `${userObj.UserName} signed out`,
-    });
+    try {
+      await writeLog({
+        LogAction: "LOGOUT",
+        LogData: null,
+        LogMessage: `${userObj.UserName} signed out`,
+      });
+    } catch (error) {
+      console.error("Failed to write logout audit log", { error, userId: user.id });
+    }
+
     await invalidateSession(session.id);
     await deleteSessionTokenCookie();
     revalidatePath("/", "layout");

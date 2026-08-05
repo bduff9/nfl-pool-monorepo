@@ -102,22 +102,28 @@ export const editMyProfile = authActionClient
     };
   });
 
-const registerUser = (
+const registerUser = async (
   trx: Transaction<DB>,
   user: Pick<
     Selectable<Users>,
     "UserID" | "UserEmail" | "UserPlaysSurvivor" | "UserTeamName" | "UserName" | "UserReferredByRaw"
   >,
-): Promise<unknown> => {
-  const promises: Promise<unknown>[] = [];
+): Promise<void> => {
+  // These all write within the caller's transaction, so a rejection here must propagate
+  // and roll back the transaction rather than leave the user partially registered.
+  await Promise.all([
+    populateUserData(trx, user),
+    ensureUserIsInPublicLeague(trx, user),
+    insertUserHistoryRecord(trx, user),
+    updateUserNotifications(trx, user),
+  ]);
 
-  promises.push(populateUserData(trx, user));
-  promises.push(sendNewUserEmail(user));
-  promises.push(ensureUserIsInPublicLeague(trx, user));
-  promises.push(insertUserHistoryRecord(trx, user));
-  promises.push(updateUserNotifications(trx, user));
+  // The welcome email is best-effort and shouldn't roll back a successful registration.
+  const [emailResult] = await Promise.allSettled([sendNewUserEmail(user)]);
 
-  return Promise.allSettled(promises);
+  if (emailResult.status === "rejected") {
+    console.error("Failed to send new user email", { reason: emailResult.reason, user });
+  }
 };
 
 export const finishRegistration = authActionClient

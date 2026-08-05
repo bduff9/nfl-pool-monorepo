@@ -125,10 +125,22 @@ export const sendAdminEmail = authActionClient
       }
     }
 
-    await Promise.allSettled(promises);
+    const results = await Promise.allSettled(promises);
+    const failed = results.filter((result) => result.status === "rejected");
+
+    if (failed.length > 0) {
+      console.error("Failed to send some admin emails", {
+        failedCount: failed.length,
+        reasons: failed.map((result) => result.reason),
+        totalCount: results.length,
+      });
+    }
 
     return {
-      metadata: {},
+      metadata: {
+        failedCount: failed.length,
+        totalCount: results.length,
+      },
       status: "Success",
     };
   });

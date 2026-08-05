@@ -16,7 +16,7 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { type FC, useCallback, useEffect, useRef } from "react";
+import { type FC, useCallback, useEffect, useRef, useState } from "react";
 
 import "quill/dist/quill.bubble.css";
 
@@ -111,7 +111,7 @@ const SendAdminEmails: FC = () => {
   const preview = useWatch({ control: form.control, name: "preview" });
   const body = useWatch({ control: form.control, name: "body" });
   const userFirstName = useWatch({ control: form.control, name: "userFirstName" });
-  const previewPayload = useRef({ body, preview, subject });
+  const [previewPayload, setPreviewPayload] = useState({ body, preview, subject });
   const { quill, quillRef } = useQuill({
     bounds: "#quill-container",
     formats: quillFormats,
@@ -145,18 +145,23 @@ const SendAdminEmails: FC = () => {
     onSettled: () => {
       if (toastIdRef.current) toast.dismiss(toastIdRef.current);
     },
-    onSuccess: () => {
-      toast.success("Successfully sent email!");
+    onSuccess: ({ data }) => {
+      const failedCount = data?.metadata?.failedCount;
+
+      if (typeof failedCount === "number" && failedCount > 0) {
+        toast.warning("Email partially sent", {
+          description: `${failedCount} of ${data?.metadata?.totalCount} emails failed to send. Check the server logs for details.`,
+        });
+      } else {
+        toast.success("Successfully sent email!");
+      }
+
       form.reset();
     },
   });
 
-  const updatePreview = useCallback(async (): Promise<void> => {
-    previewPayload.current = {
-      body,
-      preview,
-      subject,
-    };
+  const updatePreview = useCallback((): void => {
+    setPreviewPayload({ body, preview, subject });
   }, [body, preview, subject]);
 
   const onSubmit = (values: typeof sendAdminEmailSchema.infer): void => {
@@ -356,7 +361,7 @@ const SendAdminEmails: FC = () => {
 
                   <PreviewAdminEmail
                     emailType={emailType}
-                    payload={previewPayload.current}
+                    payload={previewPayload}
                     userFirstName={userFirstName ?? "USER"}
                   />
                 </>
