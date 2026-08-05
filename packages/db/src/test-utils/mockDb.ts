@@ -5,6 +5,7 @@ const CHAIN_METHODS = [
   "innerJoin",
   "leftJoin",
   "select",
+  "selectAll",
   "where",
   "orderBy",
   "groupBy",
