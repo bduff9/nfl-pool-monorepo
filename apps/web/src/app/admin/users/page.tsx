@@ -15,14 +15,22 @@
  */
 
 import { DataTable } from "@nfl-pool-monorepo/ui/components/data-table";
+import { redirect } from "next/navigation";
 import type { FC } from "react";
 
 import { userColumns } from "@/components/AdminUserTable/AdminUserColumns";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
+import { requireAdmin } from "@/lib/auth";
 import { getAdminUsers } from "@/server/loaders/user";
 
 const AdminUsersPage: FC<PageProps<"/admin/users">> = async ({ searchParams }) => {
+  const redirectUrl = await requireAdmin();
+
+  if (redirectUrl) {
+    return redirect(redirectUrl);
+  }
+
   const { count, results: users } = await getAdminUsers(await searchParams);
 
   return (
