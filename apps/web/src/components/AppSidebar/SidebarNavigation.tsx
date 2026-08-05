@@ -1,0 +1,257 @@
+import type { Status, User } from "@nfl-pool-monorepo/types";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@nfl-pool-monorepo/ui/components/alert-dialog";
+import { buttonVariants } from "@nfl-pool-monorepo/ui/components/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@nfl-pool-monorepo/ui/components/collapsible";
+import {
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenuButton,
+} from "@nfl-pool-monorepo/ui/components/sidebar";
+import { cn } from "@nfl-pool-monorepo/utils/styles";
+import type { FC } from "react";
+import { LuChevronDown } from "react-icons/lu";
+
+import type { getMyTiebreaker } from "@/server/loaders/tiebreaker";
+
+import NavLink from "../NavLink/NavLink";
+
+type SidebarNavigationProps = {
+  currentPage: string;
+  hasSeasonStarted: boolean;
+  isAliveInSurvivor: boolean;
+  isRegisterPending: boolean;
+  isUnregisterPending: boolean;
+  myTiebreaker: Awaited<ReturnType<typeof getMyTiebreaker>>;
+  onRegisterForSurvivor: () => void;
+  onUnregisterForSurvivor: () => void;
+  overallMvCount: number;
+  registerDialogOpen: boolean;
+  selectedWeekStatus: Status;
+  setRegisterDialogOpen: (open: boolean) => void;
+  setUnregisterDialogOpen: (open: boolean) => void;
+  survivorMvCount: number;
+  unregisterDialogOpen: boolean;
+  user: User;
+  weeklyMvCount: number;
+};
+
+// react-doctor-disable-next-line no-many-boolean-props -- these are independent server-driven flags (season/survivor/pending state), not a combinatorial variant surface to design around
+export const SidebarNavigation: FC<SidebarNavigationProps> = ({
+  currentPage,
+  hasSeasonStarted,
+  isAliveInSurvivor,
+  isRegisterPending,
+  isUnregisterPending,
+  myTiebreaker,
+  onRegisterForSurvivor,
+  onUnregisterForSurvivor,
+  overallMvCount,
+  registerDialogOpen,
+  selectedWeekStatus,
+  setRegisterDialogOpen,
+  setUnregisterDialogOpen,
+  survivorMvCount,
+  unregisterDialogOpen,
+  user,
+  weeklyMvCount,
+}) => {
+  if (user.doneRegistering !== 1) {
+    return (
+      <SidebarContent>
+        <SidebarMenuButton asChild>
+          <NavLink href="/users/create">Finish Registration</NavLink>
+        </SidebarMenuButton>
+
+        <SidebarMenuButton asChild>
+          <NavLink href="/support">Help</NavLink>
+        </SidebarMenuButton>
+      </SidebarContent>
+    );
+  }
+
+  return (
+    <SidebarContent>
+      <Collapsible className="group/collapsible" defaultOpen={currentPage === "Dashboard"}>
+        <SidebarGroup>
+          <SidebarGroupLabel asChild className="text-2xl text-sidebar-foreground">
+            <CollapsibleTrigger>
+              Dashboard
+              <LuChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
+            </CollapsibleTrigger>
+          </SidebarGroupLabel>
+          <CollapsibleContent>
+            <SidebarGroupContent>
+              <NavLink href="/" isNested>
+                My Dashboard
+              </NavLink>
+              <NavLink href="/weekly" isNested show={weeklyMvCount > 0}>
+                Week Results
+              </NavLink>
+              <NavLink href="/overall" isNested show={overallMvCount > 0}>
+                Overall Results
+              </NavLink>
+            </SidebarGroupContent>
+          </CollapsibleContent>
+        </SidebarGroup>
+      </Collapsible>
+
+      <Collapsible className="group/collapsible" defaultOpen={currentPage === "Picks"}>
+        <SidebarGroup>
+          <SidebarGroupLabel asChild className="text-2xl text-sidebar-foreground">
+            <CollapsibleTrigger>
+              Picks
+              <LuChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
+            </CollapsibleTrigger>
+          </SidebarGroupLabel>
+          <CollapsibleContent>
+            <SidebarGroupContent>
+              <NavLink href="/picks/set" isNested show={myTiebreaker?.TiebreakerHasSubmitted !== 1}>
+                Make Picks
+              </NavLink>
+              <NavLink href="/picks/view" isNested>
+                View My Picks
+              </NavLink>
+              <NavLink
+                href="/picks/viewall"
+                isNested
+                show={weeklyMvCount > 0 && myTiebreaker?.TiebreakerHasSubmitted === 1}
+              >
+                View All Picks
+              </NavLink>
+            </SidebarGroupContent>
+          </CollapsibleContent>
+        </SidebarGroup>
+      </Collapsible>
+
+      <Collapsible className="group/collapsible" defaultOpen={currentPage === "Survivor"}>
+        <SidebarGroup>
+          <SidebarGroupLabel asChild className="text-2xl text-sidebar-foreground">
+            <CollapsibleTrigger>
+              Survivor
+              <LuChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
+            </CollapsibleTrigger>
+          </SidebarGroupLabel>
+          <CollapsibleContent>
+            <SidebarGroupContent>
+              {!(hasSeasonStarted || user.playsSurvivor) && (
+                <AlertDialog onOpenChange={setRegisterDialogOpen} open={registerDialogOpen}>
+                  <AlertDialogTrigger asChild>
+                    <NavLink isNested>Register for Survivor</NavLink>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Register for Survivor Pool</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to register for the survivor pool? You will be required to pick one team
+                        each week to win. If your team loses, you're eliminated from the pool.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction disabled={isRegisterPending} onClick={onRegisterForSurvivor}>
+                        Register
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+              {!hasSeasonStarted && !!user.playsSurvivor && (
+                <AlertDialog onOpenChange={setUnregisterDialogOpen} open={unregisterDialogOpen}>
+                  <AlertDialogTrigger asChild>
+                    <NavLink isNested>Drop out of Survivor</NavLink>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Drop out of Survivor Pool</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to drop out of the survivor pool? This action cannot be undone, and you
+                        will not be able to rejoin once the season has started.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        className={cn(buttonVariants({ variant: "destructive" }))}
+                        disabled={isUnregisterPending}
+                        onClick={onUnregisterForSurvivor}
+                      >
+                        Drop Out
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+              <NavLink
+                href="/survivor/set"
+                isNested
+                show={!!user.playsSurvivor && isAliveInSurvivor && selectedWeekStatus === "Not Started"}
+              >
+                Make Picks
+              </NavLink>
+              <NavLink href="/survivor/view" isNested show={survivorMvCount > 0}>
+                View Picks
+              </NavLink>
+            </SidebarGroupContent>
+          </CollapsibleContent>
+        </SidebarGroup>
+      </Collapsible>
+
+      <SidebarMenuButton asChild>
+        <NavLink href="/scoreboard" show={!!user.doneRegistering}>
+          NFL Scoreboard
+        </NavLink>
+      </SidebarMenuButton>
+
+      <SidebarMenuButton asChild>
+        <NavLink href="/support">Help</NavLink>
+      </SidebarMenuButton>
+
+      {user.isAdmin === 1 && (
+        <Collapsible className="group/collapsible" defaultOpen={currentPage === "Admin"}>
+          <SidebarGroup>
+            <SidebarGroupLabel asChild className="text-2xl text-sidebar-foreground">
+              <CollapsibleTrigger>
+                Admin
+                <LuChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
+              </CollapsibleTrigger>
+            </SidebarGroupLabel>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <NavLink href="/admin/api" isNested>
+                  API Logs
+                </NavLink>
+                <NavLink href="/admin/backups" isNested>
+                  Backups
+                </NavLink>
+                <NavLink href="/admin/email" isNested>
+                  Emails
+                </NavLink>
+                <NavLink href="/admin/logs" isNested>
+                  Logs
+                </NavLink>
+                <NavLink href="/admin/payments" isNested>
+                  Payments
+                </NavLink>
+                <NavLink href="/admin/users" isNested>
+                  Users
+                </NavLink>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
+      )}
+    </SidebarContent>
+  );
+};

@@ -14,6 +14,7 @@
  * Home: https://asitewithnoname.com/
  */
 
+import { Skeleton } from "@nfl-pool-monorepo/ui/components/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@nfl-pool-monorepo/ui/components/table";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { Metadata } from "next";
@@ -53,7 +54,7 @@ const ViewPicks: FC<PageProps<"/picks/view">> = async () => {
       <CustomHead title={`My Week ${selectedWeek} Picks`} />
       <PageContent className="pb-4">
         <div className="flex flex-col min-h-screen">
-          <Suspense>
+          <Suspense fallback={<Skeleton className="h-32 w-full" />}>
             <MyPicksHead week={selectedWeek} />
           </Suspense>
           <div className="w-full">
@@ -107,7 +108,7 @@ const ViewPicks: FC<PageProps<"/picks/view">> = async () => {
                         </div>
                       </TableHead>
                       <TableCell className="text-center">
-                        {row.pickTeam && (
+                        {!!row.pickTeam && (
                           <Image
                             alt={`${row.pickTeam.TeamCity} ${row.pickTeam.TeamName}`}
                             height={40}

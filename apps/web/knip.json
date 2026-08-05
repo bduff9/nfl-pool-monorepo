@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "ignoreBinaries": ["biome", "npmPkgJsonLint", "tsgo", "vitest"],
+  "ignoreBinaries": ["biome", "npmPkgJsonLint", "vitest"],
   "ignoreDependencies": [
     "@radix-ui/react-label",
     "@radix-ui/react-slot",

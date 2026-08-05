@@ -148,9 +148,12 @@ const PickGame: FC<PickGameProps> = ({
         />
       </div>
       <div className="w-1/2 md:w-2/3 flex items-center text-center">
-        {/** biome-ignore lint/a11y/useKeyWithClickEvents: This is a div with a click handler, but it's not a button */}
-        {/** biome-ignore lint/a11y/noStaticElementInteractions: This is a div with a click handler, but it's not a button */}
-        <div className={cn("cursor-pointer w-2/5 md:w-1/5 flex flex-wrap justify-center")} onClick={onClick}>
+        <button
+          aria-label={`${pick.visitorTeam?.TeamCity} ${pick.visitorTeam?.TeamName}`}
+          className={cn("cursor-pointer w-2/5 md:w-1/5 flex flex-wrap justify-center bg-transparent border-0 p-0")}
+          onClick={onClick}
+          type="button"
+        >
           <Image
             alt={`${pick.visitorTeam?.TeamCity} ${pick.visitorTeam?.TeamName}`}
             height={60}
@@ -161,10 +164,15 @@ const PickGame: FC<PickGameProps> = ({
           <div className={cn("block md:hidden decoration-dotted underline underline-offset-2")}>
             {pick.visitorTeam?.TeamName}
           </div>
-        </div>
-        {/** biome-ignore lint/a11y/useKeyWithClickEvents: This is a div with a click handler, but it's not a button */}
-        {/** biome-ignore lint/a11y/noStaticElementInteractions: This is a div with a click handler, but it's not a button */}
-        <div className={cn("hidden md:block relative cursor-pointer w-2/5 md:w-1/5")} onClick={onClick}>
+        </button>
+        <button
+          aria-label={`${pick.visitorTeam?.TeamCity} ${pick.visitorTeam?.TeamName}`}
+          className={cn(
+            "hidden md:block relative cursor-pointer w-2/5 md:w-1/5 bg-transparent border-0 p-0 text-center",
+          )}
+          onClick={onClick}
+          type="button"
+        >
           {pick.visitorTeam?.TeamCity}
           <br />
           {pick.visitorTeam?.TeamName}
@@ -173,13 +181,18 @@ const PickGame: FC<PickGameProps> = ({
           ) : (
             <FaInfoCircle className="absolute top-1/2 start-0 -translate-y-1/2" />
           )}
-        </div>
+        </button>
         <div className={cn("w-1/5 flex justify-center")}>
           <FaAt />
         </div>
-        {/** biome-ignore lint/a11y/useKeyWithClickEvents: This is a div with a click handler, but it's not a button */}
-        {/** biome-ignore lint/a11y/noStaticElementInteractions: This is a div with a click handler, but it's not a button */}
-        <div className={cn("hidden md:block relative cursor-pointer w-2/5 md:w-1/5")} onClick={onClick}>
+        <button
+          aria-label={`${pick.homeTeam?.TeamCity} ${pick.homeTeam?.TeamName}`}
+          className={cn(
+            "hidden md:block relative cursor-pointer w-2/5 md:w-1/5 bg-transparent border-0 p-0 text-center",
+          )}
+          onClick={onClick}
+          type="button"
+        >
           {pick.homeTeam?.TeamCity}
           <br />
           {pick.homeTeam?.TeamName}
@@ -188,10 +201,13 @@ const PickGame: FC<PickGameProps> = ({
           ) : (
             <FaInfoCircle className="absolute top-1/2 end-0 -translate-y-1/2" />
           )}
-        </div>
-        {/** biome-ignore lint/a11y/useKeyWithClickEvents: This is a div with a click handler, but it's not a button */}
-        {/** biome-ignore lint/a11y/noStaticElementInteractions: This is a div with a click handler, but it's not a button */}
-        <div className={cn("cursor-pointer w-2/5 md:w-1/5 flex flex-wrap justify-center")} onClick={onClick}>
+        </button>
+        <button
+          aria-label={`${pick.homeTeam?.TeamCity} ${pick.homeTeam?.TeamName}`}
+          className={cn("cursor-pointer w-2/5 md:w-1/5 flex flex-wrap justify-center bg-transparent border-0 p-0")}
+          onClick={onClick}
+          type="button"
+        >
           <Image
             alt={`${pick.homeTeam?.TeamCity} ${pick.homeTeam?.TeamName}`}
             height={60}
@@ -202,7 +218,7 @@ const PickGame: FC<PickGameProps> = ({
           <div className={cn("block md:hidden decoration-dotted underline underline-offset-2")}>
             {pick.homeTeam?.TeamName}
           </div>
-        </div>
+        </button>
       </div>
       <div className="w-1/4 md:w-1/6 flex items-center justify-center md:justify-start">
         <Point

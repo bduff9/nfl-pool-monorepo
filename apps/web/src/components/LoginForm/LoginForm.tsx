@@ -15,6 +15,7 @@ import type { Route } from "next";
 import { redirect } from "next/navigation";
 import { useAction } from "next-safe-action/hooks";
 import { type FC, useEffect } from "react";
+import type { ControllerProps } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -27,6 +28,24 @@ type Props = {
   error: string | undefined;
   isLogin: boolean;
 };
+
+const renderEmailField: ControllerProps<typeof loginSchema.infer, "email">["render"] = ({ field }) => (
+  <FormItem>
+    <FormControl>
+      <FloatingLabelInput
+        {...field}
+        autoComplete="email"
+        id="email"
+        label="Email address"
+        placeholder=" "
+        required
+        title="Email Address"
+        type="email"
+      />
+    </FormControl>
+    <FormMessage />
+  </FormItem>
+);
 
 const LoginForm: FC<Props> = ({ error, isLogin }) => {
   const form = useForm<typeof loginSchema.infer>({
@@ -42,6 +61,7 @@ const LoginForm: FC<Props> = ({ error, isLogin }) => {
   // biome-ignore lint/correctness/useExhaustiveDependencies: Only need to run on isLogin change
   useEffect(() => {
     form.setValue("isLogin", isLogin);
+    // react-doctor-disable-next-line exhaustive-deps -- form.setValue is a stable RHF method; only isLogin should retrigger this
   }, [isLogin]);
 
   const { execute: executeLogin, isPending: isLoginPending } = useAction(login, {
@@ -88,27 +108,7 @@ const LoginForm: FC<Props> = ({ error, isLogin }) => {
           </div>
         )}
         <div className="mb-2">
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <FloatingLabelInput
-                    {...field}
-                    autoComplete="email"
-                    id="email"
-                    label="Email address"
-                    placeholder=" "
-                    required
-                    title="Email Address"
-                    type="email"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <FormField control={form.control} name="email" render={renderEmailField} />
         </div>
         <div className="mb-2">
           <PasswordInput isLogin={isLogin} label="Password" name="password" required />
@@ -122,7 +122,7 @@ const LoginForm: FC<Props> = ({ error, isLogin }) => {
           <Button disabled={isLoginPending || isRegisterPending} type="submit" variant="primary">
             {isLogin ? (isLoginPending ? "Logging in..." : "Login") : isRegisterPending ? "Registering..." : "Register"}
           </Button>
-          {isLogin && (
+          {!!isLogin && (
             <Button asChild variant="outline">
               <ProgressBarLink href="/auth/forgot-password">Forgot Password?</ProgressBarLink>
             </Button>

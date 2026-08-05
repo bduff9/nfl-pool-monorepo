@@ -1,6 +1,6 @@
 "use client";
 
-import { SortableColumnHeader } from "@nfl-pool-monorepo/ui/components/data-table";
+import { type DataTableFeatures, SortableColumnHeader } from "@nfl-pool-monorepo/ui/components/data-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import JsonView from "@uiw/react-json-view";
 import { githubDarkTheme } from "@uiw/react-json-view/githubDark";
@@ -9,7 +9,7 @@ import type { loadAPICalls } from "@/server/loaders/apiCall";
 
 export type ApiCall = Awaited<ReturnType<typeof loadAPICalls>>["results"][number];
 
-export const apiCallColumns: ColumnDef<ApiCall>[] = [
+export const apiCallColumns: ColumnDef<DataTableFeatures, ApiCall>[] = [
   {
     accessorKey: "ApiCallUrl",
     cell: ({ row }) => (

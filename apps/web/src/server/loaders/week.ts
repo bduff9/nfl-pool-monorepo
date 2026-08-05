@@ -7,16 +7,12 @@ import "server-only";
 
 import { weekSchema } from "@nfl-pool-monorepo/utils/validation";
 
-import { getCurrentSession } from "./sessions";
+import { requireUser } from "./sessions";
 
 export const getCurrentWeekCached = cache(() => getCurrentWeek());
 
 export const getSeasonStatus = cache(async () => {
-  const { user } = await getCurrentSession();
-
-  if (!user) {
-    throw new Error("Not logged in");
-  }
+  await requireUser();
 
   const { Completed, InProgress, NotStarted } = await db
     .selectFrom("Games")
@@ -39,11 +35,7 @@ export const getSeasonStatus = cache(async () => {
 });
 
 export const getSelectedWeek = cache(async (currentWeek?: number) => {
-  const { user } = await getCurrentSession();
-
-  if (!user) {
-    throw new Error("Not logged in");
-  }
+  await requireUser();
 
   const cookieStore = await cookies();
   const selectedWeekCookie = cookieStore.get("selectedWeek");
@@ -61,11 +53,7 @@ export const getSelectedWeek = cache(async (currentWeek?: number) => {
 });
 
 export const getWeekStart = cache(async (week: number) => {
-  const { user } = await getCurrentSession();
-
-  if (!user) {
-    throw new Error("Not logged in");
-  }
+  await requireUser();
 
   weekSchema.assert(week);
 
@@ -80,11 +68,7 @@ export const getWeekStart = cache(async (week: number) => {
 });
 
 export const getWeekStatus = cache(async (week: number) => {
-  const { user } = await getCurrentSession();
-
-  if (!user) {
-    throw new Error("Not logged in");
-  }
+  await requireUser();
 
   weekSchema.assert(week);
 

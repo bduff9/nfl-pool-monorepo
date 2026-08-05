@@ -48,7 +48,14 @@ const SupportSearch: FC<Props> = ({ currentQuery }) => {
     router.push(url);
   };
 
-  const search = debounce(750, handleSubmit);
+  const searchRef = useRef<((event: FormEvent<HTMLFormElement>) => void) | null>(null);
+
+  if (searchRef.current === null) {
+    // react-doctor-disable-next-line no-ref-current-in-render -- null-guarded lazy ref init, the exact pattern react.dev documents at https://react.dev/reference/react/useRef#avoiding-recreating-the-ref-contents
+    searchRef.current = debounce(750, handleSubmit);
+  }
+
+  const search = searchRef.current;
 
   return (
     <form onChange={search} onSubmit={handleSubmit}>

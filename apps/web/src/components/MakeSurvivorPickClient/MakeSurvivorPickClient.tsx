@@ -2,7 +2,7 @@
 
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { useAction } from "next-safe-action/hooks";
-import { type FC, useOptimistic, useRef, useState } from "react";
+import { type Dispatch, type FC, type SetStateAction, useCallback, useOptimistic, useRef, useState } from "react";
 import { FaAt, FaInfoCircle, FaTimesCircle } from "react-icons/fa";
 import { toast } from "sonner";
 
@@ -22,6 +22,77 @@ type Props = {
   teamsOnBye: Awaited<ReturnType<typeof getTeamsOnBye>>;
   week: number;
   weekInProgress: number | null;
+};
+
+type SurvivorGameCardProps = {
+  game: Awaited<ReturnType<typeof getGamesForWeekCached>>[number];
+  loading: null | number;
+  optimisticPicks: Awaited<ReturnType<typeof getMySurvivorPicks>>;
+  selectedGame: null | Awaited<ReturnType<typeof getGamesForWeekCached>>[number];
+  setSelectedGame: Dispatch<SetStateAction<null | Awaited<ReturnType<typeof getGamesForWeekCached>>[number]>>;
+  setSurvivorPick: (gameID: number, teamID: number | null) => void;
+  weekInProgress: number | null;
+};
+
+const SurvivorGameCard: FC<SurvivorGameCardProps> = ({
+  game,
+  loading,
+  optimisticPicks,
+  selectedGame,
+  setSelectedGame,
+  setSurvivorPick,
+  weekInProgress,
+}) => {
+  const onToggleGame = useCallback(() => {
+    setSelectedGame((currentGame) => (currentGame ? null : game));
+  }, [game, setSelectedGame]);
+
+  const onSelectVisitor = useCallback(() => {
+    setSurvivorPick(game.GameID, game.visitorTeam?.TeamID ?? null);
+  }, [game.GameID, game.visitorTeam?.TeamID, setSurvivorPick]);
+
+  const onSelectHome = useCallback(() => {
+    setSurvivorPick(game.GameID, game.homeTeam?.TeamID ?? null);
+  }, [game.GameID, game.homeTeam?.TeamID, setSurvivorPick]);
+
+  return (
+    <div className={cn("w-full md:w-1/2 lg:w-1/3 2xl:w-1/4 flex flex-wrap pb-3 relative h-48")}>
+      <button
+        aria-label={selectedGame ? "Collapse game details" : "Expand game details"}
+        className={cn(
+          "w-full text-muted border border-black flex justify-around overflow-hidden cursor-pointer h-[25px] bg-gray-100 items-center",
+        )}
+        onClick={onToggleGame}
+        type="button"
+      >
+        <div>{formatDateForKickoff(game.GameKickoff)}</div>
+        <div>{formatTimeFromKickoff(game.GameKickoff)}</div>
+        <div>{selectedGame ? <FaTimesCircle className="text-red-500" /> : <FaInfoCircle />}</div>
+      </button>
+      <SurvivorTeam
+        loading={loading}
+        onClick={onSelectVisitor}
+        pick={optimisticPicks.find((pick) => pick.TeamID === game.visitorTeam?.TeamID)}
+        team={game.visitorTeam}
+        weekInProgress={weekInProgress}
+      />
+      <SurvivorTeam
+        isHome
+        loading={loading}
+        onClick={onSelectHome}
+        pick={optimisticPicks.find((pick) => pick.TeamID === game.homeTeam?.TeamID)}
+        team={game.homeTeam}
+        weekInProgress={weekInProgress}
+      />
+      <div
+        className={cn(
+          "absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-black py-px px-1 bg-gray-300",
+        )}
+      >
+        <FaAt />
+      </div>
+    </div>
+  );
 };
 
 const MakeSurvivorPickClient: FC<Props> = ({ games, survivorPicks, teamsOnBye, week, weekInProgress }) => {
@@ -77,53 +148,24 @@ const MakeSurvivorPickClient: FC<Props> = ({ games, survivorPicks, teamsOnBye, w
         {SURVIVOR_PICK_INSTRUCTIONS}
       </h4>
       <div className="flex flex-wrap">
-        {games
-          .filter((game) => !selectedGame || game.GameID === selectedGame.GameID)
-          .map((game) => (
-            <div
-              className={cn("w-full md:w-1/2 lg:w-1/3 2xl:w-1/4 flex flex-wrap pb-3 relative h-48")}
+        {games.flatMap((game) => {
+          if (selectedGame && game.GameID !== selectedGame.GameID) {
+            return [];
+          }
+
+          return (
+            <SurvivorGameCard
+              game={game}
               key={`survivor-game-${game.GameID}`}
-            >
-              {/* biome-ignore lint/a11y/noStaticElementInteractions: This div acts as a clickable area to expand/collapse game details. */}
-              <div
-                className={cn(
-                  "w-full text-muted border border-black flex justify-around overflow-hidden cursor-pointer h-[25px] bg-gray-100 items-center",
-                )}
-                onClick={() => setSelectedGame((currentGame) => (currentGame ? null : game))}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    setSelectedGame((currentGame) => (currentGame ? null : game));
-                  }
-                }}
-              >
-                <div>{formatDateForKickoff(game.GameKickoff)}</div>
-                <div>{formatTimeFromKickoff(game.GameKickoff)}</div>
-                <div>{selectedGame ? <FaTimesCircle className="text-red-500" /> : <FaInfoCircle />}</div>
-              </div>
-              <SurvivorTeam
-                loading={loading}
-                onClick={() => setSurvivorPick(game.GameID, game.visitorTeam?.TeamID ?? null)}
-                pick={optimisticPicks.find((pick) => pick.TeamID === game.visitorTeam?.TeamID)}
-                team={game.visitorTeam}
-                weekInProgress={weekInProgress}
-              />
-              <SurvivorTeam
-                isHome
-                loading={loading}
-                onClick={() => setSurvivorPick(game.GameID, game.homeTeam?.TeamID ?? null)}
-                pick={optimisticPicks.find((pick) => pick.TeamID === game.homeTeam?.TeamID)}
-                team={game.homeTeam}
-                weekInProgress={weekInProgress}
-              />
-              <div
-                className={cn(
-                  "absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-black py-px px-1 bg-gray-300",
-                )}
-              >
-                <FaAt />
-              </div>
-            </div>
-          ))}
+              loading={loading}
+              optimisticPicks={optimisticPicks}
+              selectedGame={selectedGame}
+              setSelectedGame={setSelectedGame}
+              setSurvivorPick={setSurvivorPick}
+              weekInProgress={weekInProgress}
+            />
+          );
+        })}
       </div>
       {selectedGame ? (
         <TeamDetail game={selectedGame} />

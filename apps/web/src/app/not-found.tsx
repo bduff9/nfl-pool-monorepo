@@ -41,7 +41,7 @@ const NotFound: FC = async () => {
 
   return (
     <div className="flex flex-wrap md:mx-3">
-      {user && (
+      {!!user && (
         <div className="w-full px-1 pt-1">
           <SidebarTrigger className="size-10 md:size-7" />
         </div>
@@ -64,9 +64,9 @@ const NotFound: FC = async () => {
             />
           )}
         </div>
-        <h4 className="scroll-m-20 text-xl font-semibold tracking-tight text-center mb-2">
+        <h2 className="scroll-m-20 text-xl font-semibold tracking-tight text-center mb-2">
           Something has gone wrong. It might be because of you. It might be because of us. Either way, this is awkward.
-        </h4>
+        </h2>
         <div className="text-center">
           <ProgressBarLink className="text-sky-600 text-xl" href="/">
             Please click here to get us both out of this situation

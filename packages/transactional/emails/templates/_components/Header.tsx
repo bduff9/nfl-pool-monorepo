@@ -11,7 +11,7 @@ const Header: React.FC<Props> = ({ browserLink }) => {
 
   return (
     <>
-      {browserLink && (
+      {!!browserLink && (
         <Section className="hide-for-browser">
           <Row>
             <Column valign="middle">

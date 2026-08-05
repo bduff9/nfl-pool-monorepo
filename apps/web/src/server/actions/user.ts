@@ -76,6 +76,7 @@ export const editMyProfile = authActionClient
         .executeTakeFirstOrThrow();
 
       for (const notification of notifications) {
+        // react-doctor-disable-next-line async-await-in-loop -- these updates share one transaction connection (trx); mysql2 processes queries on a connection sequentially, so Promise.all here would not run them concurrently
         await trx
           .updateTable("Notifications")
           .set({

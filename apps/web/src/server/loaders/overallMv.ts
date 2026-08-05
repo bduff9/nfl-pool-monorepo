@@ -5,14 +5,10 @@ import "server-only";
 
 import type { OverallMV } from "@nfl-pool-monorepo/db/src";
 
-import { getCurrentSession } from "./sessions";
+import { requireUser } from "./sessions";
 
 export const getOverallMvCount = cache(async (): Promise<number> => {
-  const { user } = await getCurrentSession();
-
-  if (!user) {
-    throw new Error("Not logged in");
-  }
+  await requireUser();
 
   const { count } = await db
     .selectFrom("OverallMV")
@@ -23,11 +19,7 @@ export const getOverallMvCount = cache(async (): Promise<number> => {
 });
 
 export const getOverallMvTiedCount = cache(async (): Promise<number> => {
-  const { user } = await getCurrentSession();
-
-  if (!user) {
-    throw new Error("Not logged in");
-  }
+  const user = await requireUser();
 
   const { tied } = await db
     .selectFrom("OverallMV as O1")
@@ -40,21 +32,13 @@ export const getOverallMvTiedCount = cache(async (): Promise<number> => {
 });
 
 export const getMyOverallRank = cache(async (): Promise<Selectable<OverallMV> | undefined> => {
-  const { user } = await getCurrentSession();
-
-  if (!user) {
-    throw new Error("Not logged in");
-  }
+  const user = await requireUser();
 
   return db.selectFrom("OverallMV").selectAll().where("UserID", "=", user.id).executeTakeFirst();
 });
 
 export const getOverallRankings = cache(async () => {
-  const { user } = await getCurrentSession();
-
-  if (!user) {
-    throw new Error("Not logged in");
-  }
+  await requireUser();
 
   return db.selectFrom("OverallMV").selectAll().orderBy("Rank asc").execute();
 });

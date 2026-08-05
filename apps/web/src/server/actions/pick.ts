@@ -43,14 +43,14 @@ export const autoPickMyPicks = authActionClient
           .where("G.GameWeek", "=", week)
           .where("P.UserID", "=", ctx.user.id)
           .execute();
-        const usedPoints = picksForWeek
-          .filter(({ PickPoints }) => PickPoints !== null)
-          .map(({ PickPoints }) => PickPoints as number);
+        const usedPoints = new Set(
+          picksForWeek.filter(({ PickPoints }) => PickPoints !== null).map(({ PickPoints }) => PickPoints as number),
+        );
         const availablePoints = picksForWeek
           .map((_, i) => {
             const point = i + 1;
 
-            if (usedPoints.includes(point)) return null;
+            if (usedPoints.has(point)) return null;
 
             return point;
           })

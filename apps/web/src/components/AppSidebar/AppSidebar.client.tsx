@@ -1,20 +1,8 @@
 "use client";
 
 import type { Status, User } from "@nfl-pool-monorepo/types";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@nfl-pool-monorepo/ui/components/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@nfl-pool-monorepo/ui/components/avatar";
-import { Button, buttonVariants } from "@nfl-pool-monorepo/ui/components/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@nfl-pool-monorepo/ui/components/collapsible";
+import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,11 +12,7 @@ import {
 } from "@nfl-pool-monorepo/ui/components/dropdown-menu";
 import {
   Sidebar,
-  SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -40,16 +24,25 @@ import { WEEKS_IN_SEASON } from "@nfl-pool-monorepo/utils/constants";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { usePathname, useRouter } from "next/navigation";
 import { useAction } from "next-safe-action/hooks";
+import { useTheme } from "next-themes";
 import { type FC, Fragment, startTransition, useCallback, useState } from "react";
-import { LuChevronDown, LuChevronLeft, LuChevronRight, LuEllipsisVertical, LuReply } from "react-icons/lu";
+import {
+  LuChevronDown,
+  LuChevronLeft,
+  LuChevronRight,
+  LuEllipsisVertical,
+  LuMoon,
+  LuReply,
+  LuSun,
+} from "react-icons/lu";
 import { toast } from "sonner";
 
 import { registerForSurvivor, unregisterForSurvivor } from "@/server/actions/survivor";
 import { setSelectedWeek } from "@/server/actions/week";
 import type { getMyTiebreaker } from "@/server/loaders/tiebreaker";
 
-import NavLink from "../NavLink/NavLink";
 import { ProgressBarLink, useProgressBar } from "../ProgressBar/ProgressBar";
+import { SidebarNavigation } from "./SidebarNavigation";
 
 const getInitials = (fullName: string | null): string => {
   if (!fullName) return "";
@@ -58,6 +51,26 @@ const getInitials = (fullName: string | null): string => {
   const initials = names.map((name) => name[0]?.toUpperCase()).join("");
 
   return initials;
+};
+
+type WeekMenuItemProps = {
+  currentWeek: number;
+  onSelectWeek: (week: number) => void;
+  week: number;
+};
+
+const WeekMenuItem: FC<WeekMenuItemProps> = ({ currentWeek, onSelectWeek, week }) => {
+  const handleClick = useCallback(() => {
+    onSelectWeek(week);
+  }, [onSelectWeek, week]);
+
+  return (
+    <Fragment>
+      {week === currentWeek && <DropdownMenuSeparator />}
+      <DropdownMenuItem onClick={handleClick}>Week {week}</DropdownMenuItem>
+      {week === currentWeek && <DropdownMenuSeparator />}
+    </Fragment>
+  );
 };
 
 type Props = {
@@ -89,11 +102,12 @@ const AppSidebarClient: FC<Props> = ({
   const pathname = usePathname();
   const router = useRouter();
   const progress = useProgressBar();
+  const { resolvedTheme, setTheme } = useTheme();
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false);
   const [registerDialogOpen, setRegisterDialogOpen] = useState<boolean>(false);
   const [unregisterDialogOpen, setUnregisterDialogOpen] = useState<boolean>(false);
 
-  const { execute: executeRegister } = useAction(registerForSurvivor, {
+  const { execute: executeRegister, isPending: isRegisterPending } = useAction(registerForSurvivor, {
     onError: ({ error }) => {
       toast.error("Something went wrong!", {
         description: error.serverError ?? "Please check the information you are submitting.",
@@ -106,7 +120,7 @@ const AppSidebarClient: FC<Props> = ({
     },
   });
 
-  const { execute: executeUnregister } = useAction(unregisterForSurvivor, {
+  const { execute: executeUnregister, isPending: isUnregisterPending } = useAction(unregisterForSurvivor, {
     onError: ({ error }) => {
       toast.error("Something went wrong!", {
         description: error.serverError ?? "Please check the information you are submitting.",
@@ -121,40 +135,32 @@ const AppSidebarClient: FC<Props> = ({
 
   let currentPage = "";
 
-  const goToPreviousWeek = (): void => {
-    const newWeek = --selectedWeek;
-
+  const changeWeek = (week: number): void => {
     progress.start();
 
     startTransition(async () => {
-      await setSelectedWeek(newWeek < 1 ? selectedWeek : newWeek);
+      await setSelectedWeek(week);
       router.refresh();
       progress.done();
     });
   };
 
-  const goToCurrentWeek = useCallback((): void => {
-    if (currentWeek) {
-      progress.start();
+  const goToPreviousWeek = (): void => {
+    const newWeek = selectedWeek - 1;
 
-      startTransition(async () => {
-        await setSelectedWeek(currentWeek);
-        router.refresh();
-        progress.done();
-      });
+    changeWeek(newWeek < 1 ? selectedWeek : newWeek);
+  };
+
+  const goToCurrentWeek = (): void => {
+    if (currentWeek) {
+      changeWeek(currentWeek);
     }
-  }, [currentWeek, progress.done, progress.start, router.refresh]);
+  };
 
   const goToNextWeek = (): void => {
-    const newWeek = ++selectedWeek;
+    const newWeek = selectedWeek + 1;
 
-    progress.start();
-
-    startTransition(async () => {
-      await setSelectedWeek(newWeek > WEEKS_IN_SEASON ? selectedWeek : newWeek);
-      router.refresh();
-      progress.done();
-    });
+    changeWeek(newWeek > WEEKS_IN_SEASON ? selectedWeek : newWeek);
   };
 
   const handleRegisterForSurvivor = (): void => {
@@ -164,6 +170,26 @@ const AppSidebarClient: FC<Props> = ({
   const handleUnregisterForSurvivor = (): void => {
     executeUnregister();
   };
+
+  const handleEditAccountClick = useCallback(() => {
+    setUserMenuOpen(false);
+    setOpenMobile(false);
+  }, [setOpenMobile]);
+
+  const handleViewPaymentsClick = useCallback(() => {
+    setUserMenuOpen(false);
+    setOpenMobile(false);
+  }, [setOpenMobile]);
+
+  const handleThemeToggleClick = useCallback(() => {
+    setTheme(resolvedTheme === "dark" ? "light" : "dark");
+    setUserMenuOpen(false);
+  }, [resolvedTheme, setTheme]);
+
+  const handleSignOutClick = useCallback(() => {
+    setUserMenuOpen(false);
+    setOpenMobile(false);
+  }, [setOpenMobile]);
 
   if (pathname.startsWith("/picks")) {
     currentPage = "Picks";
@@ -183,6 +209,7 @@ const AppSidebarClient: FC<Props> = ({
         <SidebarMenu>
           <SidebarMenuItem className={cn("flex justify-between", user.doneRegistering !== 1 && "invisible")}>
             <Button
+              aria-label="Previous week"
               className={cn("p-0 m-0 [&_svg]:size-6", selectedWeek === 1 && "invisible")}
               onClick={goToPreviousWeek}
               size="icon"
@@ -201,16 +228,13 @@ const AppSidebarClient: FC<Props> = ({
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-[--radix-popper-anchor-width]">
                 {Array.from({ length: WEEKS_IN_SEASON }, (_, i) => i + 1).map((week) => (
-                  <Fragment key={`week-${week}`}>
-                    {week === currentWeek && <DropdownMenuSeparator />}
-                    <DropdownMenuItem onClick={() => setSelectedWeek(week)}>Week {week}</DropdownMenuItem>
-                    {week === currentWeek && <DropdownMenuSeparator />}
-                  </Fragment>
+                  <WeekMenuItem currentWeek={currentWeek} key={`week-${week}`} onSelectWeek={changeWeek} week={week} />
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
 
             <Button
+              aria-label="Next week"
               className={cn("p-0 m-0 [&_svg]:size-6", selectedWeek === WEEKS_IN_SEASON && "invisible")}
               onClick={goToNextWeek}
               size="icon"
@@ -230,186 +254,25 @@ const AppSidebarClient: FC<Props> = ({
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      {user.doneRegistering === 1 ? (
-        <SidebarContent>
-          <Collapsible className="group/collapsible" defaultOpen={currentPage === "Dashboard"}>
-            <SidebarGroup>
-              <SidebarGroupLabel asChild className="text-2xl text-white">
-                <CollapsibleTrigger>
-                  Dashboard
-                  <LuChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
-                </CollapsibleTrigger>
-              </SidebarGroupLabel>
-              <CollapsibleContent>
-                <SidebarGroupContent>
-                  <NavLink href="/" isNested>
-                    My Dashboard
-                  </NavLink>
-                  <NavLink href="/weekly" isNested show={weeklyMvCount > 0}>
-                    Week Results
-                  </NavLink>
-                  <NavLink href="/overall" isNested show={overallMvCount > 0}>
-                    Overall Results
-                  </NavLink>
-                </SidebarGroupContent>
-              </CollapsibleContent>
-            </SidebarGroup>
-          </Collapsible>
-
-          <Collapsible className="group/collapsible" defaultOpen={currentPage === "Picks"}>
-            <SidebarGroup>
-              <SidebarGroupLabel asChild className="text-2xl text-white">
-                <CollapsibleTrigger>
-                  Picks
-                  <LuChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
-                </CollapsibleTrigger>
-              </SidebarGroupLabel>
-              <CollapsibleContent>
-                <SidebarGroupContent>
-                  <NavLink href="/picks/set" isNested show={myTiebreaker?.TiebreakerHasSubmitted !== 1}>
-                    Make Picks
-                  </NavLink>
-                  <NavLink href="/picks/view" isNested>
-                    View My Picks
-                  </NavLink>
-                  <NavLink
-                    href="/picks/viewall"
-                    isNested
-                    show={weeklyMvCount > 0 && myTiebreaker?.TiebreakerHasSubmitted === 1}
-                  >
-                    View All Picks
-                  </NavLink>
-                </SidebarGroupContent>
-              </CollapsibleContent>
-            </SidebarGroup>
-          </Collapsible>
-
-          <Collapsible className="group/collapsible" defaultOpen={currentPage === "Survivor"}>
-            <SidebarGroup>
-              <SidebarGroupLabel asChild className="text-2xl text-white">
-                <CollapsibleTrigger>
-                  Survivor
-                  <LuChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
-                </CollapsibleTrigger>
-              </SidebarGroupLabel>
-              <CollapsibleContent>
-                <SidebarGroupContent>
-                  {!(hasSeasonStarted || user.playsSurvivor) && (
-                    <AlertDialog onOpenChange={setRegisterDialogOpen} open={registerDialogOpen}>
-                      <AlertDialogTrigger asChild>
-                        <NavLink isNested>Register for Survivor</NavLink>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Register for Survivor Pool</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to register for the survivor pool? You will be required to pick one
-                            team each week to win. If your team loses, you're eliminated from the pool.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={handleRegisterForSurvivor}>Register</AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  )}
-                  {!hasSeasonStarted && !!user.playsSurvivor && (
-                    <AlertDialog onOpenChange={setUnregisterDialogOpen} open={unregisterDialogOpen}>
-                      <AlertDialogTrigger asChild>
-                        <NavLink isNested>Drop out of Survivor</NavLink>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Drop out of Survivor Pool</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to drop out of the survivor pool? This action cannot be undone, and
-                            you will not be able to rejoin once the season has started.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            className={cn(buttonVariants({ variant: "destructive" }))}
-                            onClick={handleUnregisterForSurvivor}
-                          >
-                            Drop Out
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  )}
-                  <NavLink
-                    href="/survivor/set"
-                    isNested
-                    show={!!user.playsSurvivor && isAliveInSurvivor && selectedWeekStatus === "Not Started"}
-                  >
-                    Make Picks
-                  </NavLink>
-                  <NavLink href="/survivor/view" isNested show={survivorMvCount > 0}>
-                    View Picks
-                  </NavLink>
-                </SidebarGroupContent>
-              </CollapsibleContent>
-            </SidebarGroup>
-          </Collapsible>
-
-          <SidebarMenuButton asChild>
-            <NavLink href="/scoreboard" show={!!user.doneRegistering}>
-              NFL Scoreboard
-            </NavLink>
-          </SidebarMenuButton>
-
-          <SidebarMenuButton asChild>
-            <NavLink href="/support">Help</NavLink>
-          </SidebarMenuButton>
-
-          {user.isAdmin === 1 && (
-            <Collapsible className="group/collapsible" defaultOpen={currentPage === "Admin"}>
-              <SidebarGroup>
-                <SidebarGroupLabel asChild className="text-2xl text-white">
-                  <CollapsibleTrigger>
-                    Admin
-                    <LuChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
-                  </CollapsibleTrigger>
-                </SidebarGroupLabel>
-                <CollapsibleContent>
-                  <SidebarGroupContent>
-                    <NavLink href="/admin/api" isNested>
-                      API Logs
-                    </NavLink>
-                    <NavLink href="/admin/backups" isNested>
-                      Backups
-                    </NavLink>
-                    <NavLink href="/admin/email" isNested>
-                      Emails
-                    </NavLink>
-                    <NavLink href="/admin/logs" isNested>
-                      Logs
-                    </NavLink>
-                    <NavLink href="/admin/payments" isNested>
-                      Payments
-                    </NavLink>
-                    <NavLink href="/admin/users" isNested>
-                      Users
-                    </NavLink>
-                  </SidebarGroupContent>
-                </CollapsibleContent>
-              </SidebarGroup>
-            </Collapsible>
-          )}
-        </SidebarContent>
-      ) : (
-        <SidebarContent>
-          <SidebarMenuButton asChild>
-            <NavLink href="/users/create">Finish Registration</NavLink>
-          </SidebarMenuButton>
-
-          <SidebarMenuButton asChild>
-            <NavLink href="/support">Help</NavLink>
-          </SidebarMenuButton>
-        </SidebarContent>
-      )}
+      <SidebarNavigation
+        currentPage={currentPage}
+        hasSeasonStarted={hasSeasonStarted}
+        isAliveInSurvivor={isAliveInSurvivor}
+        isRegisterPending={isRegisterPending}
+        isUnregisterPending={isUnregisterPending}
+        myTiebreaker={myTiebreaker}
+        onRegisterForSurvivor={handleRegisterForSurvivor}
+        onUnregisterForSurvivor={handleUnregisterForSurvivor}
+        overallMvCount={overallMvCount}
+        registerDialogOpen={registerDialogOpen}
+        selectedWeekStatus={selectedWeekStatus}
+        setRegisterDialogOpen={setRegisterDialogOpen}
+        setUnregisterDialogOpen={setUnregisterDialogOpen}
+        survivorMvCount={survivorMvCount}
+        unregisterDialogOpen={unregisterDialogOpen}
+        user={user}
+        weeklyMvCount={weeklyMvCount}
+      />
 
       <SidebarFooter>
         <SidebarMenu>
@@ -433,38 +296,32 @@ const AppSidebarClient: FC<Props> = ({
               <DropdownMenuContent align="end" side="right">
                 {user.doneRegistering === 1 && (
                   <DropdownMenuItem>
-                    <ProgressBarLink
-                      href="/users/edit"
-                      onClick={() => {
-                        setUserMenuOpen(false);
-                        setOpenMobile(false);
-                      }}
-                    >
+                    <ProgressBarLink href="/users/edit" onClick={handleEditAccountClick}>
                       Edit Account
                     </ProgressBarLink>
                   </DropdownMenuItem>
                 )}
                 {user.doneRegistering === 1 && (
                   <DropdownMenuItem>
-                    <ProgressBarLink
-                      href="/users/payments"
-                      onClick={() => {
-                        setUserMenuOpen(false);
-                        setOpenMobile(false);
-                      }}
-                    >
+                    <ProgressBarLink href="/users/payments" onClick={handleViewPaymentsClick}>
                       View Payments
                     </ProgressBarLink>
                   </DropdownMenuItem>
                 )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleThemeToggleClick}>
+                  {resolvedTheme === "dark" ? (
+                    <>
+                      <LuSun /> Switch to light mode
+                    </>
+                  ) : (
+                    <>
+                      <LuMoon /> Switch to dark mode
+                    </>
+                  )}
+                </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <ProgressBarLink
-                    href="/auth/logout"
-                    onClick={() => {
-                      setUserMenuOpen(false);
-                      setOpenMobile(false);
-                    }}
-                  >
+                  <ProgressBarLink href="/auth/logout" onClick={handleSignOutClick}>
                     Sign out
                   </ProgressBarLink>
                 </DropdownMenuItem>

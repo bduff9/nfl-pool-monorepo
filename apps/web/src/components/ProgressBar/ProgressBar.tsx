@@ -1,11 +1,11 @@
 "use client";
 
-import { AnimatePresence, motion, useMotionTemplate, useSpring } from "framer-motion";
+import { AnimatePresence, m, useMotionTemplate, useSpring } from "framer-motion";
 import type { Route } from "next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ComponentProps, FC, ReactNode } from "react";
-import { createContext, startTransition, useContext, useEffect, useRef, useState } from "react";
+import { createContext, startTransition, useCallback, useContext, useEffect, useRef, useState } from "react";
 
 const ProgressBarContext = createContext<ReturnType<typeof useProgress> | null>(null);
 
@@ -31,7 +31,7 @@ export const ProgressBar: FC<ProgressBarProps> = ({ className, children }) => {
   return (
     <ProgressBarContext.Provider value={progress}>
       <AnimatePresence onExitComplete={progress.reset}>
-        {progress.state !== "complete" && <motion.div className={className} exit={{ opacity: 0 }} style={{ width }} />}
+        {progress.state !== "complete" && <m.div className={className} exit={{ opacity: 0 }} style={{ width }} />}
       </AnimatePresence>
 
       {children}
@@ -47,29 +47,30 @@ export const ProgressBarLink: FC<ProgressBarLinkProps> = ({ children, href, onCl
   const progress = useProgressBar();
   const router = useRouter();
 
+  const handleClick: ComponentProps<typeof Link>["onClick"] = useCallback(
+    (e) => {
+      onClick?.(e);
+
+      if (e.defaultPrevented) {
+        return;
+      }
+
+      if (e.metaKey) {
+        return;
+      }
+      e.preventDefault();
+      progress.start();
+
+      startTransition(() => {
+        router.push(href);
+        progress.done();
+      });
+    },
+    [href, onClick, progress, router],
+  );
+
   return (
-    <Link
-      href={href}
-      onClick={(e) => {
-        onClick?.(e);
-
-        if (e.defaultPrevented) {
-          return;
-        }
-
-        if (e.metaKey) {
-          return;
-        }
-        e.preventDefault();
-        progress.start();
-
-        startTransition(() => {
-          router.push(href);
-          progress.done();
-        });
-      }}
-      {...rest}
-    >
+    <Link href={href} onClick={handleClick} {...rest}>
       {children}
     </Link>
   );
@@ -108,6 +109,7 @@ const useProgress = () => {
     state === "in-progress" ? 750 : null,
   );
 
+  // react-doctor-disable-next-line effect-needs-cleanup -- value.on(...)'s unsubscribe IS returned below unconditionally as this effect's cleanup
   useEffect(() => {
     if (state === "initial") {
       value.jump(0);

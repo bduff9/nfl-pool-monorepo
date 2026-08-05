@@ -40,8 +40,7 @@ const ForgotPassword: FC<PageProps<"/auth/forgot-password">> = async ({ searchPa
     return redirect(redirectUrl);
   }
 
-  const { error } = await searchParams;
-  const year = await getSystemYear();
+  const [{ error }, year] = await Promise.all([searchParams, getSystemYear()]);
   const errorMessage = Array.isArray(error) ? error[0] : error;
 
   return (

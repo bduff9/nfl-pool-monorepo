@@ -32,8 +32,7 @@ import ProgressChart from "../ProgressChart/ProgressChart";
 import SurvivorDashboardIcon from "../SurvivorDashboardIcon/SurvivorDashboardIcon";
 
 const SurvivorDashboard: FC = async () => {
-  const selectedWeek = await getSelectedWeek();
-  const { user } = await getCurrentSession();
+  const [selectedWeek, { user }] = await Promise.all([getSelectedWeek(), getCurrentSession()]);
 
   if (!user) {
     return redirect("/auth/login");
@@ -71,7 +70,7 @@ const SurvivorDashboard: FC = async () => {
 
       <div>
         <div>
-          {isAliveInSurvivor &&
+          {!!isAliveInSurvivor &&
             (mySurvivorPickForWeek ? (
               <div className="text-green-700">You have submitted your survivor pick</div>
             ) : (

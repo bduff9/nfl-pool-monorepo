@@ -17,9 +17,11 @@
  */
 
 import { cn } from "@nfl-pool-monorepo/utils/styles";
-import { useRouter } from "next/navigation";
-import { type FC, useState } from "react";
+import { type FC, useCallback, useTransition } from "react";
 import { FcGoogle } from "react-icons/fc";
+import { toast } from "sonner";
+
+import { getGoogleAuthorizationUrl } from "@/server/actions/googleAuth";
 
 type GoogleAuthButtonProps = {
   isLinked?: boolean;
@@ -28,8 +30,7 @@ type GoogleAuthButtonProps = {
 };
 
 const GoogleAuthButton: FC<GoogleAuthButtonProps> = ({ isLinked = false, isRegister = false, isSignIn = false }) => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const router = useRouter();
+  const [isLoading, startTransition] = useTransition();
   let title = "Link Google account";
 
   if (isSignIn) {
@@ -37,6 +38,19 @@ const GoogleAuthButton: FC<GoogleAuthButtonProps> = ({ isLinked = false, isRegis
   } else if (isLinked) {
     title = "Google linked";
   }
+
+  const handleClick = useCallback((): void => {
+    startTransition(async () => {
+      try {
+        const url = await getGoogleAuthorizationUrl();
+
+        window.location.href = url;
+      } catch (error) {
+        console.error("Failed to start Google sign-in", error);
+        toast.error("Couldn't start Google sign-in", { description: "Please try again." });
+      }
+    });
+  }, []);
 
   return (
     <button
@@ -46,16 +60,13 @@ const GoogleAuthButton: FC<GoogleAuthButtonProps> = ({ isLinked = false, isRegis
         isLinked && "pointer-events-none",
       )}
       disabled={isLoading || isLinked}
-      onClick={(): void => {
-        setIsLoading(true);
-        router.push("/login/google");
-      }}
+      onClick={handleClick}
       type="button"
     >
       <div className="flex items-center justify-center bg-white w-9 h-9 rounded-full">
         <FcGoogle className="size-5" />
       </div>
-      <span className="text-sm text-white tracking-wider">{isLoading ? "Redirecting..." : title}</span>
+      <span className="text-sm text-white tracking-wider">{isLoading ? "Redirecting..." : title || ""}</span>
     </button>
   );
 };

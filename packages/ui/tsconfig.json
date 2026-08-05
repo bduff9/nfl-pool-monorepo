@@ -1,5 +1,12 @@
 {
 	"extends": "@nfl-pool-monorepo/tsconfig/ui.json",
+	"compilerOptions": {
+	"paths": {
+		"@/*": ["./*"],
+		"@/components/*": ["./src/*"],
+		"@/hooks/*": ["./src/hooks/*"]
+	}
+	},
 	"include": [
 	"**/*.ts",
 	"**/*.tsx",

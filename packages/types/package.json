@@ -22,8 +22,7 @@
   "repository": "",
   "scripts": {
     "lint": "biome lint ./src && npmPkgJsonLint .",
-    "typecheck": "tsgo --noEmit",
-    "typecheck:tsc": "tsc --noEmit"
+    "typecheck": "tsc --noEmit"
   },
   "version": "1.0.0"
 }

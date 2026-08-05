@@ -21,7 +21,7 @@ import * as Sentry from "@sentry/nextjs";
 import LogRocket from "logrocket";
 import { useEffect } from "react";
 
-import { env } from "../env";
+import { env } from "../env.client";
 
 export const useLogrocket = (user?: User | null): void => {
   const isBrowser = typeof window !== "undefined";

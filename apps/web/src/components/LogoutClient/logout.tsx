@@ -2,6 +2,7 @@
 import "client-only";
 
 import Image from "next/image";
+import { unstable_rethrow } from "next/navigation";
 import { type FC, useEffect } from "react";
 
 import { signOut } from "@/server/actions/sessions";
@@ -12,7 +13,12 @@ const LogoutClient: FC = () => {
       window.sessionStorage.clear();
       window.localStorage.clear();
 
-      await signOut();
+      try {
+        await signOut();
+      } catch (error) {
+        unstable_rethrow(error);
+        console.error("Failed to sign out", error);
+      }
     };
 
     handleSignOut();

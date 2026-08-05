@@ -3,16 +3,12 @@ import "server-only";
 
 import { getCurrentWeekInProgress, getGamesForWeek } from "@nfl-pool-monorepo/db/src/queries/game";
 
-import { getCurrentSession } from "./sessions";
+import { requireUser } from "./sessions";
 
 export const getWeekInProgress = cache(() => getCurrentWeekInProgress());
 
 export const getGamesForWeekCached = cache(async (week: number) => {
-  const { user } = await getCurrentSession();
-
-  if (!user) {
-    throw new Error("Not logged in");
-  }
+  await requireUser();
 
   return getGamesForWeek(week);
 });

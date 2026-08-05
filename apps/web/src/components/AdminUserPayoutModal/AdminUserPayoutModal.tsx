@@ -28,7 +28,7 @@ import {
 } from "@nfl-pool-monorepo/ui/components/dialog";
 import { Input } from "@nfl-pool-monorepo/ui/components/input";
 import { Label } from "@nfl-pool-monorepo/ui/components/label";
-import { type FC, useEffect, useState } from "react";
+import { type ChangeEvent, type FC, useCallback, useEffect, useState } from "react";
 import { PiFootballDuotone } from "react-icons/pi";
 
 import type { getUserPayoutsForAdmin } from "@/server/loaders/payment";
@@ -56,9 +56,34 @@ const AdminUserPayoutModal: FC<Props> = ({ handleClose, show = false, updateAmou
     }
 
     setLoading(true);
-    await updateAmount(winner.UserID, toPay ?? 0);
-    setLoading(false);
+
+    try {
+      await updateAmount(winner.UserID, toPay ?? 0);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleToPayChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      let value = +event.target.value;
+
+      if (value < 0) value = 0;
+
+      if (value > (winner?.UserWon ?? 0)) {
+        value = winner?.UserWon ?? 0;
+      }
+
+      setToPay(value);
+    },
+    [winner?.UserWon],
+  );
+
+  const handleCopyPaymentAccount = useCallback(() => {
+    if (winner?.UserPaymentAccount) {
+      navigator.clipboard.writeText(winner.UserPaymentAccount);
+    }
+  }, [winner?.UserPaymentAccount]);
 
   return (
     <Dialog onOpenChange={handleClose} open={show}>
@@ -77,34 +102,21 @@ const AdminUserPayoutModal: FC<Props> = ({ handleClose, show = false, updateAmou
             className="dark:bg-white"
             id="UserPayoutAmount"
             max={remainingToPay}
-            onChange={(event) => {
-              let value = +event.target.value;
-
-              if (value < 0) value = 0;
-
-              if (value > (winner?.UserWon ?? 0)) {
-                value = winner?.UserWon ?? 0;
-              }
-
-              setToPay(value);
-            }}
+            onChange={handleToPayChange}
             placeholder="To pay amount in $"
             type="number"
-            value={remainingToPay}
+            value={toPay}
           />
-          {/* biome-ignore lint/a11y/noStaticElementInteractions: This is a div with a click handler, but it's not a button */}
-          <abbr
-            className="text-muted"
-            onClick={() => {
-              winner?.UserPaymentAccount && navigator.clipboard.writeText(winner.UserPaymentAccount);
-            }}
-            onKeyDown={() => {
-              winner?.UserPaymentAccount && navigator.clipboard.writeText(winner.UserPaymentAccount);
-            }}
+          <button
+            className="text-muted underline-offset-2 hover:underline"
+            onClick={handleCopyPaymentAccount}
             title="Click to copy payment account"
+            type="button"
           >
-            {winner?.UserPaymentType}: {winner?.UserPaymentAccount}
-          </abbr>
+            <abbr className="text-muted">
+              {winner?.UserPaymentType}: {winner?.UserPaymentAccount}
+            </abbr>
+          </button>
         </div>
         <DialogFooter>
           <DialogClose asChild>

@@ -47,7 +47,7 @@ const InterestEmail: Email<Props> = ({
               <Column className="bg-white pt-8 px-6 pb-4 rounded-b-xl">
                 <Text className="text-lg">Hello {userFirstName},</Text>
 
-                {isFinal && (
+                {!!isFinal && (
                   <h3 className="underline scroll-m-20 text-2xl font-semibold tracking-tight">
                     This is your final reminder to register and play! The first game of the season kicks off in just
                     days!

@@ -31,8 +31,7 @@ import {
 } from "@nfl-pool-monorepo/ui/components/dialog";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import Image from "next/image";
-import type { FC } from "react";
-import { useEffect, useState } from "react";
+import { type FC, useCallback, useEffect, useState } from "react";
 import { PiAtDuotone } from "react-icons/pi";
 
 import { getAbbreviation } from "@/lib/strings";
@@ -44,16 +43,53 @@ type Props = {
   saveChanges: (games: Awaited<ReturnType<typeof getGamesForWeek>>) => void;
 };
 
+type TeamWinnerButtonProps = {
+  gameID: number;
+  isSelected: boolean;
+  onSelectWinner: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, gameID: number, teamID: number) => void;
+  team: Awaited<ReturnType<typeof getGamesForWeek>>[number]["visitorTeam"];
+  teamID: number;
+};
+
+const TeamWinnerButton: FC<TeamWinnerButtonProps> = ({ gameID, isSelected, onSelectWinner, team, teamID }) => {
+  const handleClick = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      onSelectWinner(event, gameID, teamID);
+    },
+    [onSelectWinner, gameID, teamID],
+  );
+
+  return (
+    <button
+      aria-label={`${team?.TeamCity} ${team?.TeamName}`}
+      className={cn(
+        "rounded-full size-[90px] mx-auto border-0 p-0",
+        isSelected
+          ? "cursor-default bg-blue-300 border-blue-500 border-4"
+          : "cursor-pointer hover:bg-blue-100 hover:border-blue-300 hover:border-4 hover:text-blue-900",
+      )}
+      onClick={handleClick}
+      type="button"
+    >
+      <Image
+        alt={`${team?.TeamCity} ${team?.TeamName}`}
+        className="mx-auto"
+        height={50}
+        src={`/NFLLogos/${team?.TeamLogo}`}
+        title={`${team?.TeamCity} ${team?.TeamName}`}
+        width={50}
+      />
+      {team?.TeamName.includes(" ") ? <div>{getAbbreviation(team?.TeamName)}</div> : <div>{team?.TeamName}</div>}
+    </button>
+  );
+};
+
 const ViewAllModal: FC<Props> = ({ closeModal, games, isOpen, saveChanges }) => {
-  const [customGames, setCustomGames] = useState<Awaited<ReturnType<typeof getGamesForWeek>>>([]);
+  const [customGames, setCustomGames] = useState<Awaited<ReturnType<typeof getGamesForWeek>>>(() => games);
 
   useEffect(() => {
-    if (customGames.length === 0) {
-      setCustomGames(games);
-    }
-  }, [customGames, games]);
-
-  useEffect(() => {
+    // Radix Dialog leaves body pointer-events disabled briefly after close; re-enable/disable on a delay
+    // to match its own close animation instead of fighting it. See https://github.com/radix-ui/primitives/issues/1241
     let timer: NodeJS.Timeout;
 
     if (isOpen) {
@@ -70,7 +106,7 @@ const ViewAllModal: FC<Props> = ({ closeModal, games, isOpen, saveChanges }) => 
   }, [isOpen]);
 
   const selectWinner = (
-    event: React.MouseEvent<HTMLDivElement, MouseEvent> | React.KeyboardEvent<HTMLDivElement>,
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     gameID: number,
     teamID: number,
   ): void => {
@@ -85,6 +121,10 @@ const ViewAllModal: FC<Props> = ({ closeModal, games, isOpen, saveChanges }) => 
     setCustomGames(newCustomGames);
   };
 
+  const handleSaveClick = useCallback(() => {
+    saveChanges(customGames);
+  }, [customGames, saveChanges]);
+
   return (
     <Dialog onOpenChange={closeModal} open={isOpen}>
       <DialogContent>
@@ -98,61 +138,25 @@ const ViewAllModal: FC<Props> = ({ closeModal, games, isOpen, saveChanges }) => 
           {customGames.map((game) => (
             <div className="flex justify-around items-center text-center" key={`what-if-for-game-${game.GameID}`}>
               <div className={cn("w-5/12")}>
-                {/** biome-ignore lint/a11y/noStaticElementInteractions: We need this to be interactive */}
-                <div
-                  className={cn(
-                    "rounded-full size-[90px] mx-auto",
-                    game.WinnerTeamID === game.VisitorTeamID
-                      ? "cursor-default bg-blue-300 border-blue-500 border-4"
-                      : "cursor-pointer hover:bg-blue-100 hover:border-blue-300 hover:border-4 hover:text-blue-900",
-                  )}
-                  onClick={(event) => selectWinner(event, game.GameID, game.VisitorTeamID)}
-                  onKeyDown={(event) => selectWinner(event, game.GameID, game.VisitorTeamID)}
-                >
-                  <Image
-                    alt={`${game.visitorTeam?.TeamCity} ${game.visitorTeam?.TeamName}`}
-                    className="mx-auto"
-                    height={50}
-                    src={`/NFLLogos/${game.visitorTeam?.TeamLogo}`}
-                    title={`${game.visitorTeam?.TeamCity} ${game.visitorTeam?.TeamName}`}
-                    width={50}
-                  />
-                  {game.visitorTeam?.TeamName.includes(" ") ? (
-                    <div>{getAbbreviation(game.visitorTeam?.TeamName)}</div>
-                  ) : (
-                    <div>{game.visitorTeam?.TeamName}</div>
-                  )}
-                </div>
+                <TeamWinnerButton
+                  gameID={game.GameID}
+                  isSelected={game.WinnerTeamID === game.VisitorTeamID}
+                  onSelectWinner={selectWinner}
+                  team={game.visitorTeam}
+                  teamID={game.VisitorTeamID}
+                />
               </div>
               <div className="w-1/6">
                 <PiAtDuotone className="mx-auto" />
               </div>
               <div className={cn("w-5/12")}>
-                {/** biome-ignore lint/a11y/noStaticElementInteractions: We need this to be interactive */}
-                <div
-                  className={cn(
-                    "rounded-full size-[90px] mx-auto",
-                    game.WinnerTeamID === game.HomeTeamID
-                      ? "cursor-default bg-blue-300 border-blue-500 border-4"
-                      : "cursor-pointer hover:bg-blue-100 hover:border-blue-300 hover:border-4 hover:text-blue-900",
-                  )}
-                  onClick={(event) => selectWinner(event, game.GameID, game.HomeTeamID)}
-                  onKeyDown={(event) => selectWinner(event, game.GameID, game.HomeTeamID)}
-                >
-                  <Image
-                    alt={`${game.homeTeam?.TeamCity} ${game.homeTeam?.TeamName}`}
-                    className="mx-auto"
-                    height={50}
-                    src={`/NFLLogos/${game.homeTeam?.TeamLogo}`}
-                    title={`${game.homeTeam?.TeamCity} ${game.homeTeam?.TeamName}`}
-                    width={50}
-                  />
-                  {game.homeTeam?.TeamName.includes(" ") ? (
-                    <div>{getAbbreviation(game.homeTeam?.TeamName)}</div>
-                  ) : (
-                    <div>{game.homeTeam?.TeamName}</div>
-                  )}
-                </div>
+                <TeamWinnerButton
+                  gameID={game.GameID}
+                  isSelected={game.WinnerTeamID === game.HomeTeamID}
+                  onSelectWinner={selectWinner}
+                  team={game.homeTeam}
+                  teamID={game.HomeTeamID}
+                />
               </div>
             </div>
           ))}
@@ -163,7 +167,7 @@ const ViewAllModal: FC<Props> = ({ closeModal, games, isOpen, saveChanges }) => 
               Close
             </Button>
           </DialogClose>
-          <Button onClick={() => saveChanges(customGames)} type="button" variant="primary">
+          <Button onClick={handleSaveClick} type="button" variant="primary">
             Save
           </Button>
         </DialogFooter>

@@ -17,14 +17,8 @@
  */
 
 import { arktypeResolver } from "@hookform/resolvers/arktype";
-import { Button } from "@nfl-pool-monorepo/ui/components/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@nfl-pool-monorepo/ui/components/form";
-import { Input } from "@nfl-pool-monorepo/ui/components/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nfl-pool-monorepo/ui/components/select";
-import { Tabs, TabsList, TabsTrigger } from "@nfl-pool-monorepo/ui/components/tabs";
-import { cn } from "@nfl-pool-monorepo/utils/styles";
+import { Form } from "@nfl-pool-monorepo/ui/components/form";
 
-import { PaymentMethod } from "@/lib/constants";
 import { processFormErrors } from "@/lib/form-errors";
 import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
 import { getFirstName, getFullName, getLastName } from "@/lib/user";
@@ -34,15 +28,13 @@ import type { getCurrentUser } from "@/server/loaders/user";
 import "client-only";
 
 import type { Status } from "@nfl-pool-monorepo/types";
-import { Popover, PopoverContent, PopoverTrigger } from "@nfl-pool-monorepo/ui/components/popover";
 import { useRouter } from "next/navigation";
 import { useAction } from "next-safe-action/hooks";
 import { type FC, useEffect, useState } from "react";
 import { type SubmitHandler, useForm, useWatch } from "react-hook-form";
-import { PiFootballDuotone, PiQuestionDuotone } from "react-icons/pi";
 import { toast } from "sonner";
 
-import GoogleAuthButton from "../GoogleAuthButton/GoogleAuthButton";
+import { RegistrationFields } from "./RegistrationFields";
 
 type FinishRegistrationFormProps = {
   currentUser: Awaited<ReturnType<typeof getCurrentUser>>;
@@ -142,230 +134,14 @@ const FinishRegistrationForm: FC<FinishRegistrationFormProps> = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit, processFormErrors)}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
-          <FormField
+          <RegistrationFields
             control={form.control}
-            name="UserEmail"
-            render={({ field }) => (
-              <FormItem className="md:col-span-2">
-                <FormLabel className="required h-5">Email</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    autoComplete="email"
-                    className="border-0 shadow-none dark:bg-transparent"
-                    id="UserEmail"
-                    placeholder="Email"
-                    readOnly
-                    type="email"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            errorCount={errorCount}
+            hasGoogle={hasGoogle}
+            isPending={isPending}
+            isUntrusted={currentUser.UserTrusted !== 1}
+            seasonStatus={seasonStatus}
           />
-
-          <FormField
-            control={form.control}
-            name="UserFirstName"
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormLabel className="required h-5">First Name</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    autoComplete="given-name"
-                    className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-                    id="UserFirstName"
-                    placeholder="First name"
-                    type="text"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="UserLastName"
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormLabel className="required h-5">Last Name</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    autoComplete="family-name"
-                    className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-                    id="UserLastName"
-                    placeholder="Last name"
-                    type="text"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="UserTeamName"
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormLabel className="h-5">
-                  Team Name <span className="text-xs text-muted-foreground">(Optional)</span>
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    autoComplete="off"
-                    className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-                    id="UserTeamName"
-                    placeholder="Team name"
-                    type="text"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {currentUser.UserTrusted !== 1 && (
-            <FormField
-              control={form.control}
-              name="UserReferredByRaw"
-              render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormLabel className="required h-5">Who referred you to play?</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      autoComplete="off"
-                      className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-                      id="UserReferredByRaw"
-                      placeholder="Enter their full name for immediate access"
-                      type="text"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
-
-          {seasonStatus === "Not Started" && (
-            <FormField
-              control={form.control}
-              name="UserPlaysSurvivor"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="required h-5">
-                    Add on survivor game?&nbsp;
-                    <Popover>
-                      <PopoverTrigger>
-                        <PiQuestionDuotone className="size-5" />
-                      </PopoverTrigger>
-                      <PopoverContent className="max-w-[300px]">
-                        You can choose to join or leave the survivor pool up until the start of the first game of the
-                        season. For more questions, see the{" "}
-                        <a className="underline" href="/support#survivorpool" target="survivorFAQ">
-                          survivor pool FAQ
-                        </a>
-                      </PopoverContent>
-                    </Popover>
-                  </FormLabel>
-                  <FormControl>
-                    <Tabs onValueChange={(value) => field.onChange(value === "Yes")} value={field.value ? "Yes" : "No"}>
-                      <TabsList>
-                        <TabsTrigger value="No">No</TabsTrigger>
-                        <TabsTrigger value="Yes">Yes</TabsTrigger>
-                      </TabsList>
-                    </Tabs>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
-
-          <FormField
-            control={form.control}
-            name="UserPaymentType"
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormLabel className="required h-5">Payment Type</FormLabel>
-                <FormControl>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger className={cn("dark:bg-white w-full", fieldState.error && "border-red-600")}>
-                      <SelectValue placeholder="-- Select a payment type --" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {PaymentMethod.map((paymentMethod) => (
-                        <SelectItem key={paymentMethod} value={paymentMethod}>
-                          {paymentMethod}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="UserPaymentAccount"
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormLabel className="required h-5">
-                  Payment Account&nbsp;
-                  <Popover>
-                    <PopoverTrigger>
-                      <PiQuestionDuotone className="size-5" />
-                    </PopoverTrigger>
-                    <PopoverContent className="max-w-[300px]">
-                      If you want to receive any prize money, you need to enter your exact payment account information
-                      here (i.e. email, username or phone number for your account).{" "}
-                      <strong>This is your responsibility as we will not be chasing people down to pay them.</strong> If
-                      entering phone number, please enter a valid phone number in the format +1 999 999 9999.
-                    </PopoverContent>
-                  </Popover>
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    autoComplete="off"
-                    className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-                    id="UserPaymentAccount"
-                    placeholder="Payment account"
-                    type="text"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="mt-6">
-            <GoogleAuthButton isLinked={hasGoogle} />
-          </div>
-          <div className="grid md:col-span-2 text-center">
-            <Button disabled={isPending} type="submit" variant="primary">
-              {isPending ? (
-                <>
-                  <PiFootballDuotone className="animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                "Register"
-              )}
-            </Button>
-            {errorCount > 0 && (
-              <div className="text-destructive text-sm" role="alert">
-                Please fix {errorCount} {errorCount === 1 ? "error" : "errors"} above
-              </div>
-            )}
-          </div>
         </div>
       </form>
     </Form>

@@ -47,8 +47,7 @@
     "env": "sync-dotenv",
     "lint": "biome check ./src --write && npmPkgJsonLint .",
     "test": "vitest run",
-    "typecheck": "tsgo --noEmit",
-    "typecheck:tsc": "tsc --noEmit"
+    "typecheck": "tsc --noEmit"
   },
   "version": "1.0.0"
 }

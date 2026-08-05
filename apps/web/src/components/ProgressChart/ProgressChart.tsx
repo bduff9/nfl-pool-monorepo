@@ -16,7 +16,7 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import type { FC } from "react";
 
 type ProgressChartProps = {
@@ -64,7 +64,7 @@ const ProgressChart: FC<ProgressChartProps> = ({
   }
 
   return (
-    <motion.div layoutId={layoutId}>
+    <m.div layoutId={layoutId}>
       <div className="text-start">{type}</div>
       <div className={cn("flex overflow-hidden h-8 text-xs bg-gray-50 rounded-sm")}>
         {correct > 0 && (
@@ -129,7 +129,7 @@ const ProgressChart: FC<ProgressChartProps> = ({
           <div>&nbsp;</div>
         </div>
       )}
-    </motion.div>
+    </m.div>
   );
 };
 

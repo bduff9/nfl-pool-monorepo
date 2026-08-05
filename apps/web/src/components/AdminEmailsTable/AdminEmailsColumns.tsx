@@ -1,14 +1,14 @@
 "use client";
 
-import { SortableColumnHeader } from "@nfl-pool-monorepo/ui/components/data-table";
+import { type DataTableFeatures, SortableColumnHeader } from "@nfl-pool-monorepo/ui/components/data-table";
 import type { ColumnDef } from "@tanstack/react-table";
 
-import { env } from "@/lib/env";
+import { env } from "@/lib/env.client";
 import type { getAdminEmails } from "@/server/loaders/email";
 
 export type Email = Awaited<ReturnType<typeof getAdminEmails>>["results"][number];
 
-export const emailColumns: ColumnDef<Email>[] = [
+export const emailColumns: ColumnDef<DataTableFeatures, Email>[] = [
   {
     accessorKey: "EmailID",
     cell: ({ row }) => {

@@ -15,6 +15,7 @@
  */
 
 import { cn } from "@nfl-pool-monorepo/utils/styles";
+import dynamic from "next/dynamic";
 import type { FC } from "react";
 
 import { getMyOverallRank, getOverallMvCount, getOverallMvTiedCount } from "@/server/loaders/overallMv";
@@ -22,8 +23,9 @@ import { getSeasonStatus } from "@/server/loaders/week";
 
 import { ProgressBarLink } from "../ProgressBar/ProgressBar";
 import ProgressChart from "../ProgressChart/ProgressChart";
-import RankingPieChart from "../RankingPieChart/RankingPieChart";
 import { OverallDashboardResults, OverallDashboardTitle } from "./OverallDashboard.client";
+
+const RankingPieChart = dynamic(() => import("../RankingPieChart/RankingPieChart"));
 
 const OverallDashboard: FC = async () => {
   const seasonStatusPromise = getSeasonStatus();

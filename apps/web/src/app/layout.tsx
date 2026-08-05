@@ -15,6 +15,7 @@ import type { Metadata, Viewport } from "next";
 import { Roboto } from "next/font/google";
 import Script from "next/script";
 import { type FC, Suspense, ViewTransition } from "react";
+import { PiFootballDuotone } from "react-icons/pi";
 import "server-only";
 
 import { Analytics } from "@vercel/analytics/next";
@@ -26,6 +27,7 @@ import { Toaster } from "@nfl-pool-monorepo/ui/components/sonner";
 import { cookies } from "next/headers";
 
 import AppSidebar from "@/components/AppSidebar/AppSidebar";
+import { CommandMenu } from "@/components/CommandMenu/CommandMenu";
 import Providers from "@/components/Providers/providers";
 import { env } from "@/lib/env";
 import { getCurrentSession } from "@/server/loaders/sessions";
@@ -99,6 +101,13 @@ export const viewport: Viewport = {
   themeColor: appColor,
 };
 
+const PageLoadingFallback: FC = () => (
+  <div className="flex h-full w-full items-center justify-center py-24">
+    <PiFootballDuotone aria-hidden="true" className="size-10 animate-spin text-primary" />
+    <span className="sr-only">Loading&hellip;</span>
+  </div>
+);
+
 const RootLayout: FC<LayoutProps<"/">> = async ({ children }) => {
   const { user } = await getCurrentSession();
   const cookieStore = await cookies();
@@ -106,7 +115,7 @@ const RootLayout: FC<LayoutProps<"/">> = async ({ children }) => {
 
   return (
     <ViewTransition>
-      <html className={cn("h-full", roboto.className)} lang="en">
+      <html className={cn("h-full", roboto.className)} lang="en" suppressHydrationWarning>
         <head>
           {env.NEXT_PUBLIC_ENV === "production" && (
             <Script
@@ -124,10 +133,11 @@ const RootLayout: FC<LayoutProps<"/">> = async ({ children }) => {
           )}
         </head>
 
-        <body className="h-full bg-black bg-[url('/bkgd-pitch.png')] bg-no-repeat bg-fixed bg-top bg-cover dark">
+        <body className="h-full bg-black bg-[url('/bkgd-pitch.png')] bg-no-repeat bg-fixed bg-top bg-cover">
           <Providers user={user}>
             {user ? (
               <SidebarProvider defaultOpen={defaultOpen}>
+                <CommandMenu user={user} />
                 <Suspense
                   fallback={
                     <Sidebar>
@@ -164,11 +174,11 @@ const RootLayout: FC<LayoutProps<"/">> = async ({ children }) => {
                   <AppSidebar user={user} />
                 </Suspense>
                 <main className="w-full relative">
-                  <Suspense>{children}</Suspense>
+                  <Suspense fallback={<PageLoadingFallback />}>{children}</Suspense>
                 </main>
               </SidebarProvider>
             ) : (
-              <Suspense>
+              <Suspense fallback={<PageLoadingFallback />}>
                 <div className="h-full shrink-0 grow relative">{children}</div>
               </Suspense>
             )}

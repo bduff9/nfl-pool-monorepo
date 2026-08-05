@@ -20,7 +20,7 @@ import { useSidebar } from "@nfl-pool-monorepo/ui/components/sidebar";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { Route } from "next";
 import { usePathname } from "next/navigation";
-import type { FC } from "react";
+import { type FC, useCallback } from "react";
 
 import { ProgressBarLink } from "../ProgressBar/ProgressBar";
 
@@ -37,6 +37,10 @@ const NavLink: FC<NavLinkProps> = ({ children, href, isNested = false, onClick, 
   const pathname = usePathname();
   const isActive = pathname === href;
 
+  const handleLinkClick = useCallback(() => {
+    setOpenMobile(false);
+  }, [setOpenMobile]);
+
   if (!show) {
     return null;
   }
@@ -50,9 +54,7 @@ const NavLink: FC<NavLinkProps> = ({ children, href, isNested = false, onClick, 
           isNested ? "ps-8 text-lg font-normal" : "ps-4",
         )}
         href={href}
-        onClick={() => {
-          setOpenMobile(false);
-        }}
+        onClick={handleLinkClick}
       >
         {children}
       </ProgressBarLink>

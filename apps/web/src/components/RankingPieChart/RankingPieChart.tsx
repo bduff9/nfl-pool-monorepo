@@ -16,8 +16,9 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import type { FC } from "react";
+// react-doctor-disable-next-line prefer-dynamic-import -- both consumers (OverallDashboard, WeeklyDashboard) already load this whole component via next/dynamic, so recharts is already code-split
 import { Pie, PieChart, ResponsiveContainer, Tooltip, useChartHeight, useChartWidth } from "recharts";
 
 type PieChartData = {
@@ -57,7 +58,7 @@ const CenterLabel: FC<{ data: Array<PieChartData> }> = ({ data }) => {
 
 const RankingPieChart: FC<RankingPieChartProps> = ({ data, layoutId }) => {
   return (
-    <motion.div className="min-h-[206px] w-full" layoutId={layoutId}>
+    <m.div className="min-h-[206px] w-full" layoutId={layoutId}>
       <ResponsiveContainer height={206} width="100%">
         <PieChart height={400} width={400}>
           <Pie cx="50%" cy="50%" data={data} dataKey="value" innerRadius={60} outerRadius={80} />
@@ -65,7 +66,7 @@ const RankingPieChart: FC<RankingPieChartProps> = ({ data, layoutId }) => {
           <Tooltip />
         </PieChart>
       </ResponsiveContainer>
-    </motion.div>
+    </m.div>
   );
 };
 

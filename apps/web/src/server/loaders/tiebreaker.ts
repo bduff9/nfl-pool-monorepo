@@ -4,14 +4,10 @@ import "server-only";
 
 import { weekSchema } from "@nfl-pool-monorepo/utils/validation";
 
-import { getCurrentSession } from "./sessions";
+import { requireUser } from "./sessions";
 
 export const getMyTiebreaker = cache(async (week: number) => {
-  const { user } = await getCurrentSession();
-
-  if (!user) {
-    throw new Error("Not logged in");
-  }
+  const user = await requireUser();
 
   weekSchema.assert(week);
 

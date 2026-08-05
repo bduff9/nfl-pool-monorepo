@@ -27,8 +27,7 @@ import {
   DropdownMenuTrigger,
 } from "@nfl-pool-monorepo/ui/components/dropdown-menu";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
-import type { FC } from "react";
-import { useState } from "react";
+import { type FC, useCallback, useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
 
 import ViewAllModal from "@/components/ViewAllModal/ViewAllModal";
@@ -63,7 +62,7 @@ type Props = {
 
 const ViewAllPicksClient: FC<Props> = ({ currentUserId, gamesForWeek, picksForWeek, weeklyRankings }) => {
   const [mode, setMode] = useState<"Live Results" | "What If">("Live Results");
-  const [games, setGames] = useState<Record<number, Awaited<ReturnType<typeof getGamesForWeek>>[number]>>(
+  const [games, setGames] = useState<Record<number, Awaited<ReturnType<typeof getGamesForWeek>>[number]>>(() =>
     updateGames(gamesForWeek),
   );
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -77,6 +76,21 @@ const ViewAllPicksClient: FC<Props> = ({ currentUserId, gamesForWeek, picksForWe
     setHasWhatIfBeenSet(true);
   };
 
+  const handleOpenModal = useCallback(() => {
+    setIsModalOpen(true);
+  }, []);
+
+  const handleSelectLiveResultsMode = useCallback(() => {
+    setMode("Live Results");
+    setHasWhatIfBeenSet(false);
+    updateGames(gamesForWeek);
+  }, [gamesForWeek]);
+
+  const handleSelectWhatIfMode = useCallback(() => {
+    setMode("What If");
+    setIsModalOpen(true);
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen">
       <div className="w-full text-center md:text-start">
@@ -89,7 +103,7 @@ const ViewAllPicksClient: FC<Props> = ({ currentUserId, gamesForWeek, picksForWe
               !isLive && "dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white",
             )}
             disabled={isLive}
-            onClick={() => setIsModalOpen(true)}
+            onClick={handleOpenModal}
             variant={isLive ? "primary" : "outline"}
           >
             {mode}
@@ -98,6 +112,7 @@ const ViewAllPicksClient: FC<Props> = ({ currentUserId, gamesForWeek, picksForWe
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
+                aria-label="Choose view mode"
                 className={cn(
                   "flex-grow-0 flex-shrink rounded-none border-l border-gray-300 px-2",
                   !isLive && "dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white",
@@ -108,23 +123,8 @@ const ViewAllPicksClient: FC<Props> = ({ currentUserId, gamesForWeek, picksForWe
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => {
-                  setMode("Live Results");
-                  setHasWhatIfBeenSet(false);
-                  updateGames(gamesForWeek);
-                }}
-              >
-                Live Results
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  setMode("What If");
-                  setIsModalOpen(true);
-                }}
-              >
-                What If
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleSelectLiveResultsMode}>Live Results</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleSelectWhatIfMode}>What If</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

@@ -5,17 +5,23 @@ import {
   type Column,
   type ColumnDef,
   type ColumnFiltersState,
+  type ColumnVisibilityState,
+  columnFilteringFeature,
+  columnResizingFeature,
+  columnSizingFeature,
+  columnVisibilityFeature,
   flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getSortedRowModel,
+  type RowData,
+  rowPaginationFeature,
+  rowSelectionFeature,
+  rowSortingFeature,
   type SortingState,
-  useReactTable,
-  type VisibilityState,
+  tableFeatures,
+  useTable,
 } from "@tanstack/react-table";
 import { type } from "arktype";
 import { parseAsIndex, parseAsInteger, parseAsJson, useQueryState, useQueryStates } from "nuqs";
-import type { HTMLAttributes, ReactNode } from "react";
+import { type ChangeEvent, type HTMLAttributes, type ReactNode, useCallback } from "react";
 import { LuArrowDown, LuArrowUp, LuArrowUpDown } from "react-icons/lu";
 
 import { Button } from "./button";
@@ -25,9 +31,23 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 
 const WEEKS_IN_SEASON = 18;
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  columnVisibility?: VisibilityState;
+// All row-model resolution (filtering, sorting, pagination) is done server-side via the
+// manual* options below, so no client-side row-model factories are registered here.
+export const dataTableFeatures = tableFeatures({
+  columnFilteringFeature,
+  columnResizingFeature,
+  columnSizingFeature,
+  columnVisibilityFeature,
+  rowPaginationFeature,
+  rowSelectionFeature,
+  rowSortingFeature,
+});
+
+export type DataTableFeatures = typeof dataTableFeatures;
+
+interface DataTableProps<TData extends RowData, TValue> {
+  columns: ColumnDef<DataTableFeatures, TData, TValue>[];
+  columnVisibility?: ColumnVisibilityState;
   data: TData[];
   defaultSort?: SortingState;
   filters?: (
@@ -47,7 +67,7 @@ interface DataTableProps<TData, TValue> {
   urlSort?: string;
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends RowData, TValue>({
   columns,
   columnVisibility = {},
   data,
@@ -106,15 +126,14 @@ export function DataTable<TData, TValue>({
     }),
   );
 
-  const table = useReactTable({
-    columns,
+  const table = useTable({
+    columns: columns as ColumnDef<DataTableFeatures, TData, unknown>[],
     data,
     enableColumnResizing: true,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getSortedRowModel: getSortedRowModel(),
+    features: dataTableFeatures,
     manualFiltering: true,
     manualPagination: true,
+    manualSorting: true,
     onColumnFiltersChange: (filters) => {
       setColumnFilters(filters);
       table.setPageIndex(0);
@@ -130,6 +149,41 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  const handleWeekFilterChange = useCallback(
+    (field: string, value: string) => {
+      if (value === "_ALL_") {
+        table.getColumn(field)?.setFilterValue(null);
+      } else {
+        table.getColumn(field)?.setFilterValue(value);
+      }
+    },
+    [table],
+  );
+
+  const handleDropdownFilterChange = useCallback(
+    (field: string, value: string) => {
+      if (value === "_ALL_") {
+        table.getColumn(field)?.setFilterValue("");
+      } else {
+        table.getColumn(field)?.setFilterValue(value);
+      }
+    },
+    [table],
+  );
+
+  const handleTextFilterChange = useCallback(
+    (field: string, value: string) => {
+      table.getColumn(field)?.setFilterValue(value);
+    },
+    [table],
+  );
+
+  const handleFirstPage = useCallback(() => table.firstPage(), [table]);
+  const handlePreviousPage = useCallback(() => table.previousPage(), [table]);
+  const handleNextPage = useCallback(() => table.nextPage(), [table]);
+  const handleLastPage = useCallback(() => table.lastPage(), [table]);
+  const handlePageSizeChange = useCallback((value: string) => table.setPageSize(parseInt(value, 10)), [table]);
+
   return (
     <>
       {filters.length > 0 && (
@@ -137,68 +191,35 @@ export function DataTable<TData, TValue>({
           {filters.map((filter) => {
             if (filter.type === "week") {
               return (
-                <Select
+                <WeekFilterSelect
+                  field={filter.field}
                   key={filter.field}
-                  onValueChange={(value) => {
-                    if (value === "_ALL_") {
-                      table.getColumn(filter.field)?.setFilterValue(null);
-                    } else {
-                      table.getColumn(filter.field)?.setFilterValue(value);
-                    }
-                  }}
+                  onFilterChange={handleWeekFilterChange}
+                  placeholder={filter.placeholder}
                   value={(table.getColumn(filter.field)?.getFilterValue() as string) ?? ""}
-                >
-                  <SelectTrigger className="dark:bg-white">
-                    <SelectValue placeholder={filter.placeholder} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="_ALL_">All weeks</SelectItem>
-                    {Array.from({ length: WEEKS_IN_SEASON }).map((_, i) => (
-                      // biome-ignore lint/suspicious/noArrayIndexKey: false positive
-                      <SelectItem key={i} value={(i + 1).toString()}>
-                        Week {i + 1}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                />
               );
             }
 
             if (filter.type === "dropdown") {
               return (
-                <Select
+                <DropdownFilterSelect
+                  field={filter.field}
                   key={filter.field}
-                  onValueChange={(value) => {
-                    if (value === "_ALL_") {
-                      table.getColumn(filter.field)?.setFilterValue("");
-                    } else {
-                      table.getColumn(filter.field)?.setFilterValue(value);
-                    }
-                  }}
+                  onFilterChange={handleDropdownFilterChange}
+                  options={filter.options}
+                  placeholder={filter.placeholder}
                   value={(table.getColumn(filter.field)?.getFilterValue() as string) ?? ""}
-                >
-                  <SelectTrigger className="dark:bg-white">
-                    <SelectValue placeholder={filter.placeholder} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="_ALL_">{filter.placeholder}</SelectItem>
-                    {filter.options.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                />
               );
             }
 
             return (
-              <Input
-                className="max-w-sm dark:bg-white"
+              <TextFilterInput
+                field={filter.field}
                 key={filter.field}
-                onChange={(event) => table.getColumn(filter.field)?.setFilterValue(event.target.value)}
+                onFilterChange={handleTextFilterChange}
                 placeholder={filter.placeholder}
-                type="text"
                 value={(table.getColumn(filter.field)?.getFilterValue() as string) ?? ""}
               />
             );
@@ -243,23 +264,20 @@ export function DataTable<TData, TValue>({
 
       {!hidePagination && (
         <div className="flex flex-wrap gap-x-2 mt-6 items-center">
-          <Button disabled={!table.getCanPreviousPage()} onClick={() => table.firstPage()}>
+          <Button disabled={!table.getCanPreviousPage()} onClick={handleFirstPage}>
             {"<<"}
           </Button>
-          <Button disabled={!table.getCanPreviousPage()} onClick={() => table.previousPage()}>
+          <Button disabled={!table.getCanPreviousPage()} onClick={handlePreviousPage}>
             {"<"}
           </Button>
-          <span className="text-nowrap">{`Page ${table.getState().pagination.pageIndex + 1} of ${table.getPageCount()}`}</span>
-          <Button disabled={!table.getCanNextPage()} onClick={() => table.nextPage()}>
+          <span className="text-nowrap">{`Page ${table.state.pagination.pageIndex + 1} of ${table.getPageCount()}`}</span>
+          <Button disabled={!table.getCanNextPage()} onClick={handleNextPage}>
             {">"}
           </Button>
-          <Button disabled={!table.getCanNextPage()} onClick={() => table.lastPage()}>
+          <Button disabled={!table.getCanNextPage()} onClick={handleLastPage}>
             {">>"}
           </Button>
-          <Select
-            onValueChange={(value) => table.setPageSize(parseInt(value, 10))}
-            value={table.getState().pagination.pageSize.toString()}
-          >
+          <Select onValueChange={handlePageSizeChange} value={table.state.pagination.pageSize.toString()}>
             <SelectTrigger className="dark:bg-white">
               <SelectValue placeholder="Rows per page" />
             </SelectTrigger>
@@ -277,12 +295,92 @@ export function DataTable<TData, TValue>({
   );
 }
 
-type SortableColumnHeaderProps<TData, TValue> = {
-  column: Column<TData, TValue>;
+type WeekFilterSelectProps = {
+  field: string;
+  onFilterChange: (field: string, value: string) => void;
+  placeholder: string;
+  value: string;
+};
+
+const WeekFilterSelect = ({ field, onFilterChange, placeholder, value }: WeekFilterSelectProps) => {
+  const handleValueChange = useCallback((value: string) => onFilterChange(field, value), [field, onFilterChange]);
+
+  return (
+    <Select onValueChange={handleValueChange} value={value}>
+      <SelectTrigger aria-label={placeholder} className="dark:bg-white">
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="_ALL_">All weeks</SelectItem>
+        {Array.from({ length: WEEKS_IN_SEASON }).map((_, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: false positive
+          <SelectItem key={i} value={(i + 1).toString()}>
+            Week {i + 1}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+};
+
+type DropdownFilterSelectProps = {
+  field: string;
+  onFilterChange: (field: string, value: string) => void;
+  options: { label: string; value: string }[];
+  placeholder: string;
+  value: string;
+};
+
+const DropdownFilterSelect = ({ field, onFilterChange, options, placeholder, value }: DropdownFilterSelectProps) => {
+  const handleValueChange = useCallback((value: string) => onFilterChange(field, value), [field, onFilterChange]);
+
+  return (
+    <Select onValueChange={handleValueChange} value={value}>
+      <SelectTrigger aria-label={placeholder} className="dark:bg-white">
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="_ALL_">{placeholder}</SelectItem>
+        {options.map((option) => (
+          <SelectItem key={option.value} value={option.value}>
+            {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+};
+
+type TextFilterInputProps = {
+  field: string;
+  onFilterChange: (field: string, value: string) => void;
+  placeholder: string;
+  value: string;
+};
+
+const TextFilterInput = ({ field, onFilterChange, placeholder, value }: TextFilterInputProps) => {
+  const handleChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => onFilterChange(field, event.target.value),
+    [field, onFilterChange],
+  );
+
+  return (
+    <Input
+      className="max-w-sm dark:bg-white"
+      onChange={handleChange}
+      placeholder={placeholder}
+      type="text"
+      value={value}
+    />
+  );
+};
+
+type SortableColumnHeaderProps<TData extends RowData, TValue> = {
+  column: Column<DataTableFeatures, TData, TValue>;
   title: string;
 } & HTMLAttributes<HTMLDivElement>;
 
-export const SortableColumnHeader = <T, D>({
+export const SortableColumnHeader = <T extends RowData, D>({
   className,
   column,
   title,

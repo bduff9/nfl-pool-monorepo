@@ -74,7 +74,7 @@ const ScoreboardTeam: FC<ScoreboardTeamProps> = ({ gameStatus, hasPossession, is
       >
         {gameStatus !== "Pregame" && (
           <>
-            {hasPossession && <PiFootballDuotone className={cn("me-2", !isInRedzone && "text-amber-800")} />}
+            {!!hasPossession && <PiFootballDuotone className={cn("me-2", !isInRedzone && "text-amber-800")} />}
             {score}
           </>
         )}

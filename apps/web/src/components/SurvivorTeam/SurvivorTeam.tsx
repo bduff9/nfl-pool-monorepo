@@ -37,13 +37,14 @@ type Props = {
 };
 
 const SurvivorTeam: FC<Props> = ({ isHome = false, isOnBye = false, loading, onClick, pick, team, weekInProgress }) => {
+  const isDisabled = !onClick || !!pick || !!loading;
+
   return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: This div should be interactive
-    <div
+    <button
       className={cn(
         ...(pick
           ? [
-              "cursor-default pointer-events-none border-4",
+              "cursor-default border-4",
               pick.SurvivorPickWeek < (weekInProgress ?? 0) && "text-green-800 border-green-400 bg-green-200",
               pick.SurvivorPickWeek === (weekInProgress ?? 0) && "text-blue-800 border-blue-400 bg-blue-200",
               pick.SurvivorPickWeek > (weekInProgress ?? 0) && "text-yellow-800 border-yellow-400 bg-yellow-200",
@@ -52,18 +53,15 @@ const SurvivorTeam: FC<Props> = ({ isHome = false, isOnBye = false, loading, onC
             ? "border border-black bg-gray-100"
             : [
                 "border-b border-e border-black bg-gray-100 hover:bg-blue-200 hover:border-blue-400 hover:border-4",
-                loading ? "pointer-events-none bg-gray-300 grayscale" : "cursor-pointer",
+                loading ? "bg-gray-300 grayscale" : "cursor-pointer",
                 !isHome && "border-s",
               ]),
         "relative p-2 text-center h-[152px] flex flex-col items-center justify-center",
         isOnBye ? "w-1/2 md:w-1/4 lg:w-1/6" : "w-1/2",
       )}
-      onClick={!pick ? onClick : undefined}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          !pick && onClick?.();
-        }
-      }}
+      disabled={isDisabled}
+      onClick={onClick}
+      type="button"
     >
       {!!pick && (
         <Badge
@@ -93,7 +91,7 @@ const SurvivorTeam: FC<Props> = ({ isHome = false, isOnBye = false, loading, onC
         <br />
       </span>
       {team?.TeamName}
-    </div>
+    </button>
   );
 };
 

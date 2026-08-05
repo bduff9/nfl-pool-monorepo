@@ -21,18 +21,16 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
 import "client-only";
 
 import { arktypeResolver } from "@hookform/resolvers/arktype";
-import { Button } from "@nfl-pool-monorepo/ui/components/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@nfl-pool-monorepo/ui/components/form";
-import { Input } from "@nfl-pool-monorepo/ui/components/input";
 import { Table, TableBody, TableCell, TableRow } from "@nfl-pool-monorepo/ui/components/table";
 import { useAction } from "next-safe-action/hooks";
 import { type FC, useRef } from "react";
 import { type Resolver, type SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
-import { processFormErrors } from "@/lib/form-errors";
 import { payoutsSchema } from "@/lib/validation";
 import { updatePayouts } from "@/server/actions/systemValue";
+
+import { PrizeInputsForm } from "./PrizeInputsForm";
 
 type CalculatedRowProps = {
   count?: null | number;
@@ -86,18 +84,6 @@ type Props = {
   weeklyPrizes: [number, number, number];
 };
 
-/**
- * This component is used to manage the payouts for the pool.
- *
- * @param {number} overallPrizes - The prizes for the overall pool.
- * @param {number} poolCost - The cost of the pool.
- * @param {number} registeredCount - The number of people registered for the pool.
- * @param {number} survivorCost - The cost of the survivor pool.
- * @param {number} survivorCount - The number of people registered for the survivor pool.
- * @param {number} survivorPrizes - The prizes for the survivor pool.
- * @param {number} weeklyPrizes - The prizes for the weekly pool.
- * @returns {JSX.Element} The component to render for managing the payouts.
- */
 const ManageAdminPayments: FC<Props> = ({
   overallPrizes,
   poolCost,
@@ -191,196 +177,14 @@ const ManageAdminPayments: FC<Props> = ({
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-center">Prizes</h1>
         <div className="flex">
           <div className="w-full md:w-2/3">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit, processFormErrors)}>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <FormItem>
-                    <FormLabel>Pool Cost</FormLabel>
-                    <FormControl>
-                      <Input
-                        className={cn("dark:bg-transparent border-0 shadow-none")}
-                        readOnly
-                        type="number"
-                        value={poolCost}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-
-                  <FormField
-                    control={form.control}
-                    name="weekly1stPrize"
-                    render={({ field, fieldState }) => (
-                      <FormItem>
-                        <FormLabel className="required">Weekly 1st place</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            aria-invalid={!!fieldState.error}
-                            className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-                            type="number"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="weekly2ndPrize"
-                    render={({ field, fieldState }) => (
-                      <FormItem>
-                        <FormLabel className="required">Weekly 2nd place</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            aria-invalid={!!fieldState.error}
-                            className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-                            type="number"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div />
-
-                  <FormField
-                    control={form.control}
-                    name="overall1stPrize"
-                    render={({ field, fieldState }) => (
-                      <FormItem>
-                        <FormLabel className="required">Overall 1st place</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            aria-invalid={!!fieldState.error}
-                            className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-                            type="number"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="overall2ndPrize"
-                    render={({ field, fieldState }) => (
-                      <FormItem>
-                        <FormLabel className="required h-5">Overall 2nd place</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            aria-invalid={!!fieldState.error}
-                            className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-                            type="number"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="overall3rdPrize"
-                    render={({ field, fieldState }) => (
-                      <FormItem>
-                        <FormLabel className="required h-5">Overall 3rd place</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            aria-invalid={!!fieldState.error}
-                            className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-                            type="number"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormItem>
-                    <FormLabel>Overall last place</FormLabel>
-                    <FormControl>
-                      <Input
-                        className={cn("dark:bg-transparent border-0 shadow-none")}
-                        readOnly
-                        type="number"
-                        value={poolCost}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-
-                  <FormItem>
-                    <FormLabel>Survivor cost</FormLabel>
-                    <FormControl>
-                      <Input
-                        className={cn("dark:bg-transparent border-0 shadow-none")}
-                        readOnly
-                        type="number"
-                        value={survivorCost}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-
-                  <FormField
-                    control={form.control}
-                    name="survivor1stPrize"
-                    render={({ field, fieldState }) => (
-                      <FormItem>
-                        <FormLabel className="required h-5">Survivor 1st place</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            aria-invalid={!!fieldState.error}
-                            className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-                            type="number"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="survivor2ndPrize"
-                    render={({ field, fieldState }) => (
-                      <FormItem>
-                        <FormLabel className="required h-5">Survivor 2nd place</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            aria-invalid={!!fieldState.error}
-                            className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-                            type="number"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div />
-
-                  <Button
-                    className="col-span-full"
-                    disabled={hasBeenSaved || isPending}
-                    type="submit"
-                    variant="primary"
-                  >
-                    {hasBeenSaved ? "Saved" : "Save"}
-                  </Button>
-                </div>
-              </form>
-            </Form>
+            <PrizeInputsForm
+              form={form}
+              hasBeenSaved={hasBeenSaved}
+              isPending={isPending}
+              onSubmit={onSubmit}
+              poolCost={poolCost}
+              survivorCost={survivorCost}
+            />
           </div>
 
           <div className="w-full md:w-1/3">

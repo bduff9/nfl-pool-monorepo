@@ -4,14 +4,10 @@ import "server-only";
 
 import { isAliveInSurvivor } from "@nfl-pool-monorepo/db/src/queries/survivor";
 
-import { getCurrentSession } from "./sessions";
+import { requireUser } from "./sessions";
 
 export const getIsAliveInSurvivor = cache(async (): Promise<boolean> => {
-  const { user } = await getCurrentSession();
-
-  if (!user) {
-    throw new Error("Not logged in");
-  }
+  const user = await requireUser();
 
   if (!user.playsSurvivor) {
     return false;
@@ -21,11 +17,7 @@ export const getIsAliveInSurvivor = cache(async (): Promise<boolean> => {
 });
 
 export const getMySurvivorPickForWeek = cache(async (week: number) => {
-  const { user } = await getCurrentSession();
-
-  if (!user) {
-    throw new Error("Not logged in");
-  }
+  const user = await requireUser();
 
   return db
     .selectFrom("Teams as T")
@@ -45,11 +37,7 @@ export const getMySurvivorPickForWeek = cache(async (week: number) => {
 });
 
 export const getMySurvivorPicks = cache(async () => {
-  const { user } = await getCurrentSession();
-
-  if (!user) {
-    throw new Error("Not logged in");
-  }
+  const user = await requireUser();
 
   return db
     .selectFrom("SurvivorPicks")

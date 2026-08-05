@@ -132,6 +132,7 @@ export const UseBeforeUnloadProvider = ({ children }: PropsWithChildren) => {
       window.addEventListener = originalAddEventListener;
       removeEventListener("popstate", popStateHandler);
     };
+    // react-doctor-disable-next-line exhaustive-deps -- router is a stable reference from Next's App Router useRouter(); only mount/unmount wiring is needed here
   }, []);
 
   return children;

@@ -44,11 +44,15 @@ const CustomHeadClient: FC<Props> = ({ alerts, title }) => {
       }, 2000);
     } else if (interval.current) {
       window.clearInterval(interval.current);
+      interval.current = null;
       document.title = title;
     }
 
     return () => {
-      if (interval.current) window.clearInterval(interval.current);
+      if (interval.current) {
+        window.clearInterval(interval.current);
+        interval.current = null;
+      }
     };
   }, [alerts, title]);
 

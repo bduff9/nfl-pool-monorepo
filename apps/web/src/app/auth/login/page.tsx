@@ -42,8 +42,7 @@ const Login: FC<PageProps<"/auth/login">> = async ({ searchParams }) => {
     return redirect(redirectUrl);
   }
 
-  const { error, register, submitted } = await searchParams;
-  const year = await getSystemYear();
+  const [{ error, register, submitted }, year] = await Promise.all([searchParams, getSystemYear()]);
 
   const isLogin = (Array.isArray(register) ? register[0] : register) !== "Y";
   const errorMessage = Array.isArray(error) ? error[0] : error;
@@ -69,7 +68,7 @@ const Login: FC<PageProps<"/auth/login">> = async ({ searchParams }) => {
       {hasSubmitted ? (
         <>
           <h2 className="text-center text-green-600 my-5">Please check your email to sign in</h2>
-          <h4 className="text-center text-gray-800 mb-4">You may close this window</h4>
+          <h3 className="text-center text-gray-800 mb-4">You may close this window</h3>
         </>
       ) : (
         <>

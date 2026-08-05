@@ -4,7 +4,7 @@ import "server-only";
 
 import { weekSchema } from "@nfl-pool-monorepo/utils/validation";
 
-import { getCurrentSession } from "./sessions";
+import { requireUser } from "./sessions";
 
 export const getWeeklyMvCount = cache(async (week: number) => {
   weekSchema.assert(week);
@@ -19,11 +19,7 @@ export const getWeeklyMvCount = cache(async (week: number) => {
 });
 
 export const getWeeklyMvTiedCount = cache(async (week: number) => {
-  const { user } = await getCurrentSession();
-
-  if (!user) {
-    throw new Error("Not logged in");
-  }
+  const user = await requireUser();
 
   weekSchema.assert(week);
 
@@ -41,11 +37,7 @@ export const getWeeklyMvTiedCount = cache(async (week: number) => {
 });
 
 export const getMyWeeklyRank = cache(async (week: number) => {
-  const { user } = await getCurrentSession();
-
-  if (!user) {
-    throw new Error("Not logged in");
-  }
+  const user = await requireUser();
 
   weekSchema.assert(week);
 

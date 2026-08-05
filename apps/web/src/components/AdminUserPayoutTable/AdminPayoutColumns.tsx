@@ -1,21 +1,16 @@
 "use client";
 
-import { SortableColumnHeader } from "@nfl-pool-monorepo/ui/components/data-table";
+import { type DataTableFeatures, SortableColumnHeader } from "@nfl-pool-monorepo/ui/components/data-table";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { ColumnDef } from "@tanstack/react-table";
-import { useAction } from "next-safe-action/hooks";
-import { useRef, useState } from "react";
-import { FaDollarSign } from "react-icons/fa";
-import { toast } from "sonner";
 
-import { insertUserPayout } from "@/server/actions/payment";
 import type { getUserPayoutsForAdmin } from "@/server/loaders/payment";
 
-import AdminUserPayoutModal from "../AdminUserPayoutModal/AdminUserPayoutModal";
+import { BalanceCell } from "./BalanceCell";
 
 export type Prize = Awaited<ReturnType<typeof getUserPayoutsForAdmin>>[number];
 
-export const prizeColumns: ColumnDef<Prize>[] = [
+export const prizeColumns: ColumnDef<DataTableFeatures, Prize>[] = [
   {
     accessorKey: "UserName",
     cell: ({ row }) => {
@@ -73,57 +68,7 @@ export const prizeColumns: ColumnDef<Prize>[] = [
   },
   {
     accessorKey: "UserBalance",
-    cell: ({ row }) => {
-      const [modalOpen, setModalOpen] = useState<null | typeof row.original>(null);
-      const toastIdRef = useRef<string | number | undefined>(undefined);
-
-      const { execute: executeInsertPayout } = useAction(insertUserPayout, {
-        onError: ({ error }) => {
-          toast.error("Something went wrong!", {
-            description: error.serverError ?? "Please check the information you are submitting.",
-          });
-        },
-        onSettled: () => {
-          if (toastIdRef.current) toast.dismiss(toastIdRef.current);
-        },
-        onSuccess: () => {
-          toast.success("Successfully updated user payout amount!");
-          setModalOpen(null);
-        },
-      });
-
-      const addUserPayout = async (userID: number, amount: number): Promise<void> => {
-        toastIdRef.current = toast.loading("Saving...", {
-          closeButton: false,
-          dismissible: false,
-          duration: Infinity,
-        });
-        executeInsertPayout({ amount, userID });
-      };
-
-      return (
-        <>
-          <FaDollarSign
-            className={cn(
-              "cursor-pointer size-8",
-              Number(row.original.UserBalance) === Number(row.original.UserWon)
-                ? "text-red-600"
-                : Number(row.original.UserBalance) === 0
-                  ? "text-green-600"
-                  : "text-amber-600",
-            )}
-            onClick={() => setModalOpen(row.original)}
-          />
-
-          <AdminUserPayoutModal
-            handleClose={() => setModalOpen(null)}
-            show={modalOpen !== null}
-            updateAmount={addUserPayout}
-            winner={modalOpen}
-          />
-        </>
-      );
-    },
+    cell: ({ row }) => <BalanceCell prize={row.original} />,
     header: "Mark Paid",
   },
 ];

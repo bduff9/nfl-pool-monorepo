@@ -1,10 +1,12 @@
+"use server";
+
 import { generateCodeVerifier, generateState } from "arctic";
 import { cookies } from "next/headers";
-import type { NextRequest } from "next/server";
+import "server-only";
 
 import { google } from "@/lib/auth";
 
-export const GET = async (_req: NextRequest, _ctx: RouteContext<"/login/google">): Promise<Response> => {
+export const getGoogleAuthorizationUrl = async (): Promise<string> => {
   const state = generateState();
   const codeVerifier = generateCodeVerifier();
   const url = google.createAuthorizationURL(state, codeVerifier, ["openid", "profile", "email"]);
@@ -25,10 +27,5 @@ export const GET = async (_req: NextRequest, _ctx: RouteContext<"/login/google">
     secure: process.env.NODE_ENV === "production",
   });
 
-  return new Response(null, {
-    headers: {
-      Location: url.toString(),
-    },
-    status: 302,
-  });
+  return url.toString();
 };

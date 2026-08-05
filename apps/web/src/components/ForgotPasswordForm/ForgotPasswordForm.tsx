@@ -12,8 +12,8 @@ import "client-only";
 
 import { redirect } from "next/navigation";
 import { useAction } from "next-safe-action/hooks";
-import { type FC, useEffect, useState } from "react";
-import { type SubmitHandler, useForm } from "react-hook-form";
+import { type FC, useCallback, useEffect, useState } from "react";
+import { type ControllerRenderProps, type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { processFormErrors } from "@/lib/form-errors";
@@ -99,6 +99,90 @@ const ForgotPasswordForm: FC<Props> = ({ error }) => {
     otpForm.reset();
   };
 
+  const renderEmailField = useCallback(
+    ({ field }: { field: ControllerRenderProps<typeof forgotPasswordEmailSchema.infer, "email"> }) => (
+      <FormItem>
+        <FormControl>
+          <FloatingLabelInput
+            autoComplete="email"
+            disabled={isSendingOTP}
+            id="email"
+            label="Email"
+            placeholder="Email"
+            type="email"
+            {...field}
+          />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    ),
+    [isSendingOTP],
+  );
+
+  const renderOtpField = useCallback(
+    ({ field }: { field: ControllerRenderProps<typeof verifyOtpSchema.infer, "otp"> }) => (
+      <FormItem className="flex justify-center">
+        <FormControl>
+          <InputOTP aria-label="Verification code" maxLength={6} {...field}>
+            <InputOTPGroup>
+              <InputOTPSlot index={0} />
+              <InputOTPSlot index={1} />
+              <InputOTPSlot index={2} />
+            </InputOTPGroup>
+            <InputOTPSeparator />
+            <InputOTPGroup>
+              <InputOTPSlot index={3} />
+              <InputOTPSlot index={4} />
+              <InputOTPSlot index={5} />
+            </InputOTPGroup>
+          </InputOTP>
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    ),
+    [],
+  );
+
+  const renderNewPasswordField = useCallback(
+    ({ field }: { field: ControllerRenderProps<typeof verifyOtpSchema.infer, "newPassword"> }) => (
+      <FormItem>
+        <FormControl>
+          <FloatingLabelInput
+            autoComplete="new-password"
+            disabled={isVerifyingOTP}
+            id="newPassword"
+            label="New Password"
+            placeholder=" "
+            type="password"
+            {...field}
+          />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    ),
+    [isVerifyingOTP],
+  );
+
+  const renderConfirmPasswordField = useCallback(
+    ({ field }: { field: ControllerRenderProps<typeof verifyOtpSchema.infer, "confirmPassword"> }) => (
+      <FormItem>
+        <FormControl>
+          <FloatingLabelInput
+            autoComplete="new-password"
+            disabled={isVerifyingOTP}
+            id="confirmPassword"
+            label="Confirm New Password"
+            placeholder=" "
+            type="password"
+            {...field}
+          />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    ),
+    [isVerifyingOTP],
+  );
+
   if (step === "email") {
     return (
       <Form {...emailForm} key="email-form">
@@ -107,29 +191,12 @@ const ForgotPasswordForm: FC<Props> = ({ error }) => {
             Enter your email address and we'll send you a verification code to reset your password.
           </p>
 
-          <FormField
-            control={emailForm.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <FloatingLabelInput
-                    autoComplete="email"
-                    disabled={isSendingOTP}
-                    id="email"
-                    label="Email"
-                    placeholder="Email"
-                    type="email"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <FormField control={emailForm.control} name="email" render={renderEmailField} />
 
-          {emailForm.formState.errors.root && (
-            <div className="text-red-600 text-sm text-center">{emailForm.formState.errors.root.message}</div>
+          {!!emailForm.formState.errors.root && (
+            <div className="text-red-600 text-sm text-center" role="alert">
+              {emailForm.formState.errors.root.message}
+            </div>
           )}
 
           <Button className="w-full" disabled={isSendingOTP} type="submit">
@@ -147,75 +214,16 @@ const ForgotPasswordForm: FC<Props> = ({ error }) => {
           Enter the 6-digit verification code sent to <strong>{email}</strong>
         </p>
 
-        <FormField
-          control={otpForm.control}
-          name="otp"
-          render={({ field }) => (
-            <FormItem className="flex justify-center">
-              <FormControl>
-                <InputOTP maxLength={6} {...field}>
-                  <InputOTPGroup>
-                    <InputOTPSlot index={0} />
-                    <InputOTPSlot index={1} />
-                    <InputOTPSlot index={2} />
-                  </InputOTPGroup>
-                  <InputOTPSeparator />
-                  <InputOTPGroup>
-                    <InputOTPSlot index={3} />
-                    <InputOTPSlot index={4} />
-                    <InputOTPSlot index={5} />
-                  </InputOTPGroup>
-                </InputOTP>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <FormField control={otpForm.control} name="otp" render={renderOtpField} />
 
-        <FormField
-          control={otpForm.control}
-          name="newPassword"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <FloatingLabelInput
-                  autoComplete="new-password"
-                  disabled={isVerifyingOTP}
-                  id="newPassword"
-                  label="New Password"
-                  placeholder=" "
-                  type="password"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <FormField control={otpForm.control} name="newPassword" render={renderNewPasswordField} />
 
-        <FormField
-          control={otpForm.control}
-          name="confirmPassword"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <FloatingLabelInput
-                  autoComplete="new-password"
-                  disabled={isVerifyingOTP}
-                  id="confirmPassword"
-                  label="Confirm New Password"
-                  placeholder=" "
-                  type="password"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <FormField control={otpForm.control} name="confirmPassword" render={renderConfirmPasswordField} />
 
-        {otpForm.formState.errors.root && (
-          <div className="text-red-600 text-sm text-center">{otpForm.formState.errors.root.message}</div>
+        {!!otpForm.formState.errors.root && (
+          <div className="text-red-600 text-sm text-center" role="alert">
+            {otpForm.formState.errors.root.message}
+          </div>
         )}
 
         <div className="space-y-2">

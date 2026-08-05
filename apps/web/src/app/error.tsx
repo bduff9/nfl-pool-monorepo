@@ -25,14 +25,25 @@ const ErrorPage: FC<Props> = ({ error, reset }) => {
     console.error("Error message:", error);
   }, [error]);
 
+  // react-doctor-disable-next-line no-fetch-in-effect -- error.tsx must be a client component per Next.js's error boundary contract, so this can't move to a Server Component
   useEffect(() => {
     const loadErrorData = async () => {
-      const response = await fetch("/api/error");
-      const { image, isLoggedIn } = await response.json();
+      try {
+        const response = await fetch("/api/error");
 
-      setImage(image);
-      setIsLoggedIn(isLoggedIn);
-      setIsLoading(false);
+        if (!response.ok) {
+          throw new Error(`Failed to load error page data: ${response.status}`);
+        }
+
+        const { image, isLoggedIn } = await response.json();
+
+        setImage(image);
+        setIsLoggedIn(isLoggedIn);
+      } catch (fetchError) {
+        console.error("Failed to load error page data:", fetchError);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     loadErrorData();
@@ -40,7 +51,7 @@ const ErrorPage: FC<Props> = ({ error, reset }) => {
 
   return (
     <div className="flex flex-wrap md:mx-3">
-      {isLoggedIn && (
+      {!!isLoggedIn && (
         <div className="w-full px-1 pt-1">
           <SidebarTrigger className="size-10 md:size-7" />
         </div>
@@ -66,13 +77,13 @@ const ErrorPage: FC<Props> = ({ error, reset }) => {
           There has been an error.
         </h2>
         <div className="text-center mb-2">
-          <Button className="text-sky-600 text-4xl" onClick={() => reset()} variant="link">
+          <Button className="text-sky-600 text-4xl" onClick={reset} variant="link">
             Please try again
           </Button>
         </div>
         {!isLoading && (
           <>
-            <h4 className="scroll-m-20 text-xl font-semibold tracking-tight mb-2 text-center">or</h4>
+            <h3 className="scroll-m-20 text-xl font-semibold tracking-tight mb-2 text-center">or</h3>
             <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0 mb-2 text-center">
               {isLoggedIn ? (
                 <ProgressBarLink className="text-sky-600" href="/">

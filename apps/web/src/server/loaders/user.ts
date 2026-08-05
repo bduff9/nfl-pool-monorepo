@@ -10,7 +10,7 @@ import { cache } from "react";
 import { DEFAULT_PAGE_SIZE } from "@/lib/constants";
 
 import { coerceNumber, parseJsonParam } from "./param-parsing";
-import { getCurrentSession } from "./sessions";
+import { getCurrentSession, requireUser } from "./sessions";
 
 export const getAdminUsers = cache(async (params: Awaited<PageProps<"/admin/users">["searchParams"]>) => {
   const sortSchema = type({ desc: "boolean", id: type.enumerated("UserName", "UserEmail") }).array();
@@ -157,11 +157,7 @@ export const getAdminUsers = cache(async (params: Awaited<PageProps<"/admin/user
 });
 
 export const getCurrentUser = cache(async () => {
-  const { user } = await getCurrentSession();
-
-  if (!user) {
-    throw new Error("Not logged in");
-  }
+  const user = await requireUser();
 
   return db
     .selectFrom("Users")

@@ -49,9 +49,13 @@ const ConfirmationModal: FC<ConfirmationModal> = ({
 
   const handleAccept = async (): Promise<void> => {
     setLoading(true);
-    await onAccept();
-    setLoading(false);
-    setOpen(false);
+
+    try {
+      await onAccept();
+      setOpen(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancel = async (): Promise<void> => {
@@ -60,7 +64,7 @@ const ConfirmationModal: FC<ConfirmationModal> = ({
   };
 
   return (
-    <Dialog onOpenChange={(open) => setOpen(open)} open={open}>
+    <Dialog onOpenChange={setOpen} open={open}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>

@@ -1,3 +1,4 @@
+import type { User } from "@nfl-pool-monorepo/types";
 import { cookies } from "next/headers";
 import { cache } from "react";
 
@@ -13,3 +14,13 @@ export const getCurrentSession = cache(async (): Promise<SessionValidationResult
 
   return validateSessionToken(token);
 });
+
+export const requireUser = async (): Promise<User> => {
+  const { user } = await getCurrentSession();
+
+  if (!user) {
+    throw new Error("Not logged in");
+  }
+
+  return user;
+};

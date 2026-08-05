@@ -161,15 +161,26 @@ export const verifyPasswordStrength = async (password: string): Promise<boolean>
 
   const hash = encodeHexLowerCase(sha1(new TextEncoder().encode(password)));
   const hashPrefix = hash.slice(0, 5);
-  const response = await fetch(`https://api.pwnedpasswords.com/range/${hashPrefix}`);
-  const data = await response.text();
-  const items = data.split("\n");
-  for (const item of items) {
-    const hashSuffix = item.slice(0, 35).toLowerCase();
 
-    if (hash === hashPrefix + hashSuffix) {
-      return false;
+  try {
+    const response = await fetch(`https://api.pwnedpasswords.com/range/${hashPrefix}`);
+
+    if (!response.ok) {
+      throw new Error(`Have I Been Pwned API returned ${response.status}`);
     }
+
+    const data = await response.text();
+    const items = data.split("\n");
+
+    for (const item of items) {
+      const hashSuffix = item.slice(0, 35).toLowerCase();
+
+      if (hash === hashPrefix + hashSuffix) {
+        return false;
+      }
+    }
+  } catch (error) {
+    console.error("Failed to check password strength against Have I Been Pwned, allowing password", error);
   }
 
   return true;

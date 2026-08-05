@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import dynamic from "next/dynamic";
 import { useAction } from "next-safe-action/hooks";
-import { type FC, useRef, useState } from "react";
+import { type FC, type MouseEvent, useCallback, useRef, useState } from "react";
 import { PiDatabaseDuotone, PiFootballDuotone } from "react-icons/pi";
 import { toast } from "sonner";
 
@@ -42,14 +42,36 @@ const BackupsTable: FC<Props> = ({ count, results }) => {
     },
   });
 
-  const restoreABackup = (backupName: string): void => {
-    toastIdRef.current = toast.loading("Restoring...", {
-      closeButton: false,
-      dismissible: false,
-      duration: Infinity,
-    });
-    executeRestore({ backupName });
-  };
+  const restoreABackup = useCallback(
+    (backupName: string): void => {
+      toastIdRef.current = toast.loading("Restoring...", {
+        closeButton: false,
+        dismissible: false,
+        duration: Infinity,
+      });
+      executeRestore({ backupName });
+    },
+    [executeRestore],
+  );
+
+  const handleRestoreClick = useCallback(
+    (event: MouseEvent<HTMLButtonElement>) => {
+      const { backupName } = event.currentTarget.dataset;
+
+      if (!backupName) {
+        return;
+      }
+
+      setLoading(backupName);
+      setCallback(() => () => restoreABackup(backupName));
+    },
+    [restoreABackup],
+  );
+
+  const handleCancelConfirmation = useCallback(() => {
+    setCallback(null);
+    setLoading(null);
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen px-6">
@@ -76,17 +98,25 @@ const BackupsTable: FC<Props> = ({ count, results }) => {
               </TableRow>
             </TableHeader>
             <TableBody>
+              {results.length === 0 && (
+                <TableRow>
+                  <TableCell className="text-center text-muted" colSpan={4}>
+                    No backups found
+                  </TableCell>
+                </TableRow>
+              )}
               {results.map((backup) => (
                 <TableRow key={`backup-${backup.backupName}`}>
                   <TableHead className="flex justify-center items-center" scope="row">
                     {loading === null && (
-                      <PiDatabaseDuotone
-                        className="cursor-pointer text-black size-4"
-                        onClick={() => {
-                          setLoading(backup.backupName);
-                          setCallback(() => () => restoreABackup(backup.backupName));
-                        }}
-                      />
+                      <button
+                        aria-label={`Restore backup ${backup.backupName}`}
+                        data-backup-name={backup.backupName}
+                        onClick={handleRestoreClick}
+                        type="button"
+                      >
+                        <PiDatabaseDuotone className="cursor-pointer text-black size-4" />
+                      </button>
                     )}
                     {loading === backup.backupName && (
                       <PiFootballDuotone
@@ -104,15 +134,12 @@ const BackupsTable: FC<Props> = ({ count, results }) => {
           </Table>
         </div>
       </div>
-      {callback && (
+      {!!callback && (
         <ConfirmationModal
           acceptButton="Restore"
           body={`Are you certain you want to restore backup ${loading}?  This cannot be undone.`}
           onAccept={callback}
-          onCancel={() => {
-            setCallback(null);
-            setLoading(null);
-          }}
+          onCancel={handleCancelConfirmation}
           title="Are you sure?"
         />
       )}

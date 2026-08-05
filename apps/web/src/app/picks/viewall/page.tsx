@@ -46,17 +46,13 @@ const ViewAllPicks: FC<PageProps<"/picks/viewall">> = async () => {
   }
 
   const selectedWeek = await getSelectedWeek();
-  const currentUser = await getCurrentUser();
-  const tiebreakerPromise = getMyTiebreaker(selectedWeek);
-  const weeklyRankingsPromise = getWeeklyRankings(selectedWeek);
-  const gamesForWeekPromise = getGamesForWeek(selectedWeek);
-  const picksForWeekPromise = getAllPicksForWeek(selectedWeek);
 
-  const [tiebreaker, weeklyRankings, gamesForWeek, picksForWeek] = await Promise.all([
-    tiebreakerPromise,
-    weeklyRankingsPromise,
-    gamesForWeekPromise,
-    picksForWeekPromise,
+  const [currentUser, tiebreaker, weeklyRankings, gamesForWeek, picksForWeek] = await Promise.all([
+    getCurrentUser(),
+    getMyTiebreaker(selectedWeek),
+    getWeeklyRankings(selectedWeek),
+    getGamesForWeek(selectedWeek),
+    getAllPicksForWeek(selectedWeek),
   ]);
 
   if (tiebreaker?.TiebreakerHasSubmitted !== 1) {

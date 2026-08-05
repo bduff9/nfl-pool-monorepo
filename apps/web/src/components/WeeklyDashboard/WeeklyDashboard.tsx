@@ -15,6 +15,7 @@
  */
 
 import { cn } from "@nfl-pool-monorepo/utils/styles";
+import dynamic from "next/dynamic";
 import type { FC } from "react";
 
 import { getMyTiebreaker } from "@/server/loaders/tiebreaker";
@@ -23,8 +24,9 @@ import { getMyWeeklyRank, getWeeklyMvCount, getWeeklyMvTiedCount } from "@/serve
 
 import { ProgressBarLink } from "../ProgressBar/ProgressBar";
 import ProgressChart from "../ProgressChart/ProgressChart";
-import RankingPieChart from "../RankingPieChart/RankingPieChart";
 import { WeeklyDashboardCountdown, WeeklyDashboardResults, WeeklyDashboardTitle } from "./WeeklyDashboard.client";
+
+const RankingPieChart = dynamic(() => import("../RankingPieChart/RankingPieChart"));
 
 const WeeklyDashboard: FC = async () => {
   const selectedWeek = await getSelectedWeek();
@@ -76,7 +78,7 @@ const WeeklyDashboard: FC = async () => {
           </ProgressBarLink>
         )}
       </div>
-      {myWeeklyRank && (
+      {!!myWeeklyRank && (
         <div>
           <RankingPieChart
             data={[

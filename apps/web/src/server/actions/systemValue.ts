@@ -67,9 +67,9 @@ export const updatePayouts = adminActionClient
       .where("UserCommunicationsOptedOut", "=", 0)
       .execute();
 
-    for (const user of users) {
-      try {
-        await sendPrizesSetEmail(
+    await Promise.all(
+      users.map((user) =>
+        sendPrizesSetEmail(
           user,
           overall1stPrize,
           overall2ndPrize,
@@ -78,11 +78,11 @@ export const updatePayouts = adminActionClient
           survivor2ndPrize,
           weekly1stPrize,
           weekly2ndPrize,
-        );
-      } catch (error) {
-        console.error("Failed to send email for prize amounts", user, error);
-      }
-    }
+        ).catch((error) => {
+          console.error("Failed to send email for prize amounts", user, error);
+        }),
+      ),
+    );
 
     revalidatePath("/admin/payments");
 

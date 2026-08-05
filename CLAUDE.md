@@ -22,8 +22,7 @@ npm run lint                # Biome check across all packages
 npm run lint:fix            # auto-fix lint issues
 npm run format / format:fix # Biome format
 
-npm run typecheck           # tsgo --noEmit per package (fast, cached)
-npm run typecheck:tsc       # tsc --noEmit per package (fallback/authoritative)
+npm run typecheck           # tsc --noEmit per package, native TS 7 compiler (fast, cached)
 
 npm run test                # vitest run, per package
 npm run prepush             # knip + lint + typecheck + test, streamed & parallel — run before pushing
@@ -50,7 +49,7 @@ Local MySQL for dev: `docker-compose up` (mysql:8.0.26, db `NFL`, seeded from `.
 ```bash
 npm run dev                 # Next.js dev server (Turbopack)
 npm run build / start
-npm run typecheck           # next typegen && tsgo --noEmit
+npm run typecheck           # next typegen && tsc --noEmit
 npm run add-shadcn-component -- button   # add a new shadcn/ui component
 ```
 

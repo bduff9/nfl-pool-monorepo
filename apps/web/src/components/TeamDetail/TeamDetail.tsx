@@ -32,11 +32,15 @@ type TeamBlockProps = {
 const TeamBlock: FC<TeamBlockProps> = ({ onClose, spread, team }) => (
   <div className={cn("w-1/2")}>
     <div className={cn("relative border border-black rounded p-3 bg-gray-100")}>
-      {onClose && (
-        <FaTimesCircle
-          className="absolute top-0 end-0 mt-1 me-1 inline-block md:hidden text-red-600"
+      {!!onClose && (
+        <button
+          aria-label="Close team details"
+          className="absolute top-0 end-0 mt-1 me-1 inline-block md:hidden"
           onClick={onClose}
-        />
+          type="button"
+        >
+          <FaTimesCircle className="text-red-600" />
+        </button>
       )}
       <h4 className="text-center">
         <span

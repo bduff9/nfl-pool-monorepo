@@ -46,8 +46,7 @@
   "scripts": {
     "dev": "cp .env ../../node_modules/react-email/dist/preview && email dev --dir emails/templates",
     "lint": "biome check . --write && npmPkgJsonLint .",
-    "typecheck": "tsgo --noEmit",
-    "typecheck:tsc": "tsc --noEmit"
+    "typecheck": "tsc --noEmit"
   },
   "version": "0.1.0"
 }

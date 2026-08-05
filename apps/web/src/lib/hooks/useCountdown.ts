@@ -4,28 +4,30 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { getTimeRemaining, getTimeRemainingString } from "@/lib/dates";
 
 export const useCountdown = (countdownTo: Date): string => {
-  // biome-ignore lint/correctness/useExhaustiveDependencies: No need for all deps
-  const end = useMemo(() => countdownTo ?? new Date(), [countdownTo?.getTime() ?? null]);
+  const countdownToTime = countdownTo?.getTime() ?? null;
+  const end = useMemo(() => (countdownToTime === null ? new Date() : new Date(countdownToTime)), [countdownToTime]);
   const interval = useRef<number>(0);
-  const timeParts = getTimeRemaining(end);
-  const [remaining, setRemaining] = useState<string>(getTimeRemainingString(timeParts));
-  const { days, hours, minutes, seconds, total } = timeParts;
+  const [remaining, setRemaining] = useState<string>("");
 
   useEffect(() => {
-    setRemaining(getTimeRemainingString({ days, hours, minutes, seconds, total }));
+    const updateRemaining = (): number => {
+      const timeParts = getTimeRemaining(end);
+
+      setRemaining(getTimeRemainingString(timeParts));
+
+      return timeParts.total;
+    };
+
+    const total = updateRemaining();
 
     if (total < MILLISECONDS_IN_SECOND * SECONDS_IN_MINUTE * MINUTES_IN_HOUR) {
-      interval.current = window.setInterval(() => {
-        const timeParts = getTimeRemaining(end);
-
-        setRemaining(getTimeRemainingString(timeParts));
-      }, 1000);
+      interval.current = window.setInterval(updateRemaining, 1000);
 
       return () => window.clearInterval(interval.current);
     }
 
     return undefined;
-  }, [days, end, hours, minutes, seconds, total]);
+  }, [end]);
 
   return remaining;
 };

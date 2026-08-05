@@ -7,14 +7,10 @@ import { WEEKS_IN_SEASON } from "@nfl-pool-monorepo/utils/constants";
 import { jsonArrayFrom } from "kysely/helpers/mysql";
 
 import { getWeekInProgress } from "./game";
-import { getCurrentSession } from "./sessions";
+import { requireUser } from "./sessions";
 
 export const getMySurvivorMv = cache(async () => {
-  const { user } = await getCurrentSession();
-
-  if (!user) {
-    throw new Error("Not logged in");
-  }
+  const user = await requireUser();
 
   const result = await db
     .selectFrom("SurvivorMV as S")
@@ -49,11 +45,7 @@ export const getMySurvivorMv = cache(async () => {
 });
 
 export const getSurvivorOverallCounts = cache(async () => {
-  const { user } = await getCurrentSession();
-
-  if (!user) {
-    throw new Error("Not logged in");
-  }
+  await requireUser();
 
   const result = await db
     .selectFrom("SurvivorMV")
@@ -99,11 +91,7 @@ export const getSurvivorRankings = cache(async () => {
 });
 
 export const getSurvivorStatus = cache(async () => {
-  const { user } = await getCurrentSession();
-
-  if (!user) {
-    throw new Error("Not logged in");
-  }
+  await requireUser();
 
   const { count } = await db
     .selectFrom("SurvivorMV")
@@ -124,11 +112,7 @@ export const getSurvivorStatus = cache(async () => {
 });
 
 export const getSurvivorWeeklyCounts = cache(async (week: number) => {
-  const { user } = await getCurrentSession();
-
-  if (!user) {
-    throw new Error("Not logged in");
-  }
+  await requireUser();
 
   const maxResult = await db
     .selectFrom("SurvivorMV")
