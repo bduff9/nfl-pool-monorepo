@@ -268,3 +268,135 @@ describe("setMyPick", () => {
     expect(revalidatePath).toHaveBeenCalledWith("/picks/set");
   });
 });
+
+describe("autoPickMyPicks", () => {
+  beforeEach(() => {
+    mockDb = createMockDb();
+    getCurrentSession.mockReset().mockResolvedValue({ session: { id: "s1" }, user: AUTHED_USER });
+    revalidatePath.mockReset();
+    vi.resetModules();
+  });
+
+  it("does nothing when every pick is already made or its game has started", async () => {
+    const PAST = new Date(Date.now() - 60 * 60 * 1000);
+
+    mockDb.execute.mockResolvedValueOnce([
+      { GameKickoff: FUTURE, HomeTeamID: 1, PickID: 1, PickPoints: 1, VisitorTeamID: 2 },
+      { GameKickoff: PAST, HomeTeamID: 3, PickID: 2, PickPoints: null, VisitorTeamID: 4 },
+    ]);
+
+    const { autoPickMyPicks } = await import("./pick");
+    const result = await autoPickMyPicks({ type: "Home", week: 1 });
+
+    expect(result?.serverError).toBeUndefined();
+    expect(mockDb.executeTakeFirstOrThrow).not.toHaveBeenCalled();
+  });
+
+  it("auto-picks the home team for the one remaining unmade pick", async () => {
+    mockDb.execute.mockResolvedValueOnce([
+      { GameKickoff: FUTURE, HomeTeamID: 1, PickID: 1, PickPoints: null, VisitorTeamID: 2 },
+    ]);
+    mockDb.executeTakeFirstOrThrow.mockResolvedValueOnce({ numUpdatedRows: 1n });
+
+    const { autoPickMyPicks } = await import("./pick");
+    const result = await autoPickMyPicks({ type: "Home", week: 1 });
+
+    expect(result?.serverError).toBeUndefined();
+    expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({ PickPoints: 1, TeamID: 1 }));
+    expect(revalidatePath).toHaveBeenCalledWith("/picks/set");
+  });
+
+  it("auto-picks the visitor team for the one remaining unmade pick when strategy is Away", async () => {
+    mockDb.execute.mockResolvedValueOnce([
+      { GameKickoff: FUTURE, HomeTeamID: 1, PickID: 1, PickPoints: null, VisitorTeamID: 2 },
+    ]);
+    mockDb.executeTakeFirstOrThrow.mockResolvedValueOnce({ numUpdatedRows: 1n });
+
+    const { autoPickMyPicks } = await import("./pick");
+    await autoPickMyPicks({ type: "Away", week: 1 });
+
+    expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({ PickPoints: 1, TeamID: 2 }));
+  });
+
+  it("wraps a transaction failure in a descriptive error", async () => {
+    mockDb.execute.mockResolvedValueOnce([
+      { GameKickoff: FUTURE, HomeTeamID: 1, PickID: 1, PickPoints: null, VisitorTeamID: 2 },
+    ]);
+    mockDb.executeTakeFirstOrThrow.mockRejectedValueOnce(new Error("connection lost"));
+
+    const { autoPickMyPicks } = await import("./pick");
+    const result = await autoPickMyPicks({ type: "Home", week: 1 });
+
+    expect(result?.serverError).toBe("connection lost");
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+});
+
+describe("resetMyPicksForWeek", () => {
+  beforeEach(() => {
+    mockDb = createMockDb();
+    getCurrentSession.mockReset().mockResolvedValue({ session: { id: "s1" }, user: AUTHED_USER });
+    revalidatePath.mockReset();
+    vi.resetModules();
+  });
+
+  it("clears picks for the week and revalidates", async () => {
+    mockDb.executeTakeFirstOrThrow.mockResolvedValueOnce({ numUpdatedRows: 3n });
+
+    const { resetMyPicksForWeek } = await import("./pick");
+    const result = await resetMyPicksForWeek({ week: 1 });
+
+    expect(result?.serverError).toBeUndefined();
+    expect(mockDb.updateTable).toHaveBeenCalledWith("Picks");
+    expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({ PickPoints: null, TeamID: null }));
+    expect(revalidatePath).toHaveBeenCalledWith("/picks/set");
+  });
+
+  it("wraps a transaction failure in a descriptive error", async () => {
+    mockDb.executeTakeFirstOrThrow.mockRejectedValueOnce(new Error("deadlock"));
+
+    const { resetMyPicksForWeek } = await import("./pick");
+    const result = await resetMyPicksForWeek({ week: 1 });
+
+    expect(result?.serverError).toBe("deadlock");
+  });
+});
+
+describe("validateMyPicks", () => {
+  beforeEach(() => {
+    mockDb = createMockDb();
+    getCurrentSession.mockReset().mockResolvedValue({ session: { id: "s1" }, user: AUTHED_USER });
+    revalidatePath.mockReset();
+    vi.resetModules();
+  });
+
+  it("throws when the unused points are not in sync with the backend", async () => {
+    mockDb.executeTakeFirst.mockResolvedValueOnce({ count: 2 });
+
+    const { validateMyPicks } = await import("./pick");
+    const result = await validateMyPicks({ lastScore: 10, unused: [1, 2], week: 1 });
+
+    expect(result?.serverError).toContain("Points are not in sync");
+  });
+
+  it("throws when the tiebreaker score doesn't match the backend", async () => {
+    mockDb.executeTakeFirst.mockResolvedValueOnce({ count: 0 });
+    mockDb.executeTakeFirstOrThrow.mockResolvedValueOnce({ TiebreakerLastScore: 20 });
+
+    const { validateMyPicks } = await import("./pick");
+    const result = await validateMyPicks({ lastScore: 10, unused: [1, 2], week: 1 });
+
+    expect(result?.serverError).toContain("Tiebreaker last score on FE does not match BE");
+  });
+
+  it("succeeds when unused points and tiebreaker score both match", async () => {
+    mockDb.executeTakeFirst.mockResolvedValueOnce({ count: 0 });
+    mockDb.executeTakeFirstOrThrow.mockResolvedValueOnce({ TiebreakerLastScore: 10 });
+
+    const { validateMyPicks } = await import("./pick");
+    const result = await validateMyPicks({ lastScore: 10, unused: [1, 2], week: 1 });
+
+    expect(result?.serverError).toBeUndefined();
+    expect(revalidatePath).toHaveBeenCalledWith("/picks/set");
+  });
+});
