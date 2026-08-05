@@ -1,6 +1,7 @@
 import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@nfl-pool-monorepo/ui/components/form";
 import { Input } from "@nfl-pool-monorepo/ui/components/input";
+import { Label } from "@nfl-pool-monorepo/ui/components/label";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { type FC, useCallback } from "react";
 import type { ControllerFieldState, ControllerRenderProps, UseFormReturn } from "react-hook-form";
@@ -160,18 +161,10 @@ export const PrizeInputsForm: FC<PrizeInputsFormProps> = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit, processFormErrors)}>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <FormItem>
-            <FormLabel>Pool Cost</FormLabel>
-            <FormControl>
-              <Input
-                className={cn("dark:bg-transparent border-0 shadow-none")}
-                readOnly
-                type="number"
-                value={poolCost}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
+          <div className="grid gap-2">
+            <Label>Pool Cost</Label>
+            <Input className={cn("dark:bg-transparent border-0 shadow-none")} readOnly type="number" value={poolCost} />
+          </div>
 
           <FormField control={form.control} name="weekly1stPrize" render={renderWeekly1stPrizeField} />
 
@@ -185,31 +178,20 @@ export const PrizeInputsForm: FC<PrizeInputsFormProps> = ({
 
           <FormField control={form.control} name="overall3rdPrize" render={renderOverall3rdPrizeField} />
 
-          <FormItem>
-            <FormLabel>Overall last place</FormLabel>
-            <FormControl>
-              <Input
-                className={cn("dark:bg-transparent border-0 shadow-none")}
-                readOnly
-                type="number"
-                value={poolCost}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
+          <div className="grid gap-2">
+            <Label>Overall last place</Label>
+            <Input className={cn("dark:bg-transparent border-0 shadow-none")} readOnly type="number" value={poolCost} />
+          </div>
 
-          <FormItem>
-            <FormLabel>Survivor cost</FormLabel>
-            <FormControl>
-              <Input
-                className={cn("dark:bg-transparent border-0 shadow-none")}
-                readOnly
-                type="number"
-                value={survivorCost}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
+          <div className="grid gap-2">
+            <Label>Survivor cost</Label>
+            <Input
+              className={cn("dark:bg-transparent border-0 shadow-none")}
+              readOnly
+              type="number"
+              value={survivorCost}
+            />
+          </div>
 
           <FormField control={form.control} name="survivor1stPrize" render={renderSurvivor1stPrizeField} />
 
