@@ -266,9 +266,9 @@ const FinishRegistrationForm: FC<FinishRegistrationFormProps> = ({
                       </PopoverTrigger>
                       <PopoverContent className="max-w-[300px]">
                         You can choose to join or leave the survivor pool up until the start of the first game of the
-                        season. For more questions,{" "}
+                        season. For more questions, see the{" "}
                         <a className="underline" href="/support#survivorpool" target="survivorFAQ">
-                          click here
+                          survivor pool FAQ
                         </a>
                       </PopoverContent>
                     </Popover>

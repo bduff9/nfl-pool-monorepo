@@ -4,16 +4,16 @@
   "contributors": [],
   "dependencies": {
     "@nfl-pool-monorepo/utils": "workspace:*",
-    "arktype": "2.2.0",
-    "date-fns": "4.3.0",
-    "kysely": "0.29.2",
-    "mysql2": "3.22.3",
-    "react": "19.2.6"
+    "arktype": "2.2.3",
+    "date-fns": "4.4.0",
+    "kysely": "0.29.4",
+    "mysql2": "3.23.2",
+    "react": "19.2.8"
   },
   "description": "Database package for the NFL Pool.",
   "devDependencies": {
     "@nfl-pool-monorepo/tsconfig": "workspace:*",
-    "@types/react": "19.2.15",
+    "@types/react": "19.2.18",
     "c12": "4.0.0-beta.5",
     "citty": "0.2.2",
     "confbox": "0.2.4",
@@ -21,11 +21,11 @@
     "jiti": "2.7.0",
     "kysely-codegen": "0.20.0",
     "kysely-ctl": "0.21.0",
-    "nypm": "0.6.6",
+    "nypm": "0.6.9",
     "ofetch": "1.5.1",
     "pathe": "2.0.3",
     "pkg-types": "2.3.1",
-    "std-env": "4.1.0",
+    "std-env": "4.2.0",
     "sync-dotenv": "2.7.0"
   },
   "engines": {

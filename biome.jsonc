@@ -34,7 +34,16 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!**/node_modules/*", "!**/*.config.*", "!**/.turbo", "!**/dist", "!**/out", "!**/.next"]
+    "includes": [
+      "**",
+      "!**/node_modules/*",
+      "!**/*.config.*",
+      "!**/.turbo",
+      "!**/dist",
+      "!**/out",
+      "!**/.next",
+      "!**/public/*"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -58,13 +67,21 @@
         "useUniqueElementIds": "off"
       },
       "recommended": true,
+      "performance": {
+        // newly enabled by the "react": "all" domain in Biome 2.5 — 92 pre-existing hits repo-wide;
+        // tracked as follow-up cleanup, see CLAUDE.md QA report, not fixed as part of a dependency bump
+        "noJsxPropsBind": "off"
+      },
       "style": {
         "noDefaultExport": "off",
         "noImplicitBoolean": "off",
         "useNamingConvention": "off"
       },
       "suspicious": {
+        // newly enabled by the "react": "all" domain in Biome 2.5 — pre-existing hits repo-wide;
+        // tracked as follow-up cleanup, see CLAUDE.md QA report, not fixed as part of a dependency bump
         "noConsole": "off",
+        "noLeakedRender": "off",
         "noReactSpecificProps": "off",
         "noUnknownAtRules": "off"
       }

@@ -6,29 +6,29 @@
   "config": {},
   "contributors": [],
   "dependencies": {
-    "@aws-sdk/client-s3": "3.1053.0",
+    "@aws-sdk/client-s3": "3.1102.0",
     "@nfl-pool-monorepo/api": "workspace:*",
     "@nfl-pool-monorepo/db": "workspace:*",
     "@nfl-pool-monorepo/transactional": "workspace:*",
     "@nfl-pool-monorepo/utils": "workspace:*",
-    "aws-cdk-lib": "2.257.0",
+    "aws-cdk-lib": "2.263.0",
     "aws-lambda": "1.0.7",
-    "constructs": "10.6.0",
-    "kysely": "0.29.2",
+    "constructs": "10.8.1",
+    "kysely": "0.29.4",
     "mysqldump": "3.2.0",
     "source-map-support": "0.5.21"
   },
   "description": "Cron jobs for the NFL Pool.",
   "devDependencies": {
     "@nfl-pool-monorepo/tsconfig": "workspace:*",
-    "@types/aws-lambda": "8.10.161",
-    "@types/node": "25.9.1",
+    "@types/aws-lambda": "8.10.162",
+    "@types/node": "26.1.2",
     "@types/source-map-support": "0.5.10",
-    "aws-cdk": "2.1124.1",
+    "aws-cdk": "2.1135.0",
     "dotenv": "17.4.2",
-    "knip": "6.14.2",
+    "knip": "6.31.0",
     "sync-dotenv": "2.7.0",
-    "typescript": "6.0.3"
+    "typescript": "7.0.2"
   },
   "engines": {
     "node": ">=22"
