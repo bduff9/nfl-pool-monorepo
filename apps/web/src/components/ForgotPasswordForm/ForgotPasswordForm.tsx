@@ -10,7 +10,7 @@ import { forgotPasswordEmailSchema, verifyOtpSchema } from "@/lib/validation";
 import { sendPasswordResetOTP, verifyOTPAndResetPassword } from "@/server/actions/user";
 import "client-only";
 
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useAction } from "next-safe-action/hooks";
 import { type FC, useCallback, useEffect, useState } from "react";
 import { type ControllerRenderProps, type SubmitHandler, useForm } from "react-hook-form";
@@ -27,6 +27,7 @@ type Props = {
 type Step = "email" | "otp";
 
 const ForgotPasswordForm: FC<Props> = ({ error }) => {
+  const router = useRouter();
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
 
@@ -81,7 +82,7 @@ const ForgotPasswordForm: FC<Props> = ({ error }) => {
     },
     onSuccess: () => {
       toast.success("Your password has been successfully reset");
-      redirect("/");
+      router.push("/");
     },
   });
 

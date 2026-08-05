@@ -14,21 +14,31 @@
  * Home: https://asitewithnoname.com/
  */
 
+import { getTeamById } from "@nfl-pool-monorepo/db/src/queries/team";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
-import { redirect } from "next/navigation";
 import "server-only";
 
 import type { FC } from "react";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
-import { quickPick } from "@/server/actions/pick";
+import QuickPickConfirm from "@/components/QuickPickConfirm/QuickPickConfirm";
 
 const QuickPickPage: FC<PageProps<"/quick-pick/[userId]/[teamId]">> = async ({ params }) => {
   const { userId, teamId } = await params;
-  const result = await quickPick({ teamId: Number(teamId), userId: Number(userId) });
+  const team = await getTeamById(Number(teamId));
 
-  if (result?.data) {
-    return redirect("/picks/set");
+  if (!team) {
+    return (
+      <div className="min-h-screen flex flex-wrap md:mx-3">
+        <CustomHead title="Quick Pick" />
+        <div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2">
+          <h2 className={cn("scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0")}>
+            Quick pick failed!
+          </h2>
+          <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">Team not found</h3>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -36,9 +46,13 @@ const QuickPickPage: FC<PageProps<"/quick-pick/[userId]/[teamId]">> = async ({ p
       <CustomHead title="Quick Pick" />
       <div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2">
         <h2 className={cn("scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0")}>
-          Quick pick failed!
+          Confirm Quick Pick
         </h2>
-        <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">{result?.serverError ?? "Unknown error"}</h3>
+        <QuickPickConfirm
+          teamId={Number(teamId)}
+          teamLabel={`${team.TeamCity} ${team.TeamName}`}
+          userId={Number(userId)}
+        />
       </div>
     </div>
   );

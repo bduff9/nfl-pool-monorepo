@@ -83,7 +83,7 @@ const ViewAllPicksClient: FC<Props> = ({ currentUserId, gamesForWeek, picksForWe
   const handleSelectLiveResultsMode = useCallback(() => {
     setMode("Live Results");
     setHasWhatIfBeenSet(false);
-    updateGames(gamesForWeek);
+    setGames(updateGames(gamesForWeek));
   }, [gamesForWeek]);
 
   const handleSelectWhatIfMode = useCallback(() => {

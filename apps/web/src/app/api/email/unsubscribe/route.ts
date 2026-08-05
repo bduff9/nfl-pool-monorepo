@@ -18,10 +18,18 @@ import type { NextRequest } from "next/server";
 
 import { unsubscribe } from "@/server/actions/email";
 
+const escapeHtml = (value: string): string =>
+  value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+
 export const GET = async (req: NextRequest, _ctx: RouteContext<"/api/email/unsubscribe">): Promise<Response> => {
   const { nextUrl } = req;
   const { searchParams } = nextUrl;
-  const email = searchParams.get("email") ?? "";
+  const email = escapeHtml(searchParams.get("email") ?? "");
 
   const html = `
 <!doctype html>

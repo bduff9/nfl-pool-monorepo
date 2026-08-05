@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useAction } from "next-safe-action/hooks";
 import { type FocusEventHandler, type ReactNode, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -37,6 +37,7 @@ export const usePickActions = ({
   startPicksUpdating,
   tiebreaker,
 }: UsePickActionsArgs) => {
+  const router = useRouter();
   const [loading, setLoading] = useState<LoadingType | null>(null);
   const [tiebreakerLastScoreError, setTiebreakerLastScoreError] = useState<null | string>(null);
   const [callback, setCallback] = useState<ConfirmCallback | null>(null);
@@ -115,7 +116,7 @@ export const usePickActions = ({
     },
     onSuccess: () => {
       toast.success(`Successfully submitted your picks for week ${selectedWeek}`);
-      redirect("/picks/view");
+      router.push("/picks/view");
     },
   });
 

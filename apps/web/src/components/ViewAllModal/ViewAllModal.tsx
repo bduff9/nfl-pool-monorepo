@@ -88,6 +88,12 @@ const ViewAllModal: FC<Props> = ({ closeModal, games, isOpen, saveChanges }) => 
   const [customGames, setCustomGames] = useState<Awaited<ReturnType<typeof getGamesForWeek>>>(() => games);
 
   useEffect(() => {
+    if (isOpen) {
+      setCustomGames(games);
+    }
+  }, [isOpen, games]);
+
+  useEffect(() => {
     // Radix Dialog leaves body pointer-events disabled briefly after close; re-enable/disable on a delay
     // to match its own close animation instead of fighting it. See https://github.com/radix-ui/primitives/issues/1241
     let timer: NodeJS.Timeout;

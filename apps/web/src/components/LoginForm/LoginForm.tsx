@@ -12,7 +12,7 @@ import { login, register } from "@/server/actions/user";
 import "client-only";
 
 import type { Route } from "next";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useAction } from "next-safe-action/hooks";
 import { type FC, useEffect } from "react";
 import type { ControllerProps } from "react-hook-form";
@@ -48,6 +48,7 @@ const renderEmailField: ControllerProps<typeof loginSchema.infer, "email">["rend
 );
 
 const LoginForm: FC<Props> = ({ error, isLogin }) => {
+  const router = useRouter();
   const form = useForm<typeof loginSchema.infer>({
     defaultValues: {
       confirmPassword: "",
@@ -73,7 +74,7 @@ const LoginForm: FC<Props> = ({ error, isLogin }) => {
     onSuccess: ({ data }) => {
       const redirectTo = data?.metadata?.redirectTo;
       toast.success("Successfully logged in!");
-      redirect(typeof redirectTo === "string" && redirectTo ? (redirectTo as Route) : "/");
+      router.push(typeof redirectTo === "string" && redirectTo ? (redirectTo as Route) : "/");
     },
   });
 
@@ -87,7 +88,7 @@ const LoginForm: FC<Props> = ({ error, isLogin }) => {
       const result = data as { metadata?: Record<string, boolean | number | string>; status?: string };
       const redirectTo = result?.metadata?.redirectTo;
       toast.success("Successfully registered!");
-      redirect(typeof redirectTo === "string" && redirectTo ? (redirectTo as Route) : "/");
+      router.push(typeof redirectTo === "string" && redirectTo ? (redirectTo as Route) : "/");
     },
   });
 
