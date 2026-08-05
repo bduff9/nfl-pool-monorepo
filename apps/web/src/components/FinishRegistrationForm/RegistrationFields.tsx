@@ -213,7 +213,7 @@ export const RegistrationFields: FC<RegistrationFieldsProps> = ({
               aria-label="Payment Type"
               className={cn("dark:bg-white w-full", fieldState.error && "border-red-600")}
             >
-              <SelectValue placeholder="-- Select a payment type --" />
+              <SelectValue placeholder="-- Select a payment type --">{field.value}</SelectValue>
             </SelectTrigger>
           </FormControl>
           <SelectContent>

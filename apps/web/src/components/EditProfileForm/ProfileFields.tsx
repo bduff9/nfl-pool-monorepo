@@ -148,7 +148,7 @@ export const ProfileFields: FC<ProfileFieldsProps> = ({ control }) => {
               aria-label="Payment Type"
               className={cn("dark:bg-white w-full", fieldState.error && "border-red-600")}
             >
-              <SelectValue placeholder="-- Select a payment type --" />
+              <SelectValue placeholder="-- Select a payment type --">{field.value}</SelectValue>
             </SelectTrigger>
           </FormControl>
           <SelectContent>
