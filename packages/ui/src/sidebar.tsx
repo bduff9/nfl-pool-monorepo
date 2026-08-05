@@ -155,13 +155,13 @@ function Sidebar({
 
   if (collapsible === "none") {
     return (
-      <div
+      <nav
         className={cn("bg-sidebar text-sidebar-foreground flex h-full w-(--sidebar-width) flex-col", className)}
         data-slot="sidebar"
         {...props}
       >
         {children}
-      </div>
+      </nav>
     );
   }
 
@@ -184,7 +184,7 @@ function Sidebar({
             <SheetTitle>Sidebar</SheetTitle>
             <SheetDescription>Displays the mobile sidebar.</SheetDescription>
           </SheetHeader>
-          <div className="flex h-full w-full flex-col">{children}</div>
+          <nav className="flex h-full w-full flex-col">{children}</nav>
         </SheetContent>
       </Sheet>
     );
@@ -226,13 +226,13 @@ function Sidebar({
         data-slot="sidebar-container"
         {...props}
       >
-        <div
+        <nav
           className="bg-sidebar group-data-[variant=floating]:border-sidebar-border flex h-full w-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow-sm"
           data-sidebar="sidebar"
           data-slot="sidebar-inner"
         >
           {children}
-        </div>
+        </nav>
       </div>
     </div>
   );

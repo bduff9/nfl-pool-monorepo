@@ -11,7 +11,7 @@ type PageContentProps = {
 
 const PageContent: FC<PageContentProps> = ({ children, className, id }) => {
   return (
-    <div className="bg-gray-100/80 text-black min-h-screen flex-1" id={id}>
+    <div className="bg-gray-100/80 text-black min-h-screen flex-1 min-w-0" id={id}>
       <div className="px-1 pt-1">
         <PageSidebarTrigger />
       </div>

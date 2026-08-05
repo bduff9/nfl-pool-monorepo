@@ -246,7 +246,10 @@ export const UserRowActions: FC<UserRowActionsProps> = ({ user }) => {
           </Dialog>
           <Dialog onOpenChange={setDeleteUserModalOpen} open={deleteUserModalOpen}>
             <DialogTrigger asChild>
-              <Button aria-label={`Remove ${user.UserFirstName} ${user.UserLastName} from DB`} variant="ghost">
+              <Button
+                aria-label={`Remove ${[user.UserFirstName, user.UserLastName].filter(Boolean).join(" ") || "user"} from DB`}
+                variant="ghost"
+              >
                 <FaThumbsDown className="text-red-600 cursor-pointer size-5" />
               </Button>
             </DialogTrigger>

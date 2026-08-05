@@ -65,7 +65,7 @@ const ForgotPassword: FC<PageProps<"/auth/forgot-password">> = async ({ searchPa
       <ForgotPasswordForm error={errorMessage} />
 
       <div className="grid gap-2 mt-4">
-        <Button asChild variant="black">
+        <Button asChild className="h-11" variant="black">
           <ProgressBarLink href="/auth/login">Back to Login</ProgressBarLink>
         </Button>
       </div>

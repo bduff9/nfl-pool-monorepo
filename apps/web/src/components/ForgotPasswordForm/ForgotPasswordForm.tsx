@@ -199,7 +199,7 @@ const ForgotPasswordForm: FC<Props> = ({ error }) => {
             </div>
           )}
 
-          <Button className="w-full" disabled={isSendingOTP} type="submit">
+          <Button className="w-full h-11" disabled={isSendingOTP} type="submit">
             {isSendingOTP ? "Sending..." : "Send Verification Code"}
           </Button>
         </form>
