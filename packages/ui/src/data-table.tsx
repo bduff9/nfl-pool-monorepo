@@ -6,17 +6,9 @@ import {
   type ColumnDef,
   type ColumnFiltersState,
   type ColumnVisibilityState,
-  columnFilteringFeature,
-  columnResizingFeature,
-  columnSizingFeature,
-  columnVisibilityFeature,
   flexRender,
   type RowData,
-  rowPaginationFeature,
-  rowSelectionFeature,
-  rowSortingFeature,
   type SortingState,
-  tableFeatures,
   useTable,
 } from "@tanstack/react-table";
 import { type } from "arktype";
@@ -25,25 +17,19 @@ import { type ChangeEvent, type HTMLAttributes, type ReactNode, useCallback } fr
 import { LuArrowDown, LuArrowUp, LuArrowUpDown } from "react-icons/lu";
 
 import { Button } from "./button";
+import { type DataTableFeatures, dataTableFeatures } from "./data-table-features";
 import { Input } from "./input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./table";
 
 const WEEKS_IN_SEASON = 18;
 
-// All row-model resolution (filtering, sorting, pagination) is done server-side via the
-// manual* options below, so no client-side row-model factories are registered here.
-export const dataTableFeatures = tableFeatures({
-  columnFilteringFeature,
-  columnResizingFeature,
-  columnSizingFeature,
-  columnVisibilityFeature,
-  rowPaginationFeature,
-  rowSelectionFeature,
-  rowSortingFeature,
-});
+const paginationParsers = {
+  pageIndex: parseAsIndex.withDefault(0),
+  pageSize: parseAsInteger.withDefault(10),
+};
 
-export type DataTableFeatures = typeof dataTableFeatures;
+export type { DataTableFeatures };
 
 interface DataTableProps<TData extends RowData, TValue> {
   columns: ColumnDef<DataTableFeatures, TData, TValue>[];
@@ -80,10 +66,6 @@ export function DataTable<TData extends RowData, TValue>({
   urlPageSize = "pageSize",
   urlSort = "sort",
 }: DataTableProps<TData, TValue>) {
-  const paginationParsers = {
-    pageIndex: parseAsIndex.withDefault(0),
-    pageSize: parseAsInteger.withDefault(10),
-  };
   const paginationUrlKeys = {
     pageIndex: urlPage,
     pageSize: urlPageSize,

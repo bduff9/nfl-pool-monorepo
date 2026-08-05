@@ -21,7 +21,10 @@ export const userColumns: ColumnDef<DataTableFeatures, User>[] = [
           <div className="font-bold" title={row.original.UserName ?? undefined}>
             {row.original.UserFirstName} {row.original.UserLastName}
           </div>
-          <div className="text-muted">{row.original.UserTeamName || `${row.original.UserFirstName}'s Team`}</div>
+          <div className="text-muted">
+            {row.original.UserTeamName ||
+              (row.original.UserFirstName ? `${row.original.UserFirstName}'s Team` : "No team name")}
+          </div>
         </>
       );
     },
