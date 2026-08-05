@@ -227,7 +227,7 @@ export const requireLoggedOut = async (): Promise<Route | null> => {
   const { user } = await getCurrentSession();
 
   if (user) {
-    return "/auth/login";
+    return "/";
   }
 
   return null;
