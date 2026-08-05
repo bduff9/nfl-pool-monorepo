@@ -1,7 +1,7 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "ignoreBinaries": ["biome", "npmPkgJsonLint", "vitest"],
-  "ignoreFiles": ["public/sw.js", "vitest.config.ts", "src/**/*.test.ts"],
+  "ignoreFiles": ["public/sw.js", "vitest.config.ts", "vitest.setup.ts", "src/**/*.test.ts"],
   "paths": {
     "@/*": ["./src/*"]
   }
