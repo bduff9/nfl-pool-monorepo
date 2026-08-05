@@ -41,7 +41,7 @@ const MyProgressChart: FC<MyProgressChartProps> = ({
 
   return (
     <div>
-      <div className="text-end text-muted">{max}</div>
+      <div className="text-end text-muted-foreground">{max}</div>
       <div className="mb-2 h-8 flex overflow-hidden text-xs bg-gray-50 rounded-sm">
         <div
           aria-valuemax={max}

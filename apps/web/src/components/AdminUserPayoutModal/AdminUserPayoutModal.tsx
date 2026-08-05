@@ -116,12 +116,12 @@ const AdminUserPayoutModal: FC<Props> = ({ handleClose, show = false, updateAmou
             value={toPay}
           />
           <button
-            className="text-muted underline-offset-2 hover:underline"
+            className="text-muted-foreground underline-offset-2 hover:underline"
             onClick={handleCopyPaymentAccount}
             title="Click to copy payment account"
             type="button"
           >
-            <abbr className="text-muted">
+            <abbr className="text-muted-foreground">
               {winner?.UserPaymentType}: {winner?.UserPaymentAccount}
             </abbr>
           </button>

@@ -23,7 +23,7 @@ export const getUserColumns = (
           <div className="font-bold" title={row.original.UserName ?? undefined}>
             {row.original.UserFirstName} {row.original.UserLastName}
           </div>
-          <div className="text-muted">
+          <div className="text-muted-foreground">
             {row.original.UserTeamName ||
               (row.original.UserFirstName ? `${row.original.UserFirstName}'s Team` : "No team name")}
           </div>
@@ -62,7 +62,7 @@ export const getUserColumns = (
             row.original.UserStatus === "Registered" && "text-green-600",
             row.original.UserStatus === "Unverified" && "text-red-600",
             row.original.UserStatus === "Untrusted" && "text-amber-600",
-            row.original.UserStatus === "Verified" && "text-muted",
+            row.original.UserStatus === "Verified" && "text-muted-foreground",
           )}
           title={`Years played: ${row.original.YearsPlayed}`}
         >

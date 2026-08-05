@@ -100,7 +100,7 @@ const BackupsTable: FC<Props> = ({ count, results }) => {
             <TableBody>
               {results.length === 0 && (
                 <TableRow>
-                  <TableCell className="text-center text-muted" colSpan={4}>
+                  <TableCell className="text-center text-muted-foreground" colSpan={4}>
                     No backups found
                   </TableCell>
                 </TableRow>

@@ -17,7 +17,7 @@ export const prizeColumns: ColumnDef<DataTableFeatures, Prize>[] = [
       return (
         <>
           <div className="font-bold">{row.original.UserName}</div>
-          <div className="text-muted font-bold">{row.original.UserTeamName}</div>
+          <div className="text-muted-foreground font-bold">{row.original.UserTeamName}</div>
         </>
       );
     },
@@ -60,7 +60,7 @@ export const prizeColumns: ColumnDef<DataTableFeatures, Prize>[] = [
       return (
         <>
           <div className="font-bold">{row.original.UserPaymentType}</div>
-          <div className="text-muted">{row.original.UserPaymentAccount}</div>
+          <div className="text-muted-foreground">{row.original.UserPaymentAccount}</div>
         </>
       );
     },

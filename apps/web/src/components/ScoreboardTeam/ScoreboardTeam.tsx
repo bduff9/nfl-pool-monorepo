@@ -54,7 +54,7 @@ const ScoreboardTeam: FC<ScoreboardTeamProps> = ({ gameStatus, hasPossession, is
           "flex-grow flex items-center ps-3",
           isWinner && "text-green-600",
           isWinner && "font-bold",
-          isLoser && "text-muted",
+          isLoser && "text-muted-foreground",
           isInRedzone && "text-red-600",
         )}
       >
@@ -68,7 +68,7 @@ const ScoreboardTeam: FC<ScoreboardTeamProps> = ({ gameStatus, hasPossession, is
           "flex items-center pe-3",
           isWinner && "text-green-600",
           isWinner && "font-bold",
-          isLoser && "text-muted",
+          isLoser && "text-muted-foreground",
           isInRedzone && "text-red-600",
         )}
       >
