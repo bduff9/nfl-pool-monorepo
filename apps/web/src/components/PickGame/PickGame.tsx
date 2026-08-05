@@ -101,6 +101,68 @@ export const Point: FC<PointProps> = ({
 
 type PickTeam = Pick<Selectable<Teams>, "TeamID" | "TeamCity" | "TeamLogo" | "TeamName"> | null;
 
+type TeamLogoButtonProps = {
+  onClick: () => void;
+  team: PickTeam;
+};
+
+const TeamLogoButton: FC<TeamLogoButtonProps> = ({ onClick, team }) => {
+  const label = `${team?.TeamCity} ${team?.TeamName}`;
+
+  return (
+    <button
+      aria-label={label}
+      className={cn("cursor-pointer w-2/5 md:w-1/5 flex flex-wrap justify-center bg-transparent border-0 p-0")}
+      onClick={onClick}
+      type="button"
+    >
+      <Image alt={label} height={60} src={`/NFLLogos/${team?.TeamLogo}`} title={label} width={60} />
+      <div className={cn("block md:hidden decoration-dotted underline underline-offset-2")}>{team?.TeamName}</div>
+    </button>
+  );
+};
+
+type TeamTextButtonProps = {
+  isSelected: boolean;
+  onClick: () => void;
+  selectedIconSide: "end" | "start";
+  team: PickTeam;
+  unselectedIconSide: "end" | "start";
+};
+
+const TeamTextButton: FC<TeamTextButtonProps> = ({
+  isSelected,
+  onClick,
+  selectedIconSide,
+  team,
+  unselectedIconSide,
+}) => {
+  return (
+    <button
+      aria-label={`${team?.TeamCity} ${team?.TeamName}`}
+      className={cn("hidden md:block relative cursor-pointer w-2/5 md:w-1/5 bg-transparent border-0 p-0 text-center")}
+      onClick={onClick}
+      type="button"
+    >
+      {team?.TeamCity}
+      <br />
+      {team?.TeamName}
+      {isSelected ? (
+        <FaTimesCircle
+          className={cn(
+            "absolute top-1/2 -translate-y-1/2 text-red-600",
+            selectedIconSide === "start" ? "start-0" : "end-0",
+          )}
+        />
+      ) : (
+        <FaInfoCircle
+          className={cn("absolute top-1/2 -translate-y-1/2", unselectedIconSide === "start" ? "start-0" : "end-0")}
+        />
+      )}
+    </button>
+  );
+};
+
 type PickGameProps = {
   dragGameID: null | string;
   gameCount: number;
@@ -148,77 +210,25 @@ const PickGame: FC<PickGameProps> = ({
         />
       </div>
       <div className="w-1/2 md:w-2/3 flex items-center text-center">
-        <button
-          aria-label={`${pick.visitorTeam?.TeamCity} ${pick.visitorTeam?.TeamName}`}
-          className={cn("cursor-pointer w-2/5 md:w-1/5 flex flex-wrap justify-center bg-transparent border-0 p-0")}
+        <TeamLogoButton onClick={onClick} team={pick.visitorTeam} />
+        <TeamTextButton
+          isSelected={isSelected}
           onClick={onClick}
-          type="button"
-        >
-          <Image
-            alt={`${pick.visitorTeam?.TeamCity} ${pick.visitorTeam?.TeamName}`}
-            height={60}
-            src={`/NFLLogos/${pick.visitorTeam?.TeamLogo}`}
-            title={`${pick.visitorTeam?.TeamCity} ${pick.visitorTeam?.TeamName}`}
-            width={60}
-          />
-          <div className={cn("block md:hidden decoration-dotted underline underline-offset-2")}>
-            {pick.visitorTeam?.TeamName}
-          </div>
-        </button>
-        <button
-          aria-label={`${pick.visitorTeam?.TeamCity} ${pick.visitorTeam?.TeamName}`}
-          className={cn(
-            "hidden md:block relative cursor-pointer w-2/5 md:w-1/5 bg-transparent border-0 p-0 text-center",
-          )}
-          onClick={onClick}
-          type="button"
-        >
-          {pick.visitorTeam?.TeamCity}
-          <br />
-          {pick.visitorTeam?.TeamName}
-          {isSelected ? (
-            <FaTimesCircle className="absolute top-1/2 start-0 -translate-y-1/2 text-red-600" />
-          ) : (
-            <FaInfoCircle className="absolute top-1/2 start-0 -translate-y-1/2" />
-          )}
-        </button>
+          selectedIconSide="start"
+          team={pick.visitorTeam}
+          unselectedIconSide="start"
+        />
         <div className={cn("w-1/5 flex justify-center")}>
           <FaAt />
         </div>
-        <button
-          aria-label={`${pick.homeTeam?.TeamCity} ${pick.homeTeam?.TeamName}`}
-          className={cn(
-            "hidden md:block relative cursor-pointer w-2/5 md:w-1/5 bg-transparent border-0 p-0 text-center",
-          )}
+        <TeamTextButton
+          isSelected={isSelected}
           onClick={onClick}
-          type="button"
-        >
-          {pick.homeTeam?.TeamCity}
-          <br />
-          {pick.homeTeam?.TeamName}
-          {isSelected ? (
-            <FaTimesCircle className="absolute top-1/2 start-0 -translate-y-1/2 text-red-600" />
-          ) : (
-            <FaInfoCircle className="absolute top-1/2 end-0 -translate-y-1/2" />
-          )}
-        </button>
-        <button
-          aria-label={`${pick.homeTeam?.TeamCity} ${pick.homeTeam?.TeamName}`}
-          className={cn("cursor-pointer w-2/5 md:w-1/5 flex flex-wrap justify-center bg-transparent border-0 p-0")}
-          onClick={onClick}
-          type="button"
-        >
-          <Image
-            alt={`${pick.homeTeam?.TeamCity} ${pick.homeTeam?.TeamName}`}
-            height={60}
-            src={`/NFLLogos/${pick.homeTeam?.TeamLogo}`}
-            title={`${pick.homeTeam?.TeamCity} ${pick.homeTeam?.TeamName}`}
-            width={60}
-          />
-          <div className={cn("block md:hidden decoration-dotted underline underline-offset-2")}>
-            {pick.homeTeam?.TeamName}
-          </div>
-        </button>
+          selectedIconSide="start"
+          team={pick.homeTeam}
+          unselectedIconSide="end"
+        />
+        <TeamLogoButton onClick={onClick} team={pick.homeTeam} />
       </div>
       <div className="w-1/4 md:w-1/6 flex items-center justify-center md:justify-start">
         <Point

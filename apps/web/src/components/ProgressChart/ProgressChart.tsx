@@ -19,6 +19,8 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { m } from "framer-motion";
 import type { FC } from "react";
 
+type ProgressChartType = "Current Week Remaining" | "Games" | "Overall Remaining" | "Points";
+
 type ProgressChartProps = {
   correct: number;
   incorrect: number;
@@ -26,7 +28,30 @@ type ProgressChartProps = {
   isOver?: boolean;
   layoutId: string;
   max: number;
-  type: "Current Week Remaining" | "Games" | "Overall Remaining" | "Points";
+  type: ProgressChartType;
+};
+
+const LABELS_BY_TYPE: Record<ProgressChartType, { correct: string; inProgress: string; incorrect: string }> = {
+  "Current Week Remaining": {
+    correct: "players safe this week",
+    incorrect: "players went out this week",
+    inProgress: "players waiting",
+  },
+  Games: {
+    correct: "games correct",
+    incorrect: "games wrong",
+    inProgress: "games not completed yet",
+  },
+  "Overall Remaining": {
+    correct: "players alive",
+    incorrect: "players dead",
+    inProgress: "players still waiting",
+  },
+  Points: {
+    correct: "points earned",
+    incorrect: "points missed",
+    inProgress: "points not completed yet",
+  },
 };
 
 const ProgressChart: FC<ProgressChartProps> = ({
@@ -38,30 +63,10 @@ const ProgressChart: FC<ProgressChartProps> = ({
   max,
   type,
 }) => {
-  const correctPercent = (correct / max) * 100;
-  const incorrectPercent = (incorrect / max) * 100;
-  const inProgressPercent = ((inProgress ?? 0) / max) * 100;
-  let correctLabel = "";
-  let incorrectLabel = "";
-  let inProgressLabel = "";
-
-  if (type === "Games") {
-    correctLabel = "games correct";
-    incorrectLabel = "games wrong";
-    inProgressLabel = "games not completed yet";
-  } else if (type === "Points") {
-    correctLabel = "points earned";
-    incorrectLabel = "points missed";
-    inProgressLabel = "points not completed yet";
-  } else if (type === "Current Week Remaining") {
-    correctLabel = "players safe this week";
-    incorrectLabel = "players went out this week";
-    inProgressLabel = "players waiting";
-  } else if (type === "Overall Remaining") {
-    correctLabel = "players alive";
-    incorrectLabel = "players dead";
-    inProgressLabel = "players still waiting";
-  }
+  const correctPercent = max > 0 ? (correct / max) * 100 : 0;
+  const incorrectPercent = max > 0 ? (incorrect / max) * 100 : 0;
+  const inProgressPercent = max > 0 ? ((inProgress ?? 0) / max) * 100 : 0;
+  const { correct: correctLabel, incorrect: incorrectLabel, inProgress: inProgressLabel } = LABELS_BY_TYPE[type];
 
   return (
     <m.div layoutId={layoutId}>

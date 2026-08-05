@@ -24,33 +24,30 @@ export const getEmailPreview = authActionClient
       throw new Error("User is not an admin");
     }
 
-    const { emailType, subject, body, emailFormat, preview, userFirstName } = parsedInput;
-    let html = "";
-    let text = "";
+    const { emailType, subject, body, preview, userFirstName } = parsedInput;
 
-    if (emailType === "Custom") {
-      if (emailFormat === "html") {
-        html = await getCustomHtml({
-          browserLink: "",
-          html: body,
-          preview,
-          subject,
-          unsubscribeLink: "",
-          userFirstName,
-        });
-      } else if (emailFormat === "text") {
-        text = await getCustomPlainText({
-          browserLink: "",
-          html: body,
-          preview,
-          subject,
-          unsubscribeLink: "",
-          userFirstName,
-        });
-      }
-    } else {
+    if (emailType !== "Custom") {
       throw new Error(`Invalid email type: ${emailType}`);
     }
+
+    const [html, text] = await Promise.all([
+      getCustomHtml({
+        browserLink: "",
+        html: body,
+        preview,
+        subject,
+        unsubscribeLink: "",
+        userFirstName,
+      }),
+      getCustomPlainText({
+        browserLink: "",
+        html: body,
+        preview,
+        subject,
+        unsubscribeLink: "",
+        userFirstName,
+      }),
+    ]);
 
     return {
       metadata: {

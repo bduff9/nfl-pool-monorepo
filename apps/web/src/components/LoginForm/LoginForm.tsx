@@ -85,8 +85,7 @@ const LoginForm: FC<Props> = ({ error, isLogin }) => {
       });
     },
     onSuccess: ({ data }) => {
-      const result = data as { metadata?: Record<string, boolean | number | string>; status?: string };
-      const redirectTo = result?.metadata?.redirectTo;
+      const redirectTo = data?.metadata?.redirectTo;
       toast.success("Successfully registered!");
       router.push(typeof redirectTo === "string" && redirectTo ? (redirectTo as Route) : "/");
     },

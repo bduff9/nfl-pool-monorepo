@@ -36,8 +36,8 @@ const MyProgressChart: FC<MyProgressChartProps> = ({
   possible,
   possibleLabel,
 }) => {
-  const correctPercent = (correct / max) * 100;
-  const possiblePercent = ((possible - correct) / max) * 100;
+  const correctPercent = max > 0 ? (correct / max) * 100 : 0;
+  const possiblePercent = max > 0 ? ((possible - correct) / max) * 100 : 0;
 
   return (
     <div>

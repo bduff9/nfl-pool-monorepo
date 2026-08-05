@@ -34,7 +34,12 @@ export const apiCallColumns: ColumnDef<DataTableFeatures, ApiCall>[] = [
   },
   {
     accessorKey: "ApiCallResponse",
-    cell: ({ row }) => <JsonView collapsed style={githubDarkTheme} value={row.original.ApiCallResponse as object} />,
+    cell: ({ row }) => {
+      const response = row.original.ApiCallResponse;
+      const value = response && typeof response === "object" ? response : {};
+
+      return <JsonView collapsed style={githubDarkTheme} value={value} />;
+    },
     header: "Response",
   },
 ];

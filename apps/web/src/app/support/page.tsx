@@ -38,9 +38,14 @@ export const metadata: Metadata = {
   title: TITLE,
 };
 
-// biome-ignore lint/suspicious/noExplicitAny: We need any here
-const resolveAttribute = <T extends Record<string, any>>(obj: T, key: string): T =>
-  key.split(".").reduce((prev, curr) => prev?.[curr], obj);
+const resolveAttribute = (item: Selectable<SupportContent>, key: string): unknown =>
+  key.split(".").reduce<unknown>((prev, curr) => {
+    if (prev && typeof prev === "object" && curr in prev) {
+      return (prev as Record<string, unknown>)[curr];
+    }
+
+    return undefined;
+  }, item);
 
 const highlight = (value: string, indices: [number, number][] = []): ReactNode => {
   const pair = indices.pop();
@@ -58,17 +63,16 @@ const highlight = (value: string, indices: [number, number][] = []): ReactNode =
   );
 };
 
-type FuseHighlightProps<T> = {
+type FuseHighlightProps = {
   attribute: string;
-  hit: T;
+  hit: FuseResult<Selectable<SupportContent>>;
 };
 
-// biome-ignore lint/suspicious/noExplicitAny: We need any here
-const FuseHighlight = <T extends Record<string, any>>({ attribute, hit }: FuseHighlightProps<T>): ReactNode => {
-  const matches = typeof hit.item === "string" ? hit.matches?.[0] : hit.matches?.find((m: T) => m.key === attribute);
-  const fallback = typeof hit.item === "string" ? hit.item : resolveAttribute(hit.item, attribute);
+const FuseHighlight: FC<FuseHighlightProps> = ({ attribute, hit }) => {
+  const matches = typeof hit.item === "string" ? hit.matches?.[0] : hit.matches?.find((m) => m.key === attribute);
+  const fallback = typeof hit.item === "string" ? hit.item : String(resolveAttribute(hit.item, attribute) ?? "");
 
-  return highlight(matches?.value || fallback, matches?.indices);
+  return highlight(matches?.value || fallback, matches?.indices ? [...matches.indices] : undefined);
 };
 
 const convertTextToAnchor = (text: string): string => text.toLowerCase().replace(/\W/g, "");

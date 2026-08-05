@@ -42,7 +42,7 @@ const PreviewAdminEmail: FC<Props> = ({ emailType, payload, userFirstName }) => 
   const [subjectPreview, setSubjectPreview] = useState<string>("");
   const [textPreview, setTextPreview] = useState<string>("");
 
-  const { execute: fetchHtmlPreview } = useAction(getEmailPreview, {
+  const { execute: fetchPreview } = useAction(getEmailPreview, {
     onError: ({ error }) => {
       toast.error("Something went wrong!", {
         description: error.serverError ?? "Please check the information you are submitting.",
@@ -50,27 +50,7 @@ const PreviewAdminEmail: FC<Props> = ({ emailType, payload, userFirstName }) => 
     },
     onSuccess: ({ data }) => {
       setHtmlPreview(data.metadata.html);
-    },
-  });
-
-  const { execute: fetchSubjectPreview } = useAction(getEmailPreview, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description: error.serverError ?? "Please check the information you are submitting.",
-      });
-    },
-    onSuccess: ({ data }) => {
       setSubjectPreview(data.metadata.subject);
-    },
-  });
-
-  const { execute: fetchTextPreview } = useAction(getEmailPreview, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description: error.serverError ?? "Please check the information you are submitting.",
-      });
-    },
-    onSuccess: ({ data }) => {
       setTextPreview(data.metadata.text);
     },
   });
@@ -78,30 +58,15 @@ const PreviewAdminEmail: FC<Props> = ({ emailType, payload, userFirstName }) => 
   const canPreviewHtml = Boolean(body && subject && preview);
   const canPreviewSubject = Boolean(subject);
   const canPreviewText = Boolean(body);
+  const canPreview = canPreviewHtml || canPreviewSubject || canPreviewText;
 
   useEffect((): void => {
-    if (!canPreviewHtml) {
+    if (!canPreview) {
       return;
     }
 
-    fetchHtmlPreview({ body, emailFormat: "html", emailType, preview, subject, userFirstName });
-  }, [canPreviewHtml, body, preview, subject, emailType, userFirstName, fetchHtmlPreview]);
-
-  useEffect((): void => {
-    if (!canPreviewSubject) {
-      return;
-    }
-
-    fetchSubjectPreview({ body, emailFormat: "subject", emailType, preview, subject, userFirstName });
-  }, [canPreviewSubject, body, preview, subject, emailType, userFirstName, fetchSubjectPreview]);
-
-  useEffect((): void => {
-    if (!canPreviewText) {
-      return;
-    }
-
-    fetchTextPreview({ body, emailFormat: "text", emailType, preview, subject, userFirstName });
-  }, [canPreviewText, body, preview, subject, emailType, userFirstName, fetchTextPreview]);
+    fetchPreview({ body, emailType, preview, subject, userFirstName });
+  }, [canPreview, body, preview, subject, emailType, userFirstName, fetchPreview]);
 
   return (
     <div className="w-full bg-white p-2 rounded-md border">

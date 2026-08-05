@@ -10,5 +10,3 @@ export const DEFAULT_PAGE_SIZE = 10;
 export const AdminEmailType = ["Custom", "Interest", "Interest - Final"] as const;
 
 export const AdminEmailTo = ["All", "New", "Registered", "Unregistered"] as const;
-
-export const AdminEmailFormat = ["html", "subject", "text"] as const;

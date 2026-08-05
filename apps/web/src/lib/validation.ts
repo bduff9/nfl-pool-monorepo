@@ -2,7 +2,7 @@ import { weekSchema } from "@nfl-pool-monorepo/utils/validation";
 import { type } from "arktype";
 import { isValidPhoneNumber } from "libphonenumber-js";
 
-import { AdminEmailFormat, AdminEmailTo, AdminEmailType, AutoPickStrategy, PaymentMethod } from "./constants";
+import { AdminEmailTo, AdminEmailType, AutoPickStrategy, PaymentMethod } from "./constants";
 
 export const serverActionResultSchema = type({
   metadata: "Record<string, string | number | boolean>",
@@ -88,7 +88,6 @@ export const editProfileSchema = type({
 
 export const emailPreviewSchema = type({
   body: type("string").pipe((s) => s.trim()),
-  emailFormat: type.enumerated(...AdminEmailFormat),
   emailType: type.enumerated(...AdminEmailType),
   preview: type("string").pipe((s) => s.trim()),
   subject: type("string").pipe((s) => s.trim()),

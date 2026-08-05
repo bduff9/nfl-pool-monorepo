@@ -24,9 +24,10 @@ import { arktypeResolver } from "@hookform/resolvers/arktype";
 import { Table, TableBody, TableCell, TableRow } from "@nfl-pool-monorepo/ui/components/table";
 import { useAction } from "next-safe-action/hooks";
 import { type FC, useRef } from "react";
-import { type Resolver, type SubmitHandler, useForm, useWatch } from "react-hook-form";
+import { type SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
+import { toArktypeResolver } from "@/lib/form-errors";
 import { payoutsSchema } from "@/lib/validation";
 import { updatePayouts } from "@/server/actions/systemValue";
 
@@ -103,7 +104,7 @@ const ManageAdminPayments: FC<Props> = ({
       weekly1stPrize: weeklyPrizes[1],
       weekly2ndPrize: weeklyPrizes[2],
     },
-    resolver: arktypeResolver(payoutsSchema) as unknown as Resolver<typeof payoutsSchema.infer>,
+    resolver: toArktypeResolver(arktypeResolver(payoutsSchema)),
   });
 
   const overall1stPrize = useWatch({

@@ -29,11 +29,16 @@ type PaymentSelectorProps = {
 const PAYMENT_MESSAGE =
   "NOTE: Please be sure to use an account tied to your name or put your name in the memo field so we correctly attribute your payment to you";
 
+const isPaymentMethod = (value: string): value is (typeof PaymentMethod)[number] =>
+  (PaymentMethod as readonly string[]).includes(value);
+
 const PaymentSelector: FC<PaymentSelectorProps> = ({ amount, defaultPayment }) => {
   const [paymentType, setPaymentType] = useState<(typeof PaymentMethod)[number]>(defaultPayment);
 
   const handlePaymentTypeChange = useCallback((value: string) => {
-    setPaymentType(value as (typeof PaymentMethod)[number]);
+    if (isPaymentMethod(value)) {
+      setPaymentType(value);
+    }
   }, []);
 
   return (

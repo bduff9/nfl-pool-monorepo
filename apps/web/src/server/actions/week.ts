@@ -20,7 +20,6 @@ export const setSelectedWeek = authActionClient
     });
 
     return {
-      error: "",
       metadata: {},
       status: "Success",
     };

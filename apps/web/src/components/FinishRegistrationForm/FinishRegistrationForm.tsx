@@ -30,8 +30,8 @@ import "client-only";
 import type { Status } from "@nfl-pool-monorepo/types";
 import { useRouter } from "next/navigation";
 import { useAction } from "next-safe-action/hooks";
-import { type FC, useEffect, useState } from "react";
-import { type SubmitHandler, useForm, useWatch } from "react-hook-form";
+import { type FC, useState } from "react";
+import { type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { RegistrationFields } from "./RegistrationFields";
@@ -79,8 +79,7 @@ const FinishRegistrationForm: FC<FinishRegistrationFormProps> = ({
       });
     },
     onSuccess: ({ data }) => {
-      const result = data as { metadata?: Record<string, boolean | number | string>; status?: string };
-      const isTrusted = result?.metadata?.isTrusted;
+      const isTrusted = data?.metadata?.isTrusted;
       setShowUntrusted(!isTrusted);
       toast.success("You have successfully submitted your registration!");
       if (isTrusted) {
@@ -89,34 +88,15 @@ const FinishRegistrationForm: FC<FinishRegistrationFormProps> = ({
     },
   });
 
-  const userName = useWatch({ control: form.control, name: "UserName" });
-  const userFirstName = useWatch({
-    control: form.control,
-    name: "UserFirstName",
-  });
-  const userLastName = useWatch({
-    control: form.control,
-    name: "UserLastName",
-  });
-
   useBeforeUnload(form.formState.isDirty);
 
-  useEffect(() => {
-    if (userName.match(/\w{2,}\s\w{2,}/)) {
-      return;
-    }
-
-    if (!(userFirstName && userLastName)) {
-      return;
-    }
-
-    const fullName = `${userFirstName.trim()} ${userLastName.trim()}`;
-
-    form.setValue("UserName", fullName, { shouldValidate: true });
-  }, [userName, userFirstName, userLastName, form.setValue]);
-
   const onSubmit: SubmitHandler<typeof finishRegistrationSchema.infer> = (data) => {
-    execute(data);
+    // Only backfill UserName from first/last name when it doesn't already look like a real
+    // two-part name - this preserves a real display name (e.g. from Google) over a synthesized one.
+    const hasRealName = data.UserName.match(/\w{2,}\s\w{2,}/);
+    const UserName = hasRealName ? data.UserName : `${data.UserFirstName.trim()} ${data.UserLastName.trim()}`;
+
+    execute({ ...data, UserName });
   };
 
   if (showUntrusted) {

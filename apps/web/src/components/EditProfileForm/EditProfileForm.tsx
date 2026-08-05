@@ -20,7 +20,7 @@ import { arktypeResolver } from "@hookform/resolvers/arktype";
 import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import { Form } from "@nfl-pool-monorepo/ui/components/form";
 
-import { processFormErrors } from "@/lib/form-errors";
+import { processFormErrors, toArktypeResolver } from "@/lib/form-errors";
 import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
 import { usePushNotifications } from "@/lib/hooks/usePushNotifications";
 import { editProfileSchema } from "@/lib/validation";
@@ -30,8 +30,8 @@ import type { getCurrentUser } from "@/server/loaders/user";
 import "client-only";
 
 import { useAction } from "next-safe-action/hooks";
-import { type FC, useEffect, useRef } from "react";
-import { type Resolver, type SubmitHandler, useForm, useWatch } from "react-hook-form";
+import { type FC, useRef } from "react";
+import { type SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { PiFootballDuotone } from "react-icons/pi";
 import { toast } from "sonner";
 
@@ -77,16 +77,12 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
       UserPhone: correctPhoneNumber(currentUser.UserPhone) ?? "",
       UserTeamName: currentUser.UserTeamName ?? "",
     },
-    resolver: arktypeResolver(editProfileSchema) as unknown as Resolver<typeof editProfileSchema.infer>,
+    resolver: toArktypeResolver(arktypeResolver(editProfileSchema)),
   });
 
   const watchNotifications = useWatch({
     control: form.control,
     name: "notifications",
-  });
-  const watchPhone = useWatch({
-    control: form.control,
-    name: "UserPhone",
   });
   const errorCount = Object.keys(form.formState.errors).length;
 
@@ -113,21 +109,21 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
 
   useBeforeUnload(form.formState.isDirty);
 
-  useEffect(() => {
-    watchNotifications.forEach((_, i) => {
-      if (watchPhone.length < 10 || form.formState.errors.UserPhone?.message) {
-        form.setValue(`notifications.${i}.NotificationSMS`, 0);
-      }
-    });
-  }, [form.formState.errors.UserPhone?.message, watchPhone, form.setValue, watchNotifications]);
-
   const onSubmit: SubmitHandler<typeof editProfileSchema.infer> = (data) => {
     toastIdRef.current = toast.loading("Saving...", {
       closeButton: false,
       dismissible: false,
       duration: Infinity,
     });
-    execute(data);
+
+    // A phone number is required for SMS notifications - if it's missing or invalid, don't submit
+    // SMS as enabled even if the toggle was left on before the phone field became invalid.
+    const hasValidPhone = data.UserPhone.length >= 10 && !form.formState.errors.UserPhone?.message;
+    const notifications = hasValidPhone
+      ? data.notifications
+      : data.notifications.map((notification) => ({ ...notification, NotificationSMS: 0 }));
+
+    execute({ ...data, notifications });
   };
 
   return (

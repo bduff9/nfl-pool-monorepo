@@ -429,8 +429,10 @@ export const register = actionClient
 
     await setSessionTokenCookie(sessionToken, session.expiresAt);
 
+    const redirectTo = (await cookies()).get("redirect_to")?.value ?? "";
+
     return {
-      metadata: {},
+      metadata: { redirectTo },
       status: "Success",
     };
   });
