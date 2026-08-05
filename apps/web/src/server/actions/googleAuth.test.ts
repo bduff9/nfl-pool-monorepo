@@ -31,11 +31,7 @@ describe("getGoogleAuthorizationUrl", () => {
     const url = await getGoogleAuthorizationUrl();
 
     expect(url).toBe("https://accounts.google.com/o/oauth2/v2/auth?x=1");
-    expect(createAuthorizationURL).toHaveBeenCalledWith("test-state", "test-verifier", [
-      "openid",
-      "profile",
-      "email",
-    ]);
+    expect(createAuthorizationURL).toHaveBeenCalledWith("test-state", "test-verifier", ["openid", "profile", "email"]);
     expect(cookiesSet).toHaveBeenCalledWith(
       "google_oauth_state",
       "test-state",

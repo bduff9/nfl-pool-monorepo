@@ -82,7 +82,9 @@ const resetAllMocks = () => {
   sendPasswordResetEmail.mockReset().mockResolvedValue(undefined);
   sendTrustedEmail.mockReset().mockResolvedValue(undefined);
   sendUntrustedEmail.mockReset().mockResolvedValue(undefined);
-  createSession.mockReset().mockResolvedValue({ expiresAt: new Date(Date.now() + 1000), id: "hashed-token", userId: 1 });
+  createSession
+    .mockReset()
+    .mockResolvedValue({ expiresAt: new Date(Date.now() + 1000), id: "hashed-token", userId: 1 });
   generateSessionToken.mockReset().mockReturnValue("raw-token");
   hashPassword.mockReset().mockResolvedValue("hashed-password");
   mxExists.mockReset().mockResolvedValue(true);
@@ -101,15 +103,6 @@ describe("editMyProfile", () => {
   it("updates the user and each notification within a transaction, then revalidates", async () => {
     const { editMyProfile } = await import("./user");
     const result = await editMyProfile({
-      UserAutoPickStrategy: "Home",
-      UserAutoPicksLeft: 3,
-      UserEmail: "user@example.com",
-      UserFirstName: "Brian",
-      UserLastName: "Duffey",
-      UserPaymentAccount: "brian@example.com",
-      UserPaymentType: "Paypal",
-      UserPhone: "",
-      UserTeamName: "Team",
       notifications: [
         {
           NotificationEmail: 1,
@@ -122,6 +115,15 @@ describe("editMyProfile", () => {
           NotificationType: "SubmitPickReminder",
         },
       ],
+      UserAutoPickStrategy: "Home",
+      UserAutoPicksLeft: 3,
+      UserEmail: "user@example.com",
+      UserFirstName: "Brian",
+      UserLastName: "Duffey",
+      UserPaymentAccount: "brian@example.com",
+      UserPaymentType: "Paypal",
+      UserPhone: "",
+      UserTeamName: "Team",
     });
 
     expect(result?.serverError).toBeUndefined();

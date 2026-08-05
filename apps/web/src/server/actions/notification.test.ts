@@ -1,4 +1,6 @@
+import type { DB } from "@nfl-pool-monorepo/db/src";
 import { createMockDb, type MockDb } from "@nfl-pool-monorepo/db/src/test-utils/mockDb";
+import type { Transaction } from "kysely";
 import { beforeEach, describe, expect, it } from "vitest";
 
 describe("updateUserNotifications", () => {
@@ -13,7 +15,7 @@ describe("updateUserNotifications", () => {
 
     const { updateUserNotifications } = await import("./notification");
 
-    await updateUserNotifications(mockDb, { UserEmail: "user@example.com", UserID: 1 });
+    await updateUserNotifications(mockDb as unknown as Transaction<DB>, { UserEmail: "user@example.com", UserID: 1 });
 
     expect(mockDb.insertInto).toHaveBeenCalledWith("Notifications");
     expect(mockDb.updateTable).toHaveBeenCalledWith("Notifications");
