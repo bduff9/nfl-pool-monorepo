@@ -14,11 +14,10 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { DataTable } from "@nfl-pool-monorepo/ui/components/data-table";
 import { redirect } from "next/navigation";
 import type { FC } from "react";
 
-import { getUserColumns } from "@/components/AdminUserTable/AdminUserColumns";
+import AdminUsersDataTable from "@/components/AdminUserTable/AdminUsersDataTable";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
 import { requireAdmin } from "@/lib/auth";
@@ -35,7 +34,6 @@ const AdminUsersPage: FC<PageProps<"/admin/users">> = async ({ searchParams }) =
     getAdminUsers(await searchParams),
     getTrustedUsersDropdown(),
   ]);
-  const userColumns = getUserColumns(trustedUsers);
 
   return (
     <div className="h-full flex flex-wrap md:mx-3">
@@ -47,73 +45,7 @@ const AdminUsersPage: FC<PageProps<"/admin/users">> = async ({ searchParams }) =
           </div>
           <div className="w-full mt-3">
             <div className="bg-gray-100/80 rounded p-4">
-              <DataTable
-                columns={userColumns}
-                columnVisibility={{
-                  UserIsOwing: false,
-                  UserStatus2: false,
-                  UserStatus3: false,
-                }}
-                data={users}
-                defaultSort={[
-                  {
-                    desc: false,
-                    id: "UserName",
-                  },
-                ]}
-                filters={[
-                  {
-                    field: "UserStatus2",
-                    options: [
-                      {
-                        label: "Registered",
-                        value: "Registered",
-                      },
-                      {
-                        label: "Inactive",
-                        value: "Inactive",
-                      },
-                      {
-                        label: "Incomplete",
-                        value: "Incomplete",
-                      },
-                    ],
-                    placeholder: "Filter user status...",
-                    type: "dropdown",
-                  },
-                  {
-                    field: "UserStatus3",
-                    options: [
-                      {
-                        label: "Rookie",
-                        value: "Rookie",
-                      },
-                      {
-                        label: "Veteran",
-                        value: "Veteran",
-                      },
-                    ],
-                    placeholder: "Filter rookie/veteran...",
-                    type: "dropdown",
-                  },
-                  {
-                    field: "UserIsOwing",
-                    options: [
-                      {
-                        label: "Yes",
-                        value: "1",
-                      },
-                      {
-                        label: "No",
-                        value: "0",
-                      },
-                    ],
-                    placeholder: "Filter users that owe money...",
-                    type: "dropdown",
-                  },
-                ]}
-                rowCount={count}
-              />
+              <AdminUsersDataTable count={count} trustedUsers={trustedUsers} users={users} />
             </div>
           </div>
         </div>

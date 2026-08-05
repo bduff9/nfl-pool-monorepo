@@ -261,7 +261,7 @@ export function DataTable<TData extends RowData, TValue>({
           </Button>
           <Select onValueChange={handlePageSizeChange} value={table.state.pagination.pageSize.toString()}>
             <SelectTrigger className="dark:bg-white">
-              <SelectValue placeholder="Rows per page" />
+              <SelectValue placeholder="Rows per page">{table.state.pagination.pageSize}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               {[10, 25, 50, 100].map((pageSize) => (
@@ -287,10 +287,12 @@ type WeekFilterSelectProps = {
 const WeekFilterSelect = ({ field, onFilterChange, placeholder, value }: WeekFilterSelectProps) => {
   const handleValueChange = useCallback((value: string) => onFilterChange(field, value), [field, onFilterChange]);
 
+  const displayValue = value === "_ALL_" ? "All weeks" : value ? `Week ${value}` : undefined;
+
   return (
     <Select onValueChange={handleValueChange} value={value}>
       <SelectTrigger aria-label={placeholder} className="dark:bg-white">
-        <SelectValue placeholder={placeholder} />
+        <SelectValue placeholder={placeholder}>{displayValue}</SelectValue>
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="_ALL_">All weeks</SelectItem>
@@ -315,11 +317,12 @@ type DropdownFilterSelectProps = {
 
 const DropdownFilterSelect = ({ field, onFilterChange, options, placeholder, value }: DropdownFilterSelectProps) => {
   const handleValueChange = useCallback((value: string) => onFilterChange(field, value), [field, onFilterChange]);
+  const displayValue = value === "_ALL_" ? placeholder : options.find((option) => option.value === value)?.label;
 
   return (
     <Select onValueChange={handleValueChange} value={value}>
       <SelectTrigger aria-label={placeholder} className="dark:bg-white">
-        <SelectValue placeholder={placeholder} />
+        <SelectValue placeholder={placeholder}>{displayValue}</SelectValue>
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="_ALL_">{placeholder}</SelectItem>

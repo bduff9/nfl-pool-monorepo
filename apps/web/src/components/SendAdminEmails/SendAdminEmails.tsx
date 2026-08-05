@@ -183,7 +183,7 @@ const SendAdminEmails: FC = () => {
               aria-label="Which email?"
               className={cn("dark:bg-white w-full", fieldState.error && "border-red-600")}
             >
-              <SelectValue placeholder="-- Select an email type --" />
+              <SelectValue placeholder="-- Select an email type --">{field.value}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               {AdminEmailType.map((emailType) => (
@@ -210,7 +210,7 @@ const SendAdminEmails: FC = () => {
               aria-label="Send to"
               className={cn("dark:bg-white w-full", fieldState.error && "border-red-600")}
             >
-              <SelectValue placeholder="-- Select send to group --" />
+              <SelectValue placeholder="-- Select send to group --">{field.value}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               {AdminEmailTo.map((sendTo) => (

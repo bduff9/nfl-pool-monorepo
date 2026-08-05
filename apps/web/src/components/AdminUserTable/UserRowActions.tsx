@@ -202,7 +202,9 @@ export const UserRowActions: FC<UserRowActionsProps> = ({ trustedUsers, user }) 
                   value={referredByUserId ? referredByUserId.toString() : ""}
                 >
                   <SelectTrigger id="referredBy">
-                    <SelectValue placeholder="-- Select a user --" />
+                    <SelectValue placeholder="-- Select a user --">
+                      {trustedUsers.find((otherUser) => otherUser.UserID === referredByUserId)?.UserName}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {trustedUsers.map((otherUser) => (
