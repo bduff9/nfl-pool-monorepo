@@ -55,27 +55,25 @@ export const updateMissedPicks = async (game: Awaited<ReturnType<typeof getDbGam
     .execute();
 
   for (const pick of missed) {
-    if (pick.PickPoints) {
-      continue;
+    if (!pick.PickPoints) {
+      const lowestPoint = await getLowestUnusedPoint(game.GameWeek, pick.UserID);
+
+      if (lowestPoint === null) {
+        console.error("User missed pick but has no picks remaining", { game, pick });
+
+        throw new Error("User missed pick but has no picks remaining");
+      }
+
+      await db
+        .updateTable("Picks")
+        .set({
+          PickPoints: lowestPoint,
+          PickUpdated: new Date(),
+          PickUpdatedBy: ADMIN_USER,
+        })
+        .where("PickID", "=", pick.PickID)
+        .executeTakeFirstOrThrow();
     }
-
-    const lowestPoint = await getLowestUnusedPoint(game.GameWeek, pick.UserID);
-
-    if (lowestPoint === null) {
-      console.error("User missed pick but has no picks remaining", { game, pick });
-
-      throw new Error("User missed pick but has no picks remaining");
-    }
-
-    await db
-      .updateTable("Picks")
-      .set({
-        PickPoints: lowestPoint,
-        PickUpdated: new Date(),
-        PickUpdatedBy: ADMIN_USER,
-      })
-      .where("PickID", "=", pick.PickID)
-      .executeTakeFirstOrThrow();
 
     if (pick.UserAutoPickStrategy && pick.UserAutoPicksLeft > 0) {
       await db

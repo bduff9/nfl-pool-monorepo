@@ -1,6 +1,14 @@
 import { executeSqlFile } from "@nfl-pool-monorepo/utils/database";
+import { weekSchema } from "@nfl-pool-monorepo/utils/validation";
+import { type } from "arktype";
 
 export const updateSurvivorMV = async (week: number): Promise<void> => {
+  const validatedWeek = weekSchema(week);
+
+  if (validatedWeek instanceof type.errors) {
+    throw new Error(`Invalid week: ${week}`);
+  }
+
   const query = `
 	set @week := ${week};
 	set foreign_key_checks = 0;
@@ -42,5 +50,7 @@ export const updateSurvivorMV = async (week: number): Promise<void> => {
   } catch (error) {
     console.error("Error when populating SurvivorMV: ", error);
     await executeSqlFile(recoverQuery);
+
+    throw error;
   }
 };

@@ -1,12 +1,14 @@
 import { ADMIN_USER } from "@nfl-pool-monorepo/utils/constants";
+import type { Transaction } from "kysely";
 
+import type { DB } from "..";
 import { db } from "../kysely";
 import { getUserPayments } from "../queries/payment";
 import { getSurvivorCost } from "../queries/systemValue";
 import { unregisterUserForSurvivor } from "./users";
 
-const markUserDead = async (userID: number, week: number): Promise<void> => {
-  await db
+const markUserDead = async (userID: number, week: number, trx?: Transaction<DB>): Promise<void> => {
+  await (trx ?? db)
     .updateTable("SurvivorPicks")
     .set({
       SurvivorPickDeleted: new Date(),
@@ -55,8 +57,12 @@ export const markEmptySurvivorPicksAsDead = async (week: number): Promise<void> 
   }
 };
 
-export const markWrongSurvivorPicksAsDead = async (week: number, losingID: number): Promise<void> => {
-  const dead = await db
+export const markWrongSurvivorPicksAsDead = async (
+  week: number,
+  losingID: number,
+  trx?: Transaction<DB>,
+): Promise<void> => {
+  const dead = await (trx ?? db)
     .selectFrom("SurvivorPicks")
     .select(["UserID"])
     .where("SurvivorPickWeek", "=", week)
@@ -64,6 +70,7 @@ export const markWrongSurvivorPicksAsDead = async (week: number, losingID: numbe
     .execute();
 
   for (const user of dead) {
-    await markUserDead(user.UserID, week);
+    // react-doctor-disable-next-line async-await-in-loop -- when trx is set these updates share one transaction connection; mysql2 processes queries on a connection sequentially, so Promise.all here would not run them concurrently
+    await markUserDead(user.UserID, week, trx);
   }
 };

@@ -112,25 +112,34 @@ export const updateDBGame = async (
     updatedGame.GameInRedzone = null;
   }
 
+  let losingTeamIDs: number[] = [];
+
   if (updatedGame.GameStatus === "Final") {
     if (homeTeam.score > visitingTeam.score) {
       updatedGame.WinnerTeamID = homeTeamID;
-      await markWrongSurvivorPicksAsDead(dbGame.GameWeek, visitingTeamID);
+      losingTeamIDs = [visitingTeamID];
     } else if (homeTeam.score < visitingTeam.score) {
       updatedGame.WinnerTeamID = visitingTeamID;
-      await markWrongSurvivorPicksAsDead(dbGame.GameWeek, homeTeamID);
+      losingTeamIDs = [homeTeamID];
     } else {
       const tieTeam = await getTeamFromDB("TIE");
 
       updatedGame.WinnerTeamID = tieTeam.TeamID;
-      await markWrongSurvivorPicksAsDead(dbGame.GameWeek, homeTeamID);
-      await markWrongSurvivorPicksAsDead(dbGame.GameWeek, visitingTeamID);
+      losingTeamIDs = [homeTeamID, visitingTeamID];
     }
   }
 
   updatedGame.GameUpdated = new Date();
   updatedGame.GameUpdatedBy = ADMIN_USER;
-  await db.updateTable("Games").set(updatedGame).where("GameID", "=", dbGame.GameID).executeTakeFirstOrThrow();
+
+  await db.transaction().execute(async (trx) => {
+    for (const losingTeamID of losingTeamIDs) {
+      // react-doctor-disable-next-line async-await-in-loop -- these updates share one transaction connection (trx); mysql2 processes queries on a connection sequentially, so Promise.all here would not run them concurrently
+      await markWrongSurvivorPicksAsDead(dbGame.GameWeek, losingTeamID, trx);
+    }
+
+    await trx.updateTable("Games").set(updatedGame).where("GameID", "=", dbGame.GameID).executeTakeFirstOrThrow();
+  });
 
   return db
     .selectFrom("Games as g")

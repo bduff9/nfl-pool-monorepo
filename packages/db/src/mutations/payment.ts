@@ -61,7 +61,13 @@ export const lockLatePaymentUsers = async (week: number): Promise<void> => {
 };
 
 export const updateAllPayouts = async (week: number, trx?: Transaction<DB>): Promise<void> => {
-  const db = trx ?? database;
+  if (!trx) {
+    await database.transaction().execute((newTrx) => updateAllPayouts(week, newTrx));
+
+    return;
+  }
+
+  const db = trx;
   const weeklyPrizes = await getWeeklyPrizeAmounts(trx);
 
   await db.deleteFrom("Payments").where("PaymentWeek", "is not", null).executeTakeFirstOrThrow();
@@ -124,7 +130,7 @@ export const updateAllPayouts = async (week: number, trx?: Transaction<DB>): Pro
     const lastPlacePrizes = [0];
     const lastPlace = await db
       .selectFrom("OverallMV")
-      .select(({ ref }) => [sql<number>`max(${ref("Rank")}`.as("Lowest")])
+      .select(({ ref }) => [sql<number>`max(${ref("Rank")})`.as("Lowest")])
       .where("GamesMissed", "=", 0)
       .executeTakeFirstOrThrow();
 

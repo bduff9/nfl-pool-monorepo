@@ -24,7 +24,7 @@ export const getOverallPrizeAmounts = cache(async (): Promise<[number, number, n
   if (prizes instanceof type.errors) {
     console.error("Failed to parse overall prize amounts", prizes, systemValue.SystemValueValue);
 
-    return defaultPrizes;
+    throw new Error(`Malformed OverallPrizes value in SystemValues: ${systemValue.SystemValueValue}`);
   }
 
   return prizes;
@@ -100,7 +100,7 @@ export const getSurvivorPrizeAmounts = cache(async (): Promise<[number, number, 
   if (prizes instanceof type.errors) {
     console.error("Failed to parse survivor prize amounts", prizes, systemValue.SystemValueValue);
 
-    return defaultPrizes;
+    throw new Error(`Malformed SurvivorPrizes value in SystemValues: ${systemValue.SystemValueValue}`);
   }
 
   return prizes;
@@ -134,7 +134,7 @@ export const getWeeklyPrizeAmounts = cache(async (trx?: Transaction<DB>): Promis
   if (prizes instanceof type.errors) {
     console.error("Failed to parse weekly prize amounts", prizes, systemValue.SystemValueValue);
 
-    return defaultPrizes;
+    throw new Error(`Malformed WeeklyPrizes value in SystemValues: ${systemValue.SystemValueValue}`);
   }
 
   return prizes;
