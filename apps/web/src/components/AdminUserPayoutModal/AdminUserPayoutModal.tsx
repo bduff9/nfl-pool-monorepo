@@ -67,9 +67,12 @@ const AdminUserPayoutModal: FC<Props> = ({ handleClose, show = false, updateAmou
 
     try {
       await updateAmount(winner.UserID, toPay ?? 0);
-    } finally {
+    } catch (error) {
       setLoading(false);
+      throw error;
     }
+
+    setLoading(false);
   };
 
   const handleToPayChange = useCallback(

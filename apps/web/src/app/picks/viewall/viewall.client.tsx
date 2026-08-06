@@ -27,7 +27,7 @@ import {
   DropdownMenuTrigger,
 } from "@nfl-pool-monorepo/ui/components/dropdown-menu";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
-import { type FC, useCallback, useState } from "react";
+import { type FC, useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
 
 import ViewAllModal from "@/components/ViewAllModal/ViewAllModal";
@@ -76,20 +76,20 @@ const ViewAllPicksClient: FC<Props> = ({ currentUserId, gamesForWeek, picksForWe
     setHasWhatIfBeenSet(true);
   };
 
-  const handleOpenModal = useCallback(() => {
+  const handleOpenModal = () => {
     setIsModalOpen(true);
-  }, []);
+  };
 
-  const handleSelectLiveResultsMode = useCallback(() => {
+  const handleSelectLiveResultsMode = () => {
     setMode("Live Results");
     setHasWhatIfBeenSet(false);
     setGames(updateGames(gamesForWeek));
-  }, [gamesForWeek]);
+  };
 
-  const handleSelectWhatIfMode = useCallback(() => {
+  const handleSelectWhatIfMode = () => {
     setMode("What If");
     setIsModalOpen(true);
-  }, []);
+  };
 
   return (
     <div className="flex flex-col min-h-screen">

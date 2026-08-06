@@ -12,7 +12,7 @@ import {
 } from "@nfl-pool-monorepo/ui/components/command";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
-import { type FC, type ReactNode, startTransition, useCallback, useEffect, useState } from "react";
+import { type FC, type ReactNode, startTransition, useEffect, useState } from "react";
 import { LuCalendarDays, LuLayoutDashboard, LuLifeBuoy, LuShield, LuTable, LuUserCog } from "react-icons/lu";
 
 import { useProgressBar } from "../ProgressBar/ProgressBar";
@@ -41,7 +41,7 @@ type CommandNavItemProps = {
 };
 
 const CommandNavItem: FC<CommandNavItemProps> = ({ children, href, onNavigate }) => {
-  const handleSelect = useCallback(() => onNavigate(href), [href, onNavigate]);
+  const handleSelect = () => onNavigate(href);
 
   return <CommandItem onSelect={handleSelect}>{children}</CommandItem>;
 };
@@ -68,18 +68,15 @@ export const CommandMenu: FC<CommandMenuProps> = ({ user }) => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const navigate = useCallback(
-    (href: Route) => {
-      setOpen(false);
-      progress.start();
+  const navigate = (href: Route) => {
+    setOpen(false);
+    progress.start();
 
-      startTransition(() => {
-        router.push(href);
-        progress.done();
-      });
-    },
-    [progress, router],
-  );
+    startTransition(() => {
+      router.push(href);
+      progress.done();
+    });
+  };
 
   return (
     <CommandDialog onOpenChange={setOpen} open={open}>

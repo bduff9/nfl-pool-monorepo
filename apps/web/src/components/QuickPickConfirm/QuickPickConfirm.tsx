@@ -4,7 +4,7 @@ import "client-only";
 import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import { useRouter } from "next/navigation";
 import { useAction } from "next-safe-action/hooks";
-import { type FC, useCallback, useState } from "react";
+import { type FC, useState } from "react";
 import { toast } from "sonner";
 
 import { quickPick } from "@/server/actions/pick";
@@ -31,10 +31,10 @@ const QuickPickConfirm: FC<Props> = ({ teamId, teamLabel, userId }) => {
     },
   });
 
-  const handleConfirm = useCallback(() => {
+  const handleConfirm = () => {
     setErrorMessage(null);
     execute({ teamId, userId });
-  }, [execute, teamId, userId]);
+  };
 
   return (
     <div className="text-center">

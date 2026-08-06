@@ -17,7 +17,7 @@
  */
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nfl-pool-monorepo/ui/components/select";
-import { type FC, useCallback, useState } from "react";
+import { type FC, useState } from "react";
 
 import { PaymentMethod } from "@/lib/constants";
 
@@ -35,11 +35,11 @@ const isPaymentMethod = (value: string): value is (typeof PaymentMethod)[number]
 const PaymentSelector: FC<PaymentSelectorProps> = ({ amount, defaultPayment }) => {
   const [paymentType, setPaymentType] = useState<(typeof PaymentMethod)[number]>(defaultPayment);
 
-  const handlePaymentTypeChange = useCallback((value: string) => {
+  const handlePaymentTypeChange = (value: string) => {
     if (isPaymentMethod(value)) {
       setPaymentType(value);
     }
-  }, []);
+  };
 
   return (
     <div className="mt-2 mx-3">

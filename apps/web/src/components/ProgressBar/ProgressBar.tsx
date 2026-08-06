@@ -5,7 +5,7 @@ import type { Route } from "next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ComponentProps, FC, ReactNode } from "react";
-import { createContext, startTransition, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { createContext, startTransition, useContext, useEffect, useRef, useState } from "react";
 
 const ProgressBarContext = createContext<ReturnType<typeof useProgress> | null>(null);
 
@@ -47,27 +47,24 @@ export const ProgressBarLink: FC<ProgressBarLinkProps> = ({ children, href, onCl
   const progress = useProgressBar();
   const router = useRouter();
 
-  const handleClick: ComponentProps<typeof Link>["onClick"] = useCallback(
-    (e) => {
-      onClick?.(e);
+  const handleClick: ComponentProps<typeof Link>["onClick"] = (e) => {
+    onClick?.(e);
 
-      if (e.defaultPrevented) {
-        return;
-      }
+    if (e.defaultPrevented) {
+      return;
+    }
 
-      if (e.metaKey) {
-        return;
-      }
-      e.preventDefault();
-      progress.start();
+    if (e.metaKey) {
+      return;
+    }
+    e.preventDefault();
+    progress.start();
 
-      startTransition(() => {
-        router.push(href);
-        progress.done();
-      });
-    },
-    [href, onClick, progress, router],
-  );
+    startTransition(() => {
+      router.push(href);
+      progress.done();
+    });
+  };
 
   return (
     <Link href={href} onClick={handleClick} {...rest}>

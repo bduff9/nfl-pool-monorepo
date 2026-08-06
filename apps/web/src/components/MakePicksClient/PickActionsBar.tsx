@@ -8,7 +8,6 @@ import {
 } from "@nfl-pool-monorepo/ui/components/dropdown-menu";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { FC } from "react";
-import { useCallback } from "react";
 import { FaCloudUploadAlt, FaRedo, FaSave } from "react-icons/fa";
 import { PiFootballDuotone, PiRobotDuotone } from "react-icons/pi";
 
@@ -37,9 +36,9 @@ export const PickActionsBar: FC<PickActionsBarProps> = ({
 }) => {
   const disabled = loading !== null || picksUpdating;
 
-  const onAutoPickAway = useCallback(() => onAutoPick("Away"), [onAutoPick]);
-  const onAutoPickHome = useCallback(() => onAutoPick("Home"), [onAutoPick]);
-  const onAutoPickRandom = useCallback(() => onAutoPick("Random"), [onAutoPick]);
+  const onAutoPickAway = () => onAutoPick("Away");
+  const onAutoPickHome = () => onAutoPick("Home");
+  const onAutoPickRandom = () => onAutoPick("Random");
 
   return (
     <div

@@ -16,7 +16,7 @@ import { Label } from "@nfl-pool-monorepo/ui/components/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nfl-pool-monorepo/ui/components/select";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { useAction } from "next-safe-action/hooks";
-import { type ChangeEvent, type FC, type FormEvent, useCallback, useState } from "react";
+import { type ChangeEvent, type FC, type FormEvent, useState } from "react";
 import { FaDollarSign, FaThumbsDown, FaThumbsUp } from "react-icons/fa";
 import { PiFootballDuotone, PiIslandDuotone } from "react-icons/pi";
 import { toast } from "sonner";
@@ -87,44 +87,41 @@ export const UserRowActions: FC<UserRowActionsProps> = ({ trustedUsers, user }) 
     },
   });
 
-  const handlePaidSubmit = useCallback(
-    (event: FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      updatePaid({
-        amountPaid: paid,
-        userID: user.UserID,
-      });
-    },
-    [paid, updatePaid, user.UserID],
-  );
+  const handlePaidSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    updatePaid({
+      amountPaid: paid,
+      userID: user.UserID,
+    });
+  };
 
-  const handlePaidChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+  const handlePaidChange = (event: ChangeEvent<HTMLInputElement>) => {
     setPaid(Number(event.target.value));
-  }, []);
+  };
 
-  const handleReferredByChange = useCallback((value: string) => {
+  const handleReferredByChange = (value: string) => {
     setReferredByUserId(Number(value));
-  }, []);
+  };
 
-  const handleTrustUser = useCallback(() => {
+  const handleTrustUser = () => {
     trustUser({
       referredByUserId,
       userId: user.UserID,
     });
-  }, [referredByUserId, trustUser, user.UserID]);
+  };
 
-  const handleDeleteUser = useCallback(() => {
+  const handleDeleteUser = () => {
     deleteUser({
       userID: user.UserID,
     });
-  }, [deleteUser, user.UserID]);
+  };
 
-  const handleToggleSurvivor = useCallback(() => {
+  const handleToggleSurvivor = () => {
     toggleSurvivor({
       playsSurvivor: user.UserPlaysSurvivor === 1 ? 0 : 1,
       userID: user.UserID,
     });
-  }, [toggleSurvivor, user.UserID, user.UserPlaysSurvivor]);
+  };
 
   return (
     <div className="flex">

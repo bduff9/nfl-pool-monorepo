@@ -3,7 +3,7 @@
 import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { useAction } from "next-safe-action/hooks";
-import { type FC, useCallback, useRef, useState } from "react";
+import { type FC, useRef, useState } from "react";
 import { FaDollarSign } from "react-icons/fa";
 import { toast } from "sonner";
 
@@ -44,9 +44,9 @@ export const BalanceCell: FC<BalanceCellProps> = ({ prize }) => {
     executeInsertPayout({ amount, userID });
   };
 
-  const handleOpenModal = useCallback(() => setModalOpen(prize), [prize]);
+  const handleOpenModal = () => setModalOpen(prize);
 
-  const handleCloseModal = useCallback(() => setModalOpen(null), []);
+  const handleCloseModal = () => setModalOpen(null);
 
   return (
     <>

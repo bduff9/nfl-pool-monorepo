@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import dynamic from "next/dynamic";
 import { useAction } from "next-safe-action/hooks";
-import { type FC, type MouseEvent, useCallback, useRef, useState } from "react";
+import { type FC, type MouseEvent, useRef, useState } from "react";
 import { PiDatabaseDuotone, PiFootballDuotone } from "react-icons/pi";
 import { toast } from "sonner";
 
@@ -42,36 +42,30 @@ const BackupsTable: FC<Props> = ({ count, results }) => {
     },
   });
 
-  const restoreABackup = useCallback(
-    (backupName: string): void => {
-      toastIdRef.current = toast.loading("Restoring...", {
-        closeButton: false,
-        dismissible: false,
-        duration: Infinity,
-      });
-      executeRestore({ backupName });
-    },
-    [executeRestore],
-  );
+  const restoreABackup = (backupName: string): void => {
+    toastIdRef.current = toast.loading("Restoring...", {
+      closeButton: false,
+      dismissible: false,
+      duration: Infinity,
+    });
+    executeRestore({ backupName });
+  };
 
-  const handleRestoreClick = useCallback(
-    (event: MouseEvent<HTMLButtonElement>) => {
-      const { backupName } = event.currentTarget.dataset;
+  const handleRestoreClick = (event: MouseEvent<HTMLButtonElement>) => {
+    const { backupName } = event.currentTarget.dataset;
 
-      if (!backupName) {
-        return;
-      }
+    if (!backupName) {
+      return;
+    }
 
-      setLoading(backupName);
-      setCallback(() => () => restoreABackup(backupName));
-    },
-    [restoreABackup],
-  );
+    setLoading(backupName);
+    setCallback(() => () => restoreABackup(backupName));
+  };
 
-  const handleCancelConfirmation = useCallback(() => {
+  const handleCancelConfirmation = () => {
     setCallback(null);
     setLoading(null);
-  }, []);
+  };
 
   return (
     <div className="flex flex-col min-h-screen px-6">

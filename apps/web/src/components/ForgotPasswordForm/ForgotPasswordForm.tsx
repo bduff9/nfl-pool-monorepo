@@ -12,7 +12,7 @@ import "client-only";
 
 import { useRouter } from "next/navigation";
 import { useAction } from "next-safe-action/hooks";
-import { type FC, useCallback, useEffect, useState } from "react";
+import { type FC, useEffect, useState } from "react";
 import { type ControllerRenderProps, type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -100,88 +100,88 @@ const ForgotPasswordForm: FC<Props> = ({ error }) => {
     otpForm.reset();
   };
 
-  const renderEmailField = useCallback(
-    ({ field }: { field: ControllerRenderProps<typeof forgotPasswordEmailSchema.infer, "email"> }) => (
-      <FormItem>
-        <FormControl>
-          <FloatingLabelInput
-            autoComplete="email"
-            disabled={isSendingOTP}
-            id="email"
-            label="Email"
-            placeholder="Email"
-            type="email"
-            {...field}
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    ),
-    [isSendingOTP],
+  const renderEmailField = ({
+    field,
+  }: {
+    field: ControllerRenderProps<typeof forgotPasswordEmailSchema.infer, "email">;
+  }) => (
+    <FormItem>
+      <FormControl>
+        <FloatingLabelInput
+          autoComplete="email"
+          disabled={isSendingOTP}
+          id="email"
+          label="Email"
+          placeholder="Email"
+          type="email"
+          {...field}
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
   );
 
-  const renderOtpField = useCallback(
-    ({ field }: { field: ControllerRenderProps<typeof verifyOtpSchema.infer, "otp"> }) => (
-      <FormItem className="flex justify-center">
-        <FormControl>
-          <InputOTP aria-label="Verification code" maxLength={6} {...field}>
-            <InputOTPGroup>
-              <InputOTPSlot index={0} />
-              <InputOTPSlot index={1} />
-              <InputOTPSlot index={2} />
-            </InputOTPGroup>
-            <InputOTPSeparator />
-            <InputOTPGroup>
-              <InputOTPSlot index={3} />
-              <InputOTPSlot index={4} />
-              <InputOTPSlot index={5} />
-            </InputOTPGroup>
-          </InputOTP>
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    ),
-    [],
+  const renderOtpField = ({ field }: { field: ControllerRenderProps<typeof verifyOtpSchema.infer, "otp"> }) => (
+    <FormItem className="flex justify-center">
+      <FormControl>
+        <InputOTP aria-label="Verification code" maxLength={6} {...field}>
+          <InputOTPGroup>
+            <InputOTPSlot index={0} />
+            <InputOTPSlot index={1} />
+            <InputOTPSlot index={2} />
+          </InputOTPGroup>
+          <InputOTPSeparator />
+          <InputOTPGroup>
+            <InputOTPSlot index={3} />
+            <InputOTPSlot index={4} />
+            <InputOTPSlot index={5} />
+          </InputOTPGroup>
+        </InputOTP>
+      </FormControl>
+      <FormMessage />
+    </FormItem>
   );
 
-  const renderNewPasswordField = useCallback(
-    ({ field }: { field: ControllerRenderProps<typeof verifyOtpSchema.infer, "newPassword"> }) => (
-      <FormItem>
-        <FormControl>
-          <FloatingLabelInput
-            autoComplete="new-password"
-            disabled={isVerifyingOTP}
-            id="newPassword"
-            label="New Password"
-            placeholder=" "
-            type="password"
-            {...field}
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    ),
-    [isVerifyingOTP],
+  const renderNewPasswordField = ({
+    field,
+  }: {
+    field: ControllerRenderProps<typeof verifyOtpSchema.infer, "newPassword">;
+  }) => (
+    <FormItem>
+      <FormControl>
+        <FloatingLabelInput
+          autoComplete="new-password"
+          disabled={isVerifyingOTP}
+          id="newPassword"
+          label="New Password"
+          placeholder=" "
+          type="password"
+          {...field}
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
   );
 
-  const renderConfirmPasswordField = useCallback(
-    ({ field }: { field: ControllerRenderProps<typeof verifyOtpSchema.infer, "confirmPassword"> }) => (
-      <FormItem>
-        <FormControl>
-          <FloatingLabelInput
-            autoComplete="new-password"
-            disabled={isVerifyingOTP}
-            id="confirmPassword"
-            label="Confirm New Password"
-            placeholder=" "
-            type="password"
-            {...field}
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    ),
-    [isVerifyingOTP],
+  const renderConfirmPasswordField = ({
+    field,
+  }: {
+    field: ControllerRenderProps<typeof verifyOtpSchema.infer, "confirmPassword">;
+  }) => (
+    <FormItem>
+      <FormControl>
+        <FloatingLabelInput
+          autoComplete="new-password"
+          disabled={isVerifyingOTP}
+          id="confirmPassword"
+          label="Confirm New Password"
+          placeholder=" "
+          type="password"
+          {...field}
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
   );
 
   if (step === "email") {

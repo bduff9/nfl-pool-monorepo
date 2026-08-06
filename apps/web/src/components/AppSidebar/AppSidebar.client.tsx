@@ -25,7 +25,7 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { usePathname, useRouter } from "next/navigation";
 import { useAction } from "next-safe-action/hooks";
 import { useTheme } from "next-themes";
-import { type FC, Fragment, startTransition, useCallback, useState } from "react";
+import { type FC, Fragment, startTransition, useState } from "react";
 import {
   LuChevronDown,
   LuChevronLeft,
@@ -60,9 +60,9 @@ type WeekMenuItemProps = {
 };
 
 const WeekMenuItem: FC<WeekMenuItemProps> = ({ currentWeek, onSelectWeek, week }) => {
-  const handleClick = useCallback(() => {
+  const handleClick = () => {
     onSelectWeek(week);
-  }, [onSelectWeek, week]);
+  };
 
   return (
     <Fragment>
@@ -185,25 +185,25 @@ const AppSidebarClient: FC<Props> = ({
     setOpen: setUnregisterDialogOpen,
   };
 
-  const handleEditAccountClick = useCallback(() => {
+  const handleEditAccountClick = () => {
     setUserMenuOpen(false);
     setOpenMobile(false);
-  }, [setOpenMobile]);
+  };
 
-  const handleViewPaymentsClick = useCallback(() => {
+  const handleViewPaymentsClick = () => {
     setUserMenuOpen(false);
     setOpenMobile(false);
-  }, [setOpenMobile]);
+  };
 
-  const handleThemeToggleClick = useCallback(() => {
+  const handleThemeToggleClick = () => {
     setTheme(resolvedTheme === "dark" ? "light" : "dark");
     setUserMenuOpen(false);
-  }, [resolvedTheme, setTheme]);
+  };
 
-  const handleSignOutClick = useCallback(() => {
+  const handleSignOutClick = () => {
     setUserMenuOpen(false);
     setOpenMobile(false);
-  }, [setOpenMobile]);
+  };
 
   if (pathname.startsWith("/picks")) {
     currentPage = "Picks";

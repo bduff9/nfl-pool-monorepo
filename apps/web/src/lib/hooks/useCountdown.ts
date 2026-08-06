@@ -1,15 +1,16 @@
 import { MILLISECONDS_IN_SECOND, MINUTES_IN_HOUR, SECONDS_IN_MINUTE } from "@nfl-pool-monorepo/utils/constants";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { getTimeRemaining, getTimeRemainingString } from "@/lib/dates";
 
 export const useCountdown = (countdownTo: Date): string => {
   const countdownToTime = countdownTo?.getTime() ?? null;
-  const end = useMemo(() => (countdownToTime === null ? new Date() : new Date(countdownToTime)), [countdownToTime]);
   const interval = useRef<number>(0);
   const [remaining, setRemaining] = useState<string>("");
 
   useEffect(() => {
+    const end = countdownToTime === null ? new Date() : new Date(countdownToTime);
+
     const updateRemaining = (): number => {
       const timeParts = getTimeRemaining(end);
 
@@ -27,7 +28,7 @@ export const useCountdown = (countdownTo: Date): string => {
     }
 
     return undefined;
-  }, [end]);
+  }, [countdownToTime]);
 
   return remaining;
 };

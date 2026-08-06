@@ -4,7 +4,7 @@ import { Label } from "@nfl-pool-monorepo/ui/components/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@nfl-pool-monorepo/ui/components/popover";
 import { Switch } from "@nfl-pool-monorepo/ui/components/switch";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
-import { type FC, useCallback } from "react";
+import type { FC } from "react";
 import type { Control, ControllerProps } from "react-hook-form";
 import { PiQuestionDuotone } from "react-icons/pi";
 
@@ -39,123 +39,108 @@ export const NotificationRow: FC<NotificationRowProps> = ({
       watchNotification?.NotificationSMS === 1 ||
       (hasPushSubscription && watchNotification?.NotificationPushNotification === 1));
 
-  const renderEmailSwitch: ControllerProps<FormValues, `notifications.${number}.NotificationEmail`>["render"] =
-    useCallback(
-      ({ field }) => (
-        <FormItem>
-          <FormControl>
-            <Switch
-              aria-label={`${notification.NotificationTypeDescription} email notification`}
-              checked={field.value === 1}
-              disabled={notification.NotificationType === "Essentials"}
-              onCheckedChange={toNotificationSwitchHandler(field.onChange)}
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      ),
-      [notification.NotificationTypeDescription, notification.NotificationType],
-    );
+  const renderEmailSwitch: ControllerProps<FormValues, `notifications.${number}.NotificationEmail`>["render"] = ({
+    field,
+  }) => (
+    <FormItem>
+      <FormControl>
+        <Switch
+          aria-label={`${notification.NotificationTypeDescription} email notification`}
+          checked={field.value === 1}
+          disabled={notification.NotificationType === "Essentials"}
+          onCheckedChange={toNotificationSwitchHandler(field.onChange)}
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  );
 
-  const renderSmsSwitch: ControllerProps<FormValues, `notifications.${number}.NotificationSMS`>["render"] = useCallback(
-    ({ field }) => (
-      <FormItem>
-        <FormControl>
-          <Switch
-            aria-label={`${notification.NotificationTypeDescription} SMS notification`}
-            checked={field.value === 1}
-            onCheckedChange={toNotificationSwitchHandler(field.onChange)}
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    ),
-    [notification.NotificationTypeDescription],
+  const renderSmsSwitch: ControllerProps<FormValues, `notifications.${number}.NotificationSMS`>["render"] = ({
+    field,
+  }) => (
+    <FormItem>
+      <FormControl>
+        <Switch
+          aria-label={`${notification.NotificationTypeDescription} SMS notification`}
+          checked={field.value === 1}
+          onCheckedChange={toNotificationSwitchHandler(field.onChange)}
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
   );
 
   const renderPushSwitch: ControllerProps<
     FormValues,
     `notifications.${number}.NotificationPushNotification`
-  >["render"] = useCallback(
-    ({ field }) => (
-      <FormItem>
-        <FormControl>
-          <Switch
-            aria-label={`${notification.NotificationTypeDescription} push notification`}
-            checked={field.value === 1}
-            onCheckedChange={toNotificationSwitchHandler(field.onChange)}
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    ),
-    [notification.NotificationTypeDescription],
+  >["render"] = ({ field }) => (
+    <FormItem>
+      <FormControl>
+        <Switch
+          aria-label={`${notification.NotificationTypeDescription} push notification`}
+          checked={field.value === 1}
+          onCheckedChange={toNotificationSwitchHandler(field.onChange)}
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
   );
 
   const renderEmailHoursBefore: ControllerProps<
     FormValues,
     `notifications.${number}.NotificationEmailHoursBefore`
-  >["render"] = useCallback(
-    ({ field, fieldState }) => (
-      <FormItem className="gap-0">
-        <FormControl>
-          <Input
-            {...field}
-            aria-label={`${notification.NotificationTypeDescription} email hours before`}
-            className={cn("w-8 dark:bg-white px-1 text-center", fieldState.error && "border-red-600")}
-            max={48}
-            min={1}
-            value={field.value ?? ""}
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    ),
-    [notification.NotificationTypeDescription],
+  >["render"] = ({ field, fieldState }) => (
+    <FormItem className="gap-0">
+      <FormControl>
+        <Input
+          {...field}
+          aria-label={`${notification.NotificationTypeDescription} email hours before`}
+          className={cn("w-8 dark:bg-white px-1 text-center", fieldState.error && "border-red-600")}
+          max={48}
+          min={1}
+          value={field.value ?? ""}
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
   );
 
   const renderSmsHoursBefore: ControllerProps<
     FormValues,
     `notifications.${number}.NotificationSMSHoursBefore`
-  >["render"] = useCallback(
-    ({ field, fieldState }) => (
-      <FormItem>
-        <FormControl>
-          <Input
-            {...field}
-            aria-label={`${notification.NotificationTypeDescription} SMS hours before`}
-            className={cn("w-8 dark:bg-white px-1 text-center", fieldState.error && "border-red-600")}
-            max={48}
-            min={1}
-            value={field.value ?? ""}
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    ),
-    [notification.NotificationTypeDescription],
+  >["render"] = ({ field, fieldState }) => (
+    <FormItem>
+      <FormControl>
+        <Input
+          {...field}
+          aria-label={`${notification.NotificationTypeDescription} SMS hours before`}
+          className={cn("w-8 dark:bg-white px-1 text-center", fieldState.error && "border-red-600")}
+          max={48}
+          min={1}
+          value={field.value ?? ""}
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
   );
 
   const renderPushHoursBefore: ControllerProps<
     FormValues,
     `notifications.${number}.NotificationPushNotificationHoursBefore`
-  >["render"] = useCallback(
-    ({ field, fieldState }) => (
-      <FormItem>
-        <FormControl>
-          <Input
-            {...field}
-            aria-label={`${notification.NotificationTypeDescription} push notification hours before`}
-            className={cn("w-8 dark:bg-white px-1 text-center", fieldState.error && "border-red-600")}
-            max={48}
-            min={1}
-            value={field.value ?? ""}
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    ),
-    [notification.NotificationTypeDescription],
+  >["render"] = ({ field, fieldState }) => (
+    <FormItem>
+      <FormControl>
+        <Input
+          {...field}
+          aria-label={`${notification.NotificationTypeDescription} push notification hours before`}
+          className={cn("w-8 dark:bg-white px-1 text-center", fieldState.error && "border-red-600")}
+          max={48}
+          min={1}
+          value={field.value ?? ""}
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
   );
 
   return (

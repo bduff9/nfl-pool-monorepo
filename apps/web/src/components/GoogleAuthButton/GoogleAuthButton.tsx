@@ -17,7 +17,7 @@
  */
 
 import { cn } from "@nfl-pool-monorepo/utils/styles";
-import { type FC, useCallback, useTransition } from "react";
+import { type FC, useTransition } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { toast } from "sonner";
 
@@ -39,7 +39,7 @@ const GoogleAuthButton: FC<GoogleAuthButtonProps> = ({ isLinked = false, isRegis
     title = "Google linked";
   }
 
-  const handleClick = useCallback((): void => {
+  const handleClick = (): void => {
     startTransition(async () => {
       try {
         const url = await getGoogleAuthorizationUrl();
@@ -50,7 +50,7 @@ const GoogleAuthButton: FC<GoogleAuthButtonProps> = ({ isLinked = false, isRegis
         toast.error("Couldn't start Google sign-in", { description: "Please try again." });
       }
     });
-  }, []);
+  };
 
   return (
     <button

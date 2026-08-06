@@ -3,16 +3,7 @@
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { useOffline } from "next/offline";
 import { useAction } from "next-safe-action/hooks";
-import {
-  type Dispatch,
-  type FC,
-  type SetStateAction,
-  useCallback,
-  useOptimistic,
-  useRef,
-  useState,
-  useTransition,
-} from "react";
+import { type Dispatch, type FC, type SetStateAction, useOptimistic, useRef, useState, useTransition } from "react";
 import { FaAt, FaInfoCircle, FaTimesCircle } from "react-icons/fa";
 import { toast } from "sonner";
 
@@ -53,17 +44,17 @@ const SurvivorGameCard: FC<SurvivorGameCardProps> = ({
   setSurvivorPick,
   weekInProgress,
 }) => {
-  const onToggleGame = useCallback(() => {
+  const onToggleGame = () => {
     setSelectedGame((currentGame) => (currentGame ? null : game));
-  }, [game, setSelectedGame]);
+  };
 
-  const onSelectVisitor = useCallback(() => {
+  const onSelectVisitor = () => {
     setSurvivorPick(game.GameID, game.visitorTeam?.TeamID ?? null);
-  }, [game.GameID, game.visitorTeam?.TeamID, setSurvivorPick]);
+  };
 
-  const onSelectHome = useCallback(() => {
+  const onSelectHome = () => {
     setSurvivorPick(game.GameID, game.homeTeam?.TeamID ?? null);
-  }, [game.GameID, game.homeTeam?.TeamID, setSurvivorPick]);
+  };
 
   return (
     <div className={cn("w-full md:w-1/2 lg:w-1/3 2xl:w-1/4 flex flex-wrap pb-3 relative h-48")}>

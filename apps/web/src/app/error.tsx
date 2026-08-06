@@ -32,19 +32,19 @@ const ErrorPage: FC<Props> = ({ error, reset, retry }) => {
       try {
         const response = await fetch("/api/error");
 
-        if (!response.ok) {
-          throw new Error(`Failed to load error page data: ${response.status}`);
+        if (response.ok) {
+          const { image, isLoggedIn } = await response.json();
+
+          setImage(image);
+          setIsLoggedIn(isLoggedIn);
+        } else {
+          console.error(`Failed to load error page data: ${response.status}`);
         }
-
-        const { image, isLoggedIn } = await response.json();
-
-        setImage(image);
-        setIsLoggedIn(isLoggedIn);
       } catch (fetchError) {
         console.error("Failed to load error page data:", fetchError);
-      } finally {
-        setIsLoading(false);
       }
+
+      setIsLoading(false);
     };
 
     loadErrorData();

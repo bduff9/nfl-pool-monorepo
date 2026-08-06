@@ -31,7 +31,7 @@ import {
 } from "@nfl-pool-monorepo/ui/components/dialog";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import Image from "next/image";
-import { type FC, useCallback, useEffect, useState } from "react";
+import { type FC, useEffect, useState } from "react";
 import { PiAtDuotone } from "react-icons/pi";
 
 import { getAbbreviation } from "@/lib/strings";
@@ -52,12 +52,9 @@ type TeamWinnerButtonProps = {
 };
 
 const TeamWinnerButton: FC<TeamWinnerButtonProps> = ({ gameID, isSelected, onSelectWinner, team, teamID }) => {
-  const handleClick = useCallback(
-    (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-      onSelectWinner(event, gameID, teamID);
-    },
-    [onSelectWinner, gameID, teamID],
-  );
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    onSelectWinner(event, gameID, teamID);
+  };
 
   return (
     <button
@@ -127,9 +124,9 @@ const ViewAllModal: FC<Props> = ({ closeModal, games, isOpen, saveChanges }) => 
     setCustomGames(newCustomGames);
   };
 
-  const handleSaveClick = useCallback(() => {
+  const handleSaveClick = () => {
     saveChanges(customGames);
-  }, [customGames, saveChanges]);
+  };
 
   return (
     <Dialog onOpenChange={closeModal} open={isOpen}>

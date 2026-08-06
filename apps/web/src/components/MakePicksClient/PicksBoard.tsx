@@ -2,7 +2,7 @@ import type { DragStart, DropResult } from "@hello-pangea/dnd";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { Dispatch, FC, SetStateAction } from "react";
-import { Fragment, useCallback } from "react";
+import { Fragment } from "react";
 
 import type { getMyWeeklyPicks } from "@/server/loaders/pick";
 
@@ -33,13 +33,13 @@ type PickGameRowProps = {
 const PickGameRow: FC<PickGameRowProps> = ({ dragGameID, gameCount, loading, pick, selectedGame, setSelectedGame }) => {
   const isSelected = pick.GameID === selectedGame;
 
-  const onClick = useCallback(() => {
+  const onClick = () => {
     setSelectedGame((gameID) => (gameID === pick.GameID ? null : pick.GameID));
-  }, [pick.GameID, setSelectedGame]);
+  };
 
-  const onClose = useCallback(() => {
+  const onClose = () => {
     setSelectedGame(null);
-  }, [setSelectedGame]);
+  };
 
   return (
     <Fragment>

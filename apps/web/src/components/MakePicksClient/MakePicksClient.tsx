@@ -15,7 +15,7 @@ import "client-only";
 import dynamic from "next/dynamic";
 import { useAction } from "next-safe-action/hooks";
 import type { FC } from "react";
-import { useCallback, useOptimistic, useState, useTransition } from "react";
+import { useOptimistic, useState, useTransition } from "react";
 import { PiFootballDuotone } from "react-icons/pi";
 import { toast } from "sonner";
 
@@ -49,77 +49,74 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
     },
   });
 
-  const onDragEnd = useCallback(
-    (result: DropResult): void => {
-      const { draggableId, source, destination } = result;
+  const onDragEnd = (result: DropResult): void => {
+    const { draggableId, source, destination } = result;
 
-      setDragGameID(null);
+    setDragGameID(null);
 
-      if (!destination) {
-        return;
-      }
+    if (!destination) {
+      return;
+    }
 
-      if (source.droppableId === destination.droppableId) {
-        return;
-      }
+    if (source.droppableId === destination.droppableId) {
+      return;
+    }
 
-      const [points, , destinationData] = parseDragData(draggableId, source.droppableId, destination.droppableId);
-      const gameID = destinationData?.gameID ?? null;
-      const pick = optimisticPicks.find((pick) => pick.GameID === gameID);
-      const pickTeam =
-        destinationData?.type === "home"
-          ? (pick?.homeTeam ?? null)
-          : destinationData?.type === "visitor"
-            ? (pick?.visitorTeam ?? null)
-            : null;
+    const [points, , destinationData] = parseDragData(draggableId, source.droppableId, destination.droppableId);
+    const gameID = destinationData?.gameID ?? null;
+    const pick = optimisticPicks.find((pick) => pick.GameID === gameID);
+    const pickTeam =
+      destinationData?.type === "home"
+        ? (pick?.homeTeam ?? null)
+        : destinationData?.type === "visitor"
+          ? (pick?.visitorTeam ?? null)
+          : null;
 
-      startPicksUpdating(() => {
-        setOptimisticPicks((picks) =>
-          picks.map((pick) => {
-            if (pick.GameKickoff < new Date()) {
-              return pick;
-            }
-
-            if (gameID === pick.GameID) {
-              return {
-                ...pick,
-                PickPoints: points,
-                pickTeam,
-                TeamID: pickTeam?.TeamID ?? null,
-              };
-            }
-
-            if (points === pick.PickPoints) {
-              return {
-                ...pick,
-                PickPoints: null,
-                pickTeam: null,
-                TeamID: null,
-              };
-            }
-
+    startPicksUpdating(() => {
+      setOptimisticPicks((picks) =>
+        picks.map((pick) => {
+          if (pick.GameKickoff < new Date()) {
             return pick;
-          }),
-        );
+          }
 
-        executeSetMyPick({
-          gameID,
-          points,
-          teamID: pickTeam?.TeamID ?? null,
-          week: selectedWeek,
-        });
+          if (gameID === pick.GameID) {
+            return {
+              ...pick,
+              PickPoints: points,
+              pickTeam,
+              TeamID: pickTeam?.TeamID ?? null,
+            };
+          }
+
+          if (points === pick.PickPoints) {
+            return {
+              ...pick,
+              PickPoints: null,
+              pickTeam: null,
+              TeamID: null,
+            };
+          }
+
+          return pick;
+        }),
+      );
+
+      executeSetMyPick({
+        gameID,
+        points,
+        teamID: pickTeam?.TeamID ?? null,
+        week: selectedWeek,
       });
-    },
-    [executeSetMyPick, optimisticPicks, selectedWeek, setOptimisticPicks],
-  );
+    });
+  };
 
-  const onDragStart = useCallback((initial: DragStart): void => {
+  const onDragStart = (initial: DragStart): void => {
     const {
       source: { droppableId },
     } = initial;
 
     setDragGameID(droppableId.replace("home-", "").replace("visitor-", ""));
-  }, []);
+  };
 
   const allUsedPoints = new Set<number>();
   const now = new Date();
@@ -158,7 +155,7 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
     tiebreaker,
   });
 
-  const onCancelCallback = useCallback(() => setCallback(null), [setCallback]);
+  const onCancelCallback = () => setCallback(null);
 
   return (
     <>

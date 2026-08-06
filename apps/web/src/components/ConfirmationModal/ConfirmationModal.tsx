@@ -53,9 +53,12 @@ const ConfirmationModal: FC<ConfirmationModal> = ({
     try {
       await onAccept();
       setOpen(false);
-    } finally {
+    } catch (error) {
       setLoading(false);
+      throw error;
     }
+
+    setLoading(false);
   };
 
   const handleCancel = async (): Promise<void> => {

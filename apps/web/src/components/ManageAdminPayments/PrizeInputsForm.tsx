@@ -3,7 +3,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@nfl-pool-monorepo/ui/components/input";
 import { Label } from "@nfl-pool-monorepo/ui/components/label";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
-import { type FC, useCallback } from "react";
+import type { FC } from "react";
 import type { ControllerFieldState, ControllerRenderProps, UseFormReturn } from "react-hook-form";
 
 import { processFormErrors } from "@/lib/form-errors";
@@ -31,130 +31,109 @@ export const PrizeInputsForm: FC<PrizeInputsFormProps> = ({
   poolCost,
   survivorCost,
 }) => {
-  const renderWeekly1stPrizeField = useCallback(
-    ({ field, fieldState }: PrizeFieldRenderProps<"weekly1stPrize">) => (
-      <FormItem>
-        <FormLabel className="required">Weekly 1st place</FormLabel>
-        <FormControl>
-          <Input
-            {...field}
-            aria-invalid={!!fieldState.error}
-            className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-            type="number"
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    ),
-    [],
+  const renderWeekly1stPrizeField = ({ field, fieldState }: PrizeFieldRenderProps<"weekly1stPrize">) => (
+    <FormItem>
+      <FormLabel className="required">Weekly 1st place</FormLabel>
+      <FormControl>
+        <Input
+          {...field}
+          aria-invalid={!!fieldState.error}
+          className={cn("dark:bg-white", fieldState.error && "border-red-600")}
+          type="number"
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
   );
 
-  const renderWeekly2ndPrizeField = useCallback(
-    ({ field, fieldState }: PrizeFieldRenderProps<"weekly2ndPrize">) => (
-      <FormItem>
-        <FormLabel className="required">Weekly 2nd place</FormLabel>
-        <FormControl>
-          <Input
-            {...field}
-            aria-invalid={!!fieldState.error}
-            className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-            type="number"
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    ),
-    [],
+  const renderWeekly2ndPrizeField = ({ field, fieldState }: PrizeFieldRenderProps<"weekly2ndPrize">) => (
+    <FormItem>
+      <FormLabel className="required">Weekly 2nd place</FormLabel>
+      <FormControl>
+        <Input
+          {...field}
+          aria-invalid={!!fieldState.error}
+          className={cn("dark:bg-white", fieldState.error && "border-red-600")}
+          type="number"
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
   );
 
-  const renderOverall1stPrizeField = useCallback(
-    ({ field, fieldState }: PrizeFieldRenderProps<"overall1stPrize">) => (
-      <FormItem>
-        <FormLabel className="required">Overall 1st place</FormLabel>
-        <FormControl>
-          <Input
-            {...field}
-            aria-invalid={!!fieldState.error}
-            className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-            type="number"
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    ),
-    [],
+  const renderOverall1stPrizeField = ({ field, fieldState }: PrizeFieldRenderProps<"overall1stPrize">) => (
+    <FormItem>
+      <FormLabel className="required">Overall 1st place</FormLabel>
+      <FormControl>
+        <Input
+          {...field}
+          aria-invalid={!!fieldState.error}
+          className={cn("dark:bg-white", fieldState.error && "border-red-600")}
+          type="number"
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
   );
 
-  const renderOverall2ndPrizeField = useCallback(
-    ({ field, fieldState }: PrizeFieldRenderProps<"overall2ndPrize">) => (
-      <FormItem>
-        <FormLabel className="required h-5">Overall 2nd place</FormLabel>
-        <FormControl>
-          <Input
-            {...field}
-            aria-invalid={!!fieldState.error}
-            className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-            type="number"
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    ),
-    [],
+  const renderOverall2ndPrizeField = ({ field, fieldState }: PrizeFieldRenderProps<"overall2ndPrize">) => (
+    <FormItem>
+      <FormLabel className="required h-5">Overall 2nd place</FormLabel>
+      <FormControl>
+        <Input
+          {...field}
+          aria-invalid={!!fieldState.error}
+          className={cn("dark:bg-white", fieldState.error && "border-red-600")}
+          type="number"
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
   );
 
-  const renderOverall3rdPrizeField = useCallback(
-    ({ field, fieldState }: PrizeFieldRenderProps<"overall3rdPrize">) => (
-      <FormItem>
-        <FormLabel className="required h-5">Overall 3rd place</FormLabel>
-        <FormControl>
-          <Input
-            {...field}
-            aria-invalid={!!fieldState.error}
-            className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-            type="number"
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    ),
-    [],
+  const renderOverall3rdPrizeField = ({ field, fieldState }: PrizeFieldRenderProps<"overall3rdPrize">) => (
+    <FormItem>
+      <FormLabel className="required h-5">Overall 3rd place</FormLabel>
+      <FormControl>
+        <Input
+          {...field}
+          aria-invalid={!!fieldState.error}
+          className={cn("dark:bg-white", fieldState.error && "border-red-600")}
+          type="number"
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
   );
 
-  const renderSurvivor1stPrizeField = useCallback(
-    ({ field, fieldState }: PrizeFieldRenderProps<"survivor1stPrize">) => (
-      <FormItem>
-        <FormLabel className="required h-5">Survivor 1st place</FormLabel>
-        <FormControl>
-          <Input
-            {...field}
-            aria-invalid={!!fieldState.error}
-            className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-            type="number"
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    ),
-    [],
+  const renderSurvivor1stPrizeField = ({ field, fieldState }: PrizeFieldRenderProps<"survivor1stPrize">) => (
+    <FormItem>
+      <FormLabel className="required h-5">Survivor 1st place</FormLabel>
+      <FormControl>
+        <Input
+          {...field}
+          aria-invalid={!!fieldState.error}
+          className={cn("dark:bg-white", fieldState.error && "border-red-600")}
+          type="number"
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
   );
 
-  const renderSurvivor2ndPrizeField = useCallback(
-    ({ field, fieldState }: PrizeFieldRenderProps<"survivor2ndPrize">) => (
-      <FormItem>
-        <FormLabel className="required h-5">Survivor 2nd place</FormLabel>
-        <FormControl>
-          <Input
-            {...field}
-            aria-invalid={!!fieldState.error}
-            className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-            type="number"
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    ),
-    [],
+  const renderSurvivor2ndPrizeField = ({ field, fieldState }: PrizeFieldRenderProps<"survivor2ndPrize">) => (
+    <FormItem>
+      <FormLabel className="required h-5">Survivor 2nd place</FormLabel>
+      <FormControl>
+        <Input
+          {...field}
+          aria-invalid={!!fieldState.error}
+          className={cn("dark:bg-white", fieldState.error && "border-red-600")}
+          type="number"
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
   );
 
   return (
