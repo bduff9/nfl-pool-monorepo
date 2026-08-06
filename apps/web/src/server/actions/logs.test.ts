@@ -48,4 +48,29 @@ describe("writeLog", () => {
 
     expect(mockDb.values).toHaveBeenCalledWith(expect.objectContaining({ LogAddedBy: "unknown" }));
   });
+
+  it("silently succeeds when the same user+action is logged twice within the same second", async () => {
+    getCurrentSession.mockResolvedValue({ session: null, user: null });
+
+    const duplicateEntryError = Object.assign(new Error("Duplicate entry"), { code: "ER_DUP_ENTRY" });
+
+    mockDb.executeTakeFirstOrThrow.mockRejectedValueOnce(duplicateEntryError);
+
+    const { writeLog } = await import("./logs");
+    const result = await writeLog({ LogAction: "404", LogData: null, LogMessage: "/some-path", userId: 7 });
+
+    expect(result.status).toBe("Success");
+  });
+
+  it("rethrows non-duplicate-key errors", async () => {
+    getCurrentSession.mockResolvedValue({ session: null, user: null });
+
+    mockDb.executeTakeFirstOrThrow.mockRejectedValueOnce(new Error("connection lost"));
+
+    const { writeLog } = await import("./logs");
+
+    await expect(writeLog({ LogAction: "404", LogData: null, LogMessage: "/some-path", userId: 7 })).rejects.toThrow(
+      "connection lost",
+    );
+  });
 });
