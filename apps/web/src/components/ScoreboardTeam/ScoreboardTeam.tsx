@@ -15,11 +15,12 @@
  */
 
 import { cn } from "@nfl-pool-monorepo/utils/styles";
-import Image from "next/image";
 import type { FC } from "react";
 import { PiFootballDuotone } from "react-icons/pi";
 
 import type { getGamesForWeekCached } from "@/server/loaders/game";
+
+import TeamLogo from "../TeamLogo/TeamLogo";
 
 type ScoreboardTeamProps = {
   gameStatus: Awaited<ReturnType<typeof getGamesForWeekCached>>[number]["GameStatus"];
@@ -40,14 +41,7 @@ const ScoreboardTeam: FC<ScoreboardTeamProps> = ({ gameStatus, hasPossession, is
   return (
     <>
       <div>
-        <Image
-          alt={`${team.TeamCity} ${team.TeamName}`}
-          className={cn("h-auto m-w-full", isLoser && "grayscale")}
-          height={70}
-          src={`/NFLLogos/${team.TeamLogo}`}
-          title={`${team.TeamCity} ${team.TeamName}`}
-          width={70}
-        />
+        <TeamLogo className={cn("h-auto m-w-full", isLoser && "grayscale")} team={team} />
       </div>
       <div
         className={cn(

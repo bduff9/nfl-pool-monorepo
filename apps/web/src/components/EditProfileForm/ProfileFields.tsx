@@ -2,16 +2,16 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@nfl-p
 import { Input } from "@nfl-pool-monorepo/ui/components/input";
 import { PhoneInput } from "@nfl-pool-monorepo/ui/components/phone-input";
 import { Popover, PopoverContent, PopoverTrigger } from "@nfl-pool-monorepo/ui/components/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nfl-pool-monorepo/ui/components/select";
 import { Tabs, TabsList, TabsTrigger } from "@nfl-pool-monorepo/ui/components/tabs";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { FC } from "react";
 import type { Control, ControllerProps } from "react-hook-form";
 import { PiQuestionDuotone } from "react-icons/pi";
 
-import { PaymentMethod } from "@/lib/constants";
 import type { editProfileSchema } from "@/lib/validation";
 
+import { ProfilePaymentTypeField, ProfileTextField } from "../ProfileFormFields/ProfileFormFields";
+import { paymentAccountLabel, teamNameLabel } from "../ProfileFormFields/profileFieldLabels";
 import TextSeparator from "../TextSeparator/TextSeparator";
 
 type FormValues = typeof editProfileSchema.infer;
@@ -21,78 +21,50 @@ type ProfileFieldsProps = {
 };
 
 export const ProfileFields: FC<ProfileFieldsProps> = ({ control }) => {
-  const renderEmailField: ControllerProps<FormValues, "UserEmail">["render"] = ({ field }) => (
-    <FormItem>
-      <FormLabel className="required h-5">Email</FormLabel>
-      <FormControl>
-        <Input
-          {...field}
-          autoComplete="email"
-          className="dark:bg-transparent border-0 shadow-none"
-          id="UserEmail"
-          placeholder="Email"
-          readOnly
-          type="email"
-        />
-      </FormControl>
-      <FormMessage />
-    </FormItem>
+  const renderEmailField: ControllerProps<FormValues, "UserEmail">["render"] = ({ field, fieldState }) => (
+    <ProfileTextField
+      autoComplete="email"
+      field={field}
+      fieldState={fieldState}
+      id="UserEmail"
+      label="Email"
+      placeholder="Email"
+      readOnly
+      type="email"
+    />
   );
 
   const renderFirstNameField: ControllerProps<FormValues, "UserFirstName">["render"] = ({ field, fieldState }) => (
-    <FormItem>
-      <FormLabel className="required h-5">First Name</FormLabel>
-      <FormControl>
-        <Input
-          {...field}
-          aria-invalid={!!fieldState.error}
-          autoComplete="given-name"
-          className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-          id="UserFirstName"
-          placeholder="First name"
-          type="text"
-        />
-      </FormControl>
-      <FormMessage />
-    </FormItem>
+    <ProfileTextField
+      autoComplete="given-name"
+      field={field}
+      fieldState={fieldState}
+      id="UserFirstName"
+      label="First Name"
+      placeholder="First name"
+    />
   );
 
   const renderLastNameField: ControllerProps<FormValues, "UserLastName">["render"] = ({ field, fieldState }) => (
-    <FormItem>
-      <FormLabel className="required h-5">Last Name</FormLabel>
-      <FormControl>
-        <Input
-          {...field}
-          aria-invalid={!!fieldState.error}
-          autoComplete="family-name"
-          className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-          id="UserLastName"
-          placeholder="Last name"
-          type="text"
-        />
-      </FormControl>
-      <FormMessage />
-    </FormItem>
+    <ProfileTextField
+      autoComplete="family-name"
+      field={field}
+      fieldState={fieldState}
+      id="UserLastName"
+      label="Last Name"
+      placeholder="Last name"
+    />
   );
 
   const renderTeamNameField: ControllerProps<FormValues, "UserTeamName">["render"] = ({ field, fieldState }) => (
-    <FormItem>
-      <FormLabel className="h-5">
-        Team Name &nbsp;<span className="text-xs text-muted-foreground">(Optional)</span>
-      </FormLabel>
-      <FormControl>
-        <Input
-          {...field}
-          aria-invalid={!!fieldState.error}
-          autoComplete="off"
-          className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-          id="UserTeamName"
-          placeholder="Team name"
-          type="text"
-        />
-      </FormControl>
-      <FormMessage />
-    </FormItem>
+    <ProfileTextField
+      field={field}
+      fieldState={fieldState}
+      id="UserTeamName"
+      label={teamNameLabel}
+      placeholder="Team name"
+      required={false}
+    />
   );
 
   const renderPhoneField: ControllerProps<FormValues, "UserPhone">["render"] = ({ field, fieldState }) => (
@@ -124,60 +96,20 @@ export const ProfileFields: FC<ProfileFieldsProps> = ({ control }) => {
   );
 
   const renderPaymentTypeField: ControllerProps<FormValues, "UserPaymentType">["render"] = ({ field, fieldState }) => (
-    <FormItem>
-      <FormLabel className="required h-5">Payment Type</FormLabel>
-      <Select onValueChange={field.onChange} value={field.value}>
-        <FormControl>
-          <SelectTrigger
-            aria-label="Payment Type"
-            className={cn("dark:bg-white w-full", fieldState.error && "border-red-600")}
-          >
-            <SelectValue placeholder="-- Select a payment type --">{field.value}</SelectValue>
-          </SelectTrigger>
-        </FormControl>
-        <SelectContent>
-          {PaymentMethod.map((paymentMethod) => (
-            <SelectItem key={paymentMethod} value={paymentMethod}>
-              {paymentMethod}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <FormMessage />
-    </FormItem>
+    <ProfilePaymentTypeField field={field} fieldState={fieldState} />
   );
 
   const renderPaymentAccountField: ControllerProps<FormValues, "UserPaymentAccount">["render"] = ({
     field,
     fieldState,
   }) => (
-    <FormItem>
-      <FormLabel className="required h-5">
-        Payment Account&nbsp;
-        <Popover>
-          <PopoverTrigger aria-label="More information about payment account" type="button">
-            <PiQuestionDuotone className="size-5" />
-          </PopoverTrigger>
-          <PopoverContent className="max-w-[300px]">
-            If you want to receive any prize money, you need to enter your exact payment account information here (i.e.
-            email, username or phone number for your account).{" "}
-            <strong>This is your responsibility as we will not be chasing people down to pay them.</strong> If entering
-            phone number, please enter a valid phone number in the format +1 999 999 9999.
-          </PopoverContent>
-        </Popover>
-      </FormLabel>
-      <FormControl>
-        <Input
-          {...field}
-          autoComplete="off"
-          className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-          id="UserPaymentAccount"
-          placeholder="Payment account"
-          type="text"
-        />
-      </FormControl>
-      <FormMessage />
-    </FormItem>
+    <ProfileTextField
+      field={field}
+      fieldState={fieldState}
+      id="UserPaymentAccount"
+      label={paymentAccountLabel}
+      placeholder="Payment account"
+    />
   );
 
   const renderAutoPicksLeftField: ControllerProps<FormValues, "UserAutoPicksLeft">["render"] = ({ field }) => (

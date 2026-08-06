@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@nfl-pool-monorepo/ui/components/button";
-import { SidebarTrigger } from "@nfl-pool-monorepo/ui/components/sidebar";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import "client-only";
 
@@ -9,6 +8,7 @@ import Image from "next/image";
 import { type FC, useEffect, useState } from "react";
 
 import CustomHeadClient from "@/components/CustomHead/CustomHead.client";
+import PageSidebarTrigger from "@/components/PageContent/PageSidebarTrigger.client";
 import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 
 type Props = {
@@ -54,7 +54,7 @@ const ErrorPage: FC<Props> = ({ error, reset, retry }) => {
     <div className="flex flex-col md:mx-3">
       {!!isLoggedIn && (
         <div className="w-full px-1 pt-1">
-          <SidebarTrigger className="size-10 md:size-7" />
+          <PageSidebarTrigger />
         </div>
       )}
       <CustomHeadClient alerts={[]} title="Error Occurred" />

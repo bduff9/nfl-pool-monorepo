@@ -11,6 +11,7 @@ export const useNow = (intervalMs: number = DEFAULT_INTERVAL_MS): Date | null =>
   const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
+    // react-doctor-disable-next-line react-hooks-js/set-state-in-effect -- seeds the real clock value after mount so SSR/hydration render an identical "not yet known" state first
     setNow(new Date());
 
     const interval = setInterval(() => setNow(new Date()), intervalMs);

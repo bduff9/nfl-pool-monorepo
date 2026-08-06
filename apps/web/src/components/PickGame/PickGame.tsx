@@ -18,13 +18,13 @@ import { Draggable, Droppable } from "@hello-pangea/dnd";
 import type { Games, Picks, Teams } from "@nfl-pool-monorepo/db/src";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { Selectable } from "kysely";
-import Image from "next/image";
 import type { FC } from "react";
 import { FaAt, FaInfoCircle, FaTimesCircle } from "react-icons/fa";
 
 import { getBackgroundColor } from "@/lib/strings";
 
 import type { LoadingType } from "../MakePicksClient/MakePicksClient";
+import TeamLogo from "../TeamLogo/TeamLogo";
 
 type DraggablePointProps = {
   index?: number | undefined;
@@ -116,7 +116,7 @@ const TeamLogoButton: FC<TeamLogoButtonProps> = ({ onClick, team }) => {
       onClick={onClick}
       type="button"
     >
-      <Image alt={label} height={60} src={`/NFLLogos/${team?.TeamLogo}`} title={label} width={60} />
+      <TeamLogo size={60} team={team} />
       <div className={cn("block md:hidden decoration-dotted underline underline-offset-2")}>{team?.TeamName}</div>
     </button>
   );

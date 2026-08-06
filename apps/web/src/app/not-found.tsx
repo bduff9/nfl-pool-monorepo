@@ -24,8 +24,7 @@ import { type FC, Suspense } from "react";
 
 import "server-only";
 
-import { SidebarTrigger } from "@nfl-pool-monorepo/ui/components/sidebar";
-
+import PageSidebarTrigger from "@/components/PageContent/PageSidebarTrigger.client";
 import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import Write404Log from "@/components/Write404Log/Write404Log";
 import { getCurrentSession } from "@/server/loaders/sessions";
@@ -43,7 +42,7 @@ const NotFoundContent: FC = async () => {
     <div className="flex flex-col md:mx-3">
       {!!user && (
         <div className="w-full px-1 pt-1">
-          <SidebarTrigger className="size-10 md:size-7" />
+          <PageSidebarTrigger />
         </div>
       )}
       <CustomHead title="404" />
@@ -77,8 +76,14 @@ const NotFoundContent: FC = async () => {
   );
 };
 
+const NotFoundFallback: FC = () => (
+  <div className="flex h-full w-full items-center justify-center py-24" role="status">
+    <span className="sr-only">Loading&hellip;</span>
+  </div>
+);
+
 const NotFound: FC = () => (
-  <Suspense>
+  <Suspense fallback={<NotFoundFallback />}>
     <NotFoundContent />
   </Suspense>
 );

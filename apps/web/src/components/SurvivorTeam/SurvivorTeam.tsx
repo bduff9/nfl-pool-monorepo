@@ -22,9 +22,10 @@ import type { getMySurvivorPicks } from "@/server/loaders/survivor";
 import type { getTeamsOnBye } from "@/server/loaders/team";
 import "client-only";
 
-import Image from "next/image";
 import type { FC } from "react";
 import { PiFootballDuotone } from "react-icons/pi";
+
+import TeamLogo from "../TeamLogo/TeamLogo";
 
 type Props = {
   isHome?: boolean;
@@ -94,13 +95,7 @@ const SurvivorTeam: FC<Props> = ({ isHome = false, isOnBye = false, loading, onC
           {pick.SurvivorPickWeek}
         </Badge>
       )}
-      <Image
-        alt={`${team?.TeamCity} ${team?.TeamName}`}
-        height={70}
-        src={`/NFLLogos/${team?.TeamLogo}`}
-        title={`${team?.TeamCity} ${team?.TeamName}`}
-        width={70}
-      />
+      <TeamLogo team={team} />
       <br />
       {loading === team?.TeamID && <PiFootballDuotone aria-hidden="true" className="animate-spin" />}
       <span className="hidden md:inline">
