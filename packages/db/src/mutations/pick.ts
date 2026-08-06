@@ -6,27 +6,7 @@ import type { Selectable } from "kysely";
 
 import type { Users } from "..";
 import { db } from "../kysely";
-
-const getLowestUnusedPoint = async (week: number, userID: number): Promise<null | number> => {
-  const usedResult = await db
-    .selectFrom("Picks as p")
-    .innerJoin("Games as g", "g.GameID", "p.GameID")
-    .select(["p.PickPoints as points"])
-    .where("g.GameWeek", "=", week)
-    .where("p.UserID", "=", userID)
-    .execute();
-  const used = new Set(usedResult.map(({ points }) => points).filter((points) => points != null));
-
-  for (let point = 1; point <= usedResult.length; point++) {
-    if (used.has(point)) {
-      continue;
-    }
-
-    return point;
-  }
-
-  return null;
-};
+import { getLowestUnusedPoint } from "../queries/pick";
 
 const shouldAutoPickHome = (type: Selectable<Users>["UserAutoPickStrategy"]): boolean => {
   if (type === "Home") return true;

@@ -313,7 +313,7 @@ export const registerUserForSurvivor = async (trx: Transaction<DB>, userId: numb
 export const unregisterUser = async (userId: number): Promise<void> => {
   await db
     .updateTable("Users")
-    .set({ UserDoneRegistering: 0, UserUpdated: new Date(), UserUpdatedBy: "ADMIN" })
+    .set({ UserDoneRegistering: 0, UserUpdated: new Date(), UserUpdatedBy: ADMIN_USER })
     .where("UserID", "=", userId)
     .executeTakeFirstOrThrow();
 };

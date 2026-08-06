@@ -30,6 +30,15 @@ export type Session = {
  */
 const DEFAULT_SESSION_LENGTH = 1000 * 60 * 60 * 24 * 30;
 
+/**
+ * Ensures a post-login redirect target is a relative path, not an external or protocol-relative URL.
+ */
+export const sanitizeRedirectPath = (raw: string | null | undefined, fallback: string): string => {
+  const rawRedirect = raw ?? "";
+
+  return rawRedirect.startsWith("/") && !rawRedirect.startsWith("//") ? rawRedirect : fallback;
+};
+
 export const generateSessionToken = (): string => {
   const bytes = new Uint8Array(20);
 

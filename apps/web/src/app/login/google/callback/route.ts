@@ -5,7 +5,7 @@ import { type } from "arktype";
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 
-import { createSession, generateSessionToken, google, setSessionTokenCookie } from "@/lib/auth";
+import { createSession, generateSessionToken, google, sanitizeRedirectPath, setSessionTokenCookie } from "@/lib/auth";
 import { AuthVerificationError, verifyLoginEligibility, verifyRegistrationEligibility } from "@/lib/auth-verification";
 import { getCurrentSession } from "@/server/loaders/sessions";
 
@@ -189,9 +189,7 @@ export const GET = async (request: NextRequest, _ctx: RouteContext<"/login/googl
 
   await setSessionTokenCookie(sessionToken, session.expiresAt);
 
-  const rawRedirect = cookieStore.get("redirect_to")?.value ?? "/";
-  // Ensure redirect is a relative path, not an external URL
-  const redirectTo = rawRedirect.startsWith("/") && !rawRedirect.startsWith("//") ? rawRedirect : "/";
+  const redirectTo = sanitizeRedirectPath(cookieStore.get("redirect_to")?.value, "/");
 
   return new Response(null, {
     headers: {

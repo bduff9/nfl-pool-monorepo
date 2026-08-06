@@ -9,11 +9,34 @@ import {
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { FC } from "react";
 import { FaCloudUploadAlt, FaRedo, FaSave } from "react-icons/fa";
+import type { IconType } from "react-icons/lib";
 import { PiFootballDuotone, PiRobotDuotone } from "react-icons/pi";
 
 import type { AutoPickStrategy } from "@/lib/constants";
 
 import type { LoadingType } from "./MakePicksClient";
+
+type ActionLabelProps = {
+  icon: IconType;
+  isLoading: boolean;
+  label: string;
+  loadingLabel: string;
+};
+
+const ActionLabel: FC<ActionLabelProps> = ({ icon: Icon, isLoading, label, loadingLabel }) =>
+  isLoading ? (
+    <>
+      <PiFootballDuotone aria-hidden="true" className="animate-spin hidden md:inline-block" />
+      {loadingLabel}
+    </>
+  ) : (
+    <>
+      <div className="md:block hidden">
+        <Icon />
+      </div>
+      {label}
+    </>
+  );
 
 type PickActionsBarProps = {
   loading: LoadingType | null;
@@ -49,19 +72,7 @@ export const PickActionsBar: FC<PickActionsBarProps> = ({
     >
       <div className="w-1/4 px-1 md:px-2">
         <Button className="w-full my-3" disabled={disabled} onClick={onResetClick} type="button" variant="danger">
-          {loading === "reset" ? (
-            <>
-              <PiFootballDuotone aria-hidden="true" className="animate-spin hidden md:inline-block" />
-              Resetting...
-            </>
-          ) : (
-            <>
-              <div className="md:block hidden">
-                <FaRedo />
-              </div>
-              Reset
-            </>
-          )}
+          <ActionLabel icon={FaRedo} isLoading={loading === "reset"} label="Reset" loadingLabel="Resetting..." />
         </Button>
       </div>
       <div className="w-1/4 px-1 md:px-2">
@@ -74,19 +85,12 @@ export const PickActionsBar: FC<PickActionsBarProps> = ({
               type="button"
               variant="secondary"
             >
-              {loading === "autopick" ? (
-                <>
-                  <PiFootballDuotone aria-hidden="true" className="animate-spin hidden md:inline-block" />
-                  Picking...
-                </>
-              ) : (
-                <>
-                  <div className="md:block hidden">
-                    <PiRobotDuotone />
-                  </div>
-                  Auto Pick
-                </>
-              )}
+              <ActionLabel
+                icon={PiRobotDuotone}
+                isLoading={loading === "autopick"}
+                label="Auto Pick"
+                loadingLabel="Picking..."
+              />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
@@ -100,36 +104,17 @@ export const PickActionsBar: FC<PickActionsBarProps> = ({
       </div>
       <div className="w-1/4 px-1 md:px-2">
         <Button className="w-full my-3" disabled={disabled} onClick={onSave} type="button" variant="primary">
-          {loading === "save" ? (
-            <>
-              <PiFootballDuotone aria-hidden="true" className="animate-spin hidden md:inline-block" />
-              Saving...
-            </>
-          ) : (
-            <>
-              <div className="md:block hidden">
-                <FaSave />
-              </div>
-              Save
-            </>
-          )}
+          <ActionLabel icon={FaSave} isLoading={loading === "save"} label="Save" loadingLabel="Saving..." />
         </Button>
       </div>
       <div className="w-1/4 px-1 md:px-2">
         <Button className="w-full my-3" disabled={disabled} onClick={onSubmitClick} type="button" variant="success">
-          {loading === "submit" ? (
-            <>
-              <PiFootballDuotone aria-hidden="true" className="animate-spin hidden md:inline-block" />
-              Submitting...
-            </>
-          ) : (
-            <>
-              <div className="md:block hidden">
-                <FaCloudUploadAlt />
-              </div>
-              Submit
-            </>
-          )}
+          <ActionLabel
+            icon={FaCloudUploadAlt}
+            isLoading={loading === "submit"}
+            label="Submit"
+            loadingLabel="Submitting..."
+          />
         </Button>
       </div>
     </div>

@@ -54,9 +54,13 @@ export const lockLatePaymentUsers = async (week: number): Promise<void> => {
   const payments = await getUsersWhoOwe();
 
   for (const payment of payments) {
-    await unregisterUser(payment.UserID);
-    await signOutUserFromAllDevices(payment.UserID);
-    await sendLockedOutEmail(payment.UserID, Math.abs(payment.balance), week);
+    try {
+      await unregisterUser(payment.UserID);
+      await signOutUserFromAllDevices(payment.UserID);
+      await sendLockedOutEmail(payment.UserID, Math.abs(payment.balance), week);
+    } catch (error) {
+      console.error("Failed to lock out late-payment user, continuing with remaining users", { error, payment });
+    }
   }
 };
 

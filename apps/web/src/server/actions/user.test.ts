@@ -51,6 +51,8 @@ vi.mock("@/lib/auth", () => ({
   hashPassword,
   invalidateAllSessions,
   mxExists,
+  sanitizeRedirectPath: (raw: string | null | undefined, fallback: string) =>
+    raw?.startsWith("/") && !raw.startsWith("//") ? raw : fallback,
   setSessionTokenCookie,
   verifyPasswordHash,
   verifyPasswordStrength,

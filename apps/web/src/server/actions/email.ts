@@ -105,6 +105,10 @@ export const sendAdminEmail = adminActionClient
         promises.push(sendInterestEmail(to, false));
       } else if (emailType === "Interest - Final") {
         promises.push(sendInterestEmail(to, true));
+      } else {
+        const exhaustiveCheck: never = emailType;
+
+        throw new Error(`Unhandled emailType value: ${exhaustiveCheck}`);
       }
     }
 

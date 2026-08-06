@@ -23,6 +23,7 @@ import {
   hashPassword,
   invalidateAllSessions,
   mxExists,
+  sanitizeRedirectPath,
   setSessionTokenCookie,
   verifyPasswordHash,
   verifyPasswordStrength,
@@ -304,9 +305,7 @@ export const login = actionClient
 
     await setSessionTokenCookie(sessionToken, session.expiresAt);
 
-    const rawRedirect = (await cookies()).get("redirect_to")?.value ?? "";
-    // Ensure redirect is a relative path, not an external URL
-    const redirectTo = rawRedirect.startsWith("/") && !rawRedirect.startsWith("//") ? rawRedirect : "";
+    const redirectTo = sanitizeRedirectPath((await cookies()).get("redirect_to")?.value, "");
 
     return {
       metadata: { redirectTo },
@@ -432,9 +431,7 @@ export const register = actionClient
 
     await setSessionTokenCookie(sessionToken, session.expiresAt);
 
-    const rawRedirect = (await cookies()).get("redirect_to")?.value ?? "";
-    // Ensure redirect is a relative path, not an external URL
-    const redirectTo = rawRedirect.startsWith("/") && !rawRedirect.startsWith("//") ? rawRedirect : "";
+    const redirectTo = sanitizeRedirectPath((await cookies()).get("redirect_to")?.value, "");
 
     return {
       metadata: { redirectTo },

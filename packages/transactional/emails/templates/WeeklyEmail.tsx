@@ -72,6 +72,7 @@ const WeeklyEmail: Email<Props> = ({
                 {articles.map((article) => (
                   <Section className="bg-white px-6 pb-4" key={article.url}>
                     <Img
+                      alt={article.title}
                       className="w-full rounded-[8px] object-cover"
                       height={180}
                       src={article.urlToImage ?? "https://via.placeholder.com/180"}

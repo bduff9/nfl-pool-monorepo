@@ -110,7 +110,6 @@ const ForgotPasswordForm: FC<Props> = ({ error }) => {
           disabled={isSendingOTP}
           id="email"
           label="Email"
-          placeholder="Email"
           type="email"
           {...field}
         />
