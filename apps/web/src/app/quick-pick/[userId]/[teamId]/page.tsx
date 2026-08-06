@@ -31,7 +31,11 @@ const QuickPickPage: FC<PageProps<"/quick-pick/[userId]/[teamId]">> = async ({ p
     return (
       <div className="min-h-screen flex flex-wrap md:mx-3">
         <CustomHead title="Quick Pick" />
-        <div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div
+          className={cn(
+            "bg-gray-100 text-gray-800 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-gray-800 rounded-lg p-4 shrink-0 grow w-full h-full lg:h-auto lg:w-[50%] xl:w-[33%] text-center",
+          )}
+        >
           <h2 className={cn("scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0")}>
             Quick pick failed!
           </h2>
@@ -44,7 +48,11 @@ const QuickPickPage: FC<PageProps<"/quick-pick/[userId]/[teamId]">> = async ({ p
   return (
     <div className="min-h-screen flex flex-wrap md:mx-3">
       <CustomHead title="Quick Pick" />
-      <div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2">
+      <div
+        className={cn(
+          "bg-gray-100 text-gray-800 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-gray-800 rounded-lg p-4 shrink-0 grow w-full h-full lg:h-auto lg:w-[50%] xl:w-[33%] text-center",
+        )}
+      >
         <h2 className={cn("scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0")}>
           Confirm Quick Pick
         </h2>
