@@ -167,9 +167,9 @@ const getNextGameNumber = async (gameWeek: number): Promise<number> => {
     .select(["GameNumber"])
     .where("GameWeek", "=", gameWeek)
     .orderBy("GameNumber", "desc")
-    .executeTakeFirstOrThrow();
+    .executeTakeFirst();
 
-  return lastGame.GameNumber + 1;
+  return (lastGame?.GameNumber ?? 0) + 1;
 };
 
 const redoGameNumbers = async (gameWeek: number): Promise<void> => {
@@ -316,18 +316,22 @@ export const healWeek = async (week: number, allAPIWeeks: NFLWeekArray): Promise
         currentDBWeek.splice(gameIndex, 1);
       }
     } else if (apiHomeTeamID && apiVisitorTeamID) {
-      try {
-        const futureGame = await findFutureGame(apiHomeTeamID, apiVisitorTeamID, week);
-        const futureWeek = futureGame.GameWeek;
+      let futureGame: Awaited<ReturnType<typeof findFutureGame>>;
 
-        await updateGameMeta(futureGame, week, game.kickoff);
-        await healPicks(futureWeek);
-        await healPicks(week);
+      try {
+        futureGame = await findFutureGame(apiHomeTeamID, apiVisitorTeamID, week);
       } catch (error) {
         console.error("Future game not found: ", error);
         invalidAPIGames.push(game);
         apiGames.splice(i, 1);
+        continue;
       }
+
+      const futureWeek = futureGame.GameWeek;
+
+      await updateGameMeta(futureGame, week, game.kickoff);
+      await healPicks(futureWeek);
+      await healPicks(week);
     }
   }
 
@@ -341,9 +345,14 @@ export const healWeek = async (week: number, allAPIWeeks: NFLWeekArray): Promise
     const [foundWeek, foundAPIGame] = findFutureAPIGame(allAPIWeeks, game);
 
     if (foundAPIGame) {
-      await updateGameMeta(game, foundWeek, foundAPIGame.kickoff);
-      await healPicks(week);
-      await healPicks(foundWeek);
+      try {
+        await updateGameMeta(game, foundWeek, foundAPIGame.kickoff);
+        await healPicks(week);
+        await healPicks(foundWeek);
+      } catch (error) {
+        console.error("Failed to heal DB game against future API schedule: ", error);
+        invalidDBGames.push(game);
+      }
     } else {
       invalidDBGames.push(game);
     }

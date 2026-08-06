@@ -15,10 +15,15 @@ export const handler: Handler<never, void> = async (_event, _context) => {
   const games = await getSingleWeekFromApi(currentWeek);
 
   for (const game of games) {
-    await updateSpreads(currentWeek, game);
+    try {
+      await updateSpreads(currentWeek, game);
 
-    for (const team of game.team) {
-      await updateTeamData(team.id, team, currentWeek);
+      for (const team of game.team) {
+        // react-doctor-disable-next-line async-await-in-loop -- team updates for this game are sequential DB writes, not independent work
+        await updateTeamData(team.id, team, currentWeek);
+      }
+    } catch (error) {
+      console.error("Failed to update spread/team data for game, continuing with remaining games", { error, game });
     }
   }
 

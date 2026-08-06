@@ -33,8 +33,20 @@ export const getArticlesForWeek = async (week: number) => {
   const firstGameDate = firstGame.GameKickoff.toISOString().substring(0, 10);
   const url = getAPINewsURL(week, firstGameDate);
   const response = await fetch(url);
+
+  if (!response.ok) {
+    console.error("Error calling news API", { response, week });
+
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
   const jsonResponse = await response.json();
   const apiResults = newsArticlesSchema(jsonResponse);
+
+  if (apiResults instanceof type.errors) {
+    console.error("News API returned invalid data, cannot parse", { error: apiResults.summary, week });
+  }
+
   const filteredArticles = !(apiResults instanceof type.errors)
     ? apiResults.articles.filter((article) => !!article.author && !!article.urlToImage)
     : [];

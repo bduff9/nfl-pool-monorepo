@@ -34,38 +34,44 @@ export const handler: Handler<never, void> = async (_event, _context) => {
       // Clear/reset old data
       await populateWinnerHistory(trx);
       await sql<void>`SET FOREIGN_KEY_CHECKS = 0`.execute(trx);
-      await Promise.all([
-        trx.deleteFrom("ApiCalls").executeTakeFirstOrThrow(),
-        trx.deleteFrom("Emails").executeTakeFirstOrThrow(),
-        trx.deleteFrom("Logs").executeTakeFirstOrThrow(),
-        trx.deleteFrom("Picks").executeTakeFirstOrThrow(),
-        trx.deleteFrom("Tiebreakers").executeTakeFirstOrThrow(),
-        trx.deleteFrom("OverallMV").executeTakeFirstOrThrow(),
-        trx.deleteFrom("WeeklyMV").executeTakeFirstOrThrow(),
-        trx.deleteFrom("SurvivorPicks").executeTakeFirstOrThrow(),
-        trx.deleteFrom("SurvivorMV").executeTakeFirstOrThrow(),
-        trx.deleteFrom("Games").executeTakeFirstOrThrow(),
-        trx
-          .updateTable("Teams")
-          .set({
-            TeamByeWeek: 0,
-            TeamPassDefenseRank: null,
-            TeamPassOffenseRank: null,
-            TeamRushDefenseRank: null,
-            TeamRushOffenseRank: null,
-          })
-          .executeTakeFirstOrThrow(),
-        clearOldUserData(trx),
-        trx.deleteFrom("VerificationRequests").executeTakeFirstOrThrow(),
-        trx.deleteFrom("Sessions").executeTakeFirstOrThrow(),
-        trx.deleteFrom("Payments").executeTakeFirstOrThrow(),
-        trx
-          .updateTable("SystemValues")
-          .set({ SystemValueUpdated: new Date(), SystemValueUpdatedBy: ADMIN_USER, SystemValueValue: null })
-          .where("SystemValueName", "in", ["OverallPrizes", "WeeklyPrizes", "SurvivorPrizes"])
-          .executeTakeFirstOrThrow(),
-      ]);
-      await sql<void>`SET FOREIGN_KEY_CHECKS = 1`.execute(trx);
+
+      try {
+        await Promise.all([
+          trx.deleteFrom("ApiCalls").executeTakeFirstOrThrow(),
+          trx.deleteFrom("Emails").executeTakeFirstOrThrow(),
+          trx.deleteFrom("Logs").executeTakeFirstOrThrow(),
+          trx.deleteFrom("Picks").executeTakeFirstOrThrow(),
+          trx.deleteFrom("Tiebreakers").executeTakeFirstOrThrow(),
+          trx.deleteFrom("OverallMV").executeTakeFirstOrThrow(),
+          trx.deleteFrom("WeeklyMV").executeTakeFirstOrThrow(),
+          trx.deleteFrom("SurvivorPicks").executeTakeFirstOrThrow(),
+          trx.deleteFrom("SurvivorMV").executeTakeFirstOrThrow(),
+          trx.deleteFrom("Games").executeTakeFirstOrThrow(),
+          trx
+            .updateTable("Teams")
+            .set({
+              TeamByeWeek: 0,
+              TeamPassDefenseRank: null,
+              TeamPassOffenseRank: null,
+              TeamRushDefenseRank: null,
+              TeamRushOffenseRank: null,
+            })
+            .executeTakeFirstOrThrow(),
+          clearOldUserData(trx),
+          trx.deleteFrom("VerificationRequests").executeTakeFirstOrThrow(),
+          trx.deleteFrom("Sessions").executeTakeFirstOrThrow(),
+          trx.deleteFrom("Payments").executeTakeFirstOrThrow(),
+          trx
+            .updateTable("SystemValues")
+            .set({ SystemValueUpdated: new Date(), SystemValueUpdatedBy: ADMIN_USER, SystemValueValue: null })
+            .where("SystemValueName", "in", ["OverallPrizes", "WeeklyPrizes", "SurvivorPrizes"])
+            .executeTakeFirstOrThrow(),
+        ]);
+      } finally {
+        // MySQL never rolls back a SET statement, so re-enable FK checks even if the
+        // deletes above threw, before this connection returns to the pool.
+        await sql<void>`SET FOREIGN_KEY_CHECKS = 1`.execute(trx);
+      }
 
       // Populate new season data
       await populateGames(trx, newSeason);
@@ -81,6 +87,8 @@ export const handler: Handler<never, void> = async (_event, _context) => {
     });
   } catch (error) {
     console.error("Error resetting pool:", error);
+
+    throw error;
   }
 
   console.log("Reset pool function ran!", new Date().toISOString());

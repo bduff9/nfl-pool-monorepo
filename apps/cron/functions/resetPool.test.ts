@@ -69,12 +69,12 @@ describe("resetPool handler", () => {
     expect(populateGames).toHaveBeenCalledWith(mockDb, [{ week: 1 }]);
   });
 
-  it("catches and logs an error instead of throwing when the reset transaction fails", async () => {
+  it("logs and rethrows when the reset transaction fails, so the Lambda reports failure", async () => {
     mockDb.executeTakeFirstOrThrow.mockRejectedValueOnce(new Error("deadlock"));
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
 
     const { handler } = await import("./resetPool");
-    await expect(handler(null as never, null as never, null as never)).resolves.toBeUndefined();
+    await expect(handler(null as never, null as never, null as never)).rejects.toThrow("deadlock");
 
     expect(consoleError).toHaveBeenCalledWith("Error resetting pool:", expect.any(Error));
     consoleError.mockRestore();

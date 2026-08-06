@@ -48,42 +48,47 @@ export const handler: Handler<never, void> = async (_event, _context) => {
   }
 
   for (const game of games) {
-    const kickoff = game.kickoff;
+    try {
+      const kickoff = game.kickoff;
 
-    for (const team of game.team) {
-      const dbTeam = await getTeamFromDB(team.id);
+      for (const team of game.team) {
+        const dbTeam = await getTeamFromDB(team.id);
 
-      await updateTeamData(dbTeam.TeamID, team, currentWeek);
-    }
-
-    if (now < kickoff || game.status === "SCHED") {
-      await updateSpreads(currentWeek, game);
-
-      continue;
-    }
-
-    const [homeTeam, visitingTeam] = parseTeamsFromApi(game.team);
-    let dbGame = await getDbGameFromApi(currentWeek, homeTeam.id, visitingTeam.id);
-    const oldStatus = dbGame.GameStatus;
-
-    if (oldStatus === "Pregame") {
-      await updateMissedPicks(dbGame);
-
-      if (dbGame.GameNumber === 1) {
-        await sendWeekStartedNotifications(currentWeek);
-        await markEmptySurvivorPicksAsDead(currentWeek);
-        await updateSurvivorMV(currentWeek);
+        // react-doctor-disable-next-line async-await-in-loop -- team updates for this game are sequential DB writes, not independent work
+        await updateTeamData(dbTeam.TeamID, team, currentWeek);
       }
-    }
 
-    dbGame = await updateDBGame(game, dbGame);
+      if (now < kickoff || game.status === "SCHED") {
+        await updateSpreads(currentWeek, game);
 
-    if (dbGame.GameStatus === "Final") {
-      gamesLeft--;
-
-      if (oldStatus !== dbGame.GameStatus) {
-        needMVsUpdated = true;
+        continue;
       }
+
+      const [homeTeam, visitingTeam] = parseTeamsFromApi(game.team);
+      let dbGame = await getDbGameFromApi(currentWeek, homeTeam.id, visitingTeam.id);
+      const oldStatus = dbGame.GameStatus;
+
+      if (oldStatus === "Pregame") {
+        await updateMissedPicks(dbGame);
+
+        if (dbGame.GameNumber === 1) {
+          await sendWeekStartedNotifications(currentWeek);
+          await markEmptySurvivorPicksAsDead(currentWeek);
+          await updateSurvivorMV(currentWeek);
+        }
+      }
+
+      dbGame = await updateDBGame(game, dbGame);
+
+      if (dbGame.GameStatus === "Final") {
+        gamesLeft--;
+
+        if (oldStatus !== dbGame.GameStatus) {
+          needMVsUpdated = true;
+        }
+      }
+    } catch (error) {
+      console.error("Failed to process game update, continuing with remaining games", { error, game });
     }
   }
 

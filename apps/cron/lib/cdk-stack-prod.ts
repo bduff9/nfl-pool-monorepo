@@ -20,9 +20,7 @@ export class CdkStackProd extends Stack {
     const environment: { [key: string]: string } = {
       API_HOST: process.env.API_HOST ?? "",
       API_NEWS_KEY: process.env.API_NEWS_KEY ?? "",
-      AWS_AK_ID: process.env.AWS_AK_ID ?? "",
       AWS_R: process.env.AWS_R ?? "",
-      AWS_SAK_ID: process.env.AWS_SAK_ID ?? "",
       BACKUP_BUCKET_NAME: "aswnn-mysql-backup.prod",
       BACKUP_KEEP_COUNT: process.env.BACKUP_KEEP_COUNT ?? "10",
       DATABASE_URL: process.env.DATABASE_URL_PROD ?? "",

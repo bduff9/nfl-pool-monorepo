@@ -21,8 +21,12 @@ export const handler: Handler<never, void> = async (_event, _context) => {
   const currentWeek = await getCurrentWeek();
 
   for (let week = currentWeek; week <= WEEKS_IN_SEASON; week++) {
-    await healWeek(week, season);
-    await healPicks(week);
+    try {
+      await healWeek(week, season);
+      await healPicks(week);
+    } catch (error) {
+      console.error("Failed to heal week, continuing with remaining weeks", { error, week });
+    }
   }
 
   console.log("Future game updater function ran!", new Date().toISOString());

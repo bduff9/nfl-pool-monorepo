@@ -41,7 +41,6 @@ export const handler: Handler<never, void> = async (_event, _context) => {
   console.log("Uploading to AWS S3 as blob:", blobName);
 
   const client = new S3Client({
-    credentials: { accessKeyId: process.env.AWS_AK_ID ?? "", secretAccessKey: process.env.AWS_SAK_ID ?? "" },
     region: process.env.AWS_R ?? "",
   });
 
