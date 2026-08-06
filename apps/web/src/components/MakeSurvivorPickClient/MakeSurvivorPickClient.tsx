@@ -3,7 +3,16 @@
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { useOffline } from "next/offline";
 import { useAction } from "next-safe-action/hooks";
-import { type Dispatch, type FC, type SetStateAction, useOptimistic, useRef, useState, useTransition } from "react";
+import {
+  type Dispatch,
+  type FC,
+  type SetStateAction,
+  useEffect,
+  useOptimistic,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import { FaAt, FaInfoCircle, FaTimesCircle } from "react-icons/fa";
 import { toast } from "sonner";
 
@@ -57,6 +66,13 @@ const SurvivorGameCard: FC<SurvivorGameCardProps> = ({
     setSurvivorPick(game.GameID, game.homeTeam?.TeamID ?? null);
   };
 
+  const [localKickoffTime, setLocalKickoffTime] = useState<string | null>(null);
+
+  useEffect(() => {
+    // react-doctor-disable-next-line react-hooks-js/set-state-in-effect -- the visitor's timezone is unknown during SSR, so this can only be formatted in their local timezone once mounted, same pattern as useNow.ts
+    setLocalKickoffTime(formatTimeFromKickoff(game.GameKickoff));
+  }, [game.GameKickoff]);
+
   return (
     <div className={cn("w-full md:w-1/2 lg:w-1/3 2xl:w-1/4 flex flex-wrap pb-3 relative h-48")}>
       <button
@@ -68,7 +84,7 @@ const SurvivorGameCard: FC<SurvivorGameCardProps> = ({
         type="button"
       >
         <div>{formatDateForKickoff(game.GameKickoff)}</div>
-        <div>{formatTimeFromKickoff(game.GameKickoff)}</div>
+        <div>{localKickoffTime}</div>
         <div>{selectedGame ? <FaTimesCircle className="text-red-500" /> : <FaInfoCircle />}</div>
       </button>
       <SurvivorTeam

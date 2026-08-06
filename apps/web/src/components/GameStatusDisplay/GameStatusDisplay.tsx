@@ -16,7 +16,7 @@
  * Home: https://asitewithnoname.com/
  */
 
-import type { FC } from "react";
+import { type FC, useEffect, useState } from "react";
 
 import { formatTimeFromKickoff } from "@/lib/dates";
 import { getShortQuarter } from "@/lib/strings";
@@ -29,12 +29,19 @@ type GameStatusDisplayProps = {
 };
 
 const GameStatusDisplay: FC<GameStatusDisplayProps> = ({ kickoff, gameStatus, timeLeft }) => {
+  const [localKickoffTime, setLocalKickoffTime] = useState<string | null>(null);
+
+  useEffect(() => {
+    // react-doctor-disable-next-line react-hooks-js/set-state-in-effect -- the visitor's timezone is unknown during SSR, so this can only be formatted in their local timezone once mounted, same pattern as useNow.ts
+    setLocalKickoffTime(formatTimeFromKickoff(kickoff));
+  }, [kickoff]);
+
   if (gameStatus === "Final") {
     return <>{gameStatus}</>;
   }
 
   if (gameStatus === "Pregame") {
-    return <>{formatTimeFromKickoff(kickoff)}</>;
+    return <>{localKickoffTime}</>;
   }
 
   return (
