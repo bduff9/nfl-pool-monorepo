@@ -35,12 +35,7 @@ export const PrizeInputsForm: FC<PrizeInputsFormProps> = ({
     <FormItem>
       <FormLabel className="required">Weekly 1st place</FormLabel>
       <FormControl>
-        <Input
-          {...field}
-          aria-invalid={!!fieldState.error}
-          className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-          type="number"
-        />
+        <Input {...field} className={cn("dark:bg-white", fieldState.error && "border-red-600")} type="number" />
       </FormControl>
       <FormMessage />
     </FormItem>
@@ -50,12 +45,7 @@ export const PrizeInputsForm: FC<PrizeInputsFormProps> = ({
     <FormItem>
       <FormLabel className="required">Weekly 2nd place</FormLabel>
       <FormControl>
-        <Input
-          {...field}
-          aria-invalid={!!fieldState.error}
-          className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-          type="number"
-        />
+        <Input {...field} className={cn("dark:bg-white", fieldState.error && "border-red-600")} type="number" />
       </FormControl>
       <FormMessage />
     </FormItem>
@@ -65,12 +55,7 @@ export const PrizeInputsForm: FC<PrizeInputsFormProps> = ({
     <FormItem>
       <FormLabel className="required">Overall 1st place</FormLabel>
       <FormControl>
-        <Input
-          {...field}
-          aria-invalid={!!fieldState.error}
-          className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-          type="number"
-        />
+        <Input {...field} className={cn("dark:bg-white", fieldState.error && "border-red-600")} type="number" />
       </FormControl>
       <FormMessage />
     </FormItem>
@@ -80,12 +65,7 @@ export const PrizeInputsForm: FC<PrizeInputsFormProps> = ({
     <FormItem>
       <FormLabel className="required h-5">Overall 2nd place</FormLabel>
       <FormControl>
-        <Input
-          {...field}
-          aria-invalid={!!fieldState.error}
-          className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-          type="number"
-        />
+        <Input {...field} className={cn("dark:bg-white", fieldState.error && "border-red-600")} type="number" />
       </FormControl>
       <FormMessage />
     </FormItem>
@@ -95,12 +75,7 @@ export const PrizeInputsForm: FC<PrizeInputsFormProps> = ({
     <FormItem>
       <FormLabel className="required h-5">Overall 3rd place</FormLabel>
       <FormControl>
-        <Input
-          {...field}
-          aria-invalid={!!fieldState.error}
-          className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-          type="number"
-        />
+        <Input {...field} className={cn("dark:bg-white", fieldState.error && "border-red-600")} type="number" />
       </FormControl>
       <FormMessage />
     </FormItem>
@@ -110,12 +85,7 @@ export const PrizeInputsForm: FC<PrizeInputsFormProps> = ({
     <FormItem>
       <FormLabel className="required h-5">Survivor 1st place</FormLabel>
       <FormControl>
-        <Input
-          {...field}
-          aria-invalid={!!fieldState.error}
-          className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-          type="number"
-        />
+        <Input {...field} className={cn("dark:bg-white", fieldState.error && "border-red-600")} type="number" />
       </FormControl>
       <FormMessage />
     </FormItem>
@@ -125,12 +95,7 @@ export const PrizeInputsForm: FC<PrizeInputsFormProps> = ({
     <FormItem>
       <FormLabel className="required h-5">Survivor 2nd place</FormLabel>
       <FormControl>
-        <Input
-          {...field}
-          aria-invalid={!!fieldState.error}
-          className={cn("dark:bg-white", fieldState.error && "border-red-600")}
-          type="number"
-        />
+        <Input {...field} className={cn("dark:bg-white", fieldState.error && "border-red-600")} type="number" />
       </FormControl>
       <FormMessage />
     </FormItem>

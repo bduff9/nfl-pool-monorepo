@@ -363,6 +363,7 @@ const TextFilterInput = ({ field, onFilterChange, placeholder, value }: TextFilt
 
   return (
     <Input
+      aria-label={placeholder}
       className="max-w-sm dark:bg-white"
       onChange={handleChange}
       placeholder={placeholder}
