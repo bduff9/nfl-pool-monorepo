@@ -132,7 +132,7 @@ export const UserRowActions: FC<UserRowActionsProps> = ({ trustedUsers, user }) 
         <Dialog onOpenChange={setPaidModalOpen} open={paidModalOpen}>
           <DialogTrigger asChild>
             <Button
-              aria-label={`${user.UserFirstName} ${user.UserLastName} has paid $${user.UserPaid} / $${user.UserOwes}`}
+              aria-label={`${user.UserFirstName} ${user.UserLastName} has paid $${user.UserPaid ?? 0} / $${user.UserOwes ?? 0}`}
               variant="ghost"
             >
               <FaDollarSign
