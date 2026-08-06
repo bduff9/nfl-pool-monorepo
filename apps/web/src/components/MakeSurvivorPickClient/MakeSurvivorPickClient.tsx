@@ -7,6 +7,7 @@ import { type Dispatch, type FC, type SetStateAction, useOptimistic, useRef, use
 import { FaAt, FaInfoCircle, FaTimesCircle } from "react-icons/fa";
 import { toast } from "sonner";
 
+import { onActionError } from "@/lib/actionErrorToast";
 import { SURVIVOR_PICK_INSTRUCTIONS } from "@/lib/constants";
 import { formatDateForKickoff, formatTimeFromKickoff } from "@/lib/dates";
 import { makeSurvivorPick } from "@/server/actions/survivor";
@@ -117,10 +118,8 @@ const MakeSurvivorPickClient: FC<Props> = ({ games, survivorPicks, teamsOnBye, w
   const [, startSurvivorPickUpdating] = useTransition();
 
   const { execute: executeSurvivorPick } = useAction(makeSurvivorPick, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description: error.serverError ?? "Please check the information you are submitting.",
-      });
+    onError: (args) => {
+      onActionError(args);
       startSurvivorPickUpdating(() => {
         setOptimisticPick(previousTeamIdRef.current);
       });

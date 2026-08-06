@@ -14,6 +14,7 @@ type PicksBoardProps = {
   available: Array<number>;
   dragGameID: null | string;
   loading: LoadingType | null;
+  now: Date;
   onDragEnd: (result: DropResult) => void;
   onDragStart: (initial: DragStart) => void;
   optimisticPicks: Awaited<ReturnType<typeof getMyWeeklyPicks>>;
@@ -25,12 +26,21 @@ type PickGameRowProps = {
   dragGameID: null | string;
   gameCount: number;
   loading: LoadingType | null;
+  now: Date;
   pick: Awaited<ReturnType<typeof getMyWeeklyPicks>>[number];
   selectedGame: null | number;
   setSelectedGame: Dispatch<SetStateAction<null | number>>;
 };
 
-const PickGameRow: FC<PickGameRowProps> = ({ dragGameID, gameCount, loading, pick, selectedGame, setSelectedGame }) => {
+const PickGameRow: FC<PickGameRowProps> = ({
+  dragGameID,
+  gameCount,
+  loading,
+  now,
+  pick,
+  selectedGame,
+  setSelectedGame,
+}) => {
   const isSelected = pick.GameID === selectedGame;
 
   const onClick = () => {
@@ -49,6 +59,7 @@ const PickGameRow: FC<PickGameRowProps> = ({ dragGameID, gameCount, loading, pic
         isBackgrounded={!!selectedGame && pick.GameID !== selectedGame}
         isSelected={isSelected}
         loading={loading}
+        now={now}
         onClick={onClick}
         pick={pick}
       />
@@ -61,6 +72,7 @@ export const PicksBoard: FC<PicksBoardProps> = ({
   available,
   dragGameID,
   loading,
+  now,
   onDragEnd,
   onDragStart,
   optimisticPicks,
@@ -98,6 +110,7 @@ export const PicksBoard: FC<PicksBoardProps> = ({
             gameCount={optimisticPicks.length}
             key={`pick-id-${pick.PickID}`}
             loading={loading}
+            now={now}
             pick={pick}
             selectedGame={selectedGame}
             setSelectedGame={setSelectedGame}

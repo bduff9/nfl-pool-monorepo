@@ -26,6 +26,18 @@ import { LuChevronDown } from "react-icons/lu";
 import type { getMyTiebreaker } from "@/server/loaders/tiebreaker";
 
 import NavLink from "../NavLink/NavLink";
+import {
+  showAdminSection,
+  showDropOutOfSurvivor,
+  showMakePicks,
+  showMakeSurvivorPick,
+  showOverallResults,
+  showRegisterForSurvivor,
+  showScoreboard,
+  showViewAllPicks,
+  showViewSurvivorPicks,
+  showWeekResults,
+} from "./navVisibility";
 
 type SurvivorDialogState = {
   isPending: boolean;
@@ -91,10 +103,10 @@ export const SidebarNavigation: FC<SidebarNavigationProps> = ({
               <NavLink href="/" isNested>
                 My Dashboard
               </NavLink>
-              <NavLink href="/weekly" isNested show={weeklyMvCount > 0}>
+              <NavLink href="/weekly" isNested show={showWeekResults(weeklyMvCount)}>
                 Week Results
               </NavLink>
-              <NavLink href="/overall" isNested show={overallMvCount > 0}>
+              <NavLink href="/overall" isNested show={showOverallResults(overallMvCount)}>
                 Overall Results
               </NavLink>
             </SidebarGroupContent>
@@ -112,7 +124,7 @@ export const SidebarNavigation: FC<SidebarNavigationProps> = ({
           </SidebarGroupLabel>
           <CollapsibleContent>
             <SidebarGroupContent>
-              <NavLink href="/picks/set" isNested show={myTiebreaker?.TiebreakerHasSubmitted !== 1}>
+              <NavLink href="/picks/set" isNested show={showMakePicks(myTiebreaker?.TiebreakerHasSubmitted)}>
                 Make Picks
               </NavLink>
               <NavLink href="/picks/view" isNested>
@@ -121,7 +133,7 @@ export const SidebarNavigation: FC<SidebarNavigationProps> = ({
               <NavLink
                 href="/picks/viewall"
                 isNested
-                show={weeklyMvCount > 0 && myTiebreaker?.TiebreakerHasSubmitted === 1}
+                show={showViewAllPicks(weeklyMvCount, myTiebreaker?.TiebreakerHasSubmitted)}
               >
                 View All Picks
               </NavLink>
@@ -140,7 +152,7 @@ export const SidebarNavigation: FC<SidebarNavigationProps> = ({
           </SidebarGroupLabel>
           <CollapsibleContent>
             <SidebarGroupContent>
-              {!(hasSeasonStarted || user.playsSurvivor) && (
+              {showRegisterForSurvivor(hasSeasonStarted, user) && (
                 <AlertDialog onOpenChange={registerDialog.setOpen} open={registerDialog.open}>
                   <AlertDialogTrigger asChild>
                     <NavLink isNested>Register for Survivor</NavLink>
@@ -162,7 +174,7 @@ export const SidebarNavigation: FC<SidebarNavigationProps> = ({
                   </AlertDialogContent>
                 </AlertDialog>
               )}
-              {!hasSeasonStarted && !!user.playsSurvivor && (
+              {showDropOutOfSurvivor(hasSeasonStarted, user) && (
                 <AlertDialog onOpenChange={unregisterDialog.setOpen} open={unregisterDialog.open}>
                   <AlertDialogTrigger asChild>
                     <NavLink isNested>Drop out of Survivor</NavLink>
@@ -191,11 +203,11 @@ export const SidebarNavigation: FC<SidebarNavigationProps> = ({
               <NavLink
                 href="/survivor/set"
                 isNested
-                show={!!user.playsSurvivor && isAliveInSurvivor && selectedWeekStatus === "Not Started"}
+                show={showMakeSurvivorPick(user, isAliveInSurvivor, selectedWeekStatus)}
               >
                 Make Picks
               </NavLink>
-              <NavLink href="/survivor/view" isNested show={survivorMvCount > 0}>
+              <NavLink href="/survivor/view" isNested show={showViewSurvivorPicks(survivorMvCount)}>
                 View Picks
               </NavLink>
             </SidebarGroupContent>
@@ -204,7 +216,7 @@ export const SidebarNavigation: FC<SidebarNavigationProps> = ({
       </Collapsible>
 
       <SidebarMenuButton asChild>
-        <NavLink href="/scoreboard" show={!!user.doneRegistering}>
+        <NavLink href="/scoreboard" show={showScoreboard(user)}>
           NFL Scoreboard
         </NavLink>
       </SidebarMenuButton>
@@ -213,7 +225,7 @@ export const SidebarNavigation: FC<SidebarNavigationProps> = ({
         <NavLink href="/support">Help</NavLink>
       </SidebarMenuButton>
 
-      {user.isAdmin === 1 && (
+      {showAdminSection(user) && (
         <Collapsible className="group/collapsible" defaultOpen={currentPage === "Admin"}>
           <SidebarGroup>
             <SidebarGroupLabel asChild className="text-2xl text-sidebar-foreground">

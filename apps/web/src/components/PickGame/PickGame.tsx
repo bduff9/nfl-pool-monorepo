@@ -168,6 +168,7 @@ type PickGameProps = {
   gameCount: number;
   isBackgrounded?: boolean;
   loading: LoadingType | null;
+  now: Date;
   onClick: () => void;
   pick: Selectable<Picks> &
     Selectable<Games> & {
@@ -184,10 +185,11 @@ const PickGame: FC<PickGameProps> = ({
   isBackgrounded = false,
   isSelected = false,
   loading,
+  now,
   onClick,
   pick,
 }) => {
-  const hasStarted = new Date(pick.GameKickoff) < new Date();
+  const hasStarted = pick.GameKickoff < now;
   const hasMadePick = !!pick.pickTeam;
 
   return (

@@ -37,11 +37,13 @@ import {
 } from "react-icons/lu";
 import { toast } from "sonner";
 
+import { onActionError } from "@/lib/actionErrorToast";
 import { registerForSurvivor, unregisterForSurvivor } from "@/server/actions/survivor";
 import { setSelectedWeek } from "@/server/actions/week";
 import type { getMyTiebreaker } from "@/server/loaders/tiebreaker";
 
 import { ProgressBarLink, useProgressBar } from "../ProgressBar/ProgressBar";
+import { showAccountLinks } from "./navVisibility";
 import { SidebarNavigation } from "./SidebarNavigation";
 
 const getInitials = (fullName: string | null): string => {
@@ -108,11 +110,7 @@ const AppSidebarClient: FC<Props> = ({
   const [unregisterDialogOpen, setUnregisterDialogOpen] = useState<boolean>(false);
 
   const { execute: executeRegister, isPending: isRegisterPending } = useAction(registerForSurvivor, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description: error.serverError ?? "Please check the information you are submitting.",
-      });
-    },
+    onError: onActionError,
     onSuccess: () => {
       toast.success("You have successfully registered for survivor!");
       router.refresh();
@@ -121,11 +119,7 @@ const AppSidebarClient: FC<Props> = ({
   });
 
   const { execute: executeUnregister, isPending: isUnregisterPending } = useAction(unregisterForSurvivor, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description: error.serverError ?? "Please check the information you are submitting.",
-      });
-    },
+    onError: onActionError,
     onSuccess: () => {
       toast.success("You have successfully dropped out of survivor!");
       router.refresh();
@@ -302,14 +296,14 @@ const AppSidebarClient: FC<Props> = ({
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" side="right">
-                {user.doneRegistering === 1 && (
+                {showAccountLinks(user) && (
                   <DropdownMenuItem>
                     <ProgressBarLink href="/users/edit" onClick={handleEditAccountClick}>
                       Edit Account
                     </ProgressBarLink>
                   </DropdownMenuItem>
                 )}
-                {user.doneRegistering === 1 && (
+                {showAccountLinks(user) && (
                   <DropdownMenuItem>
                     <ProgressBarLink href="/users/payments" onClick={handleViewPaymentsClick}>
                       View Payments

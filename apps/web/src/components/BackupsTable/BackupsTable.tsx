@@ -10,6 +10,7 @@ import { type FC, type MouseEvent, useRef, useState } from "react";
 import { PiDatabaseDuotone, PiFootballDuotone } from "react-icons/pi";
 import { toast } from "sonner";
 
+import { onActionError } from "@/lib/actionErrorToast";
 import { formatDateForBackup } from "@/lib/dates";
 import { restoreBackup } from "@/server/actions/backup";
 import type { getAdminBackups } from "@/server/loaders/backup";
@@ -22,27 +23,23 @@ type Props = {
 };
 
 const BackupsTable: FC<Props> = ({ count, results }) => {
-  const [loading, setLoading] = useState<null | string>(null);
-  const [callback, setCallback] = useState<(() => void) | null>(null);
+  const [pendingBackupName, setPendingBackupName] = useState<null | string>(null);
+  const [restoringBackupName, setRestoringBackupName] = useState<null | string>(null);
   const toastIdRef = useRef<string | number | undefined>(undefined);
 
   const { execute: executeRestore } = useAction(restoreBackup, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description: error.serverError ?? "Please check the information you are submitting.",
-      });
-    },
+    onError: onActionError,
     onSettled: () => {
       if (toastIdRef.current) toast.dismiss(toastIdRef.current);
-      setCallback(null);
-      setLoading(null);
+      setRestoringBackupName(null);
     },
     onSuccess: () => {
-      toast.success(`Successfully restored backup ${loading}!`);
+      toast.success(`Successfully restored backup ${restoringBackupName}!`);
     },
   });
 
   const restoreABackup = (backupName: string): void => {
+    setRestoringBackupName(backupName);
     toastIdRef.current = toast.loading("Restoring...", {
       closeButton: false,
       dismissible: false,
@@ -58,13 +55,19 @@ const BackupsTable: FC<Props> = ({ count, results }) => {
       return;
     }
 
-    setLoading(backupName);
-    setCallback(() => () => restoreABackup(backupName));
+    setPendingBackupName(backupName);
+  };
+
+  const handleAcceptConfirmation = () => {
+    if (pendingBackupName) {
+      restoreABackup(pendingBackupName);
+    }
+
+    setPendingBackupName(null);
   };
 
   const handleCancelConfirmation = () => {
-    setCallback(null);
-    setLoading(null);
+    setPendingBackupName(null);
   };
 
   return (
@@ -102,7 +105,7 @@ const BackupsTable: FC<Props> = ({ count, results }) => {
               {results.map((backup) => (
                 <TableRow key={`backup-${backup.backupName}`}>
                   <TableHead className="flex justify-center items-center" scope="row">
-                    {loading === null && (
+                    {pendingBackupName === null && restoringBackupName === null && (
                       <button
                         aria-label={`Restore backup ${backup.backupName}`}
                         data-backup-name={backup.backupName}
@@ -112,7 +115,7 @@ const BackupsTable: FC<Props> = ({ count, results }) => {
                         <PiDatabaseDuotone className="cursor-pointer text-black size-4" />
                       </button>
                     )}
-                    {loading === backup.backupName && (
+                    {restoringBackupName === backup.backupName && (
                       <PiFootballDuotone
                         aria-hidden="true"
                         className="animate-spin hidden md:inline-block text-yellow-950"
@@ -128,11 +131,11 @@ const BackupsTable: FC<Props> = ({ count, results }) => {
           </Table>
         </div>
       </div>
-      {!!callback && (
+      {!!pendingBackupName && (
         <ConfirmationModal
           acceptButton="Restore"
-          body={`Are you certain you want to restore backup ${loading}?  This cannot be undone.`}
-          onAccept={callback}
+          body={`Are you certain you want to restore backup ${pendingBackupName}?  This cannot be undone.`}
+          onAccept={handleAcceptConfirmation}
           onCancel={handleCancelConfirmation}
           title="Are you sure?"
         />

@@ -19,6 +19,7 @@
 import { arktypeResolver } from "@hookform/resolvers/arktype";
 import { Form } from "@nfl-pool-monorepo/ui/components/form";
 
+import { onActionError } from "@/lib/actionErrorToast";
 import { processFormErrors } from "@/lib/form-errors";
 import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
 import { getFirstName, getFullName, getLastName } from "@/lib/user";
@@ -69,14 +70,9 @@ const FinishRegistrationForm: FC<FinishRegistrationFormProps> = ({
   );
 
   const { execute, isPending } = useAction(finishRegistration, {
-    onError: ({ error }) => {
-      console.error("Error during finish registration submit:", error);
-      toast.error("Something went wrong!", {
-        description:
-          typeof error.serverError === "string"
-            ? error.serverError
-            : "Please check the information you are submitting.",
-      });
+    onError: (args) => {
+      console.error("Error during finish registration submit:", args.error);
+      onActionError(args);
     },
     onSuccess: ({ data }) => {
       const isTrusted = data?.metadata?.isTrusted;

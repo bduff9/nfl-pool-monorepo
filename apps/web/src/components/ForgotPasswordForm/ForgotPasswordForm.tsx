@@ -12,10 +12,11 @@ import "client-only";
 
 import { useRouter } from "next/navigation";
 import { useAction } from "next-safe-action/hooks";
-import { type FC, useEffect, useState } from "react";
+import { type FC, useEffect, useRef, useState } from "react";
 import { type ControllerRenderProps, type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { onActionError } from "@/lib/actionErrorToast";
 import { processFormErrors } from "@/lib/form-errors";
 
 import FloatingLabelInput from "../FloatingLabelInput/FloatingLabelInput";
@@ -48,9 +49,14 @@ const ForgotPasswordForm: FC<Props> = ({ error }) => {
     resolver: arktypeResolver(verifyOtpSchema),
   });
 
+  const appliedErrorRef = useRef<string | undefined>(undefined);
+
   useEffect(() => {
-    if (error) {
+    if (error && error !== appliedErrorRef.current) {
+      appliedErrorRef.current = error;
+
       const formatted = formatError(error);
+
       if (step === "email") {
         emailForm.setError("root", { message: formatted });
       } else {
@@ -60,11 +66,7 @@ const ForgotPasswordForm: FC<Props> = ({ error }) => {
   }, [error, step, emailForm, otpForm]);
 
   const { execute: executeSendOTP, isPending: isSendingOTP } = useAction(sendPasswordResetOTP, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description: error.serverError ?? "Please check the information you are submitting.",
-      });
-    },
+    onError: onActionError,
     onSuccess: ({ input }) => {
       toast.success("Please check your email for the verification code.");
       emailForm.reset();
@@ -75,11 +77,7 @@ const ForgotPasswordForm: FC<Props> = ({ error }) => {
   });
 
   const { execute: executeVerifyOTP, isPending: isVerifyingOTP } = useAction(verifyOTPAndResetPassword, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description: error.serverError ?? "Please check the information you are submitting.",
-      });
-    },
+    onError: onActionError,
     onSuccess: () => {
       toast.success("Your password has been successfully reset");
       router.push("/");

@@ -21,6 +21,7 @@ import { FaDollarSign, FaThumbsDown, FaThumbsUp } from "react-icons/fa";
 import { PiFootballDuotone, PiIslandDuotone } from "react-icons/pi";
 import { toast } from "sonner";
 
+import { onActionError } from "@/lib/actionErrorToast";
 import { updateUserPaid } from "@/server/actions/payment";
 import { toggleUserSurvivor } from "@/server/actions/survivor";
 import { markUserAsTrusted, removeUserFromAdmin } from "@/server/actions/user";
@@ -41,11 +42,7 @@ export const UserRowActions: FC<UserRowActionsProps> = ({ trustedUsers, user }) 
   const [deleteUserModalOpen, setDeleteUserModalOpen] = useState<boolean>(false);
 
   const { execute: updatePaid, isPending: isPaidPending } = useAction(updateUserPaid, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description: error.serverError ?? "Please check the information you are submitting.",
-      });
-    },
+    onError: onActionError,
     onSuccess: () => {
       toast.success("Successfully updated user paid amount!");
       setPaidModalOpen(false);
@@ -53,11 +50,7 @@ export const UserRowActions: FC<UserRowActionsProps> = ({ trustedUsers, user }) 
   });
 
   const { execute: trustUser, isPending: isTrustUserPending } = useAction(markUserAsTrusted, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description: error.serverError ?? "Please check the information you are submitting.",
-      });
-    },
+    onError: onActionError,
     onSuccess: () => {
       toast.success("Successfully marked user as trusted!");
       setTrustUserModalOpen(false);
@@ -65,11 +58,7 @@ export const UserRowActions: FC<UserRowActionsProps> = ({ trustedUsers, user }) 
   });
 
   const { execute: deleteUser, isPending: isDeleteUserPending } = useAction(removeUserFromAdmin, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description: error.serverError ?? "Please check the information you are submitting.",
-      });
-    },
+    onError: onActionError,
     onSuccess: () => {
       toast.success("Successfully removed user!");
       setDeleteUserModalOpen(false);
@@ -77,11 +66,7 @@ export const UserRowActions: FC<UserRowActionsProps> = ({ trustedUsers, user }) 
   });
 
   const { execute: toggleSurvivor, isPending: isSurvivorPending } = useAction(toggleUserSurvivor, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description: error.serverError ?? "Please check the information you are submitting.",
-      });
-    },
+    onError: onActionError,
     onSuccess: () => {
       toast.success("Successfully updated user survivor status!");
     },

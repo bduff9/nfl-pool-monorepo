@@ -5,6 +5,7 @@ import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@nfl-pool-monorepo/ui/components/form";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 
+import { onActionError } from "@/lib/actionErrorToast";
 import { formatError } from "@/lib/auth.client";
 import { processFormErrors } from "@/lib/form-errors";
 import { loginSchema } from "@/lib/validation";
@@ -66,11 +67,7 @@ const LoginForm: FC<Props> = ({ error, isLogin }) => {
   }, [isLogin]);
 
   const { execute: executeLogin, isPending: isLoginPending } = useAction(login, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description: error.serverError ?? "Please check the information you are submitting.",
-      });
-    },
+    onError: onActionError,
     onSuccess: ({ data }) => {
       const redirectTo = data?.metadata?.redirectTo;
       toast.success("Successfully logged in!");
@@ -79,11 +76,7 @@ const LoginForm: FC<Props> = ({ error, isLogin }) => {
   });
 
   const { execute: executeRegister, isPending: isRegisterPending } = useAction(register, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description: error.serverError ?? "Please check the information you are submitting.",
-      });
-    },
+    onError: onActionError,
     onSuccess: ({ data }) => {
       const redirectTo = data?.metadata?.redirectTo;
       toast.success("Successfully registered!");
@@ -97,6 +90,14 @@ const LoginForm: FC<Props> = ({ error, isLogin }) => {
     } else {
       executeRegister(values);
     }
+  };
+
+  const getSubmitLabel = (): string => {
+    if (isLogin) {
+      return isLoginPending ? "Logging in..." : "Login";
+    }
+
+    return isRegisterPending ? "Registering..." : "Register";
   };
 
   return (
@@ -120,7 +121,7 @@ const LoginForm: FC<Props> = ({ error, isLogin }) => {
         )}
         <div className="grid gap-2 mb-2">
           <Button disabled={isLoginPending || isRegisterPending} type="submit" variant="primary">
-            {isLogin ? (isLoginPending ? "Logging in..." : "Login") : isRegisterPending ? "Registering..." : "Register"}
+            {getSubmitLabel()}
           </Button>
           {!!isLogin && (
             <Button asChild variant="outline">

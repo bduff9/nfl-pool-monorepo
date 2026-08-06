@@ -6,6 +6,8 @@ import { Label } from "@nfl-pool-monorepo/ui/components/label";
 import { useSidebar } from "@nfl-pool-monorepo/ui/components/sidebar";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 
+import { onActionError } from "@/lib/actionErrorToast";
+import { useNow } from "@/lib/hooks/useNow";
 import { parseDragData } from "@/lib/strings";
 import { setMyPick } from "@/server/actions/pick";
 import type { getMyWeeklyPicks } from "@/server/loaders/pick";
@@ -17,7 +19,6 @@ import { useAction } from "next-safe-action/hooks";
 import type { FC } from "react";
 import { useOptimistic, useState, useTransition } from "react";
 import { PiFootballDuotone } from "react-icons/pi";
-import { toast } from "sonner";
 
 import { PickActionsBar } from "./PickActionsBar";
 import { PicksBoard } from "./PicksBoard";
@@ -42,11 +43,7 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
   const lastGame = optimisticPicks[optimisticPicks.length - 1];
 
   const { execute: executeSetMyPick } = useAction(setMyPick, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description: error.serverError ?? "Please check the information you are submitting.",
-      });
-    },
+    onError: onActionError,
   });
 
   const onDragEnd = (result: DropResult): void => {
@@ -119,7 +116,7 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
   };
 
   const allUsedPoints = new Set<number>();
-  const now = new Date();
+  const now = useNow() ?? new Date(0);
 
   for (const pick of optimisticPicks) {
     if (pick.PickPoints && pick.pickTeam) {
@@ -167,6 +164,7 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
           available={available}
           dragGameID={dragGameID}
           loading={loading}
+          now={now}
           onDragEnd={onDragEnd}
           onDragStart={onDragStart}
           optimisticPicks={optimisticPicks}

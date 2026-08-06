@@ -45,6 +45,7 @@ const PasswordInput: FC<Props> = ({ isLogin, label, name, required = false }) =>
             type={passwordVisibility ? "text" : "password"}
           />
           <button
+            aria-label={passwordVisibility ? "Hide password" : "Show password"}
             className="absolute inset-y-0 right-0 flex cursor-pointer items-center p-3 text-muted-foreground"
             onClick={togglePasswordVisibility}
             type="button"

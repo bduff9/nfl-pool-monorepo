@@ -4,6 +4,7 @@ import { useAction } from "next-safe-action/hooks";
 import { type FocusEventHandler, type ReactNode, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { onActionError } from "@/lib/actionErrorToast";
 import type { AutoPickStrategy } from "@/lib/constants";
 import { autoPickMyPicks, resetMyPicksForWeek, submitMyPicks, validateMyPicks } from "@/server/actions/pick";
 import { updateMyTiebreakerScore } from "@/server/actions/tiebreaker";
@@ -47,18 +48,12 @@ export const usePickActions = ({
   const previousPicksRef = useRef<Awaited<ReturnType<typeof getMyWeeklyPicks>>>(optimisticPicks);
 
   const { execute: executeUpdateTiebreaker } = useAction(updateMyTiebreakerScore, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description: error.serverError ?? "Please check the information you are submitting.",
-      });
-    },
+    onError: onActionError,
   });
 
   const { execute: executeResetPicks } = useAction(resetMyPicksForWeek, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description: error.serverError ?? "Please check the information you are submitting.",
-      });
+    onError: (args) => {
+      onActionError(args);
       startPicksUpdating(() => {
         setOptimisticPicks(previousPicksRef.current);
       });
@@ -73,11 +68,7 @@ export const usePickActions = ({
   });
 
   const { execute: executeAutoPick } = useAction(autoPickMyPicks, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description: error.serverError ?? "Please check the information you are submitting.",
-      });
-    },
+    onError: onActionError,
     onSettled: () => {
       if (toastIdRef.current) toast.dismiss(toastIdRef.current);
       setLoading(null);
@@ -88,11 +79,7 @@ export const usePickActions = ({
   });
 
   const { execute: executeValidatePicks } = useAction(validateMyPicks, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description: error.serverError ?? "Please check the information you are submitting.",
-      });
-    },
+    onError: onActionError,
     onSettled: () => {
       if (toastIdRef.current) toast.dismiss(toastIdRef.current);
       setLoading(null);
@@ -110,11 +97,7 @@ export const usePickActions = ({
   });
 
   const { execute: executeSubmitPicks } = useAction(submitMyPicks, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description: error.serverError ?? "Please check the information you are submitting.",
-      });
-    },
+    onError: onActionError,
     onSettled: () => {
       if (toastIdRef.current) toast.dismiss(toastIdRef.current);
       setLoading(null);

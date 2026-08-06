@@ -6,6 +6,7 @@ import { urlBase64ToUint8Array } from "@/lib/strings";
 import { subscribeUser, unsubscribeUser } from "@/server/actions/device";
 
 type UsePushNotificationsResult = {
+  isSubscribing: boolean;
   isSupported: boolean | null;
   subscribeToPush: () => Promise<void>;
   subscription: PushSubscription | null;
@@ -15,6 +16,7 @@ type UsePushNotificationsResult = {
 export const usePushNotifications = (): UsePushNotificationsResult => {
   const [isSupported, setIsSupported] = useState<boolean | null>(null);
   const [subscription, setSubscription] = useState<PushSubscription | null>(null);
+  const [isSubscribing, setIsSubscribing] = useState<boolean>(false);
 
   useEffect(() => {
     const registerServiceWorker = async (): Promise<void> => {
@@ -41,6 +43,8 @@ export const usePushNotifications = (): UsePushNotificationsResult => {
   }, []);
 
   const subscribeToPush = async (): Promise<void> => {
+    setIsSubscribing(true);
+
     try {
       const registration = await navigator.serviceWorker.ready;
       // react-doctor-disable-next-line effect-needs-cleanup -- one-shot subscription from a user action, not an effect; the browser owns its lifetime
@@ -56,6 +60,8 @@ export const usePushNotifications = (): UsePushNotificationsResult => {
       console.error("Failed to enable push notifications", error);
       toast.error("Couldn't enable push notifications", { description: "Please try again." });
     }
+
+    setIsSubscribing(false);
   };
 
   const unsubscribeFromPush = async (): Promise<void> => {
@@ -69,5 +75,5 @@ export const usePushNotifications = (): UsePushNotificationsResult => {
     }
   };
 
-  return { isSupported, subscribeToPush, subscription, unsubscribeFromPush };
+  return { isSubscribing, isSupported, subscribeToPush, subscription, unsubscribeFromPush };
 };

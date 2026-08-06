@@ -17,16 +17,25 @@ export const subscribeUser = authActionClient
     const { agent, subscription } = parsedInput;
 
     try {
-      await db
-        .insertInto("Devices")
-        .values({
-          DeviceAddedBy: ctx.user.email,
-          DeviceSub: subscription,
-          DeviceType: agent,
-          DeviceUpdatedBy: ctx.user.email,
-          UserID: ctx.user.id,
-        })
-        .executeTakeFirstOrThrow();
+      const existingDevice = await db
+        .selectFrom("Devices")
+        .select("DeviceID")
+        .where("UserID", "=", ctx.user.id)
+        .where("DeviceSub", "=", subscription)
+        .executeTakeFirst();
+
+      if (!existingDevice) {
+        await db
+          .insertInto("Devices")
+          .values({
+            DeviceAddedBy: ctx.user.email,
+            DeviceSub: subscription,
+            DeviceType: agent,
+            DeviceUpdatedBy: ctx.user.email,
+            UserID: ctx.user.id,
+          })
+          .executeTakeFirstOrThrow();
+      }
     } catch (error) {
       console.error("Error subscribing user:", error);
 

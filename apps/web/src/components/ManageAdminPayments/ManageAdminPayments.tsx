@@ -27,6 +27,7 @@ import { type FC, useRef } from "react";
 import { type SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
+import { onActionError } from "@/lib/actionErrorToast";
 import { toArktypeResolver } from "@/lib/form-errors";
 import { payoutsSchema } from "@/lib/validation";
 import { updatePayouts } from "@/server/actions/systemValue";
@@ -34,20 +35,18 @@ import { updatePayouts } from "@/server/actions/systemValue";
 import { PrizeInputsForm } from "./PrizeInputsForm";
 
 type CalculatedRowProps = {
-  count?: null | number;
-  label: string;
   isBold?: boolean;
   isIndented?: boolean;
-  money?: null | number;
-  total?: null | number;
-};
+  label: string;
+} & ({ count: number; mode: "count"; money: null | number } | { mode: "total"; total: null | number });
 
-const CalculatedRow: FC<CalculatedRowProps> = ({ count, label, isBold = false, isIndented = false, money, total }) => {
-  const hasMiddleCol = total === undefined;
+const CalculatedRow: FC<CalculatedRowProps> = (props) => {
+  const { label, isBold = false, isIndented = false } = props;
+  const isCountMode = props.mode === "count";
 
   return (
     <TableRow className={cn("border-b-0", isBold && "font-bold")}>
-      <TableCell className={cn("relative overflow-hidden min-w-8 h-[41px]")} colSpan={hasMiddleCol ? 1 : 2}>
+      <TableCell className={cn("relative overflow-hidden min-w-8 h-[41px]")} colSpan={isCountMode ? 1 : 2}>
         <div
           className={cn(
             'absolute ps-1 after:content-["...................................................................................................."]',
@@ -57,19 +56,19 @@ const CalculatedRow: FC<CalculatedRowProps> = ({ count, label, isBold = false, i
           {label}
         </div>
       </TableCell>
-      {hasMiddleCol && (
+      {isCountMode && (
         <TableCell className="relative overflow-hidden">
           <div
             className={cn(
               'absolute ps-1 after:content-["...................................................................................................."]',
             )}
           >
-            ${money} x {count}
+            ${props.money} x {props.count}
           </div>
         </TableCell>
       )}
       <TableCell className={cn("relative text-end w-[60px]")}>
-        <div className="absolute">{hasMiddleCol ? `$${(count ?? 0) * (money ?? 0)}` : `$${total}`}</div>
+        <div className="absolute">{isCountMode ? `$${props.count * (props.money ?? 0)}` : `$${props.total}`}</div>
       </TableCell>
     </TableRow>
   );
@@ -150,11 +149,7 @@ const ManageAdminPayments: FC<Props> = ({
   const toastIdRef = useRef<string | number | undefined>(undefined);
 
   const { execute, isPending } = useAction(updatePayouts, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description: error.serverError ?? "Please check the information you are submitting.",
-      });
-    },
+    onError: onActionError,
     onSettled: () => {
       if (toastIdRef.current) toast.dismiss(toastIdRef.current);
     },
@@ -191,28 +186,30 @@ const ManageAdminPayments: FC<Props> = ({
           <div className="w-full md:w-1/3">
             <Table className="align-middle text-nowrap">
               <TableBody>
-                <CalculatedRow count={registeredCount} label="Pool Total" money={poolCost} />
+                <CalculatedRow count={registeredCount} label="Pool Total" mode="count" money={poolCost} />
                 <CalculatedRow
                   count={WEEKS_IN_SEASON}
                   isIndented
                   label="Weekly 1st place"
+                  mode="count"
                   money={weekly1stPrize ?? null}
                 />
                 <CalculatedRow
                   count={WEEKS_IN_SEASON}
                   isIndented
                   label="Weekly 2nd place"
+                  mode="count"
                   money={weekly2ndPrize ?? null}
                 />
-                <CalculatedRow isIndented label="Overall 1st place" total={overall1stPrize ?? null} />
-                <CalculatedRow isIndented label="Overall 2nd place" total={overall2ndPrize ?? null} />
-                <CalculatedRow isIndented label="Overall 3rd place" total={overall3rdPrize ?? null} />
-                <CalculatedRow isIndented label="Overall last place" total={poolCost} />
-                <CalculatedRow isBold isIndented label="Leftover" total={poolRemaining} />
-                <CalculatedRow count={survivorCount} label="Survivor Total" money={survivorCost} />
-                <CalculatedRow isIndented label="Survivor 1st place" total={survivor1stPrize ?? null} />
-                <CalculatedRow isIndented label="Survivor 2nd place" total={survivor2ndPrize ?? null} />
-                <CalculatedRow isBold isIndented label="Leftover" total={survivorRemaining} />
+                <CalculatedRow isIndented label="Overall 1st place" mode="total" total={overall1stPrize ?? null} />
+                <CalculatedRow isIndented label="Overall 2nd place" mode="total" total={overall2ndPrize ?? null} />
+                <CalculatedRow isIndented label="Overall 3rd place" mode="total" total={overall3rdPrize ?? null} />
+                <CalculatedRow isIndented label="Overall last place" mode="total" total={poolCost} />
+                <CalculatedRow isBold isIndented label="Leftover" mode="total" total={poolRemaining} />
+                <CalculatedRow count={survivorCount} label="Survivor Total" mode="count" money={survivorCost} />
+                <CalculatedRow isIndented label="Survivor 1st place" mode="total" total={survivor1stPrize ?? null} />
+                <CalculatedRow isIndented label="Survivor 2nd place" mode="total" total={survivor2ndPrize ?? null} />
+                <CalculatedRow isBold isIndented label="Leftover" mode="total" total={survivorRemaining} />
               </TableBody>
             </Table>
           </div>

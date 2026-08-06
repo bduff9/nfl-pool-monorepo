@@ -144,7 +144,9 @@ const RootLayout: FC<LayoutProps<"/">> = async ({ children }) => {
             <OfflineBanner />
             {user ? (
               <SidebarProvider defaultOpen={defaultOpen}>
-                <CommandMenu user={user} />
+                <Suspense fallback={null}>
+                  <CommandMenu user={user} />
+                </Suspense>
                 <Suspense
                   fallback={
                     <Sidebar>

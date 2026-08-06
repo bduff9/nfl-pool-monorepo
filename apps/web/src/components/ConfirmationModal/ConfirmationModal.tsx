@@ -26,8 +26,9 @@ import {
 import { LoaderCircle } from "lucide-react";
 import type { FC, ReactNode } from "react";
 import { useState } from "react";
+import { toast } from "sonner";
 
-type ConfirmationModal = {
+type ConfirmationModalProps = {
   acceptButton?: string;
   body: ReactNode;
   cancelButton?: string;
@@ -36,7 +37,7 @@ type ConfirmationModal = {
   title: string;
 };
 
-const ConfirmationModal: FC<ConfirmationModal> = ({
+const ConfirmationModal: FC<ConfirmationModalProps> = ({
   acceptButton = "OK",
   body,
   cancelButton = "Cancel",
@@ -54,8 +55,10 @@ const ConfirmationModal: FC<ConfirmationModal> = ({
       await onAccept();
       setOpen(false);
     } catch (error) {
-      setLoading(false);
-      throw error;
+      console.error("Failed to confirm action", error);
+      toast.error("Something went wrong!", {
+        description: error instanceof Error ? error.message : "Please try again.",
+      });
     }
 
     setLoading(false);

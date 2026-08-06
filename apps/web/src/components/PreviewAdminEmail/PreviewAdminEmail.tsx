@@ -24,7 +24,8 @@ import "client-only";
 
 import { useAction } from "next-safe-action/hooks";
 import { type FC, useEffect, useState } from "react";
-import { toast } from "sonner";
+
+import { onActionError } from "@/lib/actionErrorToast";
 
 type Props = {
   emailType: (typeof AdminEmailType)[number];
@@ -42,17 +43,8 @@ const PreviewAdminEmail: FC<Props> = ({ emailType, payload, userFirstName }) => 
   const [subjectPreview, setSubjectPreview] = useState<string>("");
   const [textPreview, setTextPreview] = useState<string>("");
 
-  const { execute: fetchPreview } = useAction(getEmailPreview, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description: error.serverError ?? "Please check the information you are submitting.",
-      });
-    },
-    onSuccess: ({ data }) => {
-      setHtmlPreview(data.metadata.html);
-      setSubjectPreview(data.metadata.subject);
-      setTextPreview(data.metadata.text);
-    },
+  const { executeAsync: fetchPreview } = useAction(getEmailPreview, {
+    onError: onActionError,
   });
 
   const canPreviewHtml = Boolean(body && subject && preview);
@@ -60,12 +52,24 @@ const PreviewAdminEmail: FC<Props> = ({ emailType, payload, userFirstName }) => 
   const canPreviewText = Boolean(body);
   const canPreview = canPreviewHtml || canPreviewSubject || canPreviewText;
 
-  useEffect((): void => {
-    if (!canPreview) {
-      return;
+  useEffect((): (() => void) => {
+    let isStale = false;
+
+    if (canPreview) {
+      fetchPreview({ body, emailType, preview, subject, userFirstName }).then((result) => {
+        if (isStale || !result?.data) {
+          return;
+        }
+
+        setHtmlPreview(result.data.metadata.html);
+        setSubjectPreview(result.data.metadata.subject);
+        setTextPreview(result.data.metadata.text);
+      });
     }
 
-    fetchPreview({ body, emailType, preview, subject, userFirstName });
+    return () => {
+      isStale = true;
+    };
   }, [canPreview, body, preview, subject, emailType, userFirstName, fetchPreview]);
 
   return (

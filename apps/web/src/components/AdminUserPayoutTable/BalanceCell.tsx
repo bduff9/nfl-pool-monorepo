@@ -7,6 +7,8 @@ import { type FC, useRef, useState } from "react";
 import { FaDollarSign } from "react-icons/fa";
 import { toast } from "sonner";
 
+import { onActionError } from "@/lib/actionErrorToast";
+import { getPayoutStatus } from "@/lib/payoutStatus";
 import { insertUserPayout } from "@/server/actions/payment";
 
 import AdminUserPayoutModal from "../AdminUserPayoutModal/AdminUserPayoutModal";
@@ -20,12 +22,8 @@ export const BalanceCell: FC<BalanceCellProps> = ({ prize }) => {
   const [modalOpen, setModalOpen] = useState<null | Prize>(null);
   const toastIdRef = useRef<string | number | undefined>(undefined);
 
-  const { execute: executeInsertPayout } = useAction(insertUserPayout, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description: error.serverError ?? "Please check the information you are submitting.",
-      });
-    },
+  const { executeAsync: executeInsertPayout } = useAction(insertUserPayout, {
+    onError: onActionError,
     onSettled: () => {
       if (toastIdRef.current) toast.dismiss(toastIdRef.current);
     },
@@ -41,12 +39,14 @@ export const BalanceCell: FC<BalanceCellProps> = ({ prize }) => {
       dismissible: false,
       duration: Infinity,
     });
-    executeInsertPayout({ amount, userID });
+    await executeInsertPayout({ amount, userID });
   };
 
   const handleOpenModal = () => setModalOpen(prize);
 
   const handleCloseModal = () => setModalOpen(null);
+
+  const payoutStatus = getPayoutStatus(Number(prize.UserBalance), Number(prize.UserWon));
 
   return (
     <>
@@ -54,11 +54,9 @@ export const BalanceCell: FC<BalanceCellProps> = ({ prize }) => {
         <FaDollarSign
           className={cn(
             "cursor-pointer size-8",
-            Number(prize.UserBalance) === Number(prize.UserWon)
-              ? "text-red-600"
-              : Number(prize.UserBalance) === 0
-                ? "text-green-600"
-                : "text-amber-600",
+            payoutStatus === "unpaid" && "text-red-600",
+            payoutStatus === "paid" && "text-green-600",
+            payoutStatus === "partial" && "text-amber-600",
           )}
         />
       </Button>

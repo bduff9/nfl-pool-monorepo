@@ -4,6 +4,7 @@ import { type DataTableFeatures, SortableColumnHeader } from "@nfl-pool-monorepo
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { ColumnDef } from "@tanstack/react-table";
 
+import { getPayoutStatus } from "@/lib/payoutStatus";
 import type { getUserPayoutsForAdmin } from "@/server/loaders/payment";
 
 import { BalanceCell } from "./BalanceCell";
@@ -26,15 +27,15 @@ export const prizeColumns: ColumnDef<DataTableFeatures, Prize>[] = [
   {
     accessorKey: "UserWon",
     cell: ({ row }) => {
+      const payoutStatus = getPayoutStatus(Number(row.original.UserBalance), Number(row.original.UserWon));
+
       return (
         <div
           className={cn(
             "text-right font-bold",
-            Number(row.original.UserBalance) === Number(row.original.UserWon)
-              ? "text-red-600"
-              : Number(row.original.UserBalance) === 0
-                ? "text-green-600 line-through"
-                : "text-amber-600",
+            payoutStatus === "unpaid" && "text-red-600",
+            payoutStatus === "paid" && "text-green-600 line-through",
+            payoutStatus === "partial" && "text-amber-600",
           )}
           title={`Paid out $${(row.original.UserWon ?? 0) - (row.original.UserBalance ?? 0)} / $${
             row.original.UserWon

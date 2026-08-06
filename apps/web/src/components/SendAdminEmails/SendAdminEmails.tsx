@@ -33,6 +33,7 @@ import { PiFootballDuotone } from "react-icons/pi";
 import { useQuill } from "react-quilljs";
 import { toast } from "sonner";
 
+import { onActionError } from "@/lib/actionErrorToast";
 import { AdminEmailTo, AdminEmailType } from "@/lib/constants";
 import { processFormErrors } from "@/lib/form-errors";
 import { sendAdminEmailSchema } from "@/lib/validation";
@@ -137,11 +138,7 @@ const SendAdminEmails: FC = () => {
   const toastIdRef = useRef<string | number | undefined>(undefined);
 
   const { execute, isPending } = useAction(sendAdminEmail, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description: error.serverError ?? "Please check the information you are submitting.",
-      });
-    },
+    onError: onActionError,
     onSettled: () => {
       if (toastIdRef.current) toast.dismiss(toastIdRef.current);
     },

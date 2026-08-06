@@ -20,6 +20,7 @@ import { arktypeResolver } from "@hookform/resolvers/arktype";
 import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import { Form } from "@nfl-pool-monorepo/ui/components/form";
 
+import { onActionError } from "@/lib/actionErrorToast";
 import { processFormErrors, toArktypeResolver } from "@/lib/form-errors";
 import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
 import { usePushNotifications } from "@/lib/hooks/usePushNotifications";
@@ -30,7 +31,7 @@ import type { getCurrentUser } from "@/server/loaders/user";
 import "client-only";
 
 import { useAction } from "next-safe-action/hooks";
-import { type FC, useRef } from "react";
+import { type FC, type ReactNode, useRef } from "react";
 import { type SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { PiFootballDuotone } from "react-icons/pi";
 import { toast } from "sonner";
@@ -61,7 +62,7 @@ const correctPhoneNumber = (phoneNumber: string | null): string | null => {
 };
 
 const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasGoogle }) => {
-  const { isSupported, subscribeToPush, subscription, unsubscribeFromPush } = usePushNotifications();
+  const { isSubscribing, isSupported, subscribeToPush, subscription, unsubscribeFromPush } = usePushNotifications();
 
   const form = useForm<typeof editProfileSchema.infer>({
     context: { myNotifications },
@@ -89,14 +90,7 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
   const toastIdRef = useRef<string | number | undefined>(undefined);
 
   const { execute, isPending } = useAction(action, {
-    onError: ({ error }) => {
-      toast.error("Something went wrong!", {
-        description:
-          typeof error.serverError === "string"
-            ? error.serverError
-            : "Please check the information you are submitting.",
-      });
-    },
+    onError: onActionError,
     onSettled: () => {
       if (toastIdRef.current) toast.dismiss(toastIdRef.current);
     },
@@ -108,6 +102,32 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
   });
 
   useBeforeUnload(form.formState.isDirty);
+
+  const renderPushNotificationSection = (): ReactNode => {
+    if (!isSupported) {
+      return <InstallPrompt />;
+    }
+
+    if (subscription) {
+      return (
+        <div>
+          <p>
+            <Button onClick={unsubscribeFromPush} type="button" variant="danger">
+              Click here to disable push notifications in the current browser.
+            </Button>
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <p>
+        <Button disabled={isSubscribing} onClick={subscribeToPush} type="button" variant="primary">
+          {isSubscribing ? "Enabling..." : "Click here to enable push notifications in the current browser."}
+        </Button>
+      </p>
+    );
+  };
 
   const onSubmit: SubmitHandler<typeof editProfileSchema.infer> = (data) => {
     toastIdRef.current = toast.loading("Saving...", {
@@ -152,27 +172,7 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
           ))}
 
           {isSupported !== null && (
-            <div className="col-span-full my-4 text-center">
-              {isSupported ? (
-                subscription ? (
-                  <div>
-                    <p>
-                      <Button onClick={unsubscribeFromPush} type="button" variant="danger">
-                        Click here to disable push notifications in the current browser.
-                      </Button>
-                    </p>
-                  </div>
-                ) : (
-                  <p>
-                    <Button onClick={subscribeToPush} type="button" variant="primary">
-                      Click here to enable push notifications in the current browser.
-                    </Button>
-                  </p>
-                )
-              ) : (
-                <InstallPrompt />
-              )}
-            </div>
+            <div className="col-span-full my-4 text-center">{renderPushNotificationSection()}</div>
           )}
 
           <TextSeparator className="col-span-full">Quick Login</TextSeparator>
