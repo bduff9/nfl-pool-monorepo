@@ -1,4 +1,5 @@
 import { useRouter } from "next/navigation";
+import { useOffline } from "next/offline";
 import { useAction } from "next-safe-action/hooks";
 import { type FocusEventHandler, type ReactNode, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -38,10 +39,12 @@ export const usePickActions = ({
   tiebreaker,
 }: UsePickActionsArgs) => {
   const router = useRouter();
+  const isOffline = useOffline();
   const [loading, setLoading] = useState<LoadingType | null>(null);
   const [tiebreakerLastScoreError, setTiebreakerLastScoreError] = useState<null | string>(null);
   const [callback, setCallback] = useState<ConfirmCallback | null>(null);
   const toastIdRef = useRef<string | number | undefined>(undefined);
+  const previousPicksRef = useRef<Awaited<ReturnType<typeof getMyWeeklyPicks>>>(optimisticPicks);
 
   const { execute: executeUpdateTiebreaker } = useAction(updateMyTiebreakerScore, {
     onError: ({ error }) => {
@@ -55,6 +58,9 @@ export const usePickActions = ({
     onError: ({ error }) => {
       toast.error("Something went wrong!", {
         description: error.serverError ?? "Please check the information you are submitting.",
+      });
+      startPicksUpdating(() => {
+        setOptimisticPicks(previousPicksRef.current);
       });
     },
     onSettled: () => {
@@ -147,6 +153,7 @@ export const usePickActions = ({
 
   const resetPicks = async (): Promise<void> => {
     setLoading("reset");
+    previousPicksRef.current = optimisticPicks;
     startPicksUpdating(() => {
       setOptimisticPicks(
         optimisticPicks.map((pick) => {
@@ -233,11 +240,14 @@ export const usePickActions = ({
       return;
     }
 
-    toastIdRef.current = toast.loading("Submitting...", {
-      closeButton: false,
-      dismissible: false,
-      duration: Infinity,
-    });
+    toastIdRef.current = toast.loading(
+      isOffline ? "You're offline - this will submit once you're back online" : "Submitting...",
+      {
+        closeButton: false,
+        dismissible: false,
+        duration: Infinity,
+      },
+    );
     executeSubmitPicks({ week: selectedWeek });
   };
 

@@ -14,9 +14,10 @@ import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 type Props = {
   error: Error & { digest?: string };
   reset: () => void;
+  retry: () => void;
 };
 
-const ErrorPage: FC<Props> = ({ error, reset }) => {
+const ErrorPage: FC<Props> = ({ error, reset, retry }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [image, setImage] = useState<string>("");
@@ -77,8 +78,13 @@ const ErrorPage: FC<Props> = ({ error, reset }) => {
           There has been an error.
         </h2>
         <div className="text-center mb-2">
-          <Button className="text-sky-600 text-4xl" onClick={reset} variant="link">
+          <Button className="text-sky-600 text-4xl" onClick={retry} variant="link">
             Please try again
+          </Button>
+        </div>
+        <div className="text-center mb-2">
+          <Button className="text-sky-600" onClick={reset} variant="link">
+            Still broken? Reset the page
           </Button>
         </div>
         {!isLoading && (

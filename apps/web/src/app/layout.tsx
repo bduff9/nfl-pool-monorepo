@@ -28,6 +28,7 @@ import { cookies } from "next/headers";
 
 import AppSidebar from "@/components/AppSidebar/AppSidebar";
 import { CommandMenu } from "@/components/CommandMenu/CommandMenu";
+import OfflineBanner from "@/components/OfflineBanner/OfflineBanner";
 import Providers from "@/components/Providers/providers";
 import { env } from "@/lib/env";
 import { getCurrentSession } from "@/server/loaders/sessions";
@@ -44,6 +45,11 @@ const appColor = "#8c8c8c";
 const siteName = "A Site With No Name";
 const ogImage = `${env.NEXT_PUBLIC_SITE_URL}/bkgd-pitch.png`;
 const twitterAccount = "@Duffmaster33";
+
+// This app is fully auth-gated - every route already reads cookies() to check the session,
+// so there's no static shell to produce. Opt the whole app out of Cache Components' static-shell
+// requirement rather than restructuring every route to carve out a cookie-free shell.
+export const instant = false;
 
 export const metadata: Metadata = {
   appleWebApp: {
@@ -135,6 +141,7 @@ const RootLayout: FC<LayoutProps<"/">> = async ({ children }) => {
 
         <body className="h-full bg-black bg-[url('/bkgd-pitch.png')] bg-no-repeat bg-fixed bg-top bg-cover">
           <Providers user={user}>
+            <OfflineBanner />
             {user ? (
               <SidebarProvider defaultOpen={defaultOpen}>
                 <CommandMenu user={user} />

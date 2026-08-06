@@ -20,7 +20,7 @@ import path from "node:path";
 import { getRandomInteger } from "@nfl-pool-monorepo/utils/numbers";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import Image from "next/image";
-import type { FC } from "react";
+import { type FC, Suspense } from "react";
 
 import "server-only";
 
@@ -32,7 +32,7 @@ import { getCurrentSession } from "@/server/loaders/sessions";
 
 import CustomHead from "../components/CustomHead/CustomHead";
 
-const NotFound: FC = async () => {
+const NotFoundContent: FC = async () => {
   const { user } = await getCurrentSession();
   const imagesDirectory = path.join(process.cwd(), "public", "404");
   const imageNames = await fs.readdir(imagesDirectory);
@@ -76,5 +76,11 @@ const NotFound: FC = async () => {
     </div>
   );
 };
+
+const NotFound: FC = () => (
+  <Suspense>
+    <NotFoundContent />
+  </Suspense>
+);
 
 export default NotFound;

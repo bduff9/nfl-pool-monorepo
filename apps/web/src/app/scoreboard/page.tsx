@@ -23,17 +23,74 @@ import "server-only";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import GameStatusDisplay from "@/components/GameStatusDisplay/GameStatusDisplay";
 import PageContent from "@/components/PageContent/PageContent";
+import RetryableSection from "@/components/RetryableSection/RetryableSection";
 import ScoreboardDate from "@/components/ScoreboardDate/ScoreboardDate";
 import ScoreboardTeam from "@/components/ScoreboardTeam/ScoreboardTeam";
 import { requireRegistered } from "@/lib/auth";
 import { formatDateForKickoff } from "@/lib/dates";
-import { getGamesForWeekCached } from "@/server/loaders/game";
+import { getGamesForWeekScoreboardCached } from "@/server/loaders/game";
 import { getSelectedWeek } from "@/server/loaders/week";
 
 const TITLE = "Scoreboard";
 
 export const metadata: Metadata = {
   title: TITLE,
+};
+
+type ScoreboardGamesProps = {
+  selectedWeek: number;
+};
+
+const ScoreboardGames: FC<ScoreboardGamesProps> = async ({ selectedWeek }) => {
+  const games = await getGamesForWeekScoreboardCached(selectedWeek);
+  let lastKickoff: string;
+
+  return (
+    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-x-5 px-3">
+      {games.map((game) => {
+        const currentKickoff = formatDateForKickoff(game.GameKickoff);
+        const differentKickoff = currentKickoff !== lastKickoff;
+        const isFirst = !lastKickoff;
+
+        lastKickoff = currentKickoff;
+
+        return (
+          <Fragment key={`game-${game.GameID}`}>
+            {differentKickoff && <ScoreboardDate isFirst={isFirst} kickoff={game.GameKickoff} />}
+            <div className="mb-3">
+              <div className={cn("p-3 flex bg-gray-100 border border-gray-500")}>
+                <div className={cn("flex shrink flex-wrap")}>
+                  <ScoreboardTeam
+                    gameStatus={game.GameStatus}
+                    hasPossession={game.GameHasPossession === game.HomeTeamID}
+                    isInRedzone={game.GameInRedzone === game.HomeTeamID}
+                    isWinner={game.WinnerTeamID === game.HomeTeamID}
+                    score={game.GameHomeScore}
+                    team={game.homeTeam}
+                  />
+                  <ScoreboardTeam
+                    gameStatus={game.GameStatus}
+                    hasPossession={game.GameHasPossession === game.VisitorTeamID}
+                    isInRedzone={game.GameInRedzone === game.VisitorTeamID}
+                    isWinner={game.WinnerTeamID === game.VisitorTeamID}
+                    score={game.GameVisitorScore}
+                    team={game.visitorTeam}
+                  />
+                </div>
+                <div className={cn("text-right pr-4 text-nowrap pt-4 text-lg grow")}>
+                  <GameStatusDisplay
+                    gameStatus={game.GameStatus}
+                    kickoff={game.GameKickoff}
+                    timeLeft={game.GameTimeLeftInQuarter}
+                  />
+                </div>
+              </div>
+            </div>
+          </Fragment>
+        );
+      })}
+    </div>
+  );
 };
 
 const Scoreboard: FC<PageProps<"/scoreboard">> = async () => {
@@ -44,57 +101,14 @@ const Scoreboard: FC<PageProps<"/scoreboard">> = async () => {
   }
 
   const selectedWeek = await getSelectedWeek();
-  const games = await getGamesForWeekCached(selectedWeek);
-  let lastKickoff: string;
 
   return (
     <div className="h-full flex flex-col md:mx-3">
       <CustomHead title={TITLE} />
       <PageContent className="pt-5 md:pt-3 pb-4">
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-x-5 px-3">
-          {games.map((game) => {
-            const currentKickoff = formatDateForKickoff(game.GameKickoff);
-            const differentKickoff = currentKickoff !== lastKickoff;
-            const isFirst = !lastKickoff;
-
-            lastKickoff = currentKickoff;
-
-            return (
-              <Fragment key={`game-${game.GameID}`}>
-                {differentKickoff && <ScoreboardDate isFirst={isFirst} kickoff={game.GameKickoff} />}
-                <div className="mb-3">
-                  <div className={cn("p-3 flex bg-gray-100 border border-gray-500")}>
-                    <div className={cn("flex shrink flex-wrap")}>
-                      <ScoreboardTeam
-                        gameStatus={game.GameStatus}
-                        hasPossession={game.GameHasPossession === game.HomeTeamID}
-                        isInRedzone={game.GameInRedzone === game.HomeTeamID}
-                        isWinner={game.WinnerTeamID === game.HomeTeamID}
-                        score={game.GameHomeScore}
-                        team={game.homeTeam}
-                      />
-                      <ScoreboardTeam
-                        gameStatus={game.GameStatus}
-                        hasPossession={game.GameHasPossession === game.VisitorTeamID}
-                        isInRedzone={game.GameInRedzone === game.VisitorTeamID}
-                        isWinner={game.WinnerTeamID === game.VisitorTeamID}
-                        score={game.GameVisitorScore}
-                        team={game.visitorTeam}
-                      />
-                    </div>
-                    <div className={cn("text-right pr-4 text-nowrap pt-4 text-lg grow")}>
-                      <GameStatusDisplay
-                        gameStatus={game.GameStatus}
-                        kickoff={game.GameKickoff}
-                        timeLeft={game.GameTimeLeftInQuarter}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </Fragment>
-            );
-          })}
-        </div>
+        <RetryableSection title="the scoreboard">
+          <ScoreboardGames selectedWeek={selectedWeek} />
+        </RetryableSection>
       </PageContent>
     </div>
   );

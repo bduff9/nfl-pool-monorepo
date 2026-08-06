@@ -27,6 +27,7 @@ import PageContent from "@/components/PageContent/PageContent";
 import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import ProgressChart from "@/components/ProgressChart/ProgressChart";
 import RankingPieChart from "@/components/RankingPieChart/RankingPieChart";
+import RetryableSection from "@/components/RetryableSection/RetryableSection";
 import { WeeklyDashboardResults, WeeklyDashboardTitle } from "@/components/WeeklyDashboard/WeeklyDashboard.client";
 import { requireRegistered } from "@/lib/auth";
 import { getCurrentUser } from "@/server/loaders/user";
@@ -37,6 +38,64 @@ const TITLE = "Weekly Ranks";
 
 export const metadata: Metadata = {
   title: TITLE,
+};
+
+type WeeklyRankingsTableProps = {
+  selectedWeek: number;
+};
+
+const WeeklyRankingsTable: FC<WeeklyRankingsTableProps> = async ({ selectedWeek }) => {
+  const [weeklyRankings, user] = await Promise.all([getWeeklyRankings(selectedWeek), getCurrentUser()]);
+
+  return (
+    <Table parentClassName="w-full mt-4 text-center">
+      <TableHeader>
+        <TableRow>
+          <TableHead className="text-center text-black font-semibold" scope="col">
+            Rank
+          </TableHead>
+          <TableHead className="text-center text-black font-semibold" scope="col">
+            Team
+          </TableHead>
+          <TableHead className="text-center text-black font-semibold" scope="col">
+            Owner
+          </TableHead>
+          <TableHead className="text-center text-black font-semibold" scope="col">
+            Points
+          </TableHead>
+          <TableHead className="text-center text-black font-semibold" scope="col">
+            Games Correct
+          </TableHead>
+          <TableHead className="text-center text-black font-semibold" scope="col">
+            Tiebreaker
+          </TableHead>
+          <TableHead className="text-center text-black font-semibold" scope="col">
+            Last Game
+          </TableHead>
+          <TableHead className="text-center text-black font-semibold" scope="col">
+            Eliminated
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {weeklyRankings.map((row) => (
+          <TableRow className={cn(row.UserID === user.UserID && "bg-amber-300")} key={`user-rank-for-${row.UserID}`}>
+            <TableHead className="text-center text-black font-semibold" scope="row">
+              {row.Tied ? "T" : ""}
+              {row.Rank}
+            </TableHead>
+            <TableCell>{row.TeamName}</TableCell>
+            <TableCell>{row.UserName}</TableCell>
+            <TableCell>{row.PointsEarned}</TableCell>
+            <TableCell>{row.GamesCorrect}</TableCell>
+            <TableCell>{row.TiebreakerScore}</TableCell>
+            <TableCell>{row.LastScore}</TableCell>
+            <TableCell className="text-red-700">{row.IsEliminated === 1 && <b>X</b>}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
 };
 
 const WeeklyRankings: FC<PageProps<"/weekly">> = async () => {
@@ -52,16 +111,11 @@ const WeeklyRankings: FC<PageProps<"/weekly">> = async () => {
   const weeklyTotalCountPromise = getWeeklyMvCount(selectedWeek);
   const weeklyTiedCountPromise = getWeeklyMvTiedCount(selectedWeek);
   const myWeeklyRankPromise = getMyWeeklyRank(selectedWeek);
-  const weeklyRankingsPromise = getWeeklyRankings(selectedWeek);
-  const userPromise = getCurrentUser();
-
-  const [weekStatus, weeklyTotalCount, weeklyTiedCount, myWeeklyRank, weeklyRankings, user] = await Promise.all([
+  const [weekStatus, weeklyTotalCount, weeklyTiedCount, myWeeklyRank] = await Promise.all([
     weekStatusPromise,
     weeklyTotalCountPromise,
     weeklyTiedCountPromise,
     myWeeklyRankPromise,
-    weeklyRankingsPromise,
-    userPromise,
   ]);
 
   if (weeklyTotalCount === 0) {
@@ -129,56 +183,9 @@ const WeeklyRankings: FC<PageProps<"/weekly">> = async () => {
               type="Games"
             />
           </div>
-          <Table parentClassName="w-full mt-4 text-center">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-center text-black font-semibold" scope="col">
-                  Rank
-                </TableHead>
-                <TableHead className="text-center text-black font-semibold" scope="col">
-                  Team
-                </TableHead>
-                <TableHead className="text-center text-black font-semibold" scope="col">
-                  Owner
-                </TableHead>
-                <TableHead className="text-center text-black font-semibold" scope="col">
-                  Points
-                </TableHead>
-                <TableHead className="text-center text-black font-semibold" scope="col">
-                  Games Correct
-                </TableHead>
-                <TableHead className="text-center text-black font-semibold" scope="col">
-                  Tiebreaker
-                </TableHead>
-                <TableHead className="text-center text-black font-semibold" scope="col">
-                  Last Game
-                </TableHead>
-                <TableHead className="text-center text-black font-semibold" scope="col">
-                  Eliminated
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {weeklyRankings.map((row) => (
-                <TableRow
-                  className={cn(row.UserID === user.UserID && "bg-amber-300")}
-                  key={`user-rank-for-${row.UserID}`}
-                >
-                  <TableHead className="text-center text-black font-semibold" scope="row">
-                    {row.Tied ? "T" : ""}
-                    {row.Rank}
-                  </TableHead>
-                  <TableCell>{row.TeamName}</TableCell>
-                  <TableCell>{row.UserName}</TableCell>
-                  <TableCell>{row.PointsEarned}</TableCell>
-                  <TableCell>{row.GamesCorrect}</TableCell>
-                  <TableCell>{row.TiebreakerScore}</TableCell>
-                  <TableCell>{row.LastScore}</TableCell>
-                  <TableCell className="text-red-700">{row.IsEliminated === 1 && <b>X</b>}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <RetryableSection title="the weekly rankings">
+            <WeeklyRankingsTable selectedWeek={selectedWeek} />
+          </RetryableSection>
         </div>
       </PageContent>
     </div>

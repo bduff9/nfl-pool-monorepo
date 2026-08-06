@@ -29,6 +29,7 @@ import PageContent from "@/components/PageContent/PageContent";
 import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import ProgressChart from "@/components/ProgressChart/ProgressChart";
 import RankingPieChart from "@/components/RankingPieChart/RankingPieChart";
+import RetryableSection from "@/components/RetryableSection/RetryableSection";
 import { requireRegistered } from "@/lib/auth";
 import {
   getMyOverallRank,
@@ -45,6 +46,54 @@ export const metadata: Metadata = {
   title: TITLE,
 };
 
+const OverallRankingsTable: FC = async () => {
+  const [overallRankings, user] = await Promise.all([getOverallRankings(), getCurrentUser()]);
+
+  return (
+    <Table parentClassName="w-full mt-4 text-center">
+      <TableHeader>
+        <TableRow>
+          <TableHead className="text-center text-black font-semibold" scope="col">
+            Rank
+          </TableHead>
+          <TableHead className="text-center text-black font-semibold" scope="col">
+            Team
+          </TableHead>
+          <TableHead className="text-center text-black font-semibold" scope="col">
+            Owner
+          </TableHead>
+          <TableHead className="text-center text-black font-semibold" scope="col">
+            Points
+          </TableHead>
+          <TableHead className="text-center text-black font-semibold" scope="col">
+            Games Correct
+          </TableHead>
+          <TableHead className="text-center text-black font-semibold" scope="col">
+            Missed Games?
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {overallRankings.map((row) => (
+          <tr className={cn(row.UserID === user.UserID && "bg-amber-300")} key={`user-rank-for-${row.UserID}`}>
+            <TableHead className="text-center text-black font-semibold" scope="row">
+              {row.Tied ? "T" : ""}
+              {row.Rank}
+            </TableHead>
+            <TableCell>{row.TeamName}</TableCell>
+            <TableCell>{row.UserName}</TableCell>
+            <TableCell>{row.PointsEarned}</TableCell>
+            <TableCell>{row.GamesCorrect}</TableCell>
+            <TableCell title={`Missed games: ${row.GamesMissed}`}>
+              {row.GamesMissed > 0 && <LuBadgeAlert className="text-red-700 mx-auto size-5" />}
+            </TableCell>
+          </tr>
+        ))}
+      </TableBody>
+    </Table>
+  );
+};
+
 const OverallRankings: FC<PageProps<"/overall">> = async () => {
   const redirectUrl = await requireRegistered();
 
@@ -56,16 +105,11 @@ const OverallRankings: FC<PageProps<"/overall">> = async () => {
   const myOverallRankPromise = getMyOverallRank();
   const overallTotalCountPromise = getOverallMvCount();
   const overallTiedCountPromise = getOverallMvTiedCount();
-  const overallRankingsPromise = getOverallRankings();
-  const userPromise = getCurrentUser();
-
-  const [seasonStatus, myOverallRank, overallTotalCount, overallTiedCount, overallRankings, user] = await Promise.all([
+  const [seasonStatus, myOverallRank, overallTotalCount, overallTiedCount] = await Promise.all([
     seasonStatusPromise,
     myOverallRankPromise,
     overallTotalCountPromise,
     overallTiedCountPromise,
-    overallRankingsPromise,
-    userPromise,
   ]);
 
   if (overallTotalCount === 0) {
@@ -133,47 +177,9 @@ const OverallRankings: FC<PageProps<"/overall">> = async () => {
               type="Games"
             />
           </div>
-          <Table parentClassName="w-full mt-4 text-center">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-center text-black font-semibold" scope="col">
-                  Rank
-                </TableHead>
-                <TableHead className="text-center text-black font-semibold" scope="col">
-                  Team
-                </TableHead>
-                <TableHead className="text-center text-black font-semibold" scope="col">
-                  Owner
-                </TableHead>
-                <TableHead className="text-center text-black font-semibold" scope="col">
-                  Points
-                </TableHead>
-                <TableHead className="text-center text-black font-semibold" scope="col">
-                  Games Correct
-                </TableHead>
-                <TableHead className="text-center text-black font-semibold" scope="col">
-                  Missed Games?
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {overallRankings.map((row) => (
-                <tr className={cn(row.UserID === user.UserID && "bg-amber-300")} key={`user-rank-for-${row.UserID}`}>
-                  <TableHead className="text-center text-black font-semibold" scope="row">
-                    {row.Tied ? "T" : ""}
-                    {row.Rank}
-                  </TableHead>
-                  <TableCell>{row.TeamName}</TableCell>
-                  <TableCell>{row.UserName}</TableCell>
-                  <TableCell>{row.PointsEarned}</TableCell>
-                  <TableCell>{row.GamesCorrect}</TableCell>
-                  <TableCell title={`Missed games: ${row.GamesMissed}`}>
-                    {row.GamesMissed > 0 && <LuBadgeAlert className="text-red-700 mx-auto size-5" />}
-                  </TableCell>
-                </tr>
-              ))}
-            </TableBody>
-          </Table>
+          <RetryableSection title="the overall rankings">
+            <OverallRankingsTable />
+          </RetryableSection>
         </div>
       </PageContent>
     </div>

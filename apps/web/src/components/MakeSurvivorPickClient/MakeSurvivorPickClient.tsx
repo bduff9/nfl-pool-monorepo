@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@nfl-pool-monorepo/utils/styles";
+import { useOffline } from "next/offline";
 import { useAction } from "next-safe-action/hooks";
 import {
   type Dispatch,
@@ -105,6 +106,7 @@ const SurvivorGameCard: FC<SurvivorGameCardProps> = ({
 };
 
 const MakeSurvivorPickClient: FC<Props> = ({ games, survivorPicks, teamsOnBye, week, weekInProgress }) => {
+  const isOffline = useOffline();
   const [selectedGame, setSelectedGame] = useState<null | (typeof games)[number]>(null);
   const [loading, setLoading] = useState<null | number>(null);
   const [optimisticPicks, setOptimisticPick] = useOptimistic(survivorPicks, (currentPicks, teamId: number | null) => {
@@ -120,12 +122,16 @@ const MakeSurvivorPickClient: FC<Props> = ({ games, survivorPicks, teamsOnBye, w
     });
   });
   const toastIdRef = useRef<string | number | undefined>(undefined);
+  const previousTeamIdRef = useRef<number | null>(null);
   const [, startSurvivorPickUpdating] = useTransition();
 
   const { execute: executeSurvivorPick } = useAction(makeSurvivorPick, {
     onError: ({ error }) => {
       toast.error("Something went wrong!", {
         description: error.serverError ?? "Please check the information you are submitting.",
+      });
+      startSurvivorPickUpdating(() => {
+        setOptimisticPick(previousTeamIdRef.current);
       });
     },
     onSettled: () => {
@@ -140,13 +146,17 @@ const MakeSurvivorPickClient: FC<Props> = ({ games, survivorPicks, teamsOnBye, w
   const setSurvivorPick = (gameID: number, teamID: number | null): void => {
     if (loading) return;
 
+    previousTeamIdRef.current = survivorPicks.find((pick) => pick.SurvivorPickWeek === week)?.TeamID ?? null;
     setLoading(teamID);
 
-    toastIdRef.current = toast.loading("Saving survivor pick...", {
-      closeButton: false,
-      dismissible: false,
-      duration: Infinity,
-    });
+    toastIdRef.current = toast.loading(
+      isOffline ? "You're offline - this will save once you're back online" : "Saving survivor pick...",
+      {
+        closeButton: false,
+        dismissible: false,
+        duration: Infinity,
+      },
+    );
 
     startSurvivorPickUpdating(() => {
       setOptimisticPick(teamID);
