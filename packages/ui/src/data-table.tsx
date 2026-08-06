@@ -258,17 +258,17 @@ export function DataTable<TData extends RowData, TValue>({
 
       {!hidePagination && (
         <div className="flex flex-wrap gap-x-2 mt-6 items-center">
-          <Button disabled={!table.getCanPreviousPage()} onClick={handleFirstPage}>
+          <Button aria-label="First page" disabled={!table.getCanPreviousPage()} onClick={handleFirstPage}>
             {"<<"}
           </Button>
-          <Button disabled={!table.getCanPreviousPage()} onClick={handlePreviousPage}>
+          <Button aria-label="Previous page" disabled={!table.getCanPreviousPage()} onClick={handlePreviousPage}>
             {"<"}
           </Button>
           <span className="text-nowrap">{`Page ${table.state.pagination.pageIndex + 1} of ${table.getPageCount()}`}</span>
-          <Button disabled={!table.getCanNextPage()} onClick={handleNextPage}>
+          <Button aria-label="Next page" disabled={!table.getCanNextPage()} onClick={handleNextPage}>
             {">"}
           </Button>
-          <Button disabled={!table.getCanNextPage()} onClick={handleLastPage}>
+          <Button aria-label="Last page" disabled={!table.getCanNextPage()} onClick={handleLastPage}>
             {">>"}
           </Button>
           <Select onValueChange={handlePageSizeChange} value={table.state.pagination.pageSize.toString()}>

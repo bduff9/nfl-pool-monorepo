@@ -141,8 +141,14 @@ export const PrizeInputsForm: FC<PrizeInputsFormProps> = ({
       <form onSubmit={form.handleSubmit(onSubmit, processFormErrors)}>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="grid gap-2">
-            <Label>Pool Cost</Label>
-            <Input className={cn("dark:bg-transparent border-0 shadow-none")} readOnly type="number" value={poolCost} />
+            <Label htmlFor="poolCost">Pool Cost</Label>
+            <Input
+              className={cn("dark:bg-transparent border-0 shadow-none")}
+              id="poolCost"
+              readOnly
+              type="number"
+              value={poolCost}
+            />
           </div>
 
           <FormField control={form.control} name="weekly1stPrize" render={renderWeekly1stPrizeField} />
@@ -158,14 +164,21 @@ export const PrizeInputsForm: FC<PrizeInputsFormProps> = ({
           <FormField control={form.control} name="overall3rdPrize" render={renderOverall3rdPrizeField} />
 
           <div className="grid gap-2">
-            <Label>Overall last place</Label>
-            <Input className={cn("dark:bg-transparent border-0 shadow-none")} readOnly type="number" value={poolCost} />
+            <Label htmlFor="overallLastPlace">Overall last place</Label>
+            <Input
+              className={cn("dark:bg-transparent border-0 shadow-none")}
+              id="overallLastPlace"
+              readOnly
+              type="number"
+              value={poolCost}
+            />
           </div>
 
           <div className="grid gap-2">
-            <Label>Survivor cost</Label>
+            <Label htmlFor="survivorCost">Survivor cost</Label>
             <Input
               className={cn("dark:bg-transparent border-0 shadow-none")}
+              id="survivorCost"
               readOnly
               type="number"
               value={survivorCost}
