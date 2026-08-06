@@ -52,7 +52,7 @@ type UserBestResult = {
 // --- Pure ranking functions (mirror SQL variable-rank logic) ---
 
 export const rankUsersWeekly = (users: WeeklyRankInput[]): Map<number, number> => {
-  const sorted = users.toSorted((a, b) => {
+  const sorted = [...users].sort((a, b) => {
     if (b.pointsEarned !== a.pointsEarned) return b.pointsEarned - a.pointsEarned;
     if (b.gamesCorrect !== a.gamesCorrect) return b.gamesCorrect - a.gamesCorrect;
 
@@ -99,7 +99,7 @@ export const rankUsersWeekly = (users: WeeklyRankInput[]): Map<number, number> =
 };
 
 export const rankUsersOverall = (users: OverallRankInput[]): Map<number, number> => {
-  const sorted = users.toSorted((a, b) => {
+  const sorted = [...users].sort((a, b) => {
     if (b.pointsEarned !== a.pointsEarned) return b.pointsEarned - a.pointsEarned;
     return b.gamesCorrect - a.gamesCorrect;
   });
