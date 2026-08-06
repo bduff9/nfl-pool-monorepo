@@ -43,16 +43,15 @@ type ScoreboardGamesProps = {
 
 const ScoreboardGames: FC<ScoreboardGamesProps> = async ({ selectedWeek }) => {
   const games = await getGamesForWeekScoreboardCached(selectedWeek);
-  let lastKickoff: string;
 
   return (
     <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-x-5 px-3">
-      {games.map((game) => {
+      {games.map((game, index) => {
         const currentKickoff = formatDateForKickoff(game.GameKickoff);
-        const differentKickoff = currentKickoff !== lastKickoff;
-        const isFirst = !lastKickoff;
-
-        lastKickoff = currentKickoff;
+        const previousGame = games[index - 1];
+        const previousKickoff = previousGame ? formatDateForKickoff(previousGame.GameKickoff) : undefined;
+        const differentKickoff = currentKickoff !== previousKickoff;
+        const isFirst = index === 0;
 
         return (
           <Fragment key={`game-${game.GameID}`}>
