@@ -101,9 +101,23 @@ export const GET = async (request: NextRequest, _ctx: RouteContext<"/login/googl
   }
 
   if (!user) {
-    user = await db.selectFrom("Users").select("UserID").where("UserEmail", "=", claims.email).executeTakeFirst();
+    const existingUserByEmail = await db
+      .selectFrom("Users")
+      .select("UserID")
+      .where("UserEmail", "=", claims.email)
+      .executeTakeFirst();
 
-    if (user) {
+    if (existingUserByEmail) {
+      if (!claims.email_verified) {
+        return new Response(
+          "This Google account's email address isn't verified. Please log in with your password instead.",
+          {
+            status: 403,
+          },
+        );
+      }
+
+      user = existingUserByEmail;
       status = "Existing";
     }
   }

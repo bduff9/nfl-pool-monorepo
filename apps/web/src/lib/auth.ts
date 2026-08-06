@@ -116,9 +116,9 @@ export const invalidateSession = async (sessionToken: string): Promise<void> => 
   await db.deleteFrom("Sessions").where("SessionToken", "=", sessionToken).executeTakeFirstOrThrow();
 };
 
-// const invalidateAllSessions = async (userId: number): Promise<void> => {
-//   await db.deleteFrom("Sessions").where("UserID", "=", userId).executeTakeFirstOrThrow();
-// };
+export const invalidateAllSessions = async (userId: number): Promise<void> => {
+  await db.deleteFrom("Sessions").where("UserID", "=", userId).execute();
+};
 
 export const setSessionTokenCookie = async (token: string, expiresAt: Date): Promise<void> => {
   const cookieStore = await cookies();

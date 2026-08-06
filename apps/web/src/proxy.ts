@@ -1,6 +1,9 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
+const REDIRECT_TO_SKIP_PREFIXES = ["/_next", "/api", "/auth", "/login"];
+const HAS_FILE_EXTENSION = /\.[a-zA-Z0-9]+$/;
+
 export const proxy = (request: NextRequest): NextResponse => {
   if (request.method === "GET" || request.method === "HEAD") {
     const response = NextResponse.next();
@@ -14,6 +17,20 @@ export const proxy = (request: NextRequest): NextResponse => {
         sameSite: "lax",
         secure: process.env.NODE_ENV === "production",
       });
+    } else {
+      const { pathname, search } = request.nextUrl;
+      const isSkippedPath =
+        REDIRECT_TO_SKIP_PREFIXES.some((prefix) => pathname.startsWith(prefix)) || HAS_FILE_EXTENSION.test(pathname);
+
+      if (!isSkippedPath) {
+        response.cookies.set("redirect_to", `${pathname}${search}`, {
+          httpOnly: true,
+          maxAge: 60 * 10,
+          path: "/",
+          sameSite: "lax",
+          secure: process.env.NODE_ENV === "production",
+        });
+      }
     }
 
     return response;

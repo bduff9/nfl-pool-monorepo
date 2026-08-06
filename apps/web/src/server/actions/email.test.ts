@@ -60,7 +60,7 @@ describe("getEmailPreview", () => {
       userFirstName: "Brian",
     });
 
-    expect(result?.serverError).toContain("not an admin");
+    expect(result?.serverError).toContain("Unauthorized");
   });
 
   it("throws for a non-Custom email type", async () => {
@@ -111,7 +111,7 @@ describe("sendAdminEmail", () => {
     const { sendAdminEmail } = await import("./email");
     const result = await sendAdminEmail(BASE_INPUT);
 
-    expect(result?.serverError).toContain("not an admin");
+    expect(result?.serverError).toContain("Unauthorized");
   });
 
   it("sends a custom email to every opted-in user when sendTo is All", async () => {

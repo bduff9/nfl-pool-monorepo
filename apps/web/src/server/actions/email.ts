@@ -8,7 +8,7 @@ import {
   getPlainText as getCustomPlainText,
 } from "@nfl-pool-monorepo/transactional/emails/templates/CustomEmail";
 
-import { actionClient, authActionClient } from "@/lib/safe-action";
+import { actionClient, adminActionClient } from "@/lib/safe-action";
 import { emailPreviewSchema, sendAdminEmailSchema, serverActionResultSchema } from "@/lib/validation";
 import "server-only";
 
@@ -16,14 +16,10 @@ import { type } from "arktype";
 
 import { getCurrentSession } from "../loaders/sessions";
 
-export const getEmailPreview = authActionClient
+export const getEmailPreview = adminActionClient
   .inputSchema(emailPreviewSchema)
   .outputSchema(serverActionResultSchema)
-  .action(async ({ ctx, parsedInput }) => {
-    if (ctx.user.isAdmin === 0) {
-      throw new Error("User is not an admin");
-    }
-
+  .action(async ({ parsedInput }) => {
     const { emailType, subject, body, preview, userFirstName } = parsedInput;
 
     if (emailType !== "Custom") {
@@ -59,14 +55,10 @@ export const getEmailPreview = authActionClient
     };
   });
 
-export const sendAdminEmail = authActionClient
+export const sendAdminEmail = adminActionClient
   .inputSchema(sendAdminEmailSchema)
   .outputSchema(serverActionResultSchema)
-  .action(async ({ ctx, parsedInput }) => {
-    if (ctx.user.isAdmin === 0) {
-      throw new Error("User is not an admin");
-    }
-
+  .action(async ({ parsedInput }) => {
     const { emailType, preview, sendTo, subject, body, userFirstName, userEmail } = parsedInput;
     let users: { UserEmail: string | null; UserFirstName: string | null }[] = [];
     const promises: Promise<void>[] = [];

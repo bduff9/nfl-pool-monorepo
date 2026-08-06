@@ -1,6 +1,6 @@
 "use server";
 
-import { randomInt } from "node:crypto";
+import { randomInt, timingSafeEqual } from "node:crypto";
 
 import type { DB, Users } from "@nfl-pool-monorepo/db/src";
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
@@ -21,6 +21,7 @@ import {
   createSession,
   generateSessionToken,
   hashPassword,
+  invalidateAllSessions,
   mxExists,
   setSessionTokenCookie,
   verifyPasswordHash,
@@ -301,9 +302,11 @@ export const login = actionClient
     const sessionToken = generateSessionToken();
     const session = await createSession(sessionToken, user.UserID);
 
-    setSessionTokenCookie(sessionToken, session.expiresAt);
+    await setSessionTokenCookie(sessionToken, session.expiresAt);
 
-    const redirectTo = (await cookies()).get("redirect_to")?.value ?? "";
+    const rawRedirect = (await cookies()).get("redirect_to")?.value ?? "";
+    // Ensure redirect is a relative path, not an external URL
+    const redirectTo = rawRedirect.startsWith("/") && !rawRedirect.startsWith("//") ? rawRedirect : "";
 
     return {
       metadata: { redirectTo },
@@ -429,7 +432,9 @@ export const register = actionClient
 
     await setSessionTokenCookie(sessionToken, session.expiresAt);
 
-    const redirectTo = (await cookies()).get("redirect_to")?.value ?? "";
+    const rawRedirect = (await cookies()).get("redirect_to")?.value ?? "";
+    // Ensure redirect is a relative path, not an external URL
+    const redirectTo = rawRedirect.startsWith("/") && !rawRedirect.startsWith("//") ? rawRedirect : "";
 
     return {
       metadata: { redirectTo },
@@ -558,7 +563,11 @@ export const verifyOTPAndResetPassword = actionClient
       throw new Error("Verification code has expired. Please request a new one.");
     }
 
-    if (verificationRequest.VerificationRequestToken !== otp) {
+    const storedTokenBuffer = Buffer.from(verificationRequest.VerificationRequestToken);
+    const otpBuffer = Buffer.from(otp);
+    const isOtpValid = storedTokenBuffer.length === otpBuffer.length && timingSafeEqual(storedTokenBuffer, otpBuffer);
+
+    if (!isOtpValid) {
       throw new Error("Invalid verification code. Please check your code and try again.");
     }
 
@@ -587,6 +596,7 @@ export const verifyOTPAndResetPassword = actionClient
         .executeTakeFirstOrThrow();
 
       await db.deleteFrom("VerificationRequests").where("VerificationRequestIdentifier", "=", email).execute();
+      await invalidateAllSessions(user.UserID);
 
       const sessionToken = generateSessionToken();
       const session = await createSession(sessionToken, user.UserID);

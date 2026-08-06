@@ -18,6 +18,7 @@ const sendUntrustedEmail = vi.fn();
 const createSession = vi.fn();
 const generateSessionToken = vi.fn();
 const hashPassword = vi.fn();
+const invalidateAllSessions = vi.fn();
 const mxExists = vi.fn();
 const setSessionTokenCookie = vi.fn();
 const verifyPasswordHash = vi.fn();
@@ -48,6 +49,7 @@ vi.mock("@/lib/auth", () => ({
   createSession,
   generateSessionToken,
   hashPassword,
+  invalidateAllSessions,
   mxExists,
   setSessionTokenCookie,
   verifyPasswordHash,
@@ -87,6 +89,7 @@ const resetAllMocks = () => {
     .mockResolvedValue({ expiresAt: new Date(Date.now() + 1000), id: "hashed-token", userId: 1 });
   generateSessionToken.mockReset().mockReturnValue("raw-token");
   hashPassword.mockReset().mockResolvedValue("hashed-password");
+  invalidateAllSessions.mockReset().mockResolvedValue(undefined);
   mxExists.mockReset().mockResolvedValue(true);
   setSessionTokenCookie.mockReset().mockResolvedValue(undefined);
   verifyPasswordHash.mockReset().mockResolvedValue(true);
