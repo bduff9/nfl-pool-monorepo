@@ -47,7 +47,7 @@ const ViewPayments: FC<PageProps<"/users/payments">> = async () => {
   let owed = 0;
 
   return (
-    <div className="h-full flex flex-wrap md:mx-3">
+    <div className="h-full flex flex-col md:mx-3">
       <CustomHead title="View Payments" />
       <PageContent className="pt-5 md:pt-3 pb-4">
         <Table>

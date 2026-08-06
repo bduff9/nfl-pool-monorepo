@@ -78,7 +78,7 @@ const OverallRankings: FC<PageProps<"/overall">> = async () => {
   const behindMe = overallTotalCount - me - overallTiedCount;
 
   return (
-    <div className="h-full flex flex-wrap md:mx-3">
+    <div className="h-full flex flex-col md:mx-3">
       <CustomHead title={TITLE} />
       <PageContent className="pt-0 md:pt-3 pb-4">
         <div className="flex flex-wrap">

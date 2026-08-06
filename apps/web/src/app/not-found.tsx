@@ -40,7 +40,7 @@ const NotFound: FC = async () => {
   const image = images[getRandomInteger(0, images.length)] ?? "";
 
   return (
-    <div className="flex flex-wrap md:mx-3">
+    <div className="flex flex-col md:mx-3">
       {!!user && (
         <div className="w-full px-1 pt-1">
           <SidebarTrigger className="size-10 md:size-7" />

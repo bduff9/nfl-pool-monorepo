@@ -104,7 +104,7 @@ const ViewSurvivor: FC<PageProps<"/survivor/view">> = async () => {
   }
 
   return (
-    <div className="h-full flex flex-wrap md:mx-3">
+    <div className="h-full flex flex-col md:mx-3">
       <CustomHead title="View Survivor Picks" />
       <PageContent className="pt-5 md:pt-3 pb-4">
         <div className="flex flex-col min-h-screen">

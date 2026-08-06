@@ -50,7 +50,7 @@ const ErrorPage: FC<Props> = ({ error, reset }) => {
   }, []);
 
   return (
-    <div className="flex flex-wrap md:mx-3">
+    <div className="flex flex-col md:mx-3">
       {!!isLoggedIn && (
         <div className="w-full px-1 pt-1">
           <SidebarTrigger className="size-10 md:size-7" />

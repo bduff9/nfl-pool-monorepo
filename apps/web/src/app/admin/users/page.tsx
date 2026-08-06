@@ -36,7 +36,7 @@ const AdminUsersPage: FC<PageProps<"/admin/users">> = async ({ searchParams }) =
   ]);
 
   return (
-    <div className="h-full flex flex-wrap md:mx-3">
+    <div className="h-full flex flex-col md:mx-3">
       <CustomHead title="User Admin" />
       <PageContent className="pt-5 md:pt-3 pb-4">
         <div className="flex flex-col min-h-screen py-4 px-6">

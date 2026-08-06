@@ -50,7 +50,7 @@ const ViewPicks: FC<PageProps<"/picks/view">> = async () => {
   const [myWeeklyPicks] = await Promise.all([myWeeklyPicksPromise]);
 
   return (
-    <div className="h-full flex flex-wrap md:mx-3">
+    <div className="h-full flex flex-col md:mx-3">
       <CustomHead title={`My Week ${selectedWeek} Picks`} />
       <PageContent className="pb-4">
         <div className="flex flex-col min-h-screen">

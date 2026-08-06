@@ -29,7 +29,7 @@ const QuickPickPage: FC<PageProps<"/quick-pick/[userId]/[teamId]">> = async ({ p
 
   if (!team) {
     return (
-      <div className="min-h-screen flex flex-wrap md:mx-3">
+      <div className="min-h-screen flex flex-col md:mx-3">
         <CustomHead title="Quick Pick" />
         <div
           className={cn(
@@ -46,7 +46,7 @@ const QuickPickPage: FC<PageProps<"/quick-pick/[userId]/[teamId]">> = async ({ p
   }
 
   return (
-    <div className="min-h-screen flex flex-wrap md:mx-3">
+    <div className="min-h-screen flex flex-col md:mx-3">
       <CustomHead title="Quick Pick" />
       <div
         className={cn(

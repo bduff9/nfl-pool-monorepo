@@ -41,7 +41,7 @@ const EditProfile: FC<PageProps<"/users/edit">> = async () => {
   const [hasGoogle, myNotifications] = await Promise.all([hasGooglePromise, myNotificationsPromise]);
 
   return (
-    <div className="h-full flex flex-wrap md:mx-3">
+    <div className="h-full flex flex-col md:mx-3">
       <CustomHead title="Edit My Profile" />
       <PageContent className="pt-5 md:pt-4 pb-6 px-3 grow shrink-0">
         <EditProfileForm
