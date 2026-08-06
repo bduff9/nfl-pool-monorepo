@@ -2,7 +2,16 @@
 
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { useAction } from "next-safe-action/hooks";
-import { type Dispatch, type FC, type SetStateAction, useCallback, useOptimistic, useRef, useState } from "react";
+import {
+  type Dispatch,
+  type FC,
+  type SetStateAction,
+  useCallback,
+  useOptimistic,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import { FaAt, FaInfoCircle, FaTimesCircle } from "react-icons/fa";
 import { toast } from "sonner";
 
@@ -111,6 +120,7 @@ const MakeSurvivorPickClient: FC<Props> = ({ games, survivorPicks, teamsOnBye, w
     });
   });
   const toastIdRef = useRef<string | number | undefined>(undefined);
+  const [, startSurvivorPickUpdating] = useTransition();
 
   const { execute: executeSurvivorPick } = useAction(makeSurvivorPick, {
     onError: ({ error }) => {
@@ -138,8 +148,10 @@ const MakeSurvivorPickClient: FC<Props> = ({ games, survivorPicks, teamsOnBye, w
       duration: Infinity,
     });
 
-    setOptimisticPick(teamID);
-    executeSurvivorPick({ gameID, teamID, week });
+    startSurvivorPickUpdating(() => {
+      setOptimisticPick(teamID);
+      executeSurvivorPick({ gameID, teamID, week });
+    });
   };
 
   return (
