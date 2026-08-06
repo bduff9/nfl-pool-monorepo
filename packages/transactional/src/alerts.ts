@@ -33,16 +33,20 @@ export const sendWeekEndedNotifications = async (week: number): Promise<void> =>
   });
 
   for (const { NotificationEmail, NotificationPushNotification, NotificationSMS, ...user } of notifications) {
-    if (NotificationEmail === 1) {
-      await sendWeekEndedEmail(user, week);
-    }
+    try {
+      if (NotificationEmail === 1) {
+        await sendWeekEndedEmail(user, week);
+      }
 
-    if (NotificationSMS === 1) {
-      await sendWeekEndedSMS(user, week);
-    }
+      if (NotificationSMS === 1) {
+        await sendWeekEndedSMS(user, week);
+      }
 
-    if (NotificationPushNotification === 1) {
-      await sendWeekEndedPushNotification(user, week);
+      if (NotificationPushNotification === 1) {
+        await sendWeekEndedPushNotification(user, week);
+      }
+    } catch (error) {
+      console.error(`Error sending week ended notifications to ${user.UserEmail}`, error);
     }
   }
 };
@@ -72,16 +76,20 @@ export const sendWeekStartedNotifications = async (week: number): Promise<void> 
   });
 
   for (const { NotificationEmail, NotificationPushNotification, NotificationSMS, ...user } of notifications) {
-    if (NotificationEmail === 1) {
-      await sendWeekStartedEmail(user, week);
-    }
+    try {
+      if (NotificationEmail === 1) {
+        await sendWeekStartedEmail(user, week);
+      }
 
-    if (NotificationSMS === 1) {
-      await sendWeekStartedSMS(user, week);
-    }
+      if (NotificationSMS === 1) {
+        await sendWeekStartedSMS(user, week);
+      }
 
-    if (NotificationPushNotification === 1) {
-      await sendWeekStartedPushNotification(user, week);
+      if (NotificationPushNotification === 1) {
+        await sendWeekStartedPushNotification(user, week);
+      }
+    } catch (error) {
+      console.error(`Error sending week started notifications to ${user.UserEmail}`, error);
     }
   }
 };

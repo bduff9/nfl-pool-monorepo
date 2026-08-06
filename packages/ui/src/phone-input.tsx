@@ -22,7 +22,7 @@ type PhoneInputProps = Omit<React.ComponentProps<"input">, "onChange" | "value" 
   };
 
 const PhoneInput: React.ForwardRefExoticComponent<PhoneInputProps> = React.forwardRef<
-  React.ElementRef<typeof RPNInput.default>,
+  React.ComponentRef<typeof RPNInput.default>,
   PhoneInputProps
 >(({ className, onChange, ...props }, ref) => {
   // react-phone-number-input might trigger the onChange event as undefined when a valid phone

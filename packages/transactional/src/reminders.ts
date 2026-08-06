@@ -44,43 +44,47 @@ export const sendReminderEmails = async (hoursLeft: number, week: number): Promi
   });
 
   for (const { NotificationType, UserID, UserEmail, UserFirstName } of notifications) {
-    let hasUserSubmittedForWeek: boolean;
+    try {
+      let hasUserSubmittedForWeek: boolean;
 
-    switch (NotificationType) {
-      case "PickReminder":
-        hasUserSubmittedForWeek = await hasUserSubmittedPicksForWeek(UserID, week);
+      switch (NotificationType) {
+        case "PickReminder":
+          hasUserSubmittedForWeek = await hasUserSubmittedPicksForWeek(UserID, week);
 
-        if (!hasUserSubmittedForWeek) {
-          await sendPickReminderEmail({ UserEmail, UserFirstName }, week, hoursLeft);
-        }
+          if (!hasUserSubmittedForWeek) {
+            await sendPickReminderEmail({ UserEmail, UserFirstName }, week, hoursLeft);
+          }
 
-        break;
-      case "SurvivorReminder":
-        hasUserSubmittedForWeek = await hasUserSubmittedSurvivorPickForWeek(UserID, week);
+          break;
+        case "SurvivorReminder":
+          hasUserSubmittedForWeek = await hasUserSubmittedSurvivorPickForWeek(UserID, week);
 
-        if (!hasUserSubmittedForWeek) {
-          await sendSurvivorReminderEmail({ UserEmail, UserFirstName }, week, hoursLeft);
-        }
+          if (!hasUserSubmittedForWeek) {
+            await sendSurvivorReminderEmail({ UserEmail, UserFirstName }, week, hoursLeft);
+          }
 
-        break;
-      case "QuickPick":
-        hasUserSubmittedForWeek = await hasUserPickedFirstGameForWeek(UserID, week);
+          break;
+        case "QuickPick":
+          hasUserSubmittedForWeek = await hasUserPickedFirstGameForWeek(UserID, week);
 
-        if (!hasUserSubmittedForWeek) {
-          await sendQuickPickEmail({ UserEmail, UserFirstName, UserID }, week, hoursLeft);
-        }
+          if (!hasUserSubmittedForWeek) {
+            await sendQuickPickEmail({ UserEmail, UserFirstName, UserID }, week, hoursLeft);
+          }
 
-        break;
-      default:
-        console.error("Invalid reminder email notification type found", {
-          hoursLeft,
-          NotificationType,
-          UserEmail,
-          UserFirstName,
-          UserID,
-          week,
-        });
-        break;
+          break;
+        default:
+          console.error("Invalid reminder email notification type found", {
+            hoursLeft,
+            NotificationType,
+            UserEmail,
+            UserFirstName,
+            UserID,
+            week,
+          });
+          break;
+      }
+    } catch (error) {
+      console.error(`Error sending reminder email to ${UserEmail}`, error);
     }
   }
 };
@@ -103,22 +107,26 @@ export const sendReminderPushNotifications = async (hoursLeft: number, week: num
   });
 
   for (const { NotificationType, UserID, UserFirstName } of notifications) {
-    switch (NotificationType) {
-      case "PickReminder":
-        await sendPickReminderPushNotification({ UserFirstName, UserID }, week, hoursLeft);
-        break;
-      case "SurvivorReminder":
-        await sendSurvivorReminderPushNotification({ UserFirstName, UserID }, week, hoursLeft);
-        break;
-      default:
-        console.error("Invalid reminder push notifications notification type found", {
-          hoursLeft,
-          NotificationType,
-          UserFirstName,
-          UserID,
-          week,
-        });
-        break;
+    try {
+      switch (NotificationType) {
+        case "PickReminder":
+          await sendPickReminderPushNotification({ UserFirstName, UserID }, week, hoursLeft);
+          break;
+        case "SurvivorReminder":
+          await sendSurvivorReminderPushNotification({ UserFirstName, UserID }, week, hoursLeft);
+          break;
+        default:
+          console.error("Invalid reminder push notifications notification type found", {
+            hoursLeft,
+            NotificationType,
+            UserFirstName,
+            UserID,
+            week,
+          });
+          break;
+      }
+    } catch (error) {
+      console.error(`Error sending reminder push notification to user ${UserID}`, error);
     }
   }
 };
@@ -141,34 +149,38 @@ export const sendReminderTexts = async (hoursLeft: number, week: number): Promis
   });
 
   for (const { NotificationType, UserID, UserFirstName, UserPhone } of notifications) {
-    let hasUserSubmittedForWeek: boolean;
+    try {
+      let hasUserSubmittedForWeek: boolean;
 
-    switch (NotificationType) {
-      case "PickReminder":
-        hasUserSubmittedForWeek = await hasUserSubmittedPicksForWeek(UserID, week);
+      switch (NotificationType) {
+        case "PickReminder":
+          hasUserSubmittedForWeek = await hasUserSubmittedPicksForWeek(UserID, week);
 
-        if (!hasUserSubmittedForWeek) {
-          await sendPickReminderSMS({ UserFirstName, UserPhone }, week, hoursLeft);
-        }
+          if (!hasUserSubmittedForWeek) {
+            await sendPickReminderSMS({ UserFirstName, UserPhone }, week, hoursLeft);
+          }
 
-        break;
-      case "SurvivorReminder":
-        hasUserSubmittedForWeek = await hasUserSubmittedSurvivorPickForWeek(UserID, week);
+          break;
+        case "SurvivorReminder":
+          hasUserSubmittedForWeek = await hasUserSubmittedSurvivorPickForWeek(UserID, week);
 
-        if (!hasUserSubmittedForWeek) {
-          await sendSurvivorReminderSMS({ UserFirstName, UserPhone }, week, hoursLeft);
-        }
+          if (!hasUserSubmittedForWeek) {
+            await sendSurvivorReminderSMS({ UserFirstName, UserPhone }, week, hoursLeft);
+          }
 
-        break;
-      default:
-        console.error("Invalid reminder SMS notification type found", {
-          hoursLeft,
-          NotificationType,
-          UserFirstName,
-          UserID,
-          week,
-        });
-        break;
+          break;
+        default:
+          console.error("Invalid reminder SMS notification type found", {
+            hoursLeft,
+            NotificationType,
+            UserFirstName,
+            UserID,
+            week,
+          });
+          break;
+      }
+    } catch (error) {
+      console.error(`Error sending reminder SMS to user ${UserID}`, error);
     }
   }
 };

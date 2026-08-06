@@ -86,7 +86,7 @@ export const updateAllPayouts = async (week: number, trx?: Transaction<DB>): Pro
         .insertInto("Payments")
         .values({
           PaymentAddedBy: ADMIN_USER,
-          PaymentAmount: adjustedPrizes[winner.Rank] as number,
+          PaymentAmount: adjustedPrizes[winner.Rank] ?? 0,
           PaymentDescription: `${addOrdinal(winner.Rank)} Place`,
           PaymentType: "Prize",
           PaymentUpdatedBy: ADMIN_USER,
@@ -116,7 +116,7 @@ export const updateAllPayouts = async (week: number, trx?: Transaction<DB>): Pro
         .insertInto("Payments")
         .values({
           PaymentAddedBy: ADMIN_USER,
-          PaymentAmount: adjustedPrizes[winner.Rank] as number,
+          PaymentAmount: adjustedPrizes[winner.Rank] ?? 0,
           PaymentDescription: `${addOrdinal(winner.Rank)} Place Overall`,
           PaymentType: "Prize",
           PaymentUpdatedBy: ADMIN_USER,
@@ -149,7 +149,7 @@ export const updateAllPayouts = async (week: number, trx?: Transaction<DB>): Pro
           .insertInto("Payments")
           .values({
             PaymentAddedBy: ADMIN_USER,
-            PaymentAmount: adjustedPrizes[winner.Rank] as number,
+            PaymentAmount: adjustedPrizes[winner.Rank] ?? 0,
             PaymentDescription: `Last Place Overall`,
             PaymentType: "Prize",
             PaymentUpdatedBy: ADMIN_USER,
@@ -179,7 +179,7 @@ export const updateAllPayouts = async (week: number, trx?: Transaction<DB>): Pro
         .insertInto("Payments")
         .values({
           PaymentAddedBy: ADMIN_USER,
-          PaymentAmount: adjustedPrizes[winner.Rank] as number,
+          PaymentAmount: adjustedPrizes[winner.Rank] ?? 0,
           PaymentDescription: `${addOrdinal(winner.Rank)} Place Survivor Pool`,
           PaymentType: "Prize",
           PaymentUpdatedBy: ADMIN_USER,

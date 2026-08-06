@@ -1,4 +1,5 @@
 import { MILLISECONDS_IN_SECOND, MINUTES_IN_HOUR, SECONDS_IN_MINUTE } from "@nfl-pool-monorepo/utils/constants";
+import { NoResultError } from "kysely";
 
 import { db } from "../kysely";
 
@@ -41,9 +42,13 @@ export const getCurrentWeek = async () => {
     if (!week) {
       week = nextGame.GameWeek;
     }
-  } catch (_) {
+  } catch (error) {
+    if (!(error instanceof NoResultError)) {
+      throw error;
+    }
+
     /**
-     * If the above fails, it's because all games are complete,
+     * If the above fails because no row was found, it's because all games are complete,
      * meaning the season is over.  Just get the highest week
      * number we have and use that.
      */
