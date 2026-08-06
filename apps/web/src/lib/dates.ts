@@ -35,6 +35,7 @@ export const formatDateForKickoff = (date: Date | string): string => {
   const options: Intl.DateTimeFormatOptions = {
     day: "numeric",
     month: "long",
+    timeZone: "UTC",
     weekday: "long",
   };
   const toFormat = new Date(date);
@@ -46,6 +47,7 @@ export const formatTimeFromKickoff = (date: Date | string): string => {
   const options: Intl.DateTimeFormatOptions = {
     hour: "numeric",
     minute: "2-digit",
+    timeZone: "UTC",
     timeZoneName: "short",
   };
   const toFormat = new Date(date);

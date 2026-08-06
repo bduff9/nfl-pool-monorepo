@@ -1,6 +1,25 @@
 import { describe, expect, it } from "vitest";
 
-import { getTimeRemainingString } from "./dates";
+import { formatDateForKickoff, formatTimeFromKickoff, getTimeRemainingString } from "./dates";
+
+describe("formatTimeFromKickoff", () => {
+  it("formats in UTC regardless of the runtime's local timezone", () => {
+    // 2026-01-04T18:00:00Z is 6:00 PM UTC no matter what timezone this test runs in -
+    // if the runtime's local timezone leaked in (the hydration-mismatch bug), this would
+    // instead reflect whatever TZ the test process happens to be running under.
+    const result = formatTimeFromKickoff(new Date("2026-01-04T18:00:00Z"));
+    expect(result).toBe("6:00 PM UTC");
+  });
+});
+
+describe("formatDateForKickoff", () => {
+  it("formats in UTC regardless of the runtime's local timezone", () => {
+    // 2026-01-04T23:30:00Z is still Sunday, January 4 in UTC even though it would already
+    // be Monday in timezones ahead of UTC - pins the date to avoid a day-boundary mismatch.
+    const result = formatDateForKickoff(new Date("2026-01-04T23:30:00Z"));
+    expect(result).toBe("Sunday, January 4");
+  });
+});
 
 describe("getTimeRemainingString", () => {
   it("returns empty string when total is 0 or negative", () => {
