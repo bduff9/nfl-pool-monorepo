@@ -20,22 +20,24 @@ export const sendCustomEmail = async ({
   const emailId = await getBaseEmailClass({ to: sendTo, type: "custom" });
   const browserLink = getBrowserLink(emailId);
   const unsubscribeLink = getUnsubscribeLink(sendTo);
-  const html = await getHtml({
-    browserLink,
-    html: body,
-    preview,
-    subject,
-    unsubscribeLink,
-    userFirstName: to.UserFirstName ?? "player",
-  });
-  const text = await getPlainText({
-    browserLink,
-    html: body,
-    preview,
-    subject,
-    unsubscribeLink,
-    userFirstName: to.UserFirstName ?? "player",
-  });
+  const [html, text] = await Promise.all([
+    getHtml({
+      browserLink,
+      html: body,
+      preview,
+      subject,
+      unsubscribeLink,
+      userFirstName: to.UserFirstName ?? "player",
+    }),
+    getPlainText({
+      browserLink,
+      html: body,
+      preview,
+      subject,
+      unsubscribeLink,
+      userFirstName: to.UserFirstName ?? "player",
+    }),
+  ]);
 
   try {
     await sendEmail({

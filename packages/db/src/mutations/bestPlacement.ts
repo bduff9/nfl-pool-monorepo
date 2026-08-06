@@ -52,7 +52,7 @@ type UserBestResult = {
 // --- Pure ranking functions (mirror SQL variable-rank logic) ---
 
 export const rankUsersWeekly = (users: WeeklyRankInput[]): Map<number, number> => {
-  const sorted = [...users].sort((a, b) => {
+  const sorted = users.toSorted((a, b) => {
     if (b.pointsEarned !== a.pointsEarned) return b.pointsEarned - a.pointsEarned;
     if (b.gamesCorrect !== a.gamesCorrect) return b.gamesCorrect - a.gamesCorrect;
 
@@ -99,7 +99,7 @@ export const rankUsersWeekly = (users: WeeklyRankInput[]): Map<number, number> =
 };
 
 export const rankUsersOverall = (users: OverallRankInput[]): Map<number, number> => {
-  const sorted = [...users].sort((a, b) => {
+  const sorted = users.toSorted((a, b) => {
     if (b.pointsEarned !== a.pointsEarned) return b.pointsEarned - a.pointsEarned;
     return b.gamesCorrect - a.gamesCorrect;
   });
@@ -170,10 +170,10 @@ export const computeBestPlacements = (
 
   const lastGameID =
     lastGameKickoff !== null
-      ? (undecidedGames
-          .filter((g) => g.gameKickoff.getTime() === lastGameKickoff.getTime())
-          .map((g) => g.gameID)
-          .pop() ?? null)
+      ? undecidedGames.reduce<number | null>(
+          (acc, g) => (g.gameKickoff.getTime() === lastGameKickoff.getTime() ? g.gameID : acc),
+          null,
+        )
       : null;
 
   for (let scenario = 0; scenario < scenarioCount; scenario++) {
@@ -315,27 +315,28 @@ const loadEligibleUsersForWeek = async (week: number): Promise<EligibleUser[]> =
 
   const userIDs = tiebreakers.map((t) => t.UserID);
 
-  const allPicks = await db
-    .selectFrom("Picks as P")
-    .innerJoin("Games as G", "G.GameID", "P.GameID")
-    .select(["P.UserID", "P.GameID as gameID", "P.TeamID as teamID", "P.PickPoints as pickPoints"])
-    .where("G.GameWeek", "=", week)
-    .where("P.UserID", "in", userIDs)
-    .execute();
-
-  const finalizedPicks = await db
-    .selectFrom("Picks as P")
-    .innerJoin("Games as G", "G.GameID", "P.GameID")
-    .select([
-      "P.UserID",
-      sql<number>`SUM(CASE WHEN P.TeamID = G.WinnerTeamID THEN P.PickPoints ELSE 0 END)`.as("pointsEarned"),
-      sql<number>`SUM(CASE WHEN P.TeamID = G.WinnerTeamID THEN 1 ELSE 0 END)`.as("gamesCorrect"),
-    ])
-    .where("G.GameWeek", "=", week)
-    .where("G.WinnerTeamID", "is not", null)
-    .where("P.UserID", "in", userIDs)
-    .groupBy("P.UserID")
-    .execute();
+  const [allPicks, finalizedPicks] = await Promise.all([
+    db
+      .selectFrom("Picks as P")
+      .innerJoin("Games as G", "G.GameID", "P.GameID")
+      .select(["P.UserID", "P.GameID as gameID", "P.TeamID as teamID", "P.PickPoints as pickPoints"])
+      .where("G.GameWeek", "=", week)
+      .where("P.UserID", "in", userIDs)
+      .execute(),
+    db
+      .selectFrom("Picks as P")
+      .innerJoin("Games as G", "G.GameID", "P.GameID")
+      .select([
+        "P.UserID",
+        sql<number>`SUM(CASE WHEN P.TeamID = G.WinnerTeamID THEN P.PickPoints ELSE 0 END)`.as("pointsEarned"),
+        sql<number>`SUM(CASE WHEN P.TeamID = G.WinnerTeamID THEN 1 ELSE 0 END)`.as("gamesCorrect"),
+      ])
+      .where("G.GameWeek", "=", week)
+      .where("G.WinnerTeamID", "is not", null)
+      .where("P.UserID", "in", userIDs)
+      .groupBy("P.UserID")
+      .execute(),
+  ]);
 
   const baseStats = new Map(
     finalizedPicks.map((f) => [f.UserID, { gamesCorrect: f.gamesCorrect, pointsEarned: f.pointsEarned }]),
@@ -435,8 +436,10 @@ const getTieTeamID = async (): Promise<number> => {
 
 export const updateBestPlacementWeekly = async (week: number): Promise<void> => {
   const startTime = Date.now();
-  const undecidedGames = await loadUndecidedGamesForWeek(week);
-  const eligibleUsers = await loadEligibleUsersForWeek(week);
+  const [undecidedGames, eligibleUsers] = await Promise.all([
+    loadUndecidedGamesForWeek(week),
+    loadEligibleUsersForWeek(week),
+  ]);
 
   if (eligibleUsers.length === 0) {
     console.log(`Best placement weekly: no eligible users for week ${week}`);
@@ -450,11 +453,12 @@ export const updateBestPlacementWeekly = async (week: number): Promise<void> => 
 
   if (K === 0) {
     const currentRanks = await db.selectFrom("WeeklyMV").select(["UserID", "Rank"]).where("Week", "=", week).execute();
+    const rankByUserID = new Map(currentRanks.map((r) => [r.UserID, r.Rank]));
 
     results = new Map();
 
     for (const user of eligibleUsers) {
-      const rank = currentRanks.find((r) => r.UserID === user.userID)?.Rank ?? Number.MAX_SAFE_INTEGER;
+      const rank = rankByUserID.get(user.userID) ?? Number.MAX_SAFE_INTEGER;
 
       results.set(user.userID, {
         bestRank: rank,
@@ -464,8 +468,7 @@ export const updateBestPlacementWeekly = async (week: number): Promise<void> => 
       });
     }
   } else {
-    const tieTeamID = await getTieTeamID();
-    const lastGameKickoff = await getLastGameKickoff(week);
+    const [tieTeamID, lastGameKickoff] = await Promise.all([getTieTeamID(), getLastGameKickoff(week)]);
 
     results = computeBestPlacements(eligibleUsers, undecidedGames, tieTeamID, lastGameKickoff);
   }
@@ -496,8 +499,10 @@ export const updateBestPlacementWeekly = async (week: number): Promise<void> => 
 
 export const updateBestPlacementOverall = async (week: number): Promise<void> => {
   const startTime = Date.now();
-  const undecidedGames = await loadUndecidedGamesUpToWeek(week);
-  const overallUsers = await loadEligibleUsersOverall(week);
+  const [undecidedGames, overallUsers] = await Promise.all([
+    loadUndecidedGamesUpToWeek(week),
+    loadEligibleUsersOverall(week),
+  ]);
 
   if (overallUsers.length === 0) {
     console.log(`Best placement overall: no eligible users up to week ${week}`);
@@ -511,11 +516,12 @@ export const updateBestPlacementOverall = async (week: number): Promise<void> =>
 
   if (K === 0) {
     const currentRanks = await db.selectFrom("OverallMV").select(["UserID", "Rank"]).execute();
+    const rankByUserID = new Map(currentRanks.map((r) => [r.UserID, r.Rank]));
 
     overallResults = new Map();
 
     for (const user of overallUsers) {
-      const rank = currentRanks.find((r) => r.UserID === user.userID)?.Rank ?? Number.MAX_SAFE_INTEGER;
+      const rank = rankByUserID.get(user.userID) ?? Number.MAX_SAFE_INTEGER;
 
       overallResults.set(user.userID, {
         bestRank: rank,
@@ -525,9 +531,8 @@ export const updateBestPlacementOverall = async (week: number): Promise<void> =>
       });
     }
   } else {
-    const tieTeamID = await getTieTeamID();
     const userIDs = overallUsers.map((u) => u.userID);
-    const allPicks = await loadAllPicksUpToWeek(week, userIDs);
+    const [tieTeamID, allPicks] = await Promise.all([getTieTeamID(), loadAllPicksUpToWeek(week, userIDs)]);
 
     const picksByUser = new Map<number, UserPick[]>();
 

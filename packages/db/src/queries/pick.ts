@@ -8,10 +8,10 @@ export const getLowestUnusedPoint = async (week: number, userId: number): Promis
     .where("p.UserID", "=", userId)
     .where("g.GameWeek", "=", week)
     .execute();
-  const used = usedResult.map(({ points }) => points).filter((points) => points !== null);
+  const used = new Set(usedResult.map(({ points }) => points).filter((points) => points !== null));
 
   for (let point = 1; point <= usedResult.length; point++) {
-    if (used.includes(point)) continue;
+    if (used.has(point)) continue;
 
     return point;
   }

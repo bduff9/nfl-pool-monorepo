@@ -30,14 +30,17 @@ export const markEmptySurvivorPicksAsDead = async (week: number): Promise<void> 
 
     console.log(`Found ${users.length} users to try to unregister from survivor pool, verifying if they paid yet...`);
 
+    const survivorCost = await getSurvivorCost();
+
     for (const user of users) {
+      // react-doctor-disable-next-line async-await-in-loop -- kept sequential so each user's unregister runs in its own isolated transaction, one at a time, rather than racing concurrent survivor-pool unregistrations
       const userBalance = await getUserPayments(user.UserID);
-      const survivorCost = await getSurvivorCost();
 
       if (userBalance > survivorCost * -1) {
         continue;
       }
 
+      // react-doctor-disable-next-line async-await-in-loop -- kept sequential so each user's unregister runs in its own isolated transaction, one at a time, rather than racing concurrent survivor-pool unregistrations
       await db.transaction().execute(async (trx) => {
         await unregisterUserForSurvivor(trx, user.UserID, ADMIN_USER, true);
       });
@@ -53,6 +56,7 @@ export const markEmptySurvivorPicksAsDead = async (week: number): Promise<void> 
     .execute();
 
   for (const user of dead) {
+    // react-doctor-disable-next-line async-await-in-loop -- kept sequential so survivor eliminations are applied one user at a time rather than racing concurrent writes to SurvivorPicks
     await markUserDead(user.UserID, week);
   }
 };

@@ -21,22 +21,24 @@ export const sendUntrustedEmail = async (
       const browserLink = getBrowserLink(emailId);
       const unsubscribeLink = getUnsubscribeLink(to);
       const subject = getSubject();
-      const html = await getHtml({
-        adminUserFirstName: admin.UserFirstName ?? "",
-        browserLink,
-        newUserUserEmail: newUser.UserEmail,
-        newUserUserName: newUser.UserName ?? "",
-        newUserUserReferredByRaw: newUser.UserReferredByRaw ?? "",
-        unsubscribeLink,
-      });
-      const text = await getPlainText({
-        adminUserFirstName: admin.UserFirstName ?? "",
-        browserLink,
-        newUserUserEmail: newUser.UserEmail,
-        newUserUserName: newUser.UserName ?? "",
-        newUserUserReferredByRaw: newUser.UserReferredByRaw ?? "",
-        unsubscribeLink,
-      });
+      const [html, text] = await Promise.all([
+        getHtml({
+          adminUserFirstName: admin.UserFirstName ?? "",
+          browserLink,
+          newUserUserEmail: newUser.UserEmail,
+          newUserUserName: newUser.UserName ?? "",
+          newUserUserReferredByRaw: newUser.UserReferredByRaw ?? "",
+          unsubscribeLink,
+        }),
+        getPlainText({
+          adminUserFirstName: admin.UserFirstName ?? "",
+          browserLink,
+          newUserUserEmail: newUser.UserEmail,
+          newUserUserName: newUser.UserName ?? "",
+          newUserUserReferredByRaw: newUser.UserReferredByRaw ?? "",
+          unsubscribeLink,
+        }),
+      ]);
 
       try {
         await sendEmail({

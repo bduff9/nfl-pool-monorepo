@@ -37,24 +37,26 @@ export const sendQuickPickConfirmationEmail = async (
   const browserLink = getBrowserLink(emailId);
   const unsubscribeLink = getUnsubscribeLink(to);
   const subject = getSubject(week);
-  const html = await getHtml({
-    browserLink,
-    notSelectedTeam,
-    point,
-    selectedTeam,
-    unsubscribeLink,
-    userFirstName: user.UserFirstName ?? "player",
-    week,
-  });
-  const text = await getPlainText({
-    browserLink,
-    notSelectedTeam,
-    point,
-    selectedTeam,
-    unsubscribeLink,
-    userFirstName: user.UserFirstName ?? "player",
-    week,
-  });
+  const [html, text] = await Promise.all([
+    getHtml({
+      browserLink,
+      notSelectedTeam,
+      point,
+      selectedTeam,
+      unsubscribeLink,
+      userFirstName: user.UserFirstName ?? "player",
+      week,
+    }),
+    getPlainText({
+      browserLink,
+      notSelectedTeam,
+      point,
+      selectedTeam,
+      unsubscribeLink,
+      userFirstName: user.UserFirstName ?? "player",
+      week,
+    }),
+  ]);
 
   try {
     await sendEmail({

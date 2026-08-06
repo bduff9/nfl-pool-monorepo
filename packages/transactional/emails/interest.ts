@@ -8,6 +8,8 @@ import {
 import { getBaseEmailClass, getBrowserLink, getUnsubscribeLink, sendEmail, updateEmailClass } from ".";
 import { getHtml, getPlainText, getSubject } from "./templates/InterestEmail";
 
+const payByDateFormatter = new Intl.DateTimeFormat("en-US", { dateStyle: "full" });
+
 export const sendInterestEmail = async (
   to: { UserEmail: string | null; UserFirstName: string | null },
   isFinal = false,
@@ -22,30 +24,31 @@ export const sendInterestEmail = async (
   const unsubscribeLink = getUnsubscribeLink(sendTo);
   const poolYear = await getSystemYear();
   const payByDateRaw = await getPaymentDueDate();
-  const formatter = new Intl.DateTimeFormat("en-US", { dateStyle: "full" });
-  const payByDate = formatter.format(payByDateRaw);
+  const payByDate = payByDateFormatter.format(payByDateRaw);
   const poolCost = await getPoolCost();
   const survivorCost = await getSurvivorCost();
-  const html = await getHtml({
-    browserLink,
-    isFinal,
-    payByDate,
-    poolCost,
-    poolYear,
-    survivorCost,
-    unsubscribeLink,
-    userFirstName: to.UserFirstName ?? "player",
-  });
-  const text = await getPlainText({
-    browserLink,
-    isFinal,
-    payByDate,
-    poolCost,
-    poolYear,
-    survivorCost,
-    unsubscribeLink,
-    userFirstName: to.UserFirstName ?? "player",
-  });
+  const [html, text] = await Promise.all([
+    getHtml({
+      browserLink,
+      isFinal,
+      payByDate,
+      poolCost,
+      poolYear,
+      survivorCost,
+      unsubscribeLink,
+      userFirstName: to.UserFirstName ?? "player",
+    }),
+    getPlainText({
+      browserLink,
+      isFinal,
+      payByDate,
+      poolCost,
+      poolYear,
+      survivorCost,
+      unsubscribeLink,
+      userFirstName: to.UserFirstName ?? "player",
+    }),
+  ]);
   const subject = getSubject(poolYear, isFinal);
 
   try {

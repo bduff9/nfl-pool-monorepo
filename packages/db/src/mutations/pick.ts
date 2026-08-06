@@ -15,10 +15,10 @@ const getLowestUnusedPoint = async (week: number, userID: number): Promise<null 
     .where("g.GameWeek", "=", week)
     .where("p.UserID", "=", userID)
     .execute();
-  const used = usedResult.map(({ points }) => points).filter((points) => points != null);
+  const used = new Set(usedResult.map(({ points }) => points).filter((points) => points != null));
 
   for (let point = 1; point <= usedResult.length; point++) {
-    if (used.includes(point)) {
+    if (used.has(point)) {
       continue;
     }
 
@@ -56,6 +56,7 @@ export const updateMissedPicks = async (game: Awaited<ReturnType<typeof getDbGam
 
   for (const pick of missed) {
     if (!pick.PickPoints) {
+      // react-doctor-disable-next-line async-await-in-loop -- must run sequentially: getLowestUnusedPoint re-reads currently-used points, so running two missed picks for the same user concurrently could assign the same point twice
       const lowestPoint = await getLowestUnusedPoint(game.GameWeek, pick.UserID);
 
       if (lowestPoint === null) {

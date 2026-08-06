@@ -82,6 +82,7 @@ export const updateAllPayouts = async (week: number, trx?: Transaction<DB>): Pro
     const adjustedPrizes = getPrizeAmounts(winners, weeklyPrizes);
 
     for (const winner of winners) {
+      // react-doctor-disable-next-line async-await-in-loop -- these inserts share one transaction connection (trx); mysql2 processes queries on a connection sequentially, so Promise.all here would not run them concurrently
       await db
         .insertInto("Payments")
         .values({
@@ -112,6 +113,7 @@ export const updateAllPayouts = async (week: number, trx?: Transaction<DB>): Pro
     const adjustedPrizes = getPrizeAmounts(winners, overallPrizes);
 
     for (const winner of winners) {
+      // react-doctor-disable-next-line async-await-in-loop -- these inserts share one transaction connection (trx); mysql2 processes queries on a connection sequentially, so Promise.all here would not run them concurrently
       await db
         .insertInto("Payments")
         .values({
@@ -145,6 +147,7 @@ export const updateAllPayouts = async (week: number, trx?: Transaction<DB>): Pro
       const adjustedPrizes = getPrizeAmounts(lastPlaceWinners, lastPlacePrizes);
 
       for (const winner of lastPlaceWinners) {
+        // react-doctor-disable-next-line async-await-in-loop -- these inserts share one transaction connection (trx); mysql2 processes queries on a connection sequentially, so Promise.all here would not run them concurrently
         await db
           .insertInto("Payments")
           .values({
@@ -175,6 +178,7 @@ export const updateAllPayouts = async (week: number, trx?: Transaction<DB>): Pro
     const adjustedPrizes = getPrizeAmounts(winners, survivorPrizes);
 
     for (const winner of winners) {
+      // react-doctor-disable-next-line async-await-in-loop -- these inserts share one transaction connection (trx); mysql2 processes queries on a connection sequentially, so Promise.all here would not run them concurrently
       await db
         .insertInto("Payments")
         .values({

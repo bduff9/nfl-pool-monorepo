@@ -44,6 +44,7 @@ export const populateGames = async (trx: Transaction<DB>, newSeason: NFLWeekArra
         continue;
       }
 
+      // react-doctor-disable-next-line async-await-in-loop -- these writes share one transaction connection (trx); mysql2 processes queries on a connection sequentially, so Promise.all here would not run them concurrently
       await trx
         .insertInto("Games")
         .values({
@@ -65,9 +66,11 @@ export const populateGames = async (trx: Transaction<DB>, newSeason: NFLWeekArra
         .executeTakeFirstOrThrow();
 
       // Update home team data
+      // react-doctor-disable-next-line async-await-in-loop -- shares the same trx connection as above
       await updateTeamData(hTeamData.id, hTeamData, week, trx);
 
       // Update visiting team data
+      // react-doctor-disable-next-line async-await-in-loop -- shares the same trx connection as above
       await updateTeamData(vTeamData.id, vTeamData, week, trx);
     }
   }

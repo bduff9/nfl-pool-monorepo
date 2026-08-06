@@ -20,9 +20,11 @@ export const sendNewUserEmail = async (
     .where("UserID", "=", newUser.UserID)
     .execute();
   const currentYear = await getSystemYear();
-  const yearsPlayedArr = yearsPlayedResult
-    .map(({ UserHistoryYear }) => UserHistoryYear)
-    .filter((year) => year !== currentYear);
+  const yearsPlayedArr = yearsPlayedResult.reduce<number[]>((acc, { UserHistoryYear }) => {
+    if (UserHistoryYear !== currentYear) acc.push(UserHistoryYear);
+
+    return acc;
+  }, []);
   const isReturning = yearsPlayedArr.length > 0;
   const yearsPlayed = yearsPlayedArr.join(", ");
 
@@ -33,28 +35,30 @@ export const sendNewUserEmail = async (
       const browserLink = getBrowserLink(emailId);
       const unsubscribeLink = getUnsubscribeLink(to);
       const subject = getSubject();
-      const html = await getHtml({
-        adminUserFirstName: admin.UserFirstName ?? "",
-        browserLink,
-        isReturning,
-        newUserUserEmail: newUser.UserEmail,
-        newUserUserName: newUser.UserName ?? "",
-        newUserUserReferredByRaw: newUser.UserReferredByRaw ?? "",
-        newUserUserTeamName: newUser.UserTeamName ?? "",
-        unsubscribeLink,
-        yearsPlayed,
-      });
-      const text = await getPlainText({
-        adminUserFirstName: admin.UserFirstName ?? "",
-        browserLink,
-        isReturning,
-        newUserUserEmail: newUser.UserEmail,
-        newUserUserName: newUser.UserName ?? "",
-        newUserUserReferredByRaw: newUser.UserReferredByRaw ?? "",
-        newUserUserTeamName: newUser.UserTeamName ?? "",
-        unsubscribeLink,
-        yearsPlayed,
-      });
+      const [html, text] = await Promise.all([
+        getHtml({
+          adminUserFirstName: admin.UserFirstName ?? "",
+          browserLink,
+          isReturning,
+          newUserUserEmail: newUser.UserEmail,
+          newUserUserName: newUser.UserName ?? "",
+          newUserUserReferredByRaw: newUser.UserReferredByRaw ?? "",
+          newUserUserTeamName: newUser.UserTeamName ?? "",
+          unsubscribeLink,
+          yearsPlayed,
+        }),
+        getPlainText({
+          adminUserFirstName: admin.UserFirstName ?? "",
+          browserLink,
+          isReturning,
+          newUserUserEmail: newUser.UserEmail,
+          newUserUserName: newUser.UserName ?? "",
+          newUserUserReferredByRaw: newUser.UserReferredByRaw ?? "",
+          newUserUserTeamName: newUser.UserTeamName ?? "",
+          unsubscribeLink,
+          yearsPlayed,
+        }),
+      ]);
 
       try {
         await sendEmail({

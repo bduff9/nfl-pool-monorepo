@@ -6,8 +6,7 @@ import { getPublicLeague } from "../queries/league";
 import { getSystemYear } from "../queries/systemValue";
 
 export const populateWinnerHistory = async (trx: Transaction<DB>): Promise<void> => {
-  const year = await getSystemYear();
-  const leagueID = await getPublicLeague();
+  const [year, leagueID] = await Promise.all([getSystemYear(), getPublicLeague()]);
 
   await trx
     .insertInto("History")

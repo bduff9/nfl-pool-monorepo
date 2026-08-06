@@ -23,24 +23,26 @@ export const sendLockedOutEmail = async (userId: number, balance: number, week: 
   const unsubscribeLink = getUnsubscribeLink(to);
   const paymentDueDate = await getPaymentDueDate();
   const subject = getSubject();
-  const html = await getHtml({
-    balance,
-    browserLink,
-    nextKickoff: nextGame.GameKickoff,
-    nextWeek,
-    paymentDueDate,
-    unsubscribeLink,
-    userFirstName: user.UserFirstName ?? "",
-  });
-  const text = await getPlainText({
-    balance,
-    browserLink,
-    nextKickoff: nextGame.GameKickoff,
-    nextWeek,
-    paymentDueDate,
-    unsubscribeLink,
-    userFirstName: user.UserFirstName ?? "",
-  });
+  const [html, text] = await Promise.all([
+    getHtml({
+      balance,
+      browserLink,
+      nextKickoff: nextGame.GameKickoff,
+      nextWeek,
+      paymentDueDate,
+      unsubscribeLink,
+      userFirstName: user.UserFirstName ?? "",
+    }),
+    getPlainText({
+      balance,
+      browserLink,
+      nextKickoff: nextGame.GameKickoff,
+      nextWeek,
+      paymentDueDate,
+      unsubscribeLink,
+      userFirstName: user.UserFirstName ?? "",
+    }),
+  ]);
 
   try {
     await sendEmail({

@@ -14,20 +14,22 @@ export const sendPickReminderEmail = async (
   const browserLink = getBrowserLink(emailId);
   const unsubscribeLink = getUnsubscribeLink(to);
   const subject = getSubject(user.UserFirstName ?? "player");
-  const html = await getHtml({
-    browserLink,
-    hoursLeft,
-    unsubscribeLink,
-    userFirstName: user.UserFirstName ?? "player",
-    week,
-  });
-  const text = await getPlainText({
-    browserLink,
-    hoursLeft,
-    unsubscribeLink,
-    userFirstName: user.UserFirstName ?? "player",
-    week,
-  });
+  const [html, text] = await Promise.all([
+    getHtml({
+      browserLink,
+      hoursLeft,
+      unsubscribeLink,
+      userFirstName: user.UserFirstName ?? "player",
+      week,
+    }),
+    getPlainText({
+      browserLink,
+      hoursLeft,
+      unsubscribeLink,
+      userFirstName: user.UserFirstName ?? "player",
+      week,
+    }),
+  ]);
 
   try {
     await sendEmail({

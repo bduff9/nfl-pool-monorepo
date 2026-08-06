@@ -13,20 +13,22 @@ export const sendTrustedEmail = async (user: Pick<Selectable<Users>, "UserEmail"
   const year = await getSystemYear();
   const paymentDueDate = await getPaymentDueDate();
   const subject = getSubject(year);
-  const html = await getHtml({
-    browserLink,
-    paymentDueDate,
-    unsubscribeLink,
-    userFirstName: user.UserFirstName ?? "",
-    year,
-  });
-  const text = await getPlainText({
-    browserLink,
-    paymentDueDate,
-    unsubscribeLink,
-    userFirstName: user.UserFirstName ?? "",
-    year,
-  });
+  const [html, text] = await Promise.all([
+    getHtml({
+      browserLink,
+      paymentDueDate,
+      unsubscribeLink,
+      userFirstName: user.UserFirstName ?? "",
+      year,
+    }),
+    getPlainText({
+      browserLink,
+      paymentDueDate,
+      unsubscribeLink,
+      userFirstName: user.UserFirstName ?? "",
+      year,
+    }),
+  ]);
 
   try {
     await sendEmail({

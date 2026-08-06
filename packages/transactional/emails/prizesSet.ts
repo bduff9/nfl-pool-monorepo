@@ -33,32 +33,34 @@ export const sendPrizesSetEmail = async ({
   const browserLink = getBrowserLink(emailId);
   const unsubscribeLink = getUnsubscribeLink(to);
   const subject = getSubject();
-  const html = await getHtml({
-    browserLink,
-    overall1stPrize,
-    overall2ndPrize,
-    overall3rdPrize,
-    overallLastPrize,
-    survivor1stPrize,
-    survivor2ndPrize,
-    unsubscribeLink,
-    userFirstName,
-    weekly1stPrize,
-    weekly2ndPrize,
-  });
-  const text = await getPlainText({
-    browserLink,
-    overall1stPrize,
-    overall2ndPrize,
-    overall3rdPrize,
-    overallLastPrize,
-    survivor1stPrize,
-    survivor2ndPrize,
-    unsubscribeLink,
-    userFirstName,
-    weekly1stPrize,
-    weekly2ndPrize,
-  });
+  const [html, text] = await Promise.all([
+    getHtml({
+      browserLink,
+      overall1stPrize,
+      overall2ndPrize,
+      overall3rdPrize,
+      overallLastPrize,
+      survivor1stPrize,
+      survivor2ndPrize,
+      unsubscribeLink,
+      userFirstName,
+      weekly1stPrize,
+      weekly2ndPrize,
+    }),
+    getPlainText({
+      browserLink,
+      overall1stPrize,
+      overall2ndPrize,
+      overall3rdPrize,
+      overallLastPrize,
+      survivor1stPrize,
+      survivor2ndPrize,
+      unsubscribeLink,
+      userFirstName,
+      weekly1stPrize,
+      weekly2ndPrize,
+    }),
+  ]);
 
   try {
     await sendEmail({

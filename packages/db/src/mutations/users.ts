@@ -29,8 +29,7 @@ export const populateUserData = async (
   trx: Transaction<DB>,
   user: Pick<Selectable<Users>, "UserID" | "UserEmail" | "UserPlaysSurvivor" | "UserTeamName" | "UserName">,
 ): Promise<void> => {
-  const publicLeague = await getPublicLeague();
-  const week = await getCurrentWeek();
+  const [publicLeague, week] = await Promise.all([getPublicLeague(), getCurrentWeek()]);
 
   if (week > 1) {
     const lowest = await trx.selectFrom("OverallMV").select("UserID").orderBy("Rank desc").executeTakeFirstOrThrow();
@@ -267,6 +266,7 @@ export const registerUserForSurvivor = async (trx: Transaction<DB>, userId: numb
   const leagues = await trx.selectFrom("UserLeagues").select("LeagueID").where("UserID", "=", userId).execute();
 
   for (const league of leagues) {
+    // react-doctor-disable-next-line async-await-in-loop -- these inserts share one transaction connection (trx); mysql2 processes queries on a connection sequentially, so Promise.all here would not run them concurrently
     const result = await trx
       .insertInto("SurvivorPicks")
       .columns(["UserID", "LeagueID", "SurvivorPickWeek", "GameID", "SurvivorPickAddedBy", "SurvivorPickUpdatedBy"])

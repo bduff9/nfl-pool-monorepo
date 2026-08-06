@@ -34,15 +34,17 @@ export const sendPushNotification = async (
   try {
     const subscriptions = await db.selectFrom("Devices").select("DeviceSub").where("UserID", "=", userId).execute();
 
-    for (const subscription of subscriptions) {
-      await webpush.sendNotification(
-        JSON.parse(subscription.DeviceSub) as webpush.PushSubscription,
-        JSON.stringify({
-          body,
-          title,
-        }),
-      );
-    }
+    await Promise.all(
+      subscriptions.map((subscription) =>
+        webpush.sendNotification(
+          JSON.parse(subscription.DeviceSub) as webpush.PushSubscription,
+          JSON.stringify({
+            body,
+            title,
+          }),
+        ),
+      ),
+    );
   } catch (error) {
     console.error("Error sending push notification:", { body, error, title, type, userId });
   }

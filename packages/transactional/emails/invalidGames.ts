@@ -46,20 +46,22 @@ export const sendInvalidGamesEmail = async (
       const browserLink = getBrowserLink(emailId);
       const unsubscribeLink = getUnsubscribeLink(to);
       const subject = getSubject(messages.length, week);
-      const html = await getHtml({
-        adminUserFirstName: admin.UserFirstName ?? "",
-        browserLink,
-        messages,
-        unsubscribeLink,
-        week,
-      });
-      const text = await getPlainText({
-        adminUserFirstName: admin.UserFirstName ?? "",
-        browserLink,
-        messages,
-        unsubscribeLink,
-        week,
-      });
+      const [html, text] = await Promise.all([
+        getHtml({
+          adminUserFirstName: admin.UserFirstName ?? "",
+          browserLink,
+          messages,
+          unsubscribeLink,
+          week,
+        }),
+        getPlainText({
+          adminUserFirstName: admin.UserFirstName ?? "",
+          browserLink,
+          messages,
+          unsubscribeLink,
+          week,
+        }),
+      ]);
 
       try {
         await sendEmail({

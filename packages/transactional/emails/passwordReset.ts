@@ -10,18 +10,20 @@ export const sendPasswordResetEmail = async (
   const browserLink = getBrowserLink(emailId);
   const unsubscribeLink = getUnsubscribeLink(sendTo);
   const subject = getSubject();
-  const html = await getHtml({
-    browserLink,
-    otp,
-    unsubscribeLink,
-    userFirstName: to.UserFirstName || undefined,
-  });
-  const text = await getPlainText({
-    browserLink,
-    otp,
-    unsubscribeLink,
-    userFirstName: to.UserFirstName || undefined,
-  });
+  const [html, text] = await Promise.all([
+    getHtml({
+      browserLink,
+      otp,
+      unsubscribeLink,
+      userFirstName: to.UserFirstName || undefined,
+    }),
+    getPlainText({
+      browserLink,
+      otp,
+      unsubscribeLink,
+      userFirstName: to.UserFirstName || undefined,
+    }),
+  ]);
 
   try {
     await sendEmail({

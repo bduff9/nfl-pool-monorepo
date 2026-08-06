@@ -24,22 +24,24 @@ export const sendPicksSubmittedEmail = async (user: User, week: number, tiebreak
   const browserLink = getBrowserLink(emailId);
   const unsubscribeLink = getUnsubscribeLink(to);
   const subject = getSubject(week);
-  const html = await getHtml({
-    browserLink,
-    picks,
-    tiebreakerLastScore,
-    unsubscribeLink,
-    userFirstName: userResult.UserFirstName ?? "player",
-    week,
-  });
-  const text = await getPlainText({
-    browserLink,
-    picks,
-    tiebreakerLastScore,
-    unsubscribeLink,
-    userFirstName: userResult.UserFirstName ?? "player",
-    week,
-  });
+  const [html, text] = await Promise.all([
+    getHtml({
+      browserLink,
+      picks,
+      tiebreakerLastScore,
+      unsubscribeLink,
+      userFirstName: userResult.UserFirstName ?? "player",
+      week,
+    }),
+    getPlainText({
+      browserLink,
+      picks,
+      tiebreakerLastScore,
+      unsubscribeLink,
+      userFirstName: userResult.UserFirstName ?? "player",
+      week,
+    }),
+  ]);
 
   try {
     await sendEmail({

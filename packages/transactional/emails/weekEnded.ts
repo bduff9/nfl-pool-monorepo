@@ -46,28 +46,30 @@ export const sendWeekEndedEmail = async (
   const browserLink = getBrowserLink(emailId);
   const unsubscribeLink = getUnsubscribeLink(to);
   const subject = getSubject(week);
-  const html = await getHtml({
-    browserLink,
-    homeTeam,
-    loserScore,
-    unsubscribeLink,
-    userFirstName: user.UserFirstName ?? "player",
-    visitorTeam,
-    week,
-    winnerScore,
-    winnerTeam,
-  });
-  const text = await getPlainText({
-    browserLink,
-    homeTeam,
-    loserScore,
-    unsubscribeLink,
-    userFirstName: user.UserFirstName ?? "player",
-    visitorTeam,
-    week,
-    winnerScore,
-    winnerTeam,
-  });
+  const [html, text] = await Promise.all([
+    getHtml({
+      browserLink,
+      homeTeam,
+      loserScore,
+      unsubscribeLink,
+      userFirstName: user.UserFirstName ?? "player",
+      visitorTeam,
+      week,
+      winnerScore,
+      winnerTeam,
+    }),
+    getPlainText({
+      browserLink,
+      homeTeam,
+      loserScore,
+      unsubscribeLink,
+      userFirstName: user.UserFirstName ?? "player",
+      visitorTeam,
+      week,
+      winnerScore,
+      winnerTeam,
+    }),
+  ]);
 
   try {
     await sendEmail({

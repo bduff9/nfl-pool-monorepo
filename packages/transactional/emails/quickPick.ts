@@ -29,26 +29,28 @@ export const sendQuickPickEmail = async (
   const browserLink = getBrowserLink(emailId);
   const unsubscribeLink = getUnsubscribeLink(to);
   const subject = getSubject(user.UserFirstName ?? "player");
-  const html = await getHtml({
-    browserLink,
-    homeTeam,
-    hoursLeft,
-    unsubscribeLink,
-    userFirstName: user.UserFirstName ?? "player",
-    userId: user.UserID,
-    visitorTeam,
-    week,
-  });
-  const text = await getPlainText({
-    browserLink,
-    homeTeam,
-    hoursLeft,
-    unsubscribeLink,
-    userFirstName: user.UserFirstName ?? "player",
-    userId: user.UserID,
-    visitorTeam,
-    week,
-  });
+  const [html, text] = await Promise.all([
+    getHtml({
+      browserLink,
+      homeTeam,
+      hoursLeft,
+      unsubscribeLink,
+      userFirstName: user.UserFirstName ?? "player",
+      userId: user.UserID,
+      visitorTeam,
+      week,
+    }),
+    getPlainText({
+      browserLink,
+      homeTeam,
+      hoursLeft,
+      unsubscribeLink,
+      userFirstName: user.UserFirstName ?? "player",
+      userId: user.UserID,
+      visitorTeam,
+      week,
+    }),
+  ]);
 
   try {
     await sendEmail({
