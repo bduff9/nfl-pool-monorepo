@@ -10,27 +10,21 @@
     "@nfl-pool-monorepo/utils": "workspace:*",
     "@react-email/components": "1.0.12",
     "@react-email/render": "2.1.0",
-    "@t3-oss/env-core": "0.13.11",
     "arktype": "2.2.3",
-    "html-to-text": "10.0.0",
     "kysely": "0.29.4",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-email": "6.9.1",
-    "tailwindcss": "4.3.3",
     "twilio": "6.0.2",
     "web-push": "3.6.7"
   },
   "description": "Transactional emails and notifications for the NFL Pool.",
   "devDependencies": {
     "@nfl-pool-monorepo/tsconfig": "workspace:*",
-    "@tailwindcss/postcss": "4.3.3",
-    "@types/html-to-text": "9.0.4",
     "@types/node": "26.1.2",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.4",
     "@types/web-push": "3.6.4",
-    "postcss": "8.5.25",
     "typescript": "7.0.2"
   },
   "engines": {

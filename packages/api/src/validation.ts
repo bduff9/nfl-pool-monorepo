@@ -138,7 +138,6 @@ export const SingleWeekResponseSchema = type({
   nflSchedule: NFLWeekSchema,
   version: "'1.0'",
 });
-export type SingleWeekResponse = typeof SingleWeekResponseSchema.infer;
 
 const NFLWeekArrayItemSchema = type({
   "lastUpdate?": DateStringSchema,
@@ -158,7 +157,6 @@ export const EntireSeasonResponseSchema = type({
   fullNflSchedule: NFLScheduleSchema,
   version: "'1.0'",
 });
-export type EntireSeasonResponse = typeof EntireSeasonResponseSchema.infer;
 
 const newsArticleSchema = type({
   author: "string | null",

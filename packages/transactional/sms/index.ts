@@ -24,7 +24,7 @@ import { env } from "../src/env";
 const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER } = env;
 const twilioClient = new Twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
-export const getBaseSMSClass = async ({
+const getBaseSMSClass = async ({
   id,
   type,
   to,
@@ -123,7 +123,7 @@ export const sendSMS = async (sendTo: string, message: string, type: (typeof Ema
   });
 };
 
-export const updateSMSClass = async ({ id, sms }: { id: string; sms: string }): Promise<void> => {
+const updateSMSClass = async ({ id, sms }: { id: string; sms: string }): Promise<void> => {
   try {
     await db
       .updateTable("Emails")
