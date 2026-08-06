@@ -32,6 +32,7 @@ export const usePushNotifications = (): UsePushNotificationsResult => {
     };
 
     if ("serviceWorker" in navigator && "PushManager" in window) {
+      // react-doctor-disable-next-line react-hooks-js/set-state-in-effect -- push-support detection needs navigator/window, only available after mount
       setIsSupported(true);
       registerServiceWorker();
     } else {

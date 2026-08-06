@@ -51,10 +51,11 @@ const SupportSearch: FC<Props> = ({ currentQuery }) => {
   const searchRef = useRef<((event: FormEvent<HTMLFormElement>) => void) | null>(null);
 
   if (searchRef.current === null) {
-    // react-doctor-disable-next-line no-ref-current-in-render -- null-guarded lazy ref init, the exact pattern react.dev documents at https://react.dev/reference/react/useRef#avoiding-recreating-the-ref-contents
+    // react-doctor-disable-next-line no-ref-current-in-render, react-hooks-js/refs -- null-guarded lazy ref init, the exact pattern react.dev documents at https://react.dev/reference/react/useRef#avoiding-recreating-the-ref-contents
     searchRef.current = debounce(750, handleSubmit);
   }
 
+  // react-doctor-disable-next-line react-hooks-js/refs -- reading the ref immediately after the lazy-init check above, guaranteed non-null in this same render
   const search = searchRef.current;
 
   return (

@@ -102,7 +102,7 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
     },
     onSuccess: () => {
       toast.success("Your profile changes have been successfully saved");
-      // react-doctor-disable-next-line effect-needs-cleanup -- form.watch() with no args returns a snapshot, not a subscription
+      // react-doctor-disable-next-line effect-needs-cleanup, react-hooks-js/incompatible-library -- form.watch() with no args returns a snapshot, not a subscription; react-hook-form's watch() return can't be memoized, that's the library's design
       form.reset(form.watch(), { keepValues: true });
     },
   });

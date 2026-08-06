@@ -86,6 +86,7 @@ const ViewAllModal: FC<Props> = ({ closeModal, games, isOpen, saveChanges }) => 
 
   useEffect(() => {
     if (isOpen) {
+      // react-doctor-disable-next-line react-hooks-js/set-state-in-effect -- resets the in-modal edit state to the latest games prop whenever the modal (re)opens, not a derived value
       setCustomGames(games);
     }
   }, [isOpen, games]);

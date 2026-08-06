@@ -44,7 +44,7 @@ const ViewPayments: FC<PageProps<"/users/payments">> = async () => {
   }
 
   const [currentUser, payments] = await Promise.all([getCurrentUser(), getMyPayments()]);
-  let owed = 0;
+  const owed = payments.reduce((total, payment) => total + Number(payment.PaymentAmount), 0);
 
   return (
     <div className="h-full flex flex-col md:mx-3">
@@ -67,7 +67,6 @@ const ViewPayments: FC<PageProps<"/users/payments">> = async () => {
           <TableBody>
             {payments.map((payment) => {
               const amount = Number(payment.PaymentAmount);
-              owed += amount;
 
               return (
                 <TableRow className={amount < 0 ? "bg-red-300" : "bg-green-300"} key={`payment-${payment.PaymentID}`}>

@@ -28,7 +28,7 @@ import {
 } from "@nfl-pool-monorepo/ui/components/dialog";
 import { Input } from "@nfl-pool-monorepo/ui/components/input";
 import { Label } from "@nfl-pool-monorepo/ui/components/label";
-import { type ChangeEvent, type FC, useCallback, useEffect, useRef, useState } from "react";
+import { type ChangeEvent, type FC, useEffect, useRef, useState } from "react";
 import { PiFootballDuotone } from "react-icons/pi";
 
 import type { getUserPayoutsForAdmin } from "@/server/loaders/payment";
@@ -75,26 +75,23 @@ const AdminUserPayoutModal: FC<Props> = ({ handleClose, show = false, updateAmou
     setLoading(false);
   };
 
-  const handleToPayChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      let value = +event.target.value;
+  const handleToPayChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    let value = +event.target.value;
 
-      if (value < 0) value = 0;
+    if (value < 0) value = 0;
 
-      if (value > (winner?.UserWon ?? 0)) {
-        value = winner?.UserWon ?? 0;
-      }
+    if (value > (winner?.UserWon ?? 0)) {
+      value = winner?.UserWon ?? 0;
+    }
 
-      setToPay(value);
-    },
-    [winner?.UserWon],
-  );
+    setToPay(value);
+  };
 
-  const handleCopyPaymentAccount = useCallback(() => {
+  const handleCopyPaymentAccount = (): void => {
     if (winner?.UserPaymentAccount) {
       navigator.clipboard.writeText(winner.UserPaymentAccount);
     }
-  }, [winner?.UserPaymentAccount]);
+  };
 
   return (
     <Dialog onOpenChange={handleClose} open={show}>
