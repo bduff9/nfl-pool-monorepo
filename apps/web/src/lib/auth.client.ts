@@ -15,16 +15,20 @@
  */
 import "client-only";
 
-type TLoginError =
-  | "EmailSignin"
-  | "InvalidEmail"
-  | "LatePayment"
-  | "MissingSystemProperty"
-  | "NotAllowed"
-  | "OAuthAccountNotLinked"
-  | "RegistrationOver";
+const LOGIN_ERRORS = [
+  "EmailSignin",
+  "InvalidEmail",
+  "LatePayment",
+  "MissingSystemProperty",
+  "NotAllowed",
+  "OAuthAccountNotLinked",
+  "RegistrationOver",
+] as const;
 
-const isLoginError = (arg: unknown): arg is TLoginError => typeof arg === "string" && arg.trim() !== "";
+type TLoginError = (typeof LOGIN_ERRORS)[number];
+
+const isLoginError = (arg: unknown): arg is TLoginError =>
+  typeof arg === "string" && (LOGIN_ERRORS as readonly string[]).includes(arg);
 
 export const formatError = (error: unknown): string => {
   if (isLoginError(error)) {

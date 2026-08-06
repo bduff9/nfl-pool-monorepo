@@ -57,7 +57,16 @@ export const GET = async (req: NextRequest, _ctx: RouteContext<"/api/email/unsub
 
 export const POST = async (req: NextRequest, _ctx: RouteContext<"/api/email/unsubscribe">): Promise<Response> => {
   const formData = await req.formData();
-  const email = formData.get("email") as string;
+  const email = formData.get("email");
+
+  if (typeof email !== "string" || !email) {
+    return new Response("<h1>Please provide a valid email address</h1>", {
+      headers: {
+        "Content-Type": "text/html",
+      },
+      status: 400,
+    });
+  }
 
   try {
     const result = await unsubscribe({ email });

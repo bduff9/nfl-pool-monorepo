@@ -61,7 +61,7 @@ export const getEmail = cache(async (emailID: string) => {
   const result = await db
     .selectFrom("Emails")
     .select(["EmailHtml", "EmailTo", "EmailSubject"])
-    .where("EmailID", "=", emailID as string)
+    .where("EmailID", "=", emailID)
     .executeTakeFirst();
   const userName = user?.name ?? result?.EmailTo ?? "Unknown User";
 

@@ -69,16 +69,16 @@ export const updatePayouts = adminActionClient
 
     await Promise.all(
       users.map((user) =>
-        sendPrizesSetEmail(
-          user,
+        sendPrizesSetEmail({
           overall1stPrize,
           overall2ndPrize,
           overall3rdPrize,
           survivor1stPrize,
           survivor2ndPrize,
+          user,
           weekly1stPrize,
           weekly2ndPrize,
-        ).catch((error) => {
+        }).catch((error) => {
           console.error("Failed to send email for prize amounts", user, error);
         }),
       ),

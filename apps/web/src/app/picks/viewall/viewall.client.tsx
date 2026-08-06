@@ -62,18 +62,21 @@ type Props = {
 
 const ViewAllPicksClient: FC<Props> = ({ currentUserId, gamesForWeek, picksForWeek, weeklyRankings }) => {
   const [mode, setMode] = useState<"Live Results" | "What If">("Live Results");
-  const [games, setGames] = useState<Record<number, Awaited<ReturnType<typeof getGamesForWeek>>[number]>>(() =>
-    updateGames(gamesForWeek),
-  );
+  const [customGames, setCustomGames] = useState<Record<
+    number,
+    Awaited<ReturnType<typeof getGamesForWeek>>[number]
+  > | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [hasWhatIfBeenSet, setHasWhatIfBeenSet] = useState<boolean>(false);
 
   const isLive = mode === "Live Results";
+  const isShowingCustomGames = !isLive && !!customGames;
+  // Deriving from gamesForWeek on every render (rather than copying it into state) keeps
+  // live scores from going stale if the page refreshes with updated props while this stays mounted.
+  const games = isShowingCustomGames ? customGames : updateGames(gamesForWeek);
 
-  const saveModalChanges = (customGames: Awaited<ReturnType<typeof getGamesForWeek>>): void => {
-    setGames(updateGames(customGames));
+  const saveModalChanges = (updatedGames: Awaited<ReturnType<typeof getGamesForWeek>>): void => {
+    setCustomGames(updateGames(updatedGames));
     setIsModalOpen(false);
-    setHasWhatIfBeenSet(true);
   };
 
   const handleOpenModal = () => {
@@ -82,8 +85,7 @@ const ViewAllPicksClient: FC<Props> = ({ currentUserId, gamesForWeek, picksForWe
 
   const handleSelectLiveResultsMode = () => {
     setMode("Live Results");
-    setHasWhatIfBeenSet(false);
-    setGames(updateGames(gamesForWeek));
+    setCustomGames(null);
   };
 
   const handleSelectWhatIfMode = () => {
@@ -130,16 +132,12 @@ const ViewAllPicksClient: FC<Props> = ({ currentUserId, gamesForWeek, picksForWe
         </div>
       </div>
       <div className="w-full">
-        {isLive || !hasWhatIfBeenSet ? (
-          <ViewAllTable currentUserId={currentUserId} games={games} picks={picksForWeek} ranks={weeklyRankings} />
-        ) : (
-          <ViewAllTable
-            currentUserId={currentUserId}
-            games={games}
-            picks={picksForWeek}
-            ranks={sortPicks(picksForWeek, games, weeklyRankings)}
-          />
-        )}
+        <ViewAllTable
+          currentUserId={currentUserId}
+          games={games}
+          picks={picksForWeek}
+          ranks={isShowingCustomGames ? sortPicks(picksForWeek, games, weeklyRankings) : weeklyRankings}
+        />
       </div>
       {!isLive && (
         <ViewAllModal

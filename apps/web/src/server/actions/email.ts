@@ -85,32 +85,26 @@ export const sendAdminEmail = adminActionClient
         .where("UserCommunicationsOptedOut", "=", 0)
         .where("UserDoneRegistering", "=", 0)
         .execute();
+    } else {
+      const exhaustiveCheck: never = sendTo;
+
+      throw new Error(`Unhandled sendTo value: ${exhaustiveCheck}`);
     }
 
     for (const to of users) {
-      try {
-        if (emailType === "Custom") {
-          promises.push(
-            sendCustomEmail({
-              body,
-              preview,
-              subject,
-              to,
-            }),
-          );
-        } else if (emailType === "Interest") {
-          promises.push(sendInterestEmail(to, false));
-        } else if (emailType === "Interest - Final") {
-          promises.push(sendInterestEmail(to, true));
-        }
-      } catch (error) {
-        console.error("Failed to send admin email", error);
-
-        if (error instanceof Error) {
-          throw error;
-        }
-
-        throw new Error("Failed to send admin email");
+      if (emailType === "Custom") {
+        promises.push(
+          sendCustomEmail({
+            body,
+            preview,
+            subject,
+            to,
+          }),
+        );
+      } else if (emailType === "Interest") {
+        promises.push(sendInterestEmail(to, false));
+      } else if (emailType === "Interest - Final") {
+        promises.push(sendInterestEmail(to, true));
       }
     }
 

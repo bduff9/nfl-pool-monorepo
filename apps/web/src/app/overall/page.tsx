@@ -75,7 +75,7 @@ const OverallRankingsTable: FC = async () => {
       </TableHeader>
       <TableBody>
         {overallRankings.map((row) => (
-          <tr className={cn(row.UserID === user.UserID && "bg-amber-300")} key={`user-rank-for-${row.UserID}`}>
+          <TableRow className={cn(row.UserID === user.UserID && "bg-amber-300")} key={`user-rank-for-${row.UserID}`}>
             <TableHead className="text-center text-black font-semibold" scope="row">
               {row.Tied ? "T" : ""}
               {row.Rank}
@@ -87,7 +87,7 @@ const OverallRankingsTable: FC = async () => {
             <TableCell title={`Missed games: ${row.GamesMissed}`}>
               {row.GamesMissed > 0 && <LuBadgeAlert className="text-red-700 mx-auto size-5" />}
             </TableCell>
-          </tr>
+          </TableRow>
         ))}
       </TableBody>
     </Table>

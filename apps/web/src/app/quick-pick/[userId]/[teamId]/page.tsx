@@ -15,13 +15,22 @@
  */
 
 import { getTeamById } from "@nfl-pool-monorepo/db/src/queries/team";
-import { cn } from "@nfl-pool-monorepo/utils/styles";
 import "server-only";
 
-import type { FC } from "react";
+import type { FC, ReactNode } from "react";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import QuickPickConfirm from "@/components/QuickPickConfirm/QuickPickConfirm";
+
+const QuickPickCard: FC<{ children: ReactNode; title: string }> = ({ children, title }) => (
+  <div className="min-h-screen flex flex-col md:mx-3">
+    <CustomHead title="Quick Pick" />
+    <div className="bg-gray-100 text-gray-800 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-gray-800 rounded-lg p-4 shrink-0 grow w-full h-full lg:h-auto lg:w-[50%] xl:w-[33%] text-center">
+      <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">{title}</h2>
+      {children}
+    </div>
+  </div>
+);
 
 const QuickPickPage: FC<PageProps<"/quick-pick/[userId]/[teamId]">> = async ({ params }) => {
   const { userId, teamId } = await params;
@@ -29,40 +38,20 @@ const QuickPickPage: FC<PageProps<"/quick-pick/[userId]/[teamId]">> = async ({ p
 
   if (!team) {
     return (
-      <div className="min-h-screen flex flex-col md:mx-3">
-        <CustomHead title="Quick Pick" />
-        <div
-          className={cn(
-            "bg-gray-100 text-gray-800 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-gray-800 rounded-lg p-4 shrink-0 grow w-full h-full lg:h-auto lg:w-[50%] xl:w-[33%] text-center",
-          )}
-        >
-          <h2 className={cn("scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0")}>
-            Quick pick failed!
-          </h2>
-          <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">Team not found</h3>
-        </div>
-      </div>
+      <QuickPickCard title="Quick pick failed!">
+        <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">Team not found</h3>
+      </QuickPickCard>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col md:mx-3">
-      <CustomHead title="Quick Pick" />
-      <div
-        className={cn(
-          "bg-gray-100 text-gray-800 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-gray-800 rounded-lg p-4 shrink-0 grow w-full h-full lg:h-auto lg:w-[50%] xl:w-[33%] text-center",
-        )}
-      >
-        <h2 className={cn("scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0")}>
-          Confirm Quick Pick
-        </h2>
-        <QuickPickConfirm
-          teamId={Number(teamId)}
-          teamLabel={`${team.TeamCity} ${team.TeamName}`}
-          userId={Number(userId)}
-        />
-      </div>
-    </div>
+    <QuickPickCard title="Confirm Quick Pick">
+      <QuickPickConfirm
+        teamId={Number(teamId)}
+        teamLabel={`${team.TeamCity} ${team.TeamName}`}
+        userId={Number(userId)}
+      />
+    </QuickPickCard>
   );
 };
 

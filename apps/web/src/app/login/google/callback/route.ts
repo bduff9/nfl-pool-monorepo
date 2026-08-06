@@ -48,7 +48,9 @@ export const GET = async (request: NextRequest, _ctx: RouteContext<"/login/googl
 
   try {
     tokens = await google.validateAuthorizationCode(code, codeVerifier);
-  } catch (_error) {
+  } catch (error) {
+    console.error("Failed to validate Google authorization code", error);
+
     return new Response(null, {
       status: 400,
     });

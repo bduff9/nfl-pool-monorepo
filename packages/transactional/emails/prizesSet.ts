@@ -5,16 +5,27 @@ import type { Selectable } from "kysely";
 import { getBaseEmailClass, getBrowserLink, getUnsubscribeLink, sendEmail, updateEmailClass } from ".";
 import { getHtml, getPlainText, getSubject } from "./templates/PrizesSetEmail";
 
-export const sendPrizesSetEmail = async (
-  user: Pick<Selectable<Users>, "UserEmail" | "UserFirstName">,
-  overall1stPrize: number,
-  overall2ndPrize: number,
-  overall3rdPrize: number,
-  survivor1stPrize: number,
-  survivor2ndPrize: number,
-  weekly1stPrize: number,
-  weekly2ndPrize: number,
-): Promise<void> => {
+type SendPrizesSetEmailArgs = {
+  overall1stPrize: number;
+  overall2ndPrize: number;
+  overall3rdPrize: number;
+  survivor1stPrize: number;
+  survivor2ndPrize: number;
+  user: Pick<Selectable<Users>, "UserEmail" | "UserFirstName">;
+  weekly1stPrize: number;
+  weekly2ndPrize: number;
+};
+
+export const sendPrizesSetEmail = async ({
+  overall1stPrize,
+  overall2ndPrize,
+  overall3rdPrize,
+  survivor1stPrize,
+  survivor2ndPrize,
+  user,
+  weekly1stPrize,
+  weekly2ndPrize,
+}: SendPrizesSetEmailArgs): Promise<void> => {
   const overallLastPrize = await getPoolCost();
   const to = [user.UserEmail];
   const userFirstName = user.UserFirstName ?? "player";

@@ -100,16 +100,20 @@ export const UseBeforeUnloadProvider = ({ children }: PropsWithChildren) => {
     type PopStateHandler = (event: PopStateEvent) => void;
     type AddEventListenerArgs = Parameters<typeof window.addEventListener>;
 
-    let nextjsPopStateHandler: PopStateHandler;
+    let nextjsPopStateHandler: PopStateHandler | undefined;
 
     const popStateHandler: PopStateHandler = (...args) => {
       useBeforeUnload.ensureSafeNavigation(
         () => {
-          nextjsPopStateHandler(...args);
+          nextjsPopStateHandler?.(...args);
           lastKnownHref = window.location.href;
         },
         () => {
-          router.replace(lastKnownHref as Route, { scroll: false });
+          const relativeUrl = new URL(lastKnownHref, window.location.origin);
+
+          router.replace(`${relativeUrl.pathname}${relativeUrl.search}${relativeUrl.hash}` as Route, {
+            scroll: false,
+          });
         },
       );
     };
