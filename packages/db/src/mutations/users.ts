@@ -34,6 +34,8 @@ export const populateUserData = async (
 
   if (week > 1) {
     const lowest = await trx.selectFrom("OverallMV").select("UserID").orderBy("Rank desc").executeTakeFirstOrThrow();
+    const teamName = user.UserTeamName || "No team name";
+    const userName = user.UserName || user.UserEmail;
 
     // Populate picks
     const picksResult = await trx
@@ -121,8 +123,8 @@ export const populateUserData = async (
             "Rank",
             eb.val(1).as("Tied"),
             eb.val(user.UserID).as("UserID"),
-            eb.val(user.UserTeamName).as("TeamName"),
-            eb.val(user.UserName).as("UserName"),
+            eb.val(teamName).as("TeamName"),
+            eb.val(userName).as("UserName"),
             "PointsEarned",
             "PointsWrong",
             "PointsPossible",
@@ -173,8 +175,8 @@ export const populateUserData = async (
             "Rank",
             eb.val(1).as("Tied"),
             eb.val(user.UserID).as("UserID"),
-            eb.val(user.UserTeamName).as("TeamName"),
-            eb.val(user.UserName).as("UserName"),
+            eb.val(teamName).as("TeamName"),
+            eb.val(userName).as("UserName"),
             "PointsEarned",
             "PointsWrong",
             "PointsPossible",
