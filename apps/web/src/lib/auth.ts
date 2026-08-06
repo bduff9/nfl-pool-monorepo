@@ -235,11 +235,15 @@ export const requireLoggedIn = async (): Promise<Route | null> => {
 export const requireLoggedOut = async (): Promise<Route | null> => {
   const { user } = await getCurrentSession();
 
-  if (user) {
-    return "/";
+  if (!user) {
+    return null;
   }
 
-  return null;
+  if (!user.doneRegistering) {
+    return "/users/create";
+  }
+
+  return "/";
 };
 
 export const requireRegistered = async (): Promise<Route | null> => {
