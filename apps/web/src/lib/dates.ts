@@ -53,6 +53,26 @@ export const formatTimeFromKickoff = (date: Date | string): string => {
   return toFormat.toLocaleTimeString("en-US", options);
 };
 
+/**
+ * Formats a timestamp for admin-only audit tables (logs, emails, API calls). Pinned to Chicago
+ * time since both admins are there - fixed rather than viewer-local avoids the SSR/hydration
+ * mismatch a per-viewer timezone would need a client-only render pass to avoid.
+ */
+export const formatAdminTimestamp = (date: Date | string): string => {
+  const options: Intl.DateTimeFormatOptions = {
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    month: "short",
+    second: "2-digit",
+    timeZone: "America/Chicago",
+    timeZoneName: "short",
+    year: "numeric",
+  };
+
+  return new Date(date).toLocaleString("en-US", options);
+};
+
 type TimeParts = {
   days: number;
   hours: number;

@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
 
-import { getTimeRemainingString } from "./dates";
+import { formatAdminTimestamp, getTimeRemainingString } from "./dates";
+
+describe("formatAdminTimestamp", () => {
+  it("formats in Chicago time regardless of the runtime's local timezone", () => {
+    // 2026-01-04T18:00:00Z is noon Chicago time (CST, UTC-6) no matter what timezone this test
+    // runs in - if the runtime's local timezone leaked in, this would instead reflect whatever
+    // TZ the test process happens to be running under.
+    const result = formatAdminTimestamp(new Date("2026-01-04T18:00:00Z"));
+    expect(result).toBe("Jan 4, 2026, 12:00:00 PM CST");
+  });
+});
 
 describe("getTimeRemainingString", () => {
   it("returns empty string when total is 0 or negative", () => {

@@ -3,6 +3,7 @@
 import { type DataTableFeatures, SortableColumnHeader } from "@nfl-pool-monorepo/ui/components/data-table";
 import type { ColumnDef } from "@tanstack/react-table";
 
+import { formatAdminTimestamp } from "@/lib/dates";
 import { env } from "@/lib/env.client";
 import type { getAdminEmails } from "@/server/loaders/email";
 
@@ -65,7 +66,7 @@ export const emailColumns: ColumnDef<DataTableFeatures, Email>[] = [
     header: ({ column }) => <SortableColumnHeader column={column} title="Subject" />,
   },
   {
-    accessorFn: (row) => row.EmailCreatedAt.toString(),
+    accessorFn: (row) => formatAdminTimestamp(row.EmailCreatedAt),
     accessorKey: "EmailCreatedAt",
     header: ({ column }) => <SortableColumnHeader column={column} title="Sent" />,
   },
