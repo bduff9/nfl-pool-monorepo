@@ -14,6 +14,8 @@ import {
 import { type } from "arktype";
 import { parseAsIndex, parseAsInteger, parseAsJson, useQueryState, useQueryStates } from "nuqs";
 import { type ChangeEvent, type HTMLAttributes, type ReactNode, useCallback } from "react";
+// react-doctor-disable-next-line no-flush-sync -- used deliberately in SortableColumnHeader, see comment there
+import { flushSync } from "react-dom";
 import { LuArrowDown, LuArrowUp, LuArrowUpDown } from "react-icons/lu";
 
 import { Button } from "./button";
@@ -386,13 +388,18 @@ export const SortableColumnHeader = <T extends RowData, D>({
   const toggleSort = () => {
     const sortState = column.getIsSorted();
 
-    if (!sortState) {
-      column.toggleSorting(false);
-    } else if (sortState === "asc") {
-      column.toggleSorting(true);
-    } else {
-      column.clearSorting();
-    }
+    // react-doctor-disable-next-line no-flush-sync -- the URL-driven sort update otherwise gets
+    // stuck behind the root layout's <ViewTransition>, leaving the header's arrow icon stale until
+    // an unrelated re-render happens to flush it; forcing a sync commit here fixes that reliably.
+    flushSync(() => {
+      if (!sortState) {
+        column.toggleSorting(false);
+      } else if (sortState === "asc") {
+        column.toggleSorting(true);
+      } else {
+        column.clearSorting();
+      }
+    });
   };
 
   return (
