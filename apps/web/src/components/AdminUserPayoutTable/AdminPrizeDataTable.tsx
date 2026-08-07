@@ -28,7 +28,15 @@ type AdminPrizeDataTableProps = {
 };
 
 const AdminPrizeDataTable: FC<AdminPrizeDataTableProps> = ({ winners }) => {
-  return <DataTable columns={getPrizeColumns()} data={winners} hidePagination rowCount={winners.length} />;
+  return (
+    <DataTable
+      columns={getPrizeColumns()}
+      data={winners}
+      defaultSort={[{ desc: false, id: "UserName" }]}
+      hidePagination
+      rowCount={winners.length}
+    />
+  );
 };
 
 export default AdminPrizeDataTable;

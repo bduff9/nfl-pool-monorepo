@@ -33,6 +33,7 @@ const AdminEmailsDataTable: FC<AdminEmailsDataTableProps> = ({ count, results })
     <DataTable
       columns={getEmailColumns()}
       data={results}
+      defaultSort={[{ desc: true, id: "EmailCreatedAt" }]}
       filters={[{ field: "EmailType", placeholder: "Enter email type", type: "text" }]}
       rowCount={count}
     />

@@ -33,6 +33,7 @@ const ApiCallsDataTable: FC<ApiCallsDataTableProps> = ({ count, results }) => {
     <DataTable
       columns={getApiCallColumns()}
       data={results}
+      defaultSort={[{ desc: true, id: "ApiCallDate" }]}
       filters={[
         {
           field: "ApiCallWeek",
