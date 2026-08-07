@@ -33,7 +33,6 @@ const AdminLogsDataTable: FC<AdminLogsDataTableProps> = ({ count, results }) => 
     <DataTable
       columns={getLogColumns()}
       data={results}
-      defaultSort={[{ desc: true, id: "LogAdded" }]}
       filters={[
         { field: "LogAction", placeholder: "Select action", type: "text" },
         { field: "UserName", placeholder: "Select user", type: "text" },
