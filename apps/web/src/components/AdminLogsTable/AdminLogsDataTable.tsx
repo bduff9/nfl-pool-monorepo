@@ -21,7 +21,7 @@ import type { FC } from "react";
 
 import type { getAdminLogs } from "@/server/loaders/log";
 
-import { logColumns } from "./AdminLogColumns";
+import { getLogColumns } from "./AdminLogColumns";
 
 type AdminLogsDataTableProps = {
   count: number;
@@ -31,7 +31,7 @@ type AdminLogsDataTableProps = {
 const AdminLogsDataTable: FC<AdminLogsDataTableProps> = ({ count, results }) => {
   return (
     <DataTable
-      columns={logColumns}
+      columns={getLogColumns()}
       data={results}
       filters={[
         { field: "LogAction", placeholder: "Select action", type: "text" },

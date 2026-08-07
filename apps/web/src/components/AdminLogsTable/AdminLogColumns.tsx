@@ -8,7 +8,7 @@ import type { getAdminLogs } from "@/server/loaders/log";
 
 export type Log = Awaited<ReturnType<typeof getAdminLogs>>["results"][number];
 
-export const logColumns: ColumnDef<DataTableFeatures, Log>[] = [
+export const getLogColumns = (): ColumnDef<DataTableFeatures, Log>[] => [
   {
     accessorKey: "LogAction",
     header: ({ column }) => <SortableColumnHeader column={column} title="Action" />,

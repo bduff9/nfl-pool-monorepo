@@ -11,7 +11,7 @@ import { BalanceCell } from "./BalanceCell";
 
 export type Prize = Awaited<ReturnType<typeof getUserPayoutsForAdmin>>[number];
 
-export const prizeColumns: ColumnDef<DataTableFeatures, Prize>[] = [
+export const getPrizeColumns = (): ColumnDef<DataTableFeatures, Prize>[] => [
   {
     accessorKey: "UserName",
     cell: ({ row }) => {

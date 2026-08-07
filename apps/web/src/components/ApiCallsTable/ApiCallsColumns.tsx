@@ -10,7 +10,7 @@ import type { loadAPICalls } from "@/server/loaders/apiCall";
 
 export type ApiCall = Awaited<ReturnType<typeof loadAPICalls>>["results"][number];
 
-export const apiCallColumns: ColumnDef<DataTableFeatures, ApiCall>[] = [
+export const getApiCallColumns = (): ColumnDef<DataTableFeatures, ApiCall>[] => [
   {
     accessorKey: "ApiCallUrl",
     cell: ({ row }) => (

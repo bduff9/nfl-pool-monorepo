@@ -21,7 +21,7 @@ import type { FC } from "react";
 
 import type { getAdminEmails } from "@/server/loaders/email";
 
-import { emailColumns } from "./AdminEmailsColumns";
+import { getEmailColumns } from "./AdminEmailsColumns";
 
 type AdminEmailsDataTableProps = {
   count: number;
@@ -31,7 +31,7 @@ type AdminEmailsDataTableProps = {
 const AdminEmailsDataTable: FC<AdminEmailsDataTableProps> = ({ count, results }) => {
   return (
     <DataTable
-      columns={emailColumns}
+      columns={getEmailColumns()}
       data={results}
       filters={[{ field: "EmailType", placeholder: "Enter email type", type: "text" }]}
       rowCount={count}

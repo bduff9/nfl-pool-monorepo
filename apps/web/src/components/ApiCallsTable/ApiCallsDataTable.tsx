@@ -21,7 +21,7 @@ import type { FC } from "react";
 
 import type { loadAPICalls } from "@/server/loaders/apiCall";
 
-import { apiCallColumns } from "./ApiCallsColumns";
+import { getApiCallColumns } from "./ApiCallsColumns";
 
 type ApiCallsDataTableProps = {
   count: number;
@@ -31,7 +31,7 @@ type ApiCallsDataTableProps = {
 const ApiCallsDataTable: FC<ApiCallsDataTableProps> = ({ count, results }) => {
   return (
     <DataTable
-      columns={apiCallColumns}
+      columns={getApiCallColumns()}
       data={results}
       filters={[
         {

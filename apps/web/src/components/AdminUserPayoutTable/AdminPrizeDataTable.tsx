@@ -21,14 +21,14 @@ import type { FC } from "react";
 
 import type { getUserPayoutsForAdmin } from "@/server/loaders/payment";
 
-import { prizeColumns } from "./AdminPayoutColumns";
+import { getPrizeColumns } from "./AdminPayoutColumns";
 
 type AdminPrizeDataTableProps = {
   winners: Awaited<ReturnType<typeof getUserPayoutsForAdmin>>;
 };
 
 const AdminPrizeDataTable: FC<AdminPrizeDataTableProps> = ({ winners }) => {
-  return <DataTable columns={prizeColumns} data={winners} hidePagination rowCount={winners.length} />;
+  return <DataTable columns={getPrizeColumns()} data={winners} hidePagination rowCount={winners.length} />;
 };
 
 export default AdminPrizeDataTable;

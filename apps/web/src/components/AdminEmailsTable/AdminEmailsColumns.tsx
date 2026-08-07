@@ -9,7 +9,7 @@ import type { getAdminEmails } from "@/server/loaders/email";
 
 export type Email = Awaited<ReturnType<typeof getAdminEmails>>["results"][number];
 
-export const emailColumns: ColumnDef<DataTableFeatures, Email>[] = [
+export const getEmailColumns = (): ColumnDef<DataTableFeatures, Email>[] => [
   {
     accessorKey: "EmailID",
     cell: ({ row }) => {
