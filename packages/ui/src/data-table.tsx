@@ -395,6 +395,8 @@ export const SortableColumnHeader = <T extends RowData, D>({
     }
   };
 
+  const sortState = column.getIsSorted();
+
   return (
     <Button
       className={cn(
@@ -406,9 +408,9 @@ export const SortableColumnHeader = <T extends RowData, D>({
       variant="ghost"
     >
       {title}
-      {!column.getIsSorted() && <LuArrowUpDown className="ml-2 size-4 shrink-0" />}
-      {column.getIsSorted() === "asc" && <LuArrowUp className="ml-2 size-4 shrink-0" />}
-      {column.getIsSorted() === "desc" && <LuArrowDown className="ml-2 size-4 shrink-0" />}
+      {!sortState && <LuArrowUpDown className="ml-2 size-4 shrink-0" key="unsorted" />}
+      {sortState === "asc" && <LuArrowUp className="ml-2 size-4 shrink-0" key="asc" />}
+      {sortState === "desc" && <LuArrowDown className="ml-2 size-4 shrink-0" key="desc" />}
     </Button>
   );
 };
