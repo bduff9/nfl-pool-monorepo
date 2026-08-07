@@ -14,11 +14,10 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { DataTable } from "@nfl-pool-monorepo/ui/components/data-table";
 import { redirect } from "next/navigation";
 import type { FC } from "react";
 
-import { apiCallColumns } from "@/components/ApiCallsTable/ApiCallsColumns";
+import ApiCallsDataTable from "@/components/ApiCallsTable/ApiCallsDataTable";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
 import { requireAdmin } from "@/lib/auth";
@@ -43,18 +42,7 @@ const AdminAPICalls: FC<PageProps<"/admin/api">> = async ({ searchParams }) => {
           </div>
           <div className="w-full mt-3">
             <div className="bg-gray-100/80 rounded">
-              <DataTable
-                columns={apiCallColumns}
-                data={results}
-                filters={[
-                  {
-                    field: "ApiCallWeek",
-                    placeholder: "Filter weeks...",
-                    type: "week",
-                  },
-                ]}
-                rowCount={count}
-              />
+              <ApiCallsDataTable count={count} results={results} />
             </div>
           </div>
         </div>

@@ -14,11 +14,10 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { DataTable } from "@nfl-pool-monorepo/ui/components/data-table";
 import { redirect } from "next/navigation";
 import type { FC } from "react";
 
-import { emailColumns } from "@/components/AdminEmailsTable/AdminEmailsColumns";
+import AdminEmailsDataTable from "@/components/AdminEmailsTable/AdminEmailsDataTable";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
 import SendAdminEmails from "@/components/SendAdminEmails/SendAdminEmails";
@@ -46,12 +45,7 @@ const AdminEmail: FC<PageProps<"/admin/email">> = async ({ searchParams }) => {
               {count} {count === 1 ? "email" : "emails"}
             </div>
             <div className="w-full">
-              <DataTable
-                columns={emailColumns}
-                data={results}
-                filters={[{ field: "EmailType", placeholder: "Enter email type", type: "text" }]}
-                rowCount={count}
-              />
+              <AdminEmailsDataTable count={count} results={results} />
             </div>
           </div>
         </div>

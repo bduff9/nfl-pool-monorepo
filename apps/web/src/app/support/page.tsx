@@ -249,7 +249,7 @@ const Support: FC<PageProps<"/support">> = async ({ searchParams }) => {
   }
 
   return (
-    <div className="h-full flex flex-wrap max-w-full md:mx-3">
+    <div className="h-full flex flex-col md:mx-3">
       <CustomHead title={TITLE} />
       <PageContent className="pt-5 md:pt-3 pb-4 px-3 grow shrink-0 max-w-full" id="top">
         <SupportSearch currentQuery={query} />

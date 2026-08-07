@@ -14,11 +14,10 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { DataTable } from "@nfl-pool-monorepo/ui/components/data-table";
 import { redirect } from "next/navigation";
 import type { FC } from "react";
 
-import { logColumns } from "@/components/AdminLogsTable/AdminLogColumns";
+import AdminLogsDataTable from "@/components/AdminLogsTable/AdminLogsDataTable";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
 import { requireAdmin } from "@/lib/auth";
@@ -43,15 +42,7 @@ const AdminLogsPage: FC<PageProps<"/admin/logs">> = async ({ searchParams }) => 
           </div>
 
           <div className="w-full">
-            <DataTable
-              columns={logColumns}
-              data={results}
-              filters={[
-                { field: "LogAction", placeholder: "Select action", type: "text" },
-                { field: "UserName", placeholder: "Select user", type: "text" },
-              ]}
-              rowCount={count}
-            />
+            <AdminLogsDataTable count={count} results={results} />
           </div>
         </div>
       </PageContent>

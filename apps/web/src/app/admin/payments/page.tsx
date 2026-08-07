@@ -21,11 +21,10 @@ import {
   getSurvivorPrizeAmounts,
   getWeeklyPrizeAmounts,
 } from "@nfl-pool-monorepo/db/src/queries/systemValue";
-import { DataTable } from "@nfl-pool-monorepo/ui/components/data-table";
 import { redirect } from "next/navigation";
 import type { FC } from "react";
 
-import { prizeColumns } from "@/components/AdminUserPayoutTable/AdminPayoutColumns";
+import AdminPrizeDataTable from "@/components/AdminUserPayoutTable/AdminPrizeDataTable";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import ManageAdminPayments from "@/components/ManageAdminPayments/ManageAdminPayments";
 import PageContent from "@/components/PageContent/PageContent";
@@ -67,7 +66,7 @@ const AdminPaymentsPage: FC<PageProps<"/admin/payments">> = async ({ searchParam
         />
 
         <div className="flex flex-col rounded-md mt-6">
-          <DataTable columns={prizeColumns} data={winners} hidePagination rowCount={winners.length} />
+          <AdminPrizeDataTable winners={winners} />
         </div>
       </PageContent>
     </div>
