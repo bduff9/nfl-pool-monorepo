@@ -383,6 +383,8 @@ export const SortableColumnHeader = <T extends RowData, D>({
   column,
   title,
 }: SortableColumnHeaderProps<T, D>): ReactNode => {
+  "use no memo";
+
   const toggleSort = () => {
     const sortState = column.getIsSorted();
 
