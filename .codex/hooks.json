@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|ApplyPatch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node '/Users/brianduffey/projects/nfl-pool-monorepo/.codex/hooks/react-doctor.mjs'",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}

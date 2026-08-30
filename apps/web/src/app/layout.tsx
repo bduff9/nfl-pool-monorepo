@@ -188,7 +188,7 @@ const RootLayout: FC<LayoutProps<"/">> = async ({ children }) => {
               </SidebarProvider>
             ) : (
               <Suspense fallback={<PageLoadingFallback />}>
-                <div className="h-full shrink-0 grow relative">{children}</div>
+                <div className="min-h-full relative">{children}</div>
               </Suspense>
             )}
             <Toaster richColors />

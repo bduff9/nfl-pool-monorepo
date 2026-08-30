@@ -2,10 +2,10 @@ import {
   Duration,
   aws_events as events,
   aws_lambda as lambda,
-  Stack,
-  type StackProps,
   aws_s3 as s3,
+  Stack,
   aws_events_targets as targets,
+  type StackProps,
 } from "aws-cdk-lib";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import type { Construct } from "constructs";
@@ -73,7 +73,7 @@ export class CdkStackProd extends Stack {
       environment,
       functionName: "BackupNflDatabaseProd",
       handler: "handler",
-      memorySize: 256,
+      memorySize: 1024,
       retryAttempts: 0,
       runtime: lambda.Runtime.NODEJS_22_X,
       timeout: Duration.seconds(60),
@@ -159,7 +159,7 @@ export class CdkStackProd extends Stack {
       handler: "handler",
       retryAttempts: 0,
       runtime: lambda.Runtime.NODEJS_22_X,
-      timeout: Duration.seconds(120),
+      timeout: Duration.seconds(300),
     });
   }
 }

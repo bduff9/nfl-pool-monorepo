@@ -82,10 +82,9 @@ const InterestEmail: Email<Props> = ({
 
                 <Text className="text-lg">
                   If you are a new player, welcome! You will also need to click the button below, however, you will need
-                  to complete initial registration. You have the option of registering with an email and password, or
-                  with a Twitter or Google account. You also have the option of registering with email and then linking
-                  your Twitter and/or Google account, allowing you one-click sign-ins with all three methods. This is
-                  what we recommend, though certainly not required.
+                  to complete initial registration. You can register with an email and password, or with a Google
+                  account. You can also register with email and then link your Google account for one-click sign-in.
+                  This is what we recommend, though certainly not required.
                 </Text>
 
                 <Text className="text-lg">
