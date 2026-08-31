@@ -63,6 +63,12 @@ const getInitials = (fullName: string | null): string => {
 // for typedRoutes' branded `Route` type.
 const asRoute = (pathname: string): Route => pathname as Route;
 
+const changeWeek = (week: number): void => {
+  // Best-effort: persists the week preference for future visits with no `week` in the URL.
+  // The navigation itself is already driven by the link's href, so a failure here is silent by design.
+  setSelectedWeek(week).catch(() => {});
+};
+
 type WeekMenuItemProps = {
   currentWeek: number;
   href: Route;
@@ -145,12 +151,6 @@ const AppSidebarClient: FC<Props> = ({
   });
 
   let currentPage = "";
-
-  const changeWeek = (week: number): void => {
-    // Best-effort: persists the week preference for future visits with no `week` in the URL.
-    // The navigation itself is already driven by the link's href, so a failure here is silent by design.
-    setSelectedWeek(week).catch(() => {});
-  };
 
   const handlePreviousWeek = () => {
     changeWeek(selectedWeek - 1);
