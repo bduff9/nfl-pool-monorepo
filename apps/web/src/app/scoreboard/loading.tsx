@@ -25,11 +25,11 @@ import PageContent from "@/components/PageContent/PageContent";
 const TeamLoader: FC = () => (
   <>
     <div>
-      <Skeleton className="size-[70px] bg-gray-300" />
+      <Skeleton className="size-[70px] bg-muted" />
     </div>
     <div className={cn("flex-grow flex items-center ps-5")}>
-      <Skeleton className="hidden md:inline-block h-6 w-[200px] bg-gray-300" />
-      <Skeleton className="inline-block md:hidden h-6 w-8 bg-gray-300" />
+      <Skeleton className="hidden md:inline-block h-6 w-[200px] bg-muted" />
+      <Skeleton className="inline-block md:hidden h-6 w-8 bg-muted" />
     </div>
     <div className="w-full"></div>
   </>
@@ -37,13 +37,13 @@ const TeamLoader: FC = () => (
 
 const GameLoader: FC = () => (
   <div className="mb-3">
-    <div className={cn("p-3 flex bg-gray-100 border border-gray-300")}>
+    <div className={cn("p-3 flex bg-muted border")}>
       <div className={cn("flex flex-shrink flex-col md:flex-row flex-wrap")}>
         <TeamLoader />
         <TeamLoader />
       </div>
       <div className={cn("text-center pt-4 flex-grow")}>
-        <Skeleton className="inline-block h-7 w-36 bg-gray-300" />
+        <Skeleton className="inline-block h-7 w-36 bg-muted" />
       </div>
     </div>
   </div>
@@ -59,7 +59,7 @@ const ScoreboardLoader: FC = () => {
             <Fragment key={i}>
               {[0, 1, 15].includes(i) && (
                 <div className={cn("col-span-full text-left font-bold mt-3")}>
-                  <Skeleton className="h-6 w-full md:w-96 bg-gray-300" />
+                  <Skeleton className="h-6 w-full md:w-96 bg-muted" />
                 </div>
               )}
               <GameLoader />

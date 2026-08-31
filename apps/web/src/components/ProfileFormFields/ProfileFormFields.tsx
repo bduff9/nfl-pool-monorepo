@@ -51,10 +51,7 @@ export const ProfileTextField: FC<ProfileTextFieldProps> = ({
       <Input
         {...field}
         autoComplete={autoComplete}
-        className={cn(
-          readOnly ? "dark:bg-transparent border-0 shadow-none" : "dark:bg-white",
-          !readOnly && fieldState.error && "border-red-600",
-        )}
+        className={cn(readOnly && "border-0 shadow-none", !readOnly && fieldState.error && "border-red-600")}
         id={id}
         placeholder={placeholder}
         readOnly={readOnly}
@@ -75,10 +72,7 @@ export const ProfilePaymentTypeField: FC<ProfilePaymentTypeFieldProps> = ({ fiel
     <FormLabel className="required h-5">Payment Type</FormLabel>
     <Select onValueChange={field.onChange} value={field.value}>
       <FormControl>
-        <SelectTrigger
-          aria-label="Payment Type"
-          className={cn("dark:bg-white w-full", fieldState.error && "border-red-600")}
-        >
+        <SelectTrigger aria-label="Payment Type" className={cn("w-full", fieldState.error && "border-red-600")}>
           <SelectValue placeholder="-- Select a payment type --">{field.value}</SelectValue>
         </SelectTrigger>
       </FormControl>

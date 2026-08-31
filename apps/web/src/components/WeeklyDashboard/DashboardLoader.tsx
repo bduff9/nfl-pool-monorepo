@@ -27,16 +27,16 @@ type Props = {
 
 const DashboardLoader: FC<Props> = ({ title }) => {
   return (
-    <div className={cn("md:w-1/3 text-center mb-3 md:mb-0 border-b border-gray-500 md:border-none")}>
+    <div className={cn("md:w-1/3 text-center mb-3 md:mb-0 border-b border-border md:border-none")}>
       <h2 className="mb-0">{title}</h2>
       {/* View Details link */}
       <div className="mb-3 mt-[42px]">
-        <Skeleton className="h-[18px] w-[87px] bg-gray-300" />
+        <Skeleton className="h-[18px] w-[87px] bg-muted" />
       </div>
       {/* Pie Chart */}
       <RankingPieChartLoader />
       {/* H2 */}
-      <Skeleton className="mt-5 h-9 w-[250px] bg-gray-300" />
+      <Skeleton className="mt-5 h-9 w-[250px] bg-muted" />
       {/* Points Bar */}
       <ProgressChartLoader />
       {/* Games Bar */}

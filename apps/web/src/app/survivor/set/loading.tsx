@@ -16,16 +16,16 @@ const SurvivorTeamLoader: FC<SurvivorTeamLoaderProps> = ({ isHome = false }) => 
   return (
     <div
       className={cn(
-        "border-b border-e border-black relative pt-2 px-2 text-center w-1/2 h-[152px] flex flex-col items-center",
+        "border-b border-e border-border relative pt-2 px-2 text-center w-1/2 h-[152px] flex flex-col items-center",
         !isHome && "border-s",
       )}
     >
-      <Skeleton className="size-[70px] bg-gray-400" />
+      <Skeleton className="size-[70px] bg-muted" />
       <br />
       <span className="hidden md:inline">
-        <Skeleton className={"w-[100px] h-5 bg-gray-400"} />{" "}
+        <Skeleton className={"w-[100px] h-5 bg-muted"} />{" "}
       </span>
-      <Skeleton className="w-[75px] h-5 bg-gray-400" />
+      <Skeleton className="w-[75px] h-5 bg-muted" />
     </div>
   );
 };
@@ -47,14 +47,14 @@ const SetPicksLoadingPage: FC = () => {
               >
                 <div
                   className={cn(
-                    "w-full text-muted border border-black flex justify-around overflow-hidden cursor-pointer h-[25px] bg-gray-100 items-center",
+                    "w-full text-muted border flex justify-around overflow-hidden cursor-pointer h-[25px] bg-muted items-center",
                   )}
                 >
                   <div>
-                    <Skeleton className="w-[136px] h-5 bg-gray-400" />
+                    <Skeleton className="w-[136px] h-5 bg-muted" />
                   </div>
                   <div>
-                    <Skeleton className="w-[100px] h-5 bg-gray-400" />
+                    <Skeleton className="w-[100px] h-5 bg-muted" />
                   </div>
                   <div>
                     <FaInfoCircle />
@@ -64,7 +64,7 @@ const SetPicksLoadingPage: FC = () => {
                 <SurvivorTeamLoader isHome />
                 <div
                   className={cn(
-                    "absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-black py-px px-1 bg-gray-100",
+                    "absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border py-px px-1 bg-muted",
                   )}
                 >
                   <PiAtDuotone />

@@ -100,7 +100,7 @@ const createFAQList = (faqs: FuseResult<Selectable<SupportContent>>[]): ReactNod
 
     faqList.push(
       <details className="text-emerald-600 ml-20 mb-3" key={`faq-${faq.item.SupportContentID}`}>
-        <summary className="text-black -ml-12">
+        <summary className="text-foreground -ml-12">
           <FuseHighlight attribute="SupportContentDescription" hit={faq} />
         </summary>
         <FuseHighlight attribute="SupportContentDescription2" hit={faq} />
@@ -264,17 +264,17 @@ const SupportPageBody: FC<SupportPageBodyProps> = async ({ searchParams }) => {
           <h2 className="scroll-m-20 text-4xl font-semibold tracking-tight first:mt-0 text-center mb-0" id="rules">
             Rules
           </h2>
-          <Separator className="my-4 h-px bg-gray-400" />
+          <Separator className="my-4 h-px bg-muted" />
           {ruleMarkup}
           <h2 className="scroll-m-20 text-4xl font-semibold tracking-tight first:mt-0 text-center mb-0" id="faq">
             FAQ
           </h2>
-          <Separator className="my-4 h-px bg-gray-400" />
+          <Separator className="my-4 h-px bg-muted" />
           {faqMarkup}
           <h2 className="scroll-m-20 text-4xl font-semibold tracking-tight first:mt-0 text-center mb-0" id="contact">
             Contact Us
           </h2>
-          <Separator className="my-4 h-px bg-gray-400" />
+          <Separator className="my-4 h-px bg-muted" />
           <div className="text-center">
             <SlackLink href={slackLink} userId={user?.id} />
             <br />

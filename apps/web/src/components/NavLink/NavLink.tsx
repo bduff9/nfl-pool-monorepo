@@ -50,7 +50,7 @@ const NavLink: FC<NavLinkProps> = ({ children, href, isNested = false, onClick, 
       <ProgressBarLink
         className={cn(
           "inline-block w-full py-2 rounded text-2xl font-medium",
-          isActive && "text-green-700 bg-gray-200",
+          isActive && "text-green-700 bg-muted",
           isNested ? "ps-8 text-lg font-normal" : "ps-4",
         )}
         href={href}
@@ -66,7 +66,7 @@ const NavLink: FC<NavLinkProps> = ({ children, href, isNested = false, onClick, 
     <button
       className={cn(
         "text-left w-full py-2 rounded cursor-pointer",
-        isActive && "text-green-700 bg-gray-200",
+        isActive && "text-green-700 bg-muted",
         isNested ? "ps-8 text-lg font-normal" : "ps-4",
       )}
       onClick={onClick}

@@ -116,7 +116,7 @@ const RootLayout: FC<LayoutProps<"/">> = ({ children }) => {
         )}
       </head>
 
-      <body className="h-full bg-black bg-[url('/bkgd-pitch.png')] bg-no-repeat bg-fixed bg-top bg-cover">
+      <body className="h-full bg-background bg-[url('/bkgd-pitch.png')] bg-no-repeat bg-fixed bg-top bg-cover">
         <Providers>
           <Suspense fallback={null}>
             <LogRocketGate />

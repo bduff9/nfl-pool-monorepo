@@ -58,7 +58,7 @@ const ErrorPage: FC<Props> = ({ error, reset, retry }) => {
         </div>
       )}
       <CustomHeadClient alerts={[]} title="Error Occurred" />
-      <div className="bg-gray-100/80 text-black absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-dark rounded-sm text-dark px-3 py-6 w-full md:w-1/2">
+      <div className="bg-muted/80 text-foreground absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border rounded-sm px-3 py-6 w-full md:w-1/2">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-center mb-6">
           Flag on the play!
         </h1>

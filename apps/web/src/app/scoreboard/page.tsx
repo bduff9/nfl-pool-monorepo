@@ -65,7 +65,7 @@ const ScoreboardGames: FC<ScoreboardGamesProps> = async ({ selectedWeek }) => {
             <Fragment key={`game-${game.GameID}`}>
               {differentKickoff && <ScoreboardDate isFirst={isFirst} kickoff={game.GameKickoff} />}
               <div className="mb-3">
-                <div className={cn("p-3 flex bg-gray-100 border border-gray-500")}>
+                <div className={cn("p-3 flex bg-muted border border-border")}>
                   <div className={cn("flex shrink flex-wrap")}>
                     <ScoreboardTeam
                       gameStatus={game.GameStatus}

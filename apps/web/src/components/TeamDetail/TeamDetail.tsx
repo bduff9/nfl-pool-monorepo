@@ -31,7 +31,7 @@ type TeamBlockProps = {
 
 const TeamBlock: FC<TeamBlockProps> = ({ onClose, spread, team }) => (
   <div className={cn("w-1/2")}>
-    <div className={cn("relative border border-black rounded p-3 bg-gray-100")}>
+    <div className={cn("relative border border-border rounded p-3 bg-muted")}>
       {!!onClose && (
         <button
           aria-label="Close team details"

@@ -46,7 +46,7 @@ const AdminUsersPageBody: FC<PageProps<"/admin/users">> = async ({ searchParams 
             {count} {count === 1 ? "User" : "Users"}
           </div>
           <div className="w-full mt-3">
-            <div className="bg-gray-100/80 rounded p-4">
+            <div className="bg-muted/80 rounded p-4">
               <AdminUsersDataTable count={count} trustedUsers={trustedUsers} users={users} />
             </div>
           </div>

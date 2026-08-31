@@ -57,12 +57,12 @@ const getSurvivorTeamStateClasses = (
   }
 
   if (isOnBye) {
-    return "border border-black bg-gray-100";
+    return "border border-border bg-muted";
   }
 
   return cn(
-    "border-b border-e border-black bg-gray-100 hover:bg-blue-200 hover:border-blue-400 hover:border-4",
-    loading ? "bg-gray-300 grayscale" : "cursor-pointer",
+    "border-b border-e border-border bg-muted hover:bg-blue-200 hover:border-blue-400 hover:border-4",
+    loading ? "bg-muted grayscale" : "cursor-pointer",
     !isHome && "border-s",
   );
 };

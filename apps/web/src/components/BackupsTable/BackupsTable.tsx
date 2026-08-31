@@ -76,20 +76,20 @@ const BackupsTable: FC<Props> = ({ count, results }) => {
         {count} {count === 1 ? "Backup" : "Backups"}
       </div>
       <div className={cn("w-full h-auto md:h-[90vh]")}>
-        <div className="bg-gray-100/80 rounded">
+        <div className="bg-muted/80 rounded">
           <Table>
             <TableHeader>
               <TableRow className="hidden md:table-row">
-                <TableHead className="text-black" scope="col">
+                <TableHead className="text-foreground" scope="col">
                   Restore
                 </TableHead>
-                <TableHead className="text-black" scope="col">
+                <TableHead className="text-foreground" scope="col">
                   Name
                 </TableHead>
-                <TableHead className="text-black" scope="col">
+                <TableHead className="text-foreground" scope="col">
                   Date
                 </TableHead>
-                <TableHead className="text-black" scope="col">
+                <TableHead className="text-foreground" scope="col">
                   AM/PM
                 </TableHead>
               </TableRow>
@@ -112,7 +112,7 @@ const BackupsTable: FC<Props> = ({ count, results }) => {
                         onClick={handleRestoreClick}
                         type="button"
                       >
-                        <PiDatabaseDuotone className="cursor-pointer text-black size-4" />
+                        <PiDatabaseDuotone className="cursor-pointer text-foreground size-4" />
                       </button>
                     )}
                     {restoringBackupName === backup.backupName && (

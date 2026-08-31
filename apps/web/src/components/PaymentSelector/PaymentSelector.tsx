@@ -46,7 +46,7 @@ const PaymentSelector: FC<PaymentSelectorProps> = ({ amount, defaultPayment }) =
       <div>How would you like to pay your balance?</div>
 
       <Select onValueChange={handlePaymentTypeChange} value={paymentType}>
-        <SelectTrigger aria-label="Payment type" className="dark:bg-white w-64">
+        <SelectTrigger aria-label="Payment type" className="w-64">
           <SelectValue placeholder="Select a payment type">{paymentType}</SelectValue>
         </SelectTrigger>
         <SelectContent>

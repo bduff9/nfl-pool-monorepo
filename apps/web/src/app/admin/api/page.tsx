@@ -43,7 +43,7 @@ const AdminAPICallsPageBody: FC<PageProps<"/admin/api">> = async ({ searchParams
             {count} {count === 1 ? "API Call" : "API Calls"}
           </div>
           <div className="w-full mt-3">
-            <div className="bg-gray-100/80 rounded">
+            <div className="bg-muted/80 rounded">
               <ApiCallsDataTable count={count} results={results} />
             </div>
           </div>

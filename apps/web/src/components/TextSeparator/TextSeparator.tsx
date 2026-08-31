@@ -9,7 +9,7 @@ type Props = {
 const TextSeparator: FC<Props> = ({ children, className }) => (
   <div
     className={cn(
-      "flex items-center text-center before:border-b before:border-black before:flex-1 before:mr-8 after:border-b after:border-black after:flex-1 after:ml-8",
+      "flex items-center text-center before:border-b before:border-border before:flex-1 before:mr-8 after:border-b after:border-border after:flex-1 after:ml-8",
       className,
     )}
   >

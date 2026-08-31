@@ -55,13 +55,13 @@ const ViewPaymentsPageBody: FC<PageProps<"/users/payments">> = async () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-start text-black" scope="col">
+              <TableHead className="text-start text-foreground" scope="col">
                 Description
               </TableHead>
-              <TableHead className="text-center text-black" scope="col">
+              <TableHead className="text-center text-foreground" scope="col">
                 Week
               </TableHead>
-              <TableHead className="text-end text-black" scope="col">
+              <TableHead className="text-end text-foreground" scope="col">
                 Amount
               </TableHead>
             </TableRow>
@@ -80,7 +80,7 @@ const ViewPaymentsPageBody: FC<PageProps<"/users/payments">> = async () => {
             })}
           </TableBody>
           <TableFooter>
-            <TableRow className="font-semibold bg-gray-100">
+            <TableRow className="font-semibold bg-muted">
               <TableCell className="text-start" colSpan={2}>
                 {owed < 0 ? "Total you owe:" : "Total you are owed:"}
               </TableCell>

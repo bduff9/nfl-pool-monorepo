@@ -107,7 +107,6 @@ const AdminUserPayoutModal: FC<Props> = ({ handleClose, show = false, updateAmou
               : `${fullName} has been paid $${Number(winner?.UserWon ?? 0)}`}
           </Label>
           <Input
-            className="dark:bg-white"
             id="UserPayoutAmount"
             max={remainingToPay}
             onChange={handleToPayChange}

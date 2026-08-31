@@ -178,7 +178,7 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
           </Label>
           <Input
             aria-label="Last score of week for tiebreaker"
-            className="dark:bg-white"
+            className="bg-card"
             defaultValue={tiebreaker.TiebreakerLastScore ?? 0}
             id="tiebreakerScore"
             min="1"

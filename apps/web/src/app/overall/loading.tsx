@@ -49,22 +49,22 @@ const OverallRankingsLoader: FC = () => {
           <Table parentClassName="w-full mt-4 text-center">
             <TableHeader>
               <TableRow>
-                <TableHead className="text-center text-black font-semibold" scope="col">
+                <TableHead className="text-center text-foreground font-semibold" scope="col">
                   Rank
                 </TableHead>
-                <TableHead className="text-center text-black font-semibold" scope="col">
+                <TableHead className="text-center text-foreground font-semibold" scope="col">
                   Team
                 </TableHead>
-                <TableHead className="text-center text-black font-semibold" scope="col">
+                <TableHead className="text-center text-foreground font-semibold" scope="col">
                   Owner
                 </TableHead>
-                <TableHead className="text-center text-black font-semibold" scope="col">
+                <TableHead className="text-center text-foreground font-semibold" scope="col">
                   Points
                 </TableHead>
-                <TableHead className="text-center text-black font-semibold" scope="col">
+                <TableHead className="text-center text-foreground font-semibold" scope="col">
                   Games Correct
                 </TableHead>
-                <TableHead className="text-center text-black font-semibold" scope="col">
+                <TableHead className="text-center text-foreground font-semibold" scope="col">
                   Missed Games?
                 </TableHead>
               </TableRow>
@@ -73,7 +73,7 @@ const OverallRankingsLoader: FC = () => {
               {Array.from({ length: 20 }).map((_, i) => (
                 // biome-ignore lint/suspicious/noArrayIndexKey: This is a loader and the key is not important
                 <TableRow key={`table-loader-${i}`}>
-                  <TableHead className="text-center text-black font-semibold" scope="row">
+                  <TableHead className="text-center text-foreground font-semibold" scope="row">
                     <Skeleton />
                   </TableHead>
                   <TableCell>

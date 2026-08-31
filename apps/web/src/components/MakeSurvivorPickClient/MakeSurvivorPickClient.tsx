@@ -78,7 +78,7 @@ const SurvivorGameCard: FC<SurvivorGameCardProps> = ({
       <button
         aria-label={selectedGame ? "Collapse game details" : "Expand game details"}
         className={cn(
-          "w-full text-muted border border-black flex justify-around overflow-hidden cursor-pointer h-[25px] bg-gray-100 items-center",
+          "w-full text-muted border border-border flex justify-around overflow-hidden cursor-pointer h-[25px] bg-muted items-center",
         )}
         onClick={onToggleGame}
         type="button"
@@ -104,7 +104,7 @@ const SurvivorGameCard: FC<SurvivorGameCardProps> = ({
       />
       <div
         className={cn(
-          "absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-black py-px px-1 bg-gray-300",
+          "absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-border py-px px-1 bg-muted",
         )}
       >
         <FaAt />

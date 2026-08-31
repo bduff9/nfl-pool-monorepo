@@ -272,7 +272,7 @@ export function DataTable<TData extends RowData, TValue>({
             {">>"}
           </Button>
           <Select onValueChange={handlePageSizeChange} value={table.state.pagination.pageSize.toString()}>
-            <SelectTrigger aria-label="Rows per page" className="dark:bg-white">
+            <SelectTrigger aria-label="Rows per page">
               <SelectValue placeholder="Rows per page">{table.state.pagination.pageSize}</SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -303,7 +303,7 @@ const WeekFilterSelect = ({ field, onFilterChange, placeholder, value }: WeekFil
 
   return (
     <Select onValueChange={handleValueChange} value={value}>
-      <SelectTrigger aria-label={placeholder} className="dark:bg-white">
+      <SelectTrigger aria-label={placeholder}>
         <SelectValue placeholder={placeholder}>{displayValue}</SelectValue>
       </SelectTrigger>
       <SelectContent>
@@ -333,7 +333,7 @@ const DropdownFilterSelect = ({ field, onFilterChange, options, placeholder, val
 
   return (
     <Select onValueChange={handleValueChange} value={value}>
-      <SelectTrigger aria-label={placeholder} className="dark:bg-white">
+      <SelectTrigger aria-label={placeholder}>
         <SelectValue placeholder={placeholder}>{displayValue}</SelectValue>
       </SelectTrigger>
       <SelectContent>
@@ -364,7 +364,7 @@ const TextFilterInput = ({ field, onFilterChange, placeholder, value }: TextFilt
   return (
     <Input
       aria-label={placeholder}
-      className="max-w-sm dark:bg-white"
+      className="max-w-sm"
       onChange={handleChange}
       placeholder={placeholder}
       type="text"

@@ -315,7 +315,7 @@ const AppSidebarClient: FC<Props> = ({
                 <SidebarMenuButton>
                   <Avatar className="size-10 rounded-lg">
                     <AvatarImage src={user.image ?? undefined} />
-                    <AvatarFallback className="size-full text-black rounded-lg">
+                    <AvatarFallback className="size-full text-foreground rounded-lg">
                       {getInitials(user.name)}
                     </AvatarFallback>
                   </Avatar>

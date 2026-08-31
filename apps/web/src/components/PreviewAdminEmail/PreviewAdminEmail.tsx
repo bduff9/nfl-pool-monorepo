@@ -73,7 +73,7 @@ const PreviewAdminEmail: FC<Props> = ({ emailType, payload, userFirstName }) => 
   }, [canPreview, body, preview, subject, emailType, userFirstName, fetchPreview]);
 
   return (
-    <div className="w-full bg-white p-2 rounded-md border">
+    <div className="w-full bg-card p-2 rounded-md border">
       <Tabs className="w-full" defaultValue="html">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="html">HTML</TabsTrigger>

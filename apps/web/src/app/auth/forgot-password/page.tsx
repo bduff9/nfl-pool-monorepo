@@ -50,7 +50,7 @@ const ForgotPasswordContent: FC<ForgotPasswordContentProps> = async ({ searchPar
   const errorMessage = Array.isArray(error) ? error[0] : error;
 
   return (
-    <div className="bg-gray-100 text-gray-800 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-gray-800 rounded-lg p-4 shrink-0 grow w-full h-full lg:h-auto lg:w-[50%] xl:w-[33%]">
+    <div className="bg-muted text-foreground absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-border rounded-lg p-4 shrink-0 grow w-full h-full lg:h-auto lg:w-[50%] xl:w-[33%]">
       <div className="absolute -top-24 left-1/2 -translate-x-1/2 size-36">
         <Image
           alt="A football"

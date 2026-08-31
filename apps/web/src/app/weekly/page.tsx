@@ -56,28 +56,28 @@ const WeeklyRankingsTable: FC<WeeklyRankingsTableProps> = async ({ selectedWeek 
     <Table parentClassName="w-full mt-4 text-center">
       <TableHeader>
         <TableRow>
-          <TableHead className="text-center text-black font-semibold" scope="col">
+          <TableHead className="text-center text-foreground font-semibold" scope="col">
             Rank
           </TableHead>
-          <TableHead className="text-center text-black font-semibold" scope="col">
+          <TableHead className="text-center text-foreground font-semibold" scope="col">
             Team
           </TableHead>
-          <TableHead className="text-center text-black font-semibold" scope="col">
+          <TableHead className="text-center text-foreground font-semibold" scope="col">
             Owner
           </TableHead>
-          <TableHead className="text-center text-black font-semibold" scope="col">
+          <TableHead className="text-center text-foreground font-semibold" scope="col">
             Points
           </TableHead>
-          <TableHead className="text-center text-black font-semibold" scope="col">
+          <TableHead className="text-center text-foreground font-semibold" scope="col">
             Games Correct
           </TableHead>
-          <TableHead className="text-center text-black font-semibold" scope="col">
+          <TableHead className="text-center text-foreground font-semibold" scope="col">
             Tiebreaker
           </TableHead>
-          <TableHead className="text-center text-black font-semibold" scope="col">
+          <TableHead className="text-center text-foreground font-semibold" scope="col">
             Last Game
           </TableHead>
-          <TableHead className="text-center text-black font-semibold" scope="col">
+          <TableHead className="text-center text-foreground font-semibold" scope="col">
             Eliminated
           </TableHead>
         </TableRow>
@@ -85,7 +85,7 @@ const WeeklyRankingsTable: FC<WeeklyRankingsTableProps> = async ({ selectedWeek 
       <TableBody>
         {weeklyRankings.map((row) => (
           <TableRow className={cn(row.UserID === user.UserID && "bg-amber-300")} key={`user-rank-for-${row.UserID}`}>
-            <TableHead className="text-center text-black font-semibold" scope="row">
+            <TableHead className="text-center text-foreground font-semibold" scope="row">
               {row.Tied ? "T" : ""}
               {row.Rank}
             </TableHead>

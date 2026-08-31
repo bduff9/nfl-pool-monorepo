@@ -42,7 +42,7 @@ const MyProgressChart: FC<MyProgressChartProps> = ({
   return (
     <div>
       <div className="text-end text-muted-foreground">{max}</div>
-      <div className="mb-2 h-8 flex overflow-hidden text-xs bg-gray-50 rounded-sm">
+      <div className="mb-2 h-8 flex overflow-hidden text-xs bg-muted rounded-sm">
         <div
           aria-valuemax={max}
           aria-valuemin={0}
@@ -80,7 +80,7 @@ const MyProgressChart: FC<MyProgressChartProps> = ({
           <div className="inline-block w-4 h-4 bg-green-300"></div> {possibleLabel}
         </div>
         <div>
-          <div className="inline-block w-4 h-4 bg-gray-50"></div> {maxLabel}
+          <div className="inline-block w-4 h-4 bg-muted"></div> {maxLabel}
         </div>
       </div>
     </div>

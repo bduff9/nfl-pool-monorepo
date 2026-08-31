@@ -27,7 +27,7 @@ import PageLoading from "../../../loading";
 const QuickPickCard: FC<{ children: ReactNode; title: string }> = ({ children, title }) => (
   <div className="min-h-screen flex flex-col md:mx-3">
     <CustomHead title="Quick Pick" />
-    <div className="bg-gray-100 text-gray-800 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-gray-800 rounded-lg p-4 shrink-0 grow w-full h-full lg:h-auto lg:w-[50%] xl:w-[33%] text-center">
+    <div className="bg-muted text-foreground absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-border rounded-lg p-4 shrink-0 grow w-full h-full lg:h-auto lg:w-[50%] xl:w-[33%] text-center">
       <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">{title}</h2>
       {children}
     </div>

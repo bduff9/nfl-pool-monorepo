@@ -116,7 +116,7 @@ const ViewAllPicksClient: FC<Props> = ({ currentUserId, gamesForWeek, picksForWe
               <Button
                 aria-label="Choose view mode"
                 className={cn(
-                  "flex-grow-0 flex-shrink rounded-none border-l border-gray-300 px-2",
+                  "flex-grow-0 flex-shrink rounded-none border-l border-border px-2",
                   !isLive && "dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white",
                 )}
                 variant={isLive ? "primary" : "outline"}

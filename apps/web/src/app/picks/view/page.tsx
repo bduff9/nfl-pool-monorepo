@@ -66,13 +66,13 @@ const ViewPicksPageBody: FC<PageProps<"/picks/view">> = async ({ searchParams })
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-full text-black font-bold" scope="col">
+                      <TableHead className="w-full text-foreground font-bold" scope="col">
                         Game
                       </TableHead>
-                      <TableHead className="min-w-14 w-14 text-center text-black font-bold" scope="col">
+                      <TableHead className="min-w-14 w-14 text-center text-foreground font-bold" scope="col">
                         Pick
                       </TableHead>
-                      <TableHead className="text-center text-black font-bold" scope="col">
+                      <TableHead className="text-center text-foreground font-bold" scope="col">
                         Points
                       </TableHead>
                     </TableRow>
@@ -86,7 +86,7 @@ const ViewPicksPageBody: FC<PageProps<"/picks/view">> = async ({ searchParams })
                         )}
                         key={`pick-for-game-${row.GameID}`}
                       >
-                        <TableHead className="text-black font-bold p-2" scope="row">
+                        <TableHead className="text-foreground font-bold p-2" scope="row">
                           <div className="flex justify-start items-center">
                             <Image
                               alt={`${row.visitorTeam?.TeamCity} ${row.visitorTeam?.TeamName}`}

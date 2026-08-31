@@ -55,7 +55,7 @@ const LoginContent: FC<LoginContentProps> = async ({ searchParams }) => {
   const hasSubmitted = (Array.isArray(submitted) ? submitted[0] : submitted) === "Y";
 
   return (
-    <div className="bg-gray-100 text-gray-800 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-gray-800 rounded-lg p-4 shrink-0 grow w-full h-full lg:h-auto lg:w-[50%] xl:w-[33%]">
+    <div className="bg-muted text-foreground absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-border rounded-lg p-4 shrink-0 grow w-full h-full lg:h-auto lg:w-[50%] xl:w-[33%]">
       <div className="absolute -top-24 left-1/2 -translate-x-1/2 size-36">
         <Image
           alt="A football"
@@ -74,7 +74,7 @@ const LoginContent: FC<LoginContentProps> = async ({ searchParams }) => {
       {hasSubmitted ? (
         <>
           <h2 className="text-center text-green-600 my-5">Please check your email to sign in</h2>
-          <h3 className="text-center text-gray-800 mb-4">You may close this window</h3>
+          <h3 className="text-center text-foreground mb-4">You may close this window</h3>
         </>
       ) : (
         <>

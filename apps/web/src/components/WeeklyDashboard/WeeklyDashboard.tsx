@@ -54,7 +54,7 @@ const WeeklyDashboard: FC<Props> = async ({ selectedWeek }) => {
   const behindMe = weeklyTotalCount - me - weeklyTiedCount;
 
   return (
-    <div className={cn("text-center mb-3 md:mb-0 border-b border-gray-500 md:border-none px-3")}>
+    <div className={cn("text-center mb-3 md:mb-0 border-b border-border md:border-none px-3")}>
       <WeeklyDashboardTitle selectedWeek={selectedWeek} />
       <div className="flex flex-col">
         {myTiebreaker?.TiebreakerHasSubmitted === 1 ? (

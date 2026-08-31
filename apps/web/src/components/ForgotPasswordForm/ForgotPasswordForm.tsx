@@ -185,7 +185,7 @@ const ForgotPasswordForm: FC<Props> = ({ error }) => {
     return (
       <Form {...emailForm} key="email-form">
         <form className="space-y-4" onSubmit={emailForm.handleSubmit(handleEmailSubmit, processFormErrors)}>
-          <p className="text-center text-gray-600 mb-4">
+          <p className="text-center text-muted-foreground mb-4">
             Enter your email address and we'll send you a verification code to reset your password.
           </p>
 
@@ -208,7 +208,7 @@ const ForgotPasswordForm: FC<Props> = ({ error }) => {
   return (
     <Form {...otpForm} key="otp-form">
       <form className="space-y-4" onSubmit={otpForm.handleSubmit(handleOtpSubmit, processFormErrors)}>
-        <p className="text-center text-gray-600 mb-4">
+        <p className="text-center text-muted-foreground mb-4">
           Enter the 6-digit verification code sent to <strong>{email}</strong>
         </p>
 

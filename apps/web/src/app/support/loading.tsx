@@ -26,47 +26,47 @@ const SupportLoader: FC = async () => {
     <div className="min-h-full flex" data-testid="route-loading">
       <PageContent className="m-3 px-3 md:pt-3 pb-3" id="top">
         <div className="mb-2">
-          <Skeleton className="w-full h-12 bg-gray-300" />
+          <Skeleton className="w-full h-12 bg-muted" />
         </div>
         <h2 className="scroll-m-20 text-4xl font-semibold tracking-tight first:mt-0 text-center mb-0" id="rules">
           Rules
         </h2>
-        <Separator className="my-4 h-px bg-gray-400" />
+        <Separator className="my-4 h-px bg-muted" />
         <ol>
           {Array.from({ length: 10 }).map((_, i) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: Index is only key we have available
             <li className="mb-3" key={i}>
-              <Skeleton className="h-8 w-full bg-gray-300" />
+              <Skeleton className="h-8 w-full bg-muted" />
             </li>
           ))}
         </ol>
         <h2 className="scroll-m-20 text-4xl font-semibold tracking-tight first:mt-0 text-center mb-0" id="faq">
           FAQ
         </h2>
-        <Separator className="my-4 h-px bg-gray-400" />
+        <Separator className="my-4 h-px bg-muted" />
         <h3 className="mb-3">
-          <Skeleton className="h-10 w-96 bg-gray-300" />
+          <Skeleton className="h-10 w-96 bg-muted" />
         </h3>
         {Array.from({ length: 30 }).map((_, i) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: Index is only key we have available
           <details className="text-green-600 ms-7 mb-3" key={`faq-${i}`}>
-            <summary className="text-black -ms-5">
-              <Skeleton className="h-6 w-1/2 bg-gray-300 inline-block" />
+            <summary className="text-foreground -ms-5">
+              <Skeleton className="h-6 w-1/2 bg-muted inline-block" />
             </summary>
-            <Skeleton className="h-6 w-full bg-gray-300" />
+            <Skeleton className="h-6 w-full bg-muted" />
           </details>
         ))}
         <h2 className="scroll-m-20 text-4xl font-semibold tracking-tight first:mt-0 text-center mb-0" id="contact">
           Contact Us
         </h2>
-        <Separator className="my-4 h-px bg-gray-400" />
+        <Separator className="my-4 h-px bg-muted" />
         <div className="text-center">
-          <Skeleton className="h-6 w-full bg-gray-300" />
+          <Skeleton className="h-6 w-full bg-muted" />
           <br />
           <br />
-          <Skeleton className="h-6 w-full bg-gray-300" />
+          <Skeleton className="h-6 w-full bg-muted" />
           <br />
-          <Skeleton className="h-6 w-full bg-gray-300" />
+          <Skeleton className="h-6 w-full bg-muted" />
           <br />
           <br />
         </div>

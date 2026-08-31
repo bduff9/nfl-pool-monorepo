@@ -21,12 +21,12 @@ const ProgressChartLoader: FC = () => {
     <>
       {/* Progress Bar Chart */}
       <div className="text-start">
-        <Skeleton className="h-4 w-[75px] bg-gray-300" />
+        <Skeleton className="h-4 w-[75px] bg-muted" />
       </div>
-      <Skeleton className="h-7 w-full bg-gray-300" />
+      <Skeleton className="h-7 w-full bg-muted" />
       <div className="flex justify-between mb-1">
-        <Skeleton className="h-2 w-[125px] bg-gray-300" />
-        <Skeleton className="h-2 w-[31px] bg-gray-300" />
+        <Skeleton className="h-2 w-[125px] bg-muted" />
+        <Skeleton className="h-2 w-[31px] bg-muted" />
       </div>
     </>
   );

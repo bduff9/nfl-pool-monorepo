@@ -181,10 +181,7 @@ const SendAdminEmails: FC = () => {
         <FormLabel className="required">Which email?</FormLabel>
         <FormControl>
           <Select onValueChange={field.onChange} value={field.value}>
-            <SelectTrigger
-              aria-label="Which email?"
-              className={cn("dark:bg-white w-full", fieldState.error && "border-red-600")}
-            >
+            <SelectTrigger aria-label="Which email?" className={cn("w-full", fieldState.error && "border-red-600")}>
               <SelectValue placeholder="-- Select an email type --">{field.value}</SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -208,10 +205,7 @@ const SendAdminEmails: FC = () => {
         <FormLabel className="required">Send to</FormLabel>
         <FormControl>
           <Select onValueChange={field.onChange} value={field.value}>
-            <SelectTrigger
-              aria-label="Send to"
-              className={cn("dark:bg-white w-full", fieldState.error && "border-red-600")}
-            >
+            <SelectTrigger aria-label="Send to" className={cn("w-full", fieldState.error && "border-red-600")}>
               <SelectValue placeholder="-- Select send to group --">{field.value}</SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -238,7 +232,7 @@ const SendAdminEmails: FC = () => {
             {...field}
             aria-invalid={!!fieldState.error}
             autoComplete="email"
-            className={cn("dark:bg-white", fieldState.error && "border-red-600")}
+            className={cn(fieldState.error && "border-red-600")}
             id="userEmail"
             placeholder="someone@email.com"
             type="email"
@@ -260,7 +254,7 @@ const SendAdminEmails: FC = () => {
             {...field}
             aria-invalid={!!fieldState.error}
             autoComplete="given-name"
-            className={cn("dark:bg-white", fieldState.error && "border-red-600")}
+            className={cn(fieldState.error && "border-red-600")}
             id="userFirstName"
             placeholder="John"
             type="text"
@@ -282,7 +276,7 @@ const SendAdminEmails: FC = () => {
             {...field}
             aria-invalid={!!fieldState.error}
             autoComplete="off"
-            className={cn("dark:bg-white", fieldState.error && "border-red-600")}
+            className={cn(fieldState.error && "border-red-600")}
             onBlur={updatePreview}
             placeholder="Interesting email subject"
             type="text"
@@ -303,7 +297,7 @@ const SendAdminEmails: FC = () => {
             {...field}
             aria-invalid={!!fieldState.error}
             autoComplete="off"
-            className={cn("dark:bg-white", fieldState.error && "border-red-600")}
+            className={cn(fieldState.error && "border-red-600")}
             onBlur={updatePreview}
             placeholder="Helpful email preview text"
             type="text"
@@ -333,7 +327,7 @@ const SendAdminEmails: FC = () => {
 
   return (
     <div className="flex flex-col" id="quill-container">
-      <div className="w-full bg-gray-100/80 text-black p-4 border rounded">
+      <div className="w-full bg-muted/80 text-foreground p-4 border rounded">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-center mb-6">Send Email</h1>
 
         <Form {...form}>

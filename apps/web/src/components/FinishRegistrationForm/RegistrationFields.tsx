@@ -121,7 +121,7 @@ export const RegistrationFields: FC<RegistrationFieldsProps> = ({
         <Input
           {...field}
           autoComplete="off"
-          className={cn("dark:bg-white", fieldState.error && "border-red-600")}
+          className={cn(fieldState.error && "border-red-600")}
           id="UserReferredByRaw"
           placeholder="Enter their full name for immediate access"
           type="text"

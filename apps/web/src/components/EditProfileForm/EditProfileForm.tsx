@@ -182,7 +182,7 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
             <GoogleAuthButton isLinked={hasGoogle} />
           </div>
           <div />
-          <div className="grid border-t border-black pt-3 mt-3 col-span-full">
+          <div className="grid border-t border-border pt-3 mt-3 col-span-full">
             <Button disabled={isPending} type="submit" variant="primary">
               {isPending ? (
                 <>

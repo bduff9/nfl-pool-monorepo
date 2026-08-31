@@ -169,7 +169,7 @@ const ManageAdminPayments: FC<Props> = ({
 
   return (
     <div className="flex flex-col">
-      <div className="w-full bg-gray-100/80 p-4 border border-secondary rounded-md">
+      <div className="w-full bg-muted/80 p-4 border border-secondary rounded-md">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-center">Prizes</h1>
         <div className="flex">
           <div className="w-full md:w-2/3">

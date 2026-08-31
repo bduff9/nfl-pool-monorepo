@@ -8,17 +8,17 @@ import PageContent from "@/components/PageContent/PageContent";
 const MakePicksLoading: FC = () => (
   <div className="h-full flex flex-col md:mx-3" data-testid="route-loading">
     <PageContent className="pt-3 pb-[70px]">
-      <Skeleton className="mb-4 h-8 w-64 bg-gray-300" />
+      <Skeleton className="mb-4 h-8 w-64 bg-muted" />
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="text-black font-semibold" scope="col">
+            <TableHead className="text-foreground font-semibold" scope="col">
               Game
             </TableHead>
-            <TableHead className="text-black font-semibold" scope="col">
+            <TableHead className="text-foreground font-semibold" scope="col">
               Pick
             </TableHead>
-            <TableHead className="text-black font-semibold" scope="col">
+            <TableHead className="text-foreground font-semibold" scope="col">
               Points
             </TableHead>
           </TableRow>
@@ -28,13 +28,13 @@ const MakePicksLoading: FC = () => (
             // biome-ignore lint/suspicious/noArrayIndexKey: loader rows have no identity
             <TableRow key={i}>
               <TableCell>
-                <Skeleton className="h-10 w-full bg-gray-300" />
+                <Skeleton className="h-10 w-full bg-muted" />
               </TableCell>
               <TableCell>
-                <Skeleton className="mx-auto size-10 bg-gray-300" />
+                <Skeleton className="mx-auto size-10 bg-muted" />
               </TableCell>
               <TableCell>
-                <Skeleton className="mx-auto h-8 w-8 bg-gray-300" />
+                <Skeleton className="mx-auto h-8 w-8 bg-muted" />
               </TableCell>
             </TableRow>
           ))}

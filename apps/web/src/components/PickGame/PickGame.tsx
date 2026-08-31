@@ -82,7 +82,7 @@ export const Point: FC<PointProps> = ({
         <div
           className={cn(
             "inline-block rounded-full text-center cursor-move md:size-[60px] md:text-[2rem] size-[31px] text-base",
-            !value && "bg-white border border-black",
+            !value && "bg-card border border-border",
             snapshot.isDraggingOver && "bg-blue-300",
           )}
           ref={provided.innerRef}

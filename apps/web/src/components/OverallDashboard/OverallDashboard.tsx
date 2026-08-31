@@ -46,7 +46,7 @@ const OverallDashboard: FC = async () => {
   const behindMe = overallTotalCount - me - overallTiedCount;
 
   return (
-    <div className={cn("text-center mb-3 md:mb-0 border-b border-gray-500 md:border-none px-3")}>
+    <div className={cn("text-center mb-3 md:mb-0 border-b border-border md:border-none px-3")}>
       <OverallDashboardTitle />
       {myOverallRank === undefined ? (
         <div>Season has not started yet!</div>

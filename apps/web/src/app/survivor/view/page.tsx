@@ -148,20 +148,20 @@ const ViewSurvivorPageBody: FC<PageProps<"/survivor/view">> = async ({ searchPar
               <Table parentClassName="max-w-[98vw] max-h-[98vh] overflow-scroll">
                 <TableHeader>
                   <TableRow className={cn("hidden md:table-row")}>
-                    <TableHead className="text-center bg-gray-50 text-black font-semibold" colSpan={99}>
+                    <TableHead className="text-center bg-card text-foreground font-semibold" colSpan={99}>
                       Week
                     </TableHead>
                   </TableRow>
                   <TableRow>
                     <TableHead
-                      className="bg-gray-50 text-black text-center font-semibold sticky top-0 left-0 z-[2]"
+                      className="bg-card text-foreground text-center font-semibold sticky top-0 left-0 z-[2]"
                       scope="col"
                     >
                       Player
                     </TableHead>
                     {Array.from({ length: weekInProgress ?? WEEKS_IN_SEASON }, (_, i) => i + 1).map((week) => (
                       <TableHead
-                        className="text-black text-center font-semibold sticky z-[1] top-0 bg-gray-50"
+                        className="text-foreground text-center font-semibold sticky z-[1] top-0 bg-card"
                         key={`header-for-week-${week}`}
                         scope="col"
                       >
@@ -177,7 +177,7 @@ const ViewSurvivorPageBody: FC<PageProps<"/survivor/view">> = async ({ searchPar
                       <TableHead
                         className={cn(
                           row.IsAliveOverall ? "bg-green-700" : "bg-red-700",
-                          "sticky left-0 z-[1] text-black font-semibold text-center",
+                          "sticky left-0 z-[1] text-foreground font-semibold text-center",
                         )}
                         scope="row"
                       >

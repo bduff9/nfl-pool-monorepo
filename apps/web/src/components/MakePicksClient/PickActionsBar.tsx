@@ -66,7 +66,7 @@ export const PickActionsBar: FC<PickActionsBarProps> = ({
   return (
     <div
       className={cn(
-        "fixed flex justify-around content-center bottom-0 end-0 w-full h-[70px] z-[49] bg-black",
+        "fixed flex justify-around content-center bottom-0 end-0 w-full h-[70px] z-[49] bg-background",
         sidebarOpen ? "md:w-[calc(100%-16rem)]" : "md:w-full",
       )}
     >

@@ -95,7 +95,7 @@ export const NotificationRow: FC<NotificationRowProps> = ({
         <Input
           {...field}
           aria-label={`${notification.NotificationTypeDescription} email hours before`}
-          className={cn("w-8 dark:bg-white px-1 text-center", fieldState.error && "border-red-600")}
+          className={cn("w-8 px-1 text-center", fieldState.error && "border-red-600")}
           max={48}
           min={1}
           value={field.value ?? ""}
@@ -114,7 +114,7 @@ export const NotificationRow: FC<NotificationRowProps> = ({
         <Input
           {...field}
           aria-label={`${notification.NotificationTypeDescription} SMS hours before`}
-          className={cn("w-8 dark:bg-white px-1 text-center", fieldState.error && "border-red-600")}
+          className={cn("w-8 px-1 text-center", fieldState.error && "border-red-600")}
           max={48}
           min={1}
           value={field.value ?? ""}
@@ -133,7 +133,7 @@ export const NotificationRow: FC<NotificationRowProps> = ({
         <Input
           {...field}
           aria-label={`${notification.NotificationTypeDescription} push notification hours before`}
-          className={cn("w-8 dark:bg-white px-1 text-center", fieldState.error && "border-red-600")}
+          className={cn("w-8 px-1 text-center", fieldState.error && "border-red-600")}
           max={48}
           min={1}
           value={field.value ?? ""}

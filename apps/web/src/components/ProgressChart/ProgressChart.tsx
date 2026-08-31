@@ -71,7 +71,7 @@ const ProgressChart: FC<ProgressChartProps> = ({
   return (
     <m.div layoutId={layoutId}>
       <div className="text-start">{type}</div>
-      <div className={cn("flex overflow-hidden h-8 text-xs bg-gray-50 rounded-sm")}>
+      <div className={cn("flex overflow-hidden h-8 text-xs bg-muted rounded-sm")}>
         {correct > 0 && (
           <div
             aria-label={`${correct} ${correctLabel}`}

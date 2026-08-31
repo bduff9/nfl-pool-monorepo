@@ -21,10 +21,10 @@ const RankingPieChartLoader: FC = () => {
     <>
       {/* Pie Chart */}
       <div>
-        <Skeleton className="h-40 w-40 rounded-full bg-gray-300" />
+        <Skeleton className="h-40 w-40 rounded-full bg-muted" />
       </div>
       <div className="mt-2">
-        <Skeleton className="h-[19px] w-[66px] bg-gray-300" />
+        <Skeleton className="h-[19px] w-[66px] bg-muted" />
       </div>
     </>
   );

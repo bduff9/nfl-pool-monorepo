@@ -51,32 +51,32 @@ const ViewAllTable: FC<Props> = ({ currentUserId, games, picks, ranks }) => {
             />
           ))}
           <TableHead
-            className="text-black font-semibold bg-gray-50 text-center hidden md:table-cell sticky top-0 z-[1]"
+            className="text-foreground font-semibold bg-card text-center hidden md:table-cell sticky top-0 z-[1]"
             scope="col"
           >
             Points Earned
           </TableHead>
           <TableHead
-            className="text-black font-semibold bg-gray-50 text-center hidden md:table-cell sticky top-0 z-[1]"
+            className="text-foreground font-semibold bg-card text-center hidden md:table-cell sticky top-0 z-[1]"
             scope="col"
           >
             Games Correct
           </TableHead>
           <TableHead
-            className="text-black font-semibold bg-gray-50 text-center hidden md:table-cell sticky top-0 z-[1]"
+            className="text-foreground font-semibold bg-card text-center hidden md:table-cell sticky top-0 z-[1]"
             scope="col"
           >
             Tiebreaker
           </TableHead>
           <TableHead
-            className="text-black font-semibold bg-gray-50 text-center hidden md:table-cell sticky top-0 z-[1]"
+            className="text-foreground font-semibold bg-card text-center hidden md:table-cell sticky top-0 z-[1]"
             scope="col"
           >
             Actual Score
           </TableHead>
         </TableRow>
       </TableHeader>
-      <TableBody className="bg-gray-100/80">
+      <TableBody className="bg-muted/80">
         {ranks.map((user) => {
           const userPicks = picks.filter((pick) => pick.UserID === user.UserID);
 
@@ -87,8 +87,8 @@ const ViewAllTable: FC<Props> = ({ currentUserId, games, picks, ranks }) => {
             >
               <TableHead
                 className={cn(
-                  "text-black font-semibold sticky left-0 z-[1] text-nowrap",
-                  user.UserID === currentUserId ? "bg-yellow-200" : "bg-gray-50",
+                  "text-foreground font-semibold sticky left-0 z-[1] text-nowrap",
+                  user.UserID === currentUserId ? "bg-yellow-200" : "bg-card",
                 )}
                 scope="row"
               >
