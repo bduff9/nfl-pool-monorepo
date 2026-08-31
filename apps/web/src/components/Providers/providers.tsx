@@ -1,20 +1,17 @@
 "use client";
 
-import type { User } from "@nfl-pool-monorepo/types";
 import { ThemeProvider } from "@nfl-pool-monorepo/ui/components/theme-provider";
 import { domAnimation, LazyMotion, MotionConfig } from "framer-motion";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import type { FC, ReactNode } from "react";
 
 import { UseBeforeUnloadProvider } from "@/lib/hooks/useBeforeUnload";
-import { useLogrocket } from "@/lib/hooks/useLogRocket";
 import { useThemeHotkey } from "@/lib/hooks/useThemeHotkey";
 
 import { ProgressBar } from "../ProgressBar/ProgressBar";
 
 type Props = {
   children: ReactNode;
-  user?: User | null;
 };
 
 const ThemeHotkey: FC = () => {
@@ -23,9 +20,7 @@ const ThemeHotkey: FC = () => {
   return null;
 };
 
-const Providers: FC<Props> = ({ children, user }) => {
-  useLogrocket(user);
-
+const Providers: FC<Props> = ({ children }) => {
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange enableSystem>
       <ThemeHotkey />

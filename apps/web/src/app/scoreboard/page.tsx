@@ -17,7 +17,7 @@
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { type FC, Fragment } from "react";
+import { type FC, Fragment, Suspense } from "react";
 import "server-only";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
@@ -25,11 +25,16 @@ import GameStatusDisplay from "@/components/GameStatusDisplay/GameStatusDisplay"
 import PageContent from "@/components/PageContent/PageContent";
 import RetryableSection from "@/components/RetryableSection/RetryableSection";
 import ScoreboardDate from "@/components/ScoreboardDate/ScoreboardDate";
+import ScoreboardLiveRefresh from "@/components/ScoreboardLiveRefresh/ScoreboardLiveRefresh";
 import ScoreboardTeam from "@/components/ScoreboardTeam/ScoreboardTeam";
+import Crossfade from "@/components/ViewTransitions/Crossfade";
+import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { requireRegistered } from "@/lib/auth";
 import { formatDateForKickoff } from "@/lib/dates";
 import { getGamesForWeekScoreboardCached } from "@/server/loaders/game";
-import { getSelectedWeek } from "@/server/loaders/week";
+import { getSelectedWeekFromParams } from "@/server/loaders/week";
+
+import ScoreboardLoader from "./loading";
 
 const TITLE = "Scoreboard";
 
@@ -43,74 +48,88 @@ type ScoreboardGamesProps = {
 
 const ScoreboardGames: FC<ScoreboardGamesProps> = async ({ selectedWeek }) => {
   const games = await getGamesForWeekScoreboardCached(selectedWeek);
+  const hasLiveGames = games.some((game) => game.GameStatus !== "Pregame" && game.GameStatus !== "Final");
 
   return (
-    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-x-5 px-3">
-      {games.map((game, index) => {
-        const currentKickoff = formatDateForKickoff(game.GameKickoff);
-        const previousGame = games[index - 1];
-        const previousKickoff = previousGame ? formatDateForKickoff(previousGame.GameKickoff) : undefined;
-        const differentKickoff = currentKickoff !== previousKickoff;
-        const isFirst = index === 0;
+    <>
+      <ScoreboardLiveRefresh enabled={hasLiveGames} />
+      <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-x-5 px-3">
+        {games.map((game, index) => {
+          const currentKickoff = formatDateForKickoff(game.GameKickoff);
+          const previousGame = games[index - 1];
+          const previousKickoff = previousGame ? formatDateForKickoff(previousGame.GameKickoff) : undefined;
+          const differentKickoff = currentKickoff !== previousKickoff;
+          const isFirst = index === 0;
 
-        return (
-          <Fragment key={`game-${game.GameID}`}>
-            {differentKickoff && <ScoreboardDate isFirst={isFirst} kickoff={game.GameKickoff} />}
-            <div className="mb-3">
-              <div className={cn("p-3 flex bg-gray-100 border border-gray-500")}>
-                <div className={cn("flex shrink flex-wrap")}>
-                  <ScoreboardTeam
-                    gameStatus={game.GameStatus}
-                    hasPossession={game.GameHasPossession === game.HomeTeamID}
-                    isInRedzone={game.GameInRedzone === game.HomeTeamID}
-                    isWinner={game.WinnerTeamID === game.HomeTeamID}
-                    score={game.GameHomeScore}
-                    team={game.homeTeam}
-                  />
-                  <ScoreboardTeam
-                    gameStatus={game.GameStatus}
-                    hasPossession={game.GameHasPossession === game.VisitorTeamID}
-                    isInRedzone={game.GameInRedzone === game.VisitorTeamID}
-                    isWinner={game.WinnerTeamID === game.VisitorTeamID}
-                    score={game.GameVisitorScore}
-                    team={game.visitorTeam}
-                  />
-                </div>
-                <div className={cn("text-right pr-4 text-nowrap pt-4 text-lg grow")}>
-                  <GameStatusDisplay
-                    gameStatus={game.GameStatus}
-                    kickoff={game.GameKickoff}
-                    timeLeft={game.GameTimeLeftInQuarter}
-                  />
+          return (
+            <Fragment key={`game-${game.GameID}`}>
+              {differentKickoff && <ScoreboardDate isFirst={isFirst} kickoff={game.GameKickoff} />}
+              <div className="mb-3">
+                <div className={cn("p-3 flex bg-gray-100 border border-gray-500")}>
+                  <div className={cn("flex shrink flex-wrap")}>
+                    <ScoreboardTeam
+                      gameStatus={game.GameStatus}
+                      hasPossession={game.GameHasPossession === game.HomeTeamID}
+                      isInRedzone={game.GameInRedzone === game.HomeTeamID}
+                      isWinner={game.WinnerTeamID === game.HomeTeamID}
+                      score={game.GameHomeScore}
+                      team={game.homeTeam}
+                    />
+                    <ScoreboardTeam
+                      gameStatus={game.GameStatus}
+                      hasPossession={game.GameHasPossession === game.VisitorTeamID}
+                      isInRedzone={game.GameInRedzone === game.VisitorTeamID}
+                      isWinner={game.WinnerTeamID === game.VisitorTeamID}
+                      score={game.GameVisitorScore}
+                      team={game.visitorTeam}
+                    />
+                  </div>
+                  <div className={cn("text-right pr-4 text-nowrap pt-4 text-lg grow")}>
+                    <GameStatusDisplay
+                      gameStatus={game.GameStatus}
+                      kickoff={game.GameKickoff}
+                      timeLeft={game.GameTimeLeftInQuarter}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          </Fragment>
-        );
-      })}
-    </div>
+            </Fragment>
+          );
+        })}
+      </div>
+    </>
   );
 };
 
-const Scoreboard: FC<PageProps<"/scoreboard">> = async () => {
+const ScoreboardPageBody: FC<PageProps<"/scoreboard">> = async ({ searchParams }) => {
   const redirectUrl = await requireRegistered();
 
   if (redirectUrl) {
     return redirect(redirectUrl);
   }
 
-  const selectedWeek = await getSelectedWeek();
+  const selectedWeek = await getSelectedWeekFromParams(searchParams);
 
   return (
-    <div className="h-full flex flex-col md:mx-3">
-      <CustomHead title={TITLE} />
-      <PageContent className="pt-5 md:pt-3 pb-4">
-        <RetryableSection title="the scoreboard">
-          <ScoreboardGames selectedWeek={selectedWeek} />
-        </RetryableSection>
-      </PageContent>
-    </div>
+    <PageTransition>
+      <div className="h-full flex flex-col md:mx-3">
+        <CustomHead title={TITLE} />
+        <PageContent className="pt-5 md:pt-3 pb-4">
+          <RetryableSection title="the scoreboard">
+            <Crossfade>
+              <ScoreboardGames selectedWeek={selectedWeek} />
+            </Crossfade>
+          </RetryableSection>
+        </PageContent>
+      </div>
+    </PageTransition>
   );
 };
+
+const Scoreboard: FC<PageProps<"/scoreboard">> = (props) => (
+  <Suspense fallback={<ScoreboardLoader />}>
+    <ScoreboardPageBody {...props} />
+  </Suspense>
+);
 
 export default Scoreboard;

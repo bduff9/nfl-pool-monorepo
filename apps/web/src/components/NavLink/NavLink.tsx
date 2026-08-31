@@ -55,6 +55,7 @@ const NavLink: FC<NavLinkProps> = ({ children, href, isNested = false, onClick, 
         )}
         href={href}
         onClick={handleLinkClick}
+        prefetch={true}
       >
         {children}
       </ProgressBarLink>

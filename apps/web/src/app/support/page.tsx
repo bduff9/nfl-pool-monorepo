@@ -21,7 +21,7 @@ import { Separator } from "@nfl-pool-monorepo/ui/components/separator";
 import Fuse, { type FuseResult } from "fuse.js";
 import type { Selectable } from "kysely";
 import type { Metadata } from "next";
-import type { FC, ReactNode } from "react";
+import { type FC, type ReactNode, Suspense } from "react";
 import "server-only";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
@@ -29,8 +29,11 @@ import PageContent from "@/components/PageContent/PageContent";
 import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import SlackLink from "@/components/SlackLink/slackLink";
 import SupportSearch from "@/components/SupportSearch/supportSearch";
+import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { writeLog } from "@/server/actions/logs";
 import { getCurrentSession } from "@/server/loaders/sessions";
+
+import SupportLoader from "./loading";
 
 const TITLE = "Support/FAQs";
 
@@ -182,7 +185,11 @@ const logSupportSearch = async (value: string): Promise<void> => {
   }
 };
 
-const Support: FC<PageProps<"/support">> = async ({ searchParams }) => {
+type SupportPageBodyProps = {
+  searchParams: PageProps<"/support">["searchParams"];
+};
+
+const SupportPageBody: FC<SupportPageBodyProps> = async ({ searchParams }) => {
   const { session, user } = await getCurrentSession();
   const { faqs, rules, slackLink, supportEmail } = await getSupportContent();
   const { q = "" } = await searchParams;
@@ -249,43 +256,53 @@ const Support: FC<PageProps<"/support">> = async ({ searchParams }) => {
   }
 
   return (
-    <div className="min-h-full flex flex-col md:mx-3">
-      <CustomHead title={TITLE} />
-      <PageContent className="pt-5 md:pt-3 pb-4 px-3 grow shrink-0 max-w-full" id="top">
-        <SupportSearch currentQuery={query} />
-        <h2 className="scroll-m-20 text-4xl font-semibold tracking-tight first:mt-0 text-center mb-0" id="rules">
-          Rules
-        </h2>
-        <Separator className="my-4 h-px bg-gray-400" />
-        {ruleMarkup}
-        <h2 className="scroll-m-20 text-4xl font-semibold tracking-tight first:mt-0 text-center mb-0" id="faq">
-          FAQ
-        </h2>
-        <Separator className="my-4 h-px bg-gray-400" />
-        {faqMarkup}
-        <h2 className="scroll-m-20 text-4xl font-semibold tracking-tight first:mt-0 text-center mb-0" id="contact">
-          Contact Us
-        </h2>
-        <Separator className="my-4 h-px bg-gray-400" />
-        <div className="text-center">
-          <SlackLink href={slackLink} userId={user?.id} />
-          <br />
-          <br />
-          Feel free to reach out for any questions or issues you may have
-          <br />
-          <a className="underline text-sky-600" href={`mailto:${supportEmail}`}>
-            {supportEmail}
-          </a>
-          <br />
-          <br />
-          {!session && (
-            <Button asChild variant="primary">
-              <ProgressBarLink href="/auth/login">Back to login</ProgressBarLink>
-            </Button>
-          )}
-        </div>
-      </PageContent>
-    </div>
+    <PageTransition>
+      <div className="min-h-full flex flex-col md:mx-3">
+        <CustomHead title={TITLE} />
+        <PageContent className="pt-5 md:pt-3 pb-4 px-3 grow shrink-0 max-w-full" id="top">
+          <SupportSearch currentQuery={query} />
+          <h2 className="scroll-m-20 text-4xl font-semibold tracking-tight first:mt-0 text-center mb-0" id="rules">
+            Rules
+          </h2>
+          <Separator className="my-4 h-px bg-gray-400" />
+          {ruleMarkup}
+          <h2 className="scroll-m-20 text-4xl font-semibold tracking-tight first:mt-0 text-center mb-0" id="faq">
+            FAQ
+          </h2>
+          <Separator className="my-4 h-px bg-gray-400" />
+          {faqMarkup}
+          <h2 className="scroll-m-20 text-4xl font-semibold tracking-tight first:mt-0 text-center mb-0" id="contact">
+            Contact Us
+          </h2>
+          <Separator className="my-4 h-px bg-gray-400" />
+          <div className="text-center">
+            <SlackLink href={slackLink} userId={user?.id} />
+            <br />
+            <br />
+            Feel free to reach out for any questions or issues you may have
+            <br />
+            <a className="underline text-sky-600" href={`mailto:${supportEmail}`}>
+              {supportEmail}
+            </a>
+            <br />
+            <br />
+            {!session && (
+              <Button asChild variant="primary">
+                <ProgressBarLink href="/auth/login">Back to login</ProgressBarLink>
+              </Button>
+            )}
+          </div>
+        </PageContent>
+      </div>
+    </PageTransition>
+  );
+};
+
+const Support: FC<PageProps<"/support">> = ({ searchParams }) => {
+  return (
+    <Suspense fallback={<SupportLoader />}>
+      <SupportPageBody searchParams={searchParams} />
+    </Suspense>
   );
 };
 

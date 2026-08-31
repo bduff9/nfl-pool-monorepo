@@ -18,16 +18,19 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import "server-only";
 
+import { type FC, Suspense } from "react";
+
 import CustomHead from "@/components/CustomHead/CustomHead";
 import MakePicksClient from "@/components/MakePicksClient/MakePicksClient";
 import PageContent from "@/components/PageContent/PageContent";
+import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { requireRegistered } from "@/lib/auth";
+import { withWeek } from "@/lib/weekSearchParams";
 import { getMyWeeklyPicks } from "@/server/loaders/pick";
 import { getMyTiebreaker } from "@/server/loaders/tiebreaker";
-import { getSelectedWeek } from "@/server/loaders/week";
-import "server-only";
+import { getSelectedWeekFromParams } from "@/server/loaders/week";
 
-import type { FC } from "react";
+import MakePicksLoading from "./loading";
 
 const TITLE = "Make Weekly Picks";
 
@@ -35,14 +38,14 @@ export const metadata: Metadata = {
   title: TITLE,
 };
 
-const MakePicks: FC<PageProps<"/picks/set">> = async () => {
+const MakePicksPageBody: FC<PageProps<"/picks/set">> = async ({ searchParams }) => {
   const redirectUrl = await requireRegistered();
 
   if (redirectUrl) {
     return redirect(redirectUrl);
   }
 
-  const selectedWeek = await getSelectedWeek();
+  const selectedWeek = await getSelectedWeekFromParams(searchParams);
   const tiebreakerPromise = getMyTiebreaker(selectedWeek);
   const myWeeklyPicksPromise = getMyWeeklyPicks(selectedWeek);
 
@@ -53,22 +56,30 @@ const MakePicks: FC<PageProps<"/picks/set">> = async () => {
   }
 
   if (tiebreaker?.TiebreakerHasSubmitted === 1) {
-    return redirect("/picks/view");
+    return redirect(withWeek("/picks/view", selectedWeek));
   }
 
   return (
-    <div className="h-full flex flex-col md:mx-3">
-      <CustomHead title={`Make week ${selectedWeek} picks`} />
-      <PageContent className="pt-3 pb-[70px]">
-        <MakePicksClient
-          key={selectedWeek}
-          selectedWeek={selectedWeek}
-          tiebreaker={tiebreaker}
-          weeklyPicks={myWeeklyPicks}
-        />
-      </PageContent>
-    </div>
+    <PageTransition>
+      <div className="h-full flex flex-col md:mx-3">
+        <CustomHead title={`Make week ${selectedWeek} picks`} />
+        <PageContent className="pt-3 pb-[70px]">
+          <MakePicksClient
+            key={selectedWeek}
+            selectedWeek={selectedWeek}
+            tiebreaker={tiebreaker}
+            weeklyPicks={myWeeklyPicks}
+          />
+        </PageContent>
+      </div>
+    </PageTransition>
   );
 };
+
+const MakePicks: FC<PageProps<"/picks/set">> = (props) => (
+  <Suspense fallback={<MakePicksLoading />}>
+    <MakePicksPageBody {...props} />
+  </Suspense>
+);
 
 export default MakePicks;

@@ -4,5 +4,8 @@
   "ignoreFiles": ["public/sw.js", "vitest.config.ts", "vitest.setup.ts", "src/**/*.test.ts"],
   "paths": {
     "@/*": ["./src/*"]
+  },
+  "playwright": {
+    "config": ["playwright.config.ts"]
   }
 }

@@ -7,6 +7,8 @@ import "server-only";
 
 import { weekSchema } from "@nfl-pool-monorepo/utils/validation";
 
+import { parseWeekParam } from "@/lib/weekSearchParams";
+
 import { requireUser } from "./sessions";
 
 export const getCurrentWeekCached = cache(() => getCurrentWeek());
@@ -51,6 +53,19 @@ export const getSelectedWeek = cache(async (currentWeek?: number) => {
 
   return getCurrentWeekCached();
 });
+
+export const getSelectedWeekFromParams = cache(
+  async (searchParams: Promise<{ [key: string]: string | string[] | undefined }>, currentWeek?: number) => {
+    const params = await searchParams;
+    const fromUrl = parseWeekParam(params.week);
+
+    if (fromUrl) {
+      return fromUrl;
+    }
+
+    return getSelectedWeek(currentWeek);
+  },
+);
 
 export const getWeekStart = cache(async (week: number) => {
   await requireUser();

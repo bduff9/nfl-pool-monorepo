@@ -15,7 +15,7 @@
  */
 
 import { redirect } from "next/navigation";
-import type { FC } from "react";
+import { type FC, Suspense } from "react";
 
 import AdminUsersDataTable from "@/components/AdminUserTable/AdminUsersDataTable";
 import CustomHead from "@/components/CustomHead/CustomHead";
@@ -23,7 +23,9 @@ import PageContent from "@/components/PageContent/PageContent";
 import { requireAdmin } from "@/lib/auth";
 import { getAdminUsers, getTrustedUsersDropdown } from "@/server/loaders/user";
 
-const AdminUsersPage: FC<PageProps<"/admin/users">> = async ({ searchParams }) => {
+import AdminLoading from "../loading";
+
+const AdminUsersPageBody: FC<PageProps<"/admin/users">> = async ({ searchParams }) => {
   const redirectUrl = await requireAdmin();
 
   if (redirectUrl) {
@@ -53,5 +55,11 @@ const AdminUsersPage: FC<PageProps<"/admin/users">> = async ({ searchParams }) =
     </div>
   );
 };
+
+const AdminUsersPage: FC<PageProps<"/admin/users">> = (props) => (
+  <Suspense fallback={<AdminLoading />}>
+    <AdminUsersPageBody {...props} />
+  </Suspense>
+);
 
 export default AdminUsersPage;

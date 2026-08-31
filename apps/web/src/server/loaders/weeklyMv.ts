@@ -1,12 +1,24 @@
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
+import { cacheLife, cacheTag } from "next/cache";
 import { cache } from "react";
 import "server-only";
 
 import { weekSchema } from "@nfl-pool-monorepo/utils/validation";
 
+import { cacheTags } from "@/lib/cacheTags";
+
 import { requireUser } from "./sessions";
 
 export const getWeeklyMvCount = cache(async (week: number) => {
+  await requireUser();
+
+  return getWeeklyMvCountCached(week);
+});
+
+const getWeeklyMvCountCached = async (week: number) => {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(cacheTags.weeklyMv(week));
   weekSchema.assert(week);
 
   const { count } = await db
@@ -16,7 +28,7 @@ export const getWeeklyMvCount = cache(async (week: number) => {
     .executeTakeFirstOrThrow();
 
   return count;
-});
+};
 
 export const getWeeklyMvTiedCount = cache(async (week: number) => {
   const user = await requireUser();
@@ -49,8 +61,17 @@ export const getMyWeeklyRank = cache(async (week: number) => {
     .executeTakeFirst();
 });
 
-export const getWeeklyRankings = cache((week: number) => {
+export const getWeeklyRankings = cache(async (week: number) => {
+  await requireUser();
+
+  return getWeeklyRankingsCached(week);
+});
+
+const getWeeklyRankingsCached = async (week: number) => {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(cacheTags.weeklyMv(week));
   weekSchema.assert(week);
 
   return db.selectFrom("WeeklyMV").selectAll().where("Week", "=", week).orderBy("Rank asc").execute();
-});
+};

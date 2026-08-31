@@ -23,7 +23,7 @@ import PageContent from "@/components/PageContent/PageContent";
 
 const SupportLoader: FC = async () => {
   return (
-    <div className="min-h-full flex">
+    <div className="min-h-full flex" data-testid="route-loading">
       <PageContent className="m-3 px-3 md:pt-3 pb-3" id="top">
         <div className="mb-2">
           <Skeleton className="w-full h-12 bg-gray-300" />

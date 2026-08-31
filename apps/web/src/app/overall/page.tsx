@@ -21,7 +21,7 @@ import { redirect } from "next/navigation";
 import { LuBadgeAlert } from "react-icons/lu";
 import "server-only";
 
-import type { FC } from "react";
+import { type FC, Suspense } from "react";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import { OverallDashboardResults, OverallDashboardTitle } from "@/components/OverallDashboard/OverallDashboard.client";
@@ -30,6 +30,8 @@ import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import ProgressChart from "@/components/ProgressChart/ProgressChart";
 import RankingPieChart from "@/components/RankingPieChart/RankingPieChart";
 import RetryableSection from "@/components/RetryableSection/RetryableSection";
+import Crossfade from "@/components/ViewTransitions/Crossfade";
+import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { requireRegistered } from "@/lib/auth";
 import {
   getMyOverallRank,
@@ -39,6 +41,8 @@ import {
 } from "@/server/loaders/overallMv";
 import { getCurrentUser } from "@/server/loaders/user";
 import { getSeasonStatus } from "@/server/loaders/week";
+
+import OverallLoading from "./loading";
 
 const TITLE = "Overall Ranks";
 
@@ -94,7 +98,7 @@ const OverallRankingsTable: FC = async () => {
   );
 };
 
-const OverallRankings: FC<PageProps<"/overall">> = async () => {
+const OverallRankingsPageBody: FC<PageProps<"/overall">> = async () => {
   const redirectUrl = await requireRegistered();
 
   if (redirectUrl) {
@@ -122,68 +126,78 @@ const OverallRankings: FC<PageProps<"/overall">> = async () => {
   const behindMe = overallTotalCount - me - overallTiedCount;
 
   return (
-    <div className="h-full flex flex-col md:mx-3">
-      <CustomHead title={TITLE} />
-      <PageContent className="pt-0 md:pt-3 pb-4">
-        <div className="flex flex-wrap">
-          <div className="hidden md:inline-block w-1/2 text-center h-[205px]">
-            <OverallDashboardTitle />
-            <RankingPieChart
-              data={[
-                {
-                  fill: "var(--color-red-700)",
-                  myPlace,
-                  name: "ahead of me",
-                  total: overallTotalCount,
-                  value: aheadOfMe,
-                },
-                {
-                  fill: "var(--color-green-700)",
-                  myPlace,
-                  name: "behind me",
-                  total: overallTotalCount,
-                  value: behindMe,
-                },
-                {
-                  fill: "var(--color-amber-600)",
-                  myPlace,
-                  name: "tied with me",
-                  total: overallTotalCount,
-                  value: overallTiedCount,
-                },
-              ]}
-              layoutId="overallRankingPieChart"
-            />
+    <PageTransition>
+      <div className="h-full flex flex-col md:mx-3">
+        <CustomHead title={TITLE} />
+        <PageContent className="pt-0 md:pt-3 pb-4">
+          <div className="flex flex-wrap">
+            <div className="hidden md:inline-block w-1/2 text-center h-[205px]">
+              <OverallDashboardTitle />
+              <RankingPieChart
+                data={[
+                  {
+                    fill: "var(--color-red-700)",
+                    myPlace,
+                    name: "ahead of me",
+                    total: overallTotalCount,
+                    value: aheadOfMe,
+                  },
+                  {
+                    fill: "var(--color-green-700)",
+                    myPlace,
+                    name: "behind me",
+                    total: overallTotalCount,
+                    value: behindMe,
+                  },
+                  {
+                    fill: "var(--color-amber-600)",
+                    myPlace,
+                    name: "tied with me",
+                    total: overallTotalCount,
+                    value: overallTiedCount,
+                  },
+                ]}
+                layoutId="overallRankingPieChart"
+              />
+            </div>
+            <div className="mt-4 block md:hidden">
+              <ProgressBarLink href="/">&laquo; Back to Dashboard</ProgressBarLink>
+            </div>
+            <div className="hidden md:inline-block w-1/2 px-3">
+              <OverallDashboardResults className="mb-4 text-center" />
+              <ProgressChart
+                correct={myOverallRank?.PointsEarned ?? 0}
+                incorrect={myOverallRank?.PointsWrong ?? 0}
+                isOver={seasonStatus === "Complete"}
+                layoutId="overallPointsEarned"
+                max={myOverallRank?.PointsTotal ?? 0}
+                type="Points"
+              />
+              <ProgressChart
+                correct={myOverallRank?.GamesCorrect ?? 0}
+                incorrect={myOverallRank?.GamesWrong ?? 0}
+                isOver={seasonStatus === "Complete"}
+                layoutId="overallGamesCorrect"
+                max={myOverallRank?.GamesTotal ?? 0}
+                type="Games"
+              />
+            </div>
+            <RetryableSection title="the overall rankings">
+              <Crossfade>
+                <OverallRankingsTable />
+              </Crossfade>
+            </RetryableSection>
           </div>
-          <div className="mt-4 block md:hidden">
-            <ProgressBarLink href="/">&laquo; Back to Dashboard</ProgressBarLink>
-          </div>
-          <div className="hidden md:inline-block w-1/2 px-3">
-            <OverallDashboardResults className="mb-4 text-center" />
-            <ProgressChart
-              correct={myOverallRank?.PointsEarned ?? 0}
-              incorrect={myOverallRank?.PointsWrong ?? 0}
-              isOver={seasonStatus === "Complete"}
-              layoutId="overallPointsEarned"
-              max={myOverallRank?.PointsTotal ?? 0}
-              type="Points"
-            />
-            <ProgressChart
-              correct={myOverallRank?.GamesCorrect ?? 0}
-              incorrect={myOverallRank?.GamesWrong ?? 0}
-              isOver={seasonStatus === "Complete"}
-              layoutId="overallGamesCorrect"
-              max={myOverallRank?.GamesTotal ?? 0}
-              type="Games"
-            />
-          </div>
-          <RetryableSection title="the overall rankings">
-            <OverallRankingsTable />
-          </RetryableSection>
-        </div>
-      </PageContent>
-    </div>
+        </PageContent>
+      </div>
+    </PageTransition>
   );
 };
+
+const OverallRankings: FC<PageProps<"/overall">> = (props) => (
+  <Suspense fallback={<OverallLoading />}>
+    <OverallRankingsPageBody {...props} />
+  </Suspense>
+);
 
 export default OverallRankings;

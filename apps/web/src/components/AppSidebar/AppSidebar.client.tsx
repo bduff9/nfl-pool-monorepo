@@ -22,10 +22,12 @@ import {
 } from "@nfl-pool-monorepo/ui/components/sidebar";
 import { WEEKS_IN_SEASON } from "@nfl-pool-monorepo/utils/constants";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
+import type { Route } from "next";
 import { usePathname, useRouter } from "next/navigation";
 import { useAction } from "next-safe-action/hooks";
 import { useTheme } from "next-themes";
-import { type FC, Fragment, startTransition, useState } from "react";
+import { useQueryState } from "nuqs";
+import { type FC, Fragment, useState } from "react";
 import {
   LuChevronDown,
   LuChevronLeft,
@@ -38,11 +40,13 @@ import {
 import { toast } from "sonner";
 
 import { onActionError } from "@/lib/actionErrorToast";
+import { weekParser } from "@/lib/weekParser";
+import { withWeek } from "@/lib/weekSearchParams";
 import { registerForSurvivor, unregisterForSurvivor } from "@/server/actions/survivor";
 import { setSelectedWeek } from "@/server/actions/week";
 import type { getMyTiebreaker } from "@/server/loaders/tiebreaker";
 
-import { ProgressBarLink, useProgressBar } from "../ProgressBar/ProgressBar";
+import { ProgressBarLink } from "../ProgressBar/ProgressBar";
 import { showAccountLinks } from "./navVisibility";
 import { SidebarNavigation } from "./SidebarNavigation";
 
@@ -55,21 +59,33 @@ const getInitials = (fullName: string | null): string => {
   return initials;
 };
 
+// usePathname() always returns the current, already-valid route, so this is a safe escape hatch
+// for typedRoutes' branded `Route` type.
+const asRoute = (pathname: string): Route => pathname as Route;
+
 type WeekMenuItemProps = {
   currentWeek: number;
+  href: Route;
   onSelectWeek: (week: number) => void;
+  selectedWeek: number;
   week: number;
 };
 
-const WeekMenuItem: FC<WeekMenuItemProps> = ({ currentWeek, onSelectWeek, week }) => {
+const WeekMenuItem: FC<WeekMenuItemProps> = ({ currentWeek, href, onSelectWeek, selectedWeek, week }) => {
   const handleClick = () => {
     onSelectWeek(week);
   };
 
+  const transitionTypes: string[] = week > selectedWeek ? ["nav-forward"] : week < selectedWeek ? ["nav-back"] : [];
+
   return (
     <Fragment>
       {week === currentWeek && <DropdownMenuSeparator />}
-      <DropdownMenuItem onClick={handleClick}>Week {week}</DropdownMenuItem>
+      <DropdownMenuItem asChild>
+        <ProgressBarLink href={href} onClick={handleClick} prefetch={true} transitionTypes={transitionTypes}>
+          Week {week}
+        </ProgressBarLink>
+      </DropdownMenuItem>
       {week === currentWeek && <DropdownMenuSeparator />}
     </Fragment>
   );
@@ -94,7 +110,7 @@ const AppSidebarClient: FC<Props> = ({
   isAliveInSurvivor,
   myTiebreaker,
   overallMvCount,
-  selectedWeek,
+  selectedWeek: selectedWeekProp,
   selectedWeekStatus,
   survivorMvCount,
   user,
@@ -103,8 +119,9 @@ const AppSidebarClient: FC<Props> = ({
   const { setOpenMobile } = useSidebar();
   const pathname = usePathname();
   const router = useRouter();
-  const progress = useProgressBar();
   const { resolvedTheme, setTheme } = useTheme();
+  const [weekParam] = useQueryState("week", weekParser);
+  const selectedWeek = weekParam ?? selectedWeekProp;
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false);
   const [registerDialogOpen, setRegisterDialogOpen] = useState<boolean>(false);
   const [unregisterDialogOpen, setUnregisterDialogOpen] = useState<boolean>(false);
@@ -130,31 +147,21 @@ const AppSidebarClient: FC<Props> = ({
   let currentPage = "";
 
   const changeWeek = (week: number): void => {
-    progress.start();
-
-    startTransition(async () => {
-      await setSelectedWeek(week);
-      router.refresh();
-      progress.done();
-    });
+    // Best-effort: persists the week preference for future visits with no `week` in the URL.
+    // The navigation itself is already driven by the link's href, so a failure here is silent by design.
+    setSelectedWeek(week).catch(() => {});
   };
 
-  const goToPreviousWeek = (): void => {
-    const newWeek = selectedWeek - 1;
-
-    changeWeek(newWeek < 1 ? selectedWeek : newWeek);
+  const handlePreviousWeek = () => {
+    changeWeek(selectedWeek - 1);
   };
 
-  const goToCurrentWeek = (): void => {
-    if (currentWeek) {
-      changeWeek(currentWeek);
-    }
+  const handleNextWeek = () => {
+    changeWeek(selectedWeek + 1);
   };
 
-  const goToNextWeek = (): void => {
-    const newWeek = selectedWeek + 1;
-
-    changeWeek(newWeek > WEEKS_IN_SEASON ? selectedWeek : newWeek);
+  const handleGoToCurrentWeek = () => {
+    changeWeek(currentWeek);
   };
 
   const handleRegisterForSurvivor = (): void => {
@@ -216,16 +223,21 @@ const AppSidebarClient: FC<Props> = ({
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem className={cn("flex justify-between", user.doneRegistering !== 1 && "invisible")}>
-            <Button
-              aria-label="Previous week"
-              className={cn("p-0 m-0 [&_svg]:size-6", selectedWeek === 1 && "invisible")}
-              onClick={goToPreviousWeek}
-              size="icon"
-              type="button"
-              variant="ghost"
-            >
-              <LuChevronLeft />
-            </Button>
+            {selectedWeek > 1 ? (
+              <Button asChild className="p-0 m-0 [&_svg]:size-6" size="icon" variant="ghost">
+                <ProgressBarLink
+                  aria-label="Previous week"
+                  href={withWeek(asRoute(pathname), selectedWeek - 1)}
+                  onClick={handlePreviousWeek}
+                  prefetch={true}
+                  transitionTypes={["nav-back"]}
+                >
+                  <LuChevronLeft />
+                </ProgressBarLink>
+              </Button>
+            ) : (
+              <span className="invisible size-9" />
+            )}
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -236,27 +248,46 @@ const AppSidebarClient: FC<Props> = ({
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-[--radix-popper-anchor-width]">
                 {Array.from({ length: WEEKS_IN_SEASON }, (_, i) => i + 1).map((week) => (
-                  <WeekMenuItem currentWeek={currentWeek} key={`week-${week}`} onSelectWeek={changeWeek} week={week} />
+                  <WeekMenuItem
+                    currentWeek={currentWeek}
+                    href={withWeek(asRoute(pathname), week)}
+                    key={`week-${week}`}
+                    onSelectWeek={changeWeek}
+                    selectedWeek={selectedWeek}
+                    week={week}
+                  />
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button
-              aria-label="Next week"
-              className={cn("p-0 m-0 [&_svg]:size-6", selectedWeek === WEEKS_IN_SEASON && "invisible")}
-              onClick={goToNextWeek}
-              size="icon"
-              type="button"
-              variant="ghost"
-            >
-              <LuChevronRight />
-            </Button>
+            {selectedWeek < WEEKS_IN_SEASON ? (
+              <Button asChild className="p-0 m-0 [&_svg]:size-6" size="icon" variant="ghost">
+                <ProgressBarLink
+                  aria-label="Next week"
+                  href={withWeek(asRoute(pathname), selectedWeek + 1)}
+                  onClick={handleNextWeek}
+                  prefetch={true}
+                  transitionTypes={["nav-forward"]}
+                >
+                  <LuChevronRight />
+                </ProgressBarLink>
+              </Button>
+            ) : (
+              <span className="invisible size-9" />
+            )}
           </SidebarMenuItem>
           <SidebarMenuItem className={cn("h-9 -m-2 text-center", user.doneRegistering !== 1 && "invisible")}>
             {currentWeek !== selectedWeek && (
-              <Button onClick={goToCurrentWeek} variant="ghost">
-                <LuReply />
-                &nbsp;Go to current week
+              <Button asChild variant="ghost">
+                <ProgressBarLink
+                  href={withWeek(asRoute(pathname), currentWeek)}
+                  onClick={handleGoToCurrentWeek}
+                  prefetch={true}
+                  transitionTypes={currentWeek > selectedWeek ? ["nav-forward"] : ["nav-back"]}
+                >
+                  <LuReply />
+                  &nbsp;Go to current week
+                </ProgressBarLink>
               </Button>
             )}
           </SidebarMenuItem>

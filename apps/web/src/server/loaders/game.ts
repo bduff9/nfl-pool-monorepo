@@ -4,6 +4,8 @@ import "server-only";
 
 import { getCurrentWeekInProgress, getGamesForWeek } from "@nfl-pool-monorepo/db/src/queries/game";
 
+import { cacheTags } from "@/lib/cacheTags";
+
 import { requireUser } from "./sessions";
 
 export const getWeekInProgress = cache(() => getCurrentWeekInProgress());
@@ -19,7 +21,7 @@ export const getGamesForWeekCached = cache(async (week: number) => {
 export const getGamesForWeekScoreboardCached = async (week: number) => {
   "use cache";
   cacheLife("seconds");
-  cacheTag(`games-week-${week}`);
+  cacheTag(cacheTags.gamesWeek(week));
 
   return getGamesForWeek(week);
 };

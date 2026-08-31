@@ -15,7 +15,7 @@
  */
 
 import { redirect } from "next/navigation";
-import type { FC } from "react";
+import { type FC, Suspense } from "react";
 
 import AdminLogsDataTable from "@/components/AdminLogsTable/AdminLogsDataTable";
 import CustomHead from "@/components/CustomHead/CustomHead";
@@ -23,7 +23,9 @@ import PageContent from "@/components/PageContent/PageContent";
 import { requireAdmin } from "@/lib/auth";
 import { getAdminLogs } from "@/server/loaders/log";
 
-const AdminLogsPage: FC<PageProps<"/admin/logs">> = async ({ searchParams }) => {
+import AdminLoading from "../loading";
+
+const AdminLogsPageBody: FC<PageProps<"/admin/logs">> = async ({ searchParams }) => {
   const redirectUrl = await requireAdmin();
 
   if (redirectUrl) {
@@ -49,5 +51,11 @@ const AdminLogsPage: FC<PageProps<"/admin/logs">> = async ({ searchParams }) => 
     </div>
   );
 };
+
+const AdminLogsPage: FC<PageProps<"/admin/logs">> = (props) => (
+  <Suspense fallback={<AdminLoading />}>
+    <AdminLogsPageBody {...props} />
+  </Suspense>
+);
 
 export default AdminLogsPage;

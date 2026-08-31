@@ -18,14 +18,16 @@ import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { redirect } from "next/navigation";
+import { type FC, Suspense } from "react";
 import "server-only";
 
 import { getSystemYear } from "@nfl-pool-monorepo/db/src/queries/systemValue";
-import type { FC } from "react";
 
 import ForgotPasswordForm from "@/components/ForgotPasswordForm/ForgotPasswordForm";
 import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import { requireLoggedOut } from "@/lib/auth";
+
+import AuthLoading from "../loading";
 
 const TITLE = "Forgot Password";
 
@@ -33,7 +35,11 @@ export const metadata: Metadata = {
   title: TITLE,
 };
 
-const ForgotPassword: FC<PageProps<"/auth/forgot-password">> = async ({ searchParams }) => {
+type ForgotPasswordContentProps = {
+  searchParams: PageProps<"/auth/forgot-password">["searchParams"];
+};
+
+const ForgotPasswordContent: FC<ForgotPasswordContentProps> = async ({ searchParams }) => {
   const redirectUrl = await requireLoggedOut();
 
   if (redirectUrl) {
@@ -70,6 +76,14 @@ const ForgotPassword: FC<PageProps<"/auth/forgot-password">> = async ({ searchPa
         </Button>
       </div>
     </div>
+  );
+};
+
+const ForgotPassword: FC<PageProps<"/auth/forgot-password">> = ({ searchParams }) => {
+  return (
+    <Suspense fallback={<AuthLoading />}>
+      <ForgotPasswordContent searchParams={searchParams} />
+    </Suspense>
   );
 };
 

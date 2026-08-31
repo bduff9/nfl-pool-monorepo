@@ -19,7 +19,7 @@ import dynamic from "next/dynamic";
 import type { FC } from "react";
 
 import { getMyTiebreaker } from "@/server/loaders/tiebreaker";
-import { getSelectedWeek, getWeekStart, getWeekStatus } from "@/server/loaders/week";
+import { getWeekStart, getWeekStatus } from "@/server/loaders/week";
 import { getMyWeeklyRank, getWeeklyMvCount, getWeeklyMvTiedCount } from "@/server/loaders/weeklyMv";
 
 import { ProgressBarLink } from "../ProgressBar/ProgressBar";
@@ -28,9 +28,11 @@ import { WeeklyDashboardCountdown, WeeklyDashboardResults, WeeklyDashboardTitle 
 
 const RankingPieChart = dynamic(() => import("../RankingPieChart/RankingPieChart"));
 
-const WeeklyDashboard: FC = async () => {
-  const selectedWeek = await getSelectedWeek();
+type Props = {
+  selectedWeek: number;
+};
 
+const WeeklyDashboard: FC<Props> = async ({ selectedWeek }) => {
   const myWeeklyRankPromise = getMyWeeklyRank(selectedWeek);
   const myTiebreakerPromise = getMyTiebreaker(selectedWeek);
   const weekStatusPromise = getWeekStatus(selectedWeek);

@@ -5,6 +5,7 @@ let mockDb: MockDb;
 
 const getCurrentSession = vi.fn();
 const revalidatePath = vi.fn();
+const updateTag = vi.fn();
 const registerUserForSurvivor = vi.fn();
 const unregisterUserForSurvivor = vi.fn();
 
@@ -14,7 +15,7 @@ vi.mock("@nfl-pool-monorepo/db/src/kysely", () => ({
   },
 }));
 vi.mock("@/server/loaders/sessions", () => ({ getCurrentSession }));
-vi.mock("next/cache", () => ({ revalidatePath }));
+vi.mock("next/cache", () => ({ revalidatePath, updateTag }));
 vi.mock("@nfl-pool-monorepo/db/src/mutations/users", () => ({ registerUserForSurvivor, unregisterUserForSurvivor }));
 
 const AUTHED_USER = {
@@ -33,6 +34,7 @@ const resetAllMocks = () => {
   mockDb = createMockDb();
   getCurrentSession.mockReset().mockResolvedValue({ session: { id: "s1" }, user: AUTHED_USER });
   revalidatePath.mockReset();
+  updateTag.mockReset();
   registerUserForSurvivor.mockReset().mockResolvedValue(undefined);
   unregisterUserForSurvivor.mockReset().mockResolvedValue(undefined);
   vi.resetModules();
@@ -95,6 +97,7 @@ describe("makeSurvivorPick", () => {
     expect(result?.serverError).toBeUndefined();
     expect(result?.data?.status).toBe("Success");
     expect(revalidatePath).toHaveBeenCalledWith("/survivor/set");
+    expect(updateTag).not.toHaveBeenCalled();
   });
 });
 

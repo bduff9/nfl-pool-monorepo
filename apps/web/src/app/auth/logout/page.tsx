@@ -18,10 +18,12 @@ import "server-only";
 
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import type { FC } from "react";
+import { type FC, Suspense } from "react";
 
 import LogoutClient from "@/components/LogoutClient/logout";
 import { requireLoggedIn } from "@/lib/auth";
+
+import AuthLoading from "../loading";
 
 const TITLE = "Logout";
 
@@ -29,7 +31,7 @@ export const metadata: Metadata = {
   title: TITLE,
 };
 
-const Logout: FC<PageProps<"/auth/logout">> = async () => {
+const LogoutPageBody: FC<PageProps<"/auth/logout">> = async () => {
   const redirectUrl = await requireLoggedIn();
 
   if (redirectUrl) {
@@ -42,5 +44,11 @@ const Logout: FC<PageProps<"/auth/logout">> = async () => {
     </div>
   );
 };
+
+const Logout: FC<PageProps<"/auth/logout">> = (props) => (
+  <Suspense fallback={<AuthLoading />}>
+    <LogoutPageBody {...props} />
+  </Suspense>
+);
 
 export default Logout;

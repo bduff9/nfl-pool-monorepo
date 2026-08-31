@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   partialPrefetching: true,
   reactCompiler: true,
   experimental: {
+    // Only for the "instant()" Playwright helper running against a production build in CI —
+    // must stay off in every deployed environment (production, preview), not just prod.
+    exposeTestingApiInProductionBuild: process.env.CI === "true",
     turbopackRustReactCompiler: true,
     useOffline: true,
   },

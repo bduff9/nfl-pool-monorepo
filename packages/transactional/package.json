@@ -3,7 +3,7 @@
   "config": {},
   "contributors": [],
   "dependencies": {
-    "@aws-sdk/client-ses": "3.1102.0",
+    "@aws-sdk/client-ses": "3.1121.0",
     "@nfl-pool-monorepo/api": "workspace:*",
     "@nfl-pool-monorepo/db": "workspace:*",
     "@nfl-pool-monorepo/types": "workspace:*",
@@ -11,19 +11,19 @@
     "@react-email/components": "1.0.12",
     "@react-email/render": "2.1.0",
     "arktype": "2.2.3",
-    "kysely": "0.29.4",
+    "kysely": "0.29.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "react-email": "6.9.1",
-    "twilio": "6.0.2",
+    "react-email": "6.9.3",
+    "twilio": "6.1.0",
     "web-push": "3.6.7"
   },
   "description": "Transactional emails and notifications for the NFL Pool.",
   "devDependencies": {
     "@nfl-pool-monorepo/tsconfig": "workspace:*",
-    "@types/node": "26.1.2",
+    "@types/node": "26.4.0",
     "@types/react": "19.2.18",
-    "@types/react-dom": "19.2.4",
+    "@types/react-dom": "19.2.5",
     "@types/web-push": "3.6.4",
     "typescript": "7.0.2"
   },

@@ -102,7 +102,7 @@ const LoginForm: FC<Props> = ({ error, isLogin }) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit, processFormErrors)}>
+      <form method="post" onSubmit={form.handleSubmit(onSubmit, processFormErrors)}>
         {!!error && (
           <div className={cn("text-center mb-3")} id="errorMessage">
             {formatError(error)}

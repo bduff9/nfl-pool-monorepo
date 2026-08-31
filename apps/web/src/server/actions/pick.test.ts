@@ -10,6 +10,7 @@ const sendPicksSubmittedPushNotification = vi.fn();
 const sendQuickPickConfirmationEmail = vi.fn();
 const getLowestUnusedPoint = vi.fn();
 const revalidatePath = vi.fn();
+const updateTag = vi.fn();
 
 vi.mock("@nfl-pool-monorepo/db/src/kysely", () => ({
   get db() {
@@ -24,7 +25,7 @@ vi.mock("@nfl-pool-monorepo/transactional/pushNotifications/picksSubmitted", () 
   default: sendPicksSubmittedPushNotification,
 }));
 vi.mock("@nfl-pool-monorepo/transactional/sms/picksSubmitted", () => ({ default: sendPicksSubmittedSMS }));
-vi.mock("next/cache", () => ({ revalidatePath }));
+vi.mock("next/cache", () => ({ revalidatePath, updateTag }));
 
 const AUTHED_USER = {
   doneRegistering: 1,
@@ -34,6 +35,10 @@ const AUTHED_USER = {
   isAdmin: 0,
   name: "Test User",
   playsSurvivor: 0,
+};
+
+const expectPickTagsExpired = (week = 1) => {
+  expect(updateTag).toHaveBeenCalledWith(`weekly-mv-${week}`);
 };
 
 const FUTURE = new Date(Date.now() + 60 * 60 * 1000);
@@ -46,6 +51,7 @@ describe("submitMyPicks", () => {
     sendPicksSubmittedSMS.mockReset();
     sendPicksSubmittedPushNotification.mockReset();
     revalidatePath.mockReset();
+    updateTag.mockReset();
     vi.resetModules();
   });
 
@@ -96,6 +102,7 @@ describe("submitMyPicks", () => {
     expect(mockDb.insertInto).toHaveBeenCalledWith("Logs");
     expect(sendPicksSubmittedEmail).not.toHaveBeenCalled();
     expect(revalidatePath).toHaveBeenCalledWith("/picks/view");
+    expectPickTagsExpired();
   });
 
   it("sends an email when the user has PicksSubmitted email notifications enabled", async () => {
@@ -203,6 +210,7 @@ describe("setMyPick", () => {
     mockDb = createMockDb();
     getCurrentSession.mockReset().mockResolvedValue({ session: { id: "s1" }, user: AUTHED_USER });
     revalidatePath.mockReset();
+    updateTag.mockReset();
     vi.resetModules();
   });
 
@@ -266,6 +274,7 @@ describe("setMyPick", () => {
     expect(mockDb.where).toHaveBeenCalledWith("PickID", "=", 20);
     expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({ PickPoints: 1, TeamID: 1 }));
     expect(revalidatePath).toHaveBeenCalledWith("/picks/set");
+    expectPickTagsExpired();
   });
 });
 
@@ -274,6 +283,7 @@ describe("autoPickMyPicks", () => {
     mockDb = createMockDb();
     getCurrentSession.mockReset().mockResolvedValue({ session: { id: "s1" }, user: AUTHED_USER });
     revalidatePath.mockReset();
+    updateTag.mockReset();
     vi.resetModules();
   });
 
@@ -304,6 +314,7 @@ describe("autoPickMyPicks", () => {
     expect(result?.serverError).toBeUndefined();
     expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({ PickPoints: 1, TeamID: 1 }));
     expect(revalidatePath).toHaveBeenCalledWith("/picks/set");
+    expectPickTagsExpired();
   });
 
   it("auto-picks the visitor team for the one remaining unmade pick when strategy is Away", async () => {
@@ -329,6 +340,7 @@ describe("autoPickMyPicks", () => {
 
     expect(result?.serverError).toBe("connection lost");
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(updateTag).not.toHaveBeenCalled();
   });
 });
 
@@ -337,6 +349,7 @@ describe("resetMyPicksForWeek", () => {
     mockDb = createMockDb();
     getCurrentSession.mockReset().mockResolvedValue({ session: { id: "s1" }, user: AUTHED_USER });
     revalidatePath.mockReset();
+    updateTag.mockReset();
     vi.resetModules();
   });
 
@@ -350,6 +363,7 @@ describe("resetMyPicksForWeek", () => {
     expect(mockDb.updateTable).toHaveBeenCalledWith("Picks");
     expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({ PickPoints: null, TeamID: null }));
     expect(revalidatePath).toHaveBeenCalledWith("/picks/set");
+    expectPickTagsExpired();
   });
 
   it("wraps a transaction failure in a descriptive error", async () => {
@@ -367,6 +381,7 @@ describe("validateMyPicks", () => {
     mockDb = createMockDb();
     getCurrentSession.mockReset().mockResolvedValue({ session: { id: "s1" }, user: AUTHED_USER });
     revalidatePath.mockReset();
+    updateTag.mockReset();
     vi.resetModules();
   });
 
@@ -398,5 +413,6 @@ describe("validateMyPicks", () => {
 
     expect(result?.serverError).toBeUndefined();
     expect(revalidatePath).toHaveBeenCalledWith("/picks/set");
+    expectPickTagsExpired();
   });
 });

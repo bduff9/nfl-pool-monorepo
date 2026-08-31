@@ -17,10 +17,12 @@
 import { getTeamById } from "@nfl-pool-monorepo/db/src/queries/team";
 import "server-only";
 
-import type { FC, ReactNode } from "react";
+import { type FC, type ReactNode, Suspense } from "react";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import QuickPickConfirm from "@/components/QuickPickConfirm/QuickPickConfirm";
+
+import PageLoading from "../../../loading";
 
 const QuickPickCard: FC<{ children: ReactNode; title: string }> = ({ children, title }) => (
   <div className="min-h-screen flex flex-col md:mx-3">
@@ -32,7 +34,7 @@ const QuickPickCard: FC<{ children: ReactNode; title: string }> = ({ children, t
   </div>
 );
 
-const QuickPickPage: FC<PageProps<"/quick-pick/[userId]/[teamId]">> = async ({ params }) => {
+const QuickPickPageBody: FC<PageProps<"/quick-pick/[userId]/[teamId]">> = async ({ params }) => {
   const { userId, teamId } = await params;
   const team = await getTeamById(Number(teamId));
 
@@ -54,5 +56,11 @@ const QuickPickPage: FC<PageProps<"/quick-pick/[userId]/[teamId]">> = async ({ p
     </QuickPickCard>
   );
 };
+
+const QuickPickPage: FC<PageProps<"/quick-pick/[userId]/[teamId]">> = (props) => (
+  <Suspense fallback={<PageLoading />}>
+    <QuickPickPageBody {...props} />
+  </Suspense>
+);
 
 export default QuickPickPage;

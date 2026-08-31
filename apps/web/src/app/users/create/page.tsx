@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import "server-only";
 
-import type { FC } from "react";
+import { type FC, Suspense } from "react";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import FinishRegistrationForm from "@/components/FinishRegistrationForm/FinishRegistrationForm";
@@ -12,13 +12,15 @@ import { getCurrentSession } from "@/server/loaders/sessions";
 import { getCurrentUser, userHasGoogle } from "@/server/loaders/user";
 import { getSeasonStatus } from "@/server/loaders/week";
 
+import UsersLoading from "../loading";
+
 const TITLE = "Finish Registration";
 
 export const metadata: Metadata = {
   title: TITLE,
 };
 
-const CreateProfile: FC<PageProps<"/users/create">> = async () => {
+const CreateProfilePageBody: FC<PageProps<"/users/create">> = async () => {
   const { user } = await getCurrentSession();
 
   if (!user) {
@@ -53,5 +55,11 @@ const CreateProfile: FC<PageProps<"/users/create">> = async () => {
     </div>
   );
 };
+
+const CreateProfile: FC<PageProps<"/users/create">> = (props) => (
+  <Suspense fallback={<UsersLoading />}>
+    <CreateProfilePageBody {...props} />
+  </Suspense>
+);
 
 export default CreateProfile;

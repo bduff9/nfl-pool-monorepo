@@ -20,7 +20,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import "server-only";
 
-import type { FC } from "react";
+import { type FC, Suspense } from "react";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
@@ -28,11 +28,16 @@ import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import ProgressChart from "@/components/ProgressChart/ProgressChart";
 import RankingPieChart from "@/components/RankingPieChart/RankingPieChart";
 import RetryableSection from "@/components/RetryableSection/RetryableSection";
+import Crossfade from "@/components/ViewTransitions/Crossfade";
+import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { WeeklyDashboardResults, WeeklyDashboardTitle } from "@/components/WeeklyDashboard/WeeklyDashboard.client";
 import { requireRegistered } from "@/lib/auth";
+import { withWeek } from "@/lib/weekSearchParams";
 import { getCurrentUser } from "@/server/loaders/user";
-import { getSelectedWeek, getWeekStatus } from "@/server/loaders/week";
+import { getSelectedWeekFromParams, getWeekStatus } from "@/server/loaders/week";
 import { getMyWeeklyRank, getWeeklyMvCount, getWeeklyMvTiedCount, getWeeklyRankings } from "@/server/loaders/weeklyMv";
+
+import WeeklyLoading from "./loading";
 
 const TITLE = "Weekly Ranks";
 
@@ -98,14 +103,14 @@ const WeeklyRankingsTable: FC<WeeklyRankingsTableProps> = async ({ selectedWeek 
   );
 };
 
-const WeeklyRankings: FC<PageProps<"/weekly">> = async () => {
+const WeeklyRankingsPageBody: FC<PageProps<"/weekly">> = async ({ searchParams }) => {
   const redirectUrl = await requireRegistered();
 
   if (redirectUrl) {
     return redirect(redirectUrl);
   }
 
-  const selectedWeek = await getSelectedWeek();
+  const selectedWeek = await getSelectedWeekFromParams(searchParams);
 
   const weekStatusPromise = getWeekStatus(selectedWeek);
   const weeklyTotalCountPromise = getWeeklyMvCount(selectedWeek);
@@ -119,7 +124,7 @@ const WeeklyRankings: FC<PageProps<"/weekly">> = async () => {
   ]);
 
   if (weeklyTotalCount === 0) {
-    return redirect("/");
+    return redirect(withWeek("/", selectedWeek));
   }
 
   const myPlace = `${myWeeklyRank?.Tied ? "T" : ""}${myWeeklyRank?.Rank}`;
@@ -128,68 +133,78 @@ const WeeklyRankings: FC<PageProps<"/weekly">> = async () => {
   const behindMe = weeklyTotalCount - me - weeklyTiedCount;
 
   return (
-    <div className="h-full flex flex-col md:mx-3">
-      <CustomHead title={`Week ${selectedWeek} Ranks`} />
-      <PageContent className="pt-0 md:pt-3 pb-4">
-        <div className="flex flex-wrap">
-          <div className="hidden md:inline-block w-1/2 text-center h-[205px]">
-            <WeeklyDashboardTitle selectedWeek={selectedWeek} />
-            <RankingPieChart
-              data={[
-                {
-                  fill: "var(--color-red-700)",
-                  myPlace,
-                  name: "ahead of me",
-                  total: weeklyTotalCount,
-                  value: aheadOfMe,
-                },
-                {
-                  fill: "var(--color-green-700)",
-                  myPlace,
-                  name: "behind me",
-                  total: weeklyTotalCount,
-                  value: behindMe,
-                },
-                {
-                  fill: "var(--color-amber-600)",
-                  myPlace,
-                  name: "tied with me",
-                  total: weeklyTotalCount,
-                  value: weeklyTiedCount,
-                },
-              ]}
-              layoutId="weeklyRankingPieChart"
-            />
+    <PageTransition>
+      <div className="h-full flex flex-col md:mx-3">
+        <CustomHead title={`Week ${selectedWeek} Ranks`} />
+        <PageContent className="pt-0 md:pt-3 pb-4">
+          <div className="flex flex-wrap">
+            <div className="hidden md:inline-block w-1/2 text-center h-[205px]">
+              <WeeklyDashboardTitle selectedWeek={selectedWeek} />
+              <RankingPieChart
+                data={[
+                  {
+                    fill: "var(--color-red-700)",
+                    myPlace,
+                    name: "ahead of me",
+                    total: weeklyTotalCount,
+                    value: aheadOfMe,
+                  },
+                  {
+                    fill: "var(--color-green-700)",
+                    myPlace,
+                    name: "behind me",
+                    total: weeklyTotalCount,
+                    value: behindMe,
+                  },
+                  {
+                    fill: "var(--color-amber-600)",
+                    myPlace,
+                    name: "tied with me",
+                    total: weeklyTotalCount,
+                    value: weeklyTiedCount,
+                  },
+                ]}
+                layoutId="weeklyRankingPieChart"
+              />
+            </div>
+            <div className="mt-4 block md:hidden">
+              <ProgressBarLink href="/">&laquo; Back to Dashboard</ProgressBarLink>
+            </div>
+            <div className="hidden md:inline-block w-1/2 px-3">
+              <WeeklyDashboardResults className="mb-4 text-center" selectedWeek={selectedWeek} />
+              <ProgressChart
+                correct={myWeeklyRank?.PointsEarned ?? 0}
+                incorrect={myWeeklyRank?.PointsWrong ?? 0}
+                isOver={weekStatus === "Complete"}
+                layoutId="weeklyPointsEarned"
+                max={myWeeklyRank?.PointsTotal ?? 0}
+                type="Points"
+              />
+              <ProgressChart
+                correct={myWeeklyRank?.GamesCorrect ?? 0}
+                incorrect={myWeeklyRank?.GamesWrong ?? 0}
+                isOver={weekStatus === "Complete"}
+                layoutId="weeklyGamesCorrect"
+                max={myWeeklyRank?.GamesTotal ?? 0}
+                type="Games"
+              />
+            </div>
+            <RetryableSection title="the weekly rankings">
+              <Crossfade>
+                <WeeklyRankingsTable selectedWeek={selectedWeek} />
+              </Crossfade>
+            </RetryableSection>
           </div>
-          <div className="mt-4 block md:hidden">
-            <ProgressBarLink href="/">&laquo; Back to Dashboard</ProgressBarLink>
-          </div>
-          <div className="hidden md:inline-block w-1/2 px-3">
-            <WeeklyDashboardResults className="mb-4 text-center" selectedWeek={selectedWeek} />
-            <ProgressChart
-              correct={myWeeklyRank?.PointsEarned ?? 0}
-              incorrect={myWeeklyRank?.PointsWrong ?? 0}
-              isOver={weekStatus === "Complete"}
-              layoutId="weeklyPointsEarned"
-              max={myWeeklyRank?.PointsTotal ?? 0}
-              type="Points"
-            />
-            <ProgressChart
-              correct={myWeeklyRank?.GamesCorrect ?? 0}
-              incorrect={myWeeklyRank?.GamesWrong ?? 0}
-              isOver={weekStatus === "Complete"}
-              layoutId="weeklyGamesCorrect"
-              max={myWeeklyRank?.GamesTotal ?? 0}
-              type="Games"
-            />
-          </div>
-          <RetryableSection title="the weekly rankings">
-            <WeeklyRankingsTable selectedWeek={selectedWeek} />
-          </RetryableSection>
-        </div>
-      </PageContent>
-    </div>
+        </PageContent>
+      </div>
+    </PageTransition>
   );
 };
+
+const WeeklyRankings: FC<PageProps<"/weekly">> = (props) => (
+  <Suspense fallback={<WeeklyLoading />}>
+    <WeeklyRankingsPageBody {...props} />
+  </Suspense>
+);
 
 export default WeeklyRankings;

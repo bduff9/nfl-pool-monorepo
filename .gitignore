@@ -42,3 +42,7 @@ packages/*/dist
 /playwright-report/
 /playwright/.cache/
 .playwright-mcp/
+apps/web/e2e/.auth/
+
+# editor/tool state
+.serena/

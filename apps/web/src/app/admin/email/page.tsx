@@ -15,7 +15,7 @@
  */
 
 import { redirect } from "next/navigation";
-import type { FC } from "react";
+import { type FC, Suspense } from "react";
 
 import AdminEmailsDataTable from "@/components/AdminEmailsTable/AdminEmailsDataTable";
 import CustomHead from "@/components/CustomHead/CustomHead";
@@ -24,7 +24,9 @@ import SendAdminEmails from "@/components/SendAdminEmails/SendAdminEmails";
 import { requireAdmin } from "@/lib/auth";
 import { getAdminEmails } from "@/server/loaders/email";
 
-const AdminEmail: FC<PageProps<"/admin/email">> = async ({ searchParams }) => {
+import AdminLoading from "../loading";
+
+const AdminEmailPageBody: FC<PageProps<"/admin/email">> = async ({ searchParams }) => {
   const redirectUrl = await requireAdmin();
 
   if (redirectUrl) {
@@ -53,5 +55,11 @@ const AdminEmail: FC<PageProps<"/admin/email">> = async ({ searchParams }) => {
     </div>
   );
 };
+
+const AdminEmail: FC<PageProps<"/admin/email">> = (props) => (
+  <Suspense fallback={<AdminLoading />}>
+    <AdminEmailPageBody {...props} />
+  </Suspense>
+);
 
 export default AdminEmail;

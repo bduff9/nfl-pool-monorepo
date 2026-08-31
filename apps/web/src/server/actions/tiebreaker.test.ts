@@ -5,6 +5,7 @@ let mockDb: MockDb;
 
 const getCurrentSession = vi.fn();
 const revalidatePath = vi.fn();
+const updateTag = vi.fn();
 
 vi.mock("@nfl-pool-monorepo/db/src/kysely", () => ({
   get db() {
@@ -12,7 +13,7 @@ vi.mock("@nfl-pool-monorepo/db/src/kysely", () => ({
   },
 }));
 vi.mock("@/server/loaders/sessions", () => ({ getCurrentSession }));
-vi.mock("next/cache", () => ({ revalidatePath }));
+vi.mock("next/cache", () => ({ revalidatePath, updateTag }));
 
 const AUTHED_USER = {
   doneRegistering: 1,
@@ -32,6 +33,7 @@ describe("updateMyTiebreakerScore", () => {
     mockDb = createMockDb();
     getCurrentSession.mockReset().mockResolvedValue({ session: { id: "s1" }, user: AUTHED_USER });
     revalidatePath.mockReset();
+    updateTag.mockReset();
     vi.resetModules();
   });
 
@@ -67,5 +69,6 @@ describe("updateMyTiebreakerScore", () => {
     expect(result?.serverError).toBeUndefined();
     expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({ TiebreakerLastScore: 45 }));
     expect(revalidatePath).toHaveBeenCalledWith("/picks/set");
+    expect(updateTag).toHaveBeenCalledWith("weekly-mv-1");
   });
 });

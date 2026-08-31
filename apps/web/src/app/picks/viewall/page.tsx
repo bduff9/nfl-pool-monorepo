@@ -19,17 +19,20 @@ import "server-only";
 import { getGamesForWeek } from "@nfl-pool-monorepo/db/src/queries/game";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import type { FC } from "react";
+import { type FC, Suspense } from "react";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
+import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { requireRegistered } from "@/lib/auth";
+import { withWeek } from "@/lib/weekSearchParams";
 import { getAllPicksForWeek } from "@/server/loaders/pick";
 import { getMyTiebreaker } from "@/server/loaders/tiebreaker";
 import { getCurrentUser } from "@/server/loaders/user";
-import { getSelectedWeek } from "@/server/loaders/week";
+import { getSelectedWeekFromParams } from "@/server/loaders/week";
 import { getWeeklyRankings } from "@/server/loaders/weeklyMv";
 
+import ViewAllPicksLoading from "./loading";
 import ViewAllPicksClient from "./viewall.client";
 
 const TITLE = "View All Week Picks";
@@ -38,14 +41,14 @@ export const metadata: Metadata = {
   title: TITLE,
 };
 
-const ViewAllPicks: FC<PageProps<"/picks/viewall">> = async () => {
+const ViewAllPicksPageBody: FC<PageProps<"/picks/viewall">> = async ({ searchParams }) => {
   const redirectUrl = await requireRegistered();
 
   if (redirectUrl) {
     return redirect(redirectUrl);
   }
 
-  const selectedWeek = await getSelectedWeek();
+  const selectedWeek = await getSelectedWeekFromParams(searchParams);
 
   const [currentUser, tiebreaker, weeklyRankings, gamesForWeek, picksForWeek] = await Promise.all([
     getCurrentUser(),
@@ -56,27 +59,35 @@ const ViewAllPicks: FC<PageProps<"/picks/viewall">> = async () => {
   ]);
 
   if (tiebreaker?.TiebreakerHasSubmitted !== 1) {
-    return redirect("/picks/set");
+    return redirect(withWeek("/picks/set", selectedWeek));
   }
 
   if (weeklyRankings.length === 0) {
-    return redirect("/picks/view");
+    return redirect(withWeek("/picks/view", selectedWeek));
   }
 
   return (
-    <div className="h-full flex flex-col md:mx-3">
-      <CustomHead title={`View all week ${selectedWeek} picks`} />
-      <PageContent className="pt-3">
-        <ViewAllPicksClient
-          currentUserId={currentUser.UserID}
-          gamesForWeek={gamesForWeek}
-          key={`view-all-for-week-${selectedWeek}`}
-          picksForWeek={picksForWeek}
-          weeklyRankings={weeklyRankings}
-        />
-      </PageContent>
-    </div>
+    <PageTransition>
+      <div className="h-full flex flex-col md:mx-3">
+        <CustomHead title={`View all week ${selectedWeek} picks`} />
+        <PageContent className="pt-3">
+          <ViewAllPicksClient
+            currentUserId={currentUser.UserID}
+            gamesForWeek={gamesForWeek}
+            key={`view-all-for-week-${selectedWeek}`}
+            picksForWeek={picksForWeek}
+            weeklyRankings={weeklyRankings}
+          />
+        </PageContent>
+      </div>
+    </PageTransition>
   );
 };
+
+const ViewAllPicks: FC<PageProps<"/picks/viewall">> = (props) => (
+  <Suspense fallback={<ViewAllPicksLoading />}>
+    <ViewAllPicksPageBody {...props} />
+  </Suspense>
+);
 
 export default ViewAllPicks;

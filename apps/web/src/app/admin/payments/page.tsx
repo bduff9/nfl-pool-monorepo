@@ -22,7 +22,7 @@ import {
   getWeeklyPrizeAmounts,
 } from "@nfl-pool-monorepo/db/src/queries/systemValue";
 import { redirect } from "next/navigation";
-import type { FC } from "react";
+import { type FC, Suspense } from "react";
 
 import AdminPrizeDataTable from "@/components/AdminUserPayoutTable/AdminPrizeDataTable";
 import CustomHead from "@/components/CustomHead/CustomHead";
@@ -32,7 +32,9 @@ import { requireAdmin } from "@/lib/auth";
 import { getUserPayoutsForAdmin } from "@/server/loaders/payment";
 import { getRegisteredCount, getSurvivorCount } from "@/server/loaders/user";
 
-const AdminPaymentsPage: FC<PageProps<"/admin/payments">> = async ({ searchParams }) => {
+import AdminLoading from "../loading";
+
+const AdminPaymentsPageBody: FC<PageProps<"/admin/payments">> = async ({ searchParams }) => {
   const redirectUrl = await requireAdmin();
 
   if (redirectUrl) {
@@ -72,5 +74,11 @@ const AdminPaymentsPage: FC<PageProps<"/admin/payments">> = async ({ searchParam
     </div>
   );
 };
+
+const AdminPaymentsPage: FC<PageProps<"/admin/payments">> = (props) => (
+  <Suspense fallback={<AdminLoading />}>
+    <AdminPaymentsPageBody {...props} />
+  </Suspense>
+);
 
 export default AdminPaymentsPage;

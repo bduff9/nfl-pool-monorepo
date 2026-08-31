@@ -15,7 +15,7 @@
  */
 
 import { redirect } from "next/navigation";
-import type { FC } from "react";
+import { type FC, Suspense } from "react";
 
 import BackupsTable from "@/components/BackupsTable/BackupsTable";
 import CustomHead from "@/components/CustomHead/CustomHead";
@@ -23,7 +23,9 @@ import PageContent from "@/components/PageContent/PageContent";
 import { requireAdmin } from "@/lib/auth";
 import { getAdminBackups } from "@/server/loaders/backup";
 
-const AdminBackupsPage: FC<PageProps<"/admin/backups">> = async () => {
+import AdminLoading from "../loading";
+
+const AdminBackupsPageBody: FC<PageProps<"/admin/backups">> = async () => {
   const redirectUrl = await requireAdmin();
 
   if (redirectUrl) {
@@ -41,5 +43,11 @@ const AdminBackupsPage: FC<PageProps<"/admin/backups">> = async () => {
     </div>
   );
 };
+
+const AdminBackupsPage: FC<PageProps<"/admin/backups">> = (props) => (
+  <Suspense fallback={<AdminLoading />}>
+    <AdminBackupsPageBody {...props} />
+  </Suspense>
+);
 
 export default AdminBackupsPage;

@@ -15,7 +15,7 @@
  */
 
 import { redirect } from "next/navigation";
-import type { FC } from "react";
+import { type FC, Suspense } from "react";
 
 import ApiCallsDataTable from "@/components/ApiCallsTable/ApiCallsDataTable";
 import CustomHead from "@/components/CustomHead/CustomHead";
@@ -23,7 +23,9 @@ import PageContent from "@/components/PageContent/PageContent";
 import { requireAdmin } from "@/lib/auth";
 import { loadAPICalls } from "@/server/loaders/apiCall";
 
-const AdminAPICalls: FC<PageProps<"/admin/api">> = async ({ searchParams }) => {
+import AdminLoading from "../loading";
+
+const AdminAPICallsPageBody: FC<PageProps<"/admin/api">> = async ({ searchParams }) => {
   const redirectUrl = await requireAdmin();
 
   if (redirectUrl) {
@@ -50,5 +52,11 @@ const AdminAPICalls: FC<PageProps<"/admin/api">> = async ({ searchParams }) => {
     </div>
   );
 };
+
+const AdminAPICalls: FC<PageProps<"/admin/api">> = (props) => (
+  <Suspense fallback={<AdminLoading />}>
+    <AdminAPICallsPageBody {...props} />
+  </Suspense>
+);
 
 export default AdminAPICalls;

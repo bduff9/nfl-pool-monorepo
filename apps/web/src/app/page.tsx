@@ -22,9 +22,14 @@ import CustomHead from "@/components/CustomHead/CustomHead";
 import OverallDashboard from "@/components/OverallDashboard/OverallDashboard";
 import PageContent from "@/components/PageContent/PageContent";
 import SurvivorDashboard from "@/components/SurvivorDashboard/SurvivorDashboard";
+import Crossfade from "@/components/ViewTransitions/Crossfade";
+import PageTransition from "@/components/ViewTransitions/PageTransition";
 import DashboardLoader from "@/components/WeeklyDashboard/DashboardLoader";
 import WeeklyDashboard from "@/components/WeeklyDashboard/WeeklyDashboard";
 import { requireRegistered } from "@/lib/auth";
+import { getSelectedWeekFromParams } from "@/server/loaders/week";
+
+import PageLoading from "./loading";
 
 const TITLE = "My Dashboard";
 
@@ -32,32 +37,48 @@ export const metadata: Metadata = {
   title: TITLE,
 };
 
-const Dashboard: FC<PageProps<"/">> = async () => {
+const DashboardPageBody: FC<PageProps<"/">> = async ({ searchParams }) => {
   const redirectUrl = await requireRegistered();
 
   if (redirectUrl) {
     return redirect(redirectUrl);
   }
 
+  const selectedWeek = await getSelectedWeekFromParams(searchParams);
+
   return (
-    <div className="h-full flex flex-col md:mx-3">
-      <CustomHead title={TITLE} />
-      <PageContent className="pt-5 md:pt-3 pb-4 w-full">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-0 min-h-screen">
-          <Suspense fallback={<DashboardLoader title="Weekly Rank" />}>
-            <WeeklyDashboard />
-          </Suspense>
-          <Suspense fallback={<DashboardLoader title="Overall Rank" />}>
-            <OverallDashboard />
-          </Suspense>
-          <Suspense fallback={<DashboardLoader title="Survivor Pool" />}>
-            <SurvivorDashboard />
-          </Suspense>
-        </div>
-      </PageContent>
-    </div>
+    <PageTransition>
+      <div className="h-full flex flex-col md:mx-3">
+        <CustomHead title={TITLE} />
+        <PageContent className="pt-5 md:pt-3 pb-4 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 min-h-screen">
+            <Suspense fallback={<DashboardLoader title="Weekly Rank" />}>
+              <Crossfade>
+                <WeeklyDashboard selectedWeek={selectedWeek} />
+              </Crossfade>
+            </Suspense>
+            <Suspense fallback={<DashboardLoader title="Overall Rank" />}>
+              <Crossfade>
+                <OverallDashboard />
+              </Crossfade>
+            </Suspense>
+            <Suspense fallback={<DashboardLoader title="Survivor Pool" />}>
+              <Crossfade>
+                <SurvivorDashboard selectedWeek={selectedWeek} />
+              </Crossfade>
+            </Suspense>
+          </div>
+        </PageContent>
+      </div>
+    </PageTransition>
   );
 };
+
+const Dashboard: FC<PageProps<"/">> = (props) => (
+  <Suspense fallback={<PageLoading />}>
+    <DashboardPageBody {...props} />
+  </Suspense>
+);
 
 // ts-prune-ignore-next
 export default Dashboard;

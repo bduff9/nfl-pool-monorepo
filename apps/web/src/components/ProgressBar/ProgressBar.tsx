@@ -3,9 +3,13 @@
 import { AnimatePresence, m, useMotionTemplate, useSpring } from "framer-motion";
 import type { Route } from "next";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useQueryState } from "nuqs";
 import type { ComponentProps, FC, ReactNode } from "react";
-import { createContext, startTransition, useContext, useEffect, useRef, useState } from "react";
+import { createContext, Suspense, useContext, useEffect, useRef, useState } from "react";
+
+import { weekParser } from "@/lib/weekParser";
+import { appendWeekIfMissing } from "@/lib/weekSearchParams";
 
 const ProgressBarContext = createContext<ReturnType<typeof useProgress> | null>(null);
 
@@ -34,6 +38,10 @@ export const ProgressBar: FC<ProgressBarProps> = ({ className, children }) => {
         {progress.state !== "complete" && <m.div className={className} exit={{ opacity: 0 }} style={{ width }} />}
       </AnimatePresence>
 
+      <Suspense fallback={null}>
+        <NavigationProgressSync />
+      </Suspense>
+
       {children}
     </ProgressBarContext.Provider>
   );
@@ -41,36 +49,56 @@ export const ProgressBar: FC<ProgressBarProps> = ({ className, children }) => {
 
 type ProgressBarLinkProps = Omit<ComponentProps<typeof Link>, "href"> & {
   href: Route;
+  preserveWeek?: boolean;
 };
 
-export const ProgressBarLink: FC<ProgressBarLinkProps> = ({ children, href, onClick, ...rest }) => {
+export const ProgressBarLink: FC<ProgressBarLinkProps> = ({
+  children,
+  href,
+  onClick,
+  preserveWeek = true,
+  ...rest
+}) => {
   const progress = useProgressBar();
-  const router = useRouter();
+  const [week] = useQueryState("week", weekParser);
+  const resolvedHref = preserveWeek ? appendWeekIfMissing(href, week) : href;
 
   const handleClick: ComponentProps<typeof Link>["onClick"] = (e) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) {
+      return;
+    }
+
     onClick?.(e);
 
     if (e.defaultPrevented) {
       return;
     }
 
-    if (e.metaKey) {
-      return;
-    }
-    e.preventDefault();
     progress.start();
-
-    startTransition(() => {
-      router.push(href);
-      progress.done();
-    });
   };
 
   return (
-    <Link href={href} onClick={handleClick} {...rest}>
+    <Link href={resolvedHref} onClick={handleClick} {...rest}>
       {children}
     </Link>
   );
+};
+
+const NavigationProgressSync: FC = () => {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const progress = useProgressBar();
+  const locationKey = `${pathname}?${searchParams.toString()}`;
+  const previousKey = useRef(locationKey);
+
+  useEffect(() => {
+    if (previousKey.current !== locationKey) {
+      progress.done();
+      previousKey.current = locationKey;
+    }
+  }, [locationKey, progress]);
+
+  return null;
 };
 
 const useProgress = () => {
@@ -84,7 +112,6 @@ const useProgress = () => {
 
   useInterval(
     () => {
-      // If we start progress but the bar is currently complete, reset it first.
       if (value.get() === 100) {
         value.jump(0);
       }

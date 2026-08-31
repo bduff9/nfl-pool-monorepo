@@ -4,14 +4,17 @@ import { SidebarTrigger, useOptionalSidebar } from "@nfl-pool-monorepo/ui/compon
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { FC } from "react";
 
+import { useHasAuthenticatedNav } from "@/components/AuthenticatedNavigation/authenticatedNavPresenceContext";
+
 type Props = {
   className?: string;
 };
 
 const PageSidebarTrigger: FC<Props> = ({ className }) => {
   const sidebar = useOptionalSidebar();
+  const hasNav = useHasAuthenticatedNav();
 
-  if (!sidebar) {
+  if (!sidebar || !hasNav) {
     return null;
   }
 

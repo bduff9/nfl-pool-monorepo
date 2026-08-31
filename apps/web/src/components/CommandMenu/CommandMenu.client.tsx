@@ -12,9 +12,12 @@ import {
 } from "@nfl-pool-monorepo/ui/components/command";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
+import { useQueryState } from "nuqs";
 import { type FC, type ReactNode, startTransition, useEffect, useState } from "react";
 import { LuCalendarDays, LuLayoutDashboard, LuLifeBuoy, LuShield, LuTable, LuUserCog } from "react-icons/lu";
 
+import { weekParser } from "@/lib/weekParser";
+import { withWeek } from "@/lib/weekSearchParams";
 import type { getMyTiebreaker } from "@/server/loaders/tiebreaker";
 
 import {
@@ -75,6 +78,7 @@ export const CommandMenuClient: FC<CommandMenuClientProps> = ({
   weeklyMvCount,
 }) => {
   const [open, setOpen] = useState<boolean>(false);
+  const [week] = useQueryState("week", weekParser);
   const router = useRouter();
   const progress = useProgressBar();
 
@@ -100,8 +104,7 @@ export const CommandMenuClient: FC<CommandMenuClientProps> = ({
     progress.start();
 
     startTransition(() => {
-      router.push(href);
-      progress.done();
+      router.push(withWeek(href, week));
     });
   };
 

@@ -96,6 +96,8 @@ type SendAdminEmailFieldRenderProps<TName extends keyof typeof sendAdminEmailSch
 };
 
 const SendAdminEmails: FC = () => {
+  "use no memo";
+
   const form = useForm<typeof sendAdminEmailSchema.infer>({
     defaultValues: {
       body: "",
@@ -161,14 +163,17 @@ const SendAdminEmails: FC = () => {
     setPreviewPayload({ body, preview, subject });
   }, [body, preview, subject]);
 
-  const onSubmit = (values: typeof sendAdminEmailSchema.infer): void => {
-    toastIdRef.current = toast.loading("Sending email...", {
-      closeButton: false,
-      dismissible: false,
-      duration: Infinity,
-    });
-    execute(values);
-  };
+  const onSubmit = useCallback(
+    (values: typeof sendAdminEmailSchema.infer): void => {
+      toastIdRef.current = toast.loading("Sending email...", {
+        closeButton: false,
+        dismissible: false,
+        duration: Infinity,
+      });
+      execute(values);
+    },
+    [execute],
+  );
 
   const renderEmailTypeField = useCallback(
     ({ field, fieldState }: SendAdminEmailFieldRenderProps<"emailType">) => (

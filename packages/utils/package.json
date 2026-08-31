@@ -5,7 +5,7 @@
   "dependencies": {
     "arktype": "2.2.3",
     "clsx": "2.1.1",
-    "mysql2": "3.23.2",
+    "mysql2": "3.24.2",
     "mysqldump": "3.2.0",
     "tailwind-merge": "3.6.0"
   },

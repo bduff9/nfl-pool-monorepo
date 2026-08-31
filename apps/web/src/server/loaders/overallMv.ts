@@ -1,14 +1,25 @@
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import type { Selectable } from "kysely";
+import { cacheLife, cacheTag } from "next/cache";
 import { cache } from "react";
 import "server-only";
 
 import type { OverallMV } from "@nfl-pool-monorepo/db/src";
 
+import { cacheTags } from "@/lib/cacheTags";
+
 import { requireUser } from "./sessions";
 
 export const getOverallMvCount = cache(async (): Promise<number> => {
   await requireUser();
+
+  return getOverallMvCountCached();
+});
+
+const getOverallMvCountCached = async (): Promise<number> => {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(cacheTags.overallMv());
 
   const { count } = await db
     .selectFrom("OverallMV")
@@ -16,7 +27,7 @@ export const getOverallMvCount = cache(async (): Promise<number> => {
     .executeTakeFirstOrThrow();
 
   return count;
-});
+};
 
 export const getOverallMvTiedCount = cache(async (): Promise<number> => {
   const user = await requireUser();
@@ -40,5 +51,13 @@ export const getMyOverallRank = cache(async (): Promise<Selectable<OverallMV> | 
 export const getOverallRankings = cache(async () => {
   await requireUser();
 
-  return db.selectFrom("OverallMV").selectAll().orderBy("Rank asc").execute();
+  return getOverallRankingsCached();
 });
+
+const getOverallRankingsCached = async () => {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(cacheTags.overallMv());
+
+  return db.selectFrom("OverallMV").selectAll().orderBy("Rank asc").execute();
+};

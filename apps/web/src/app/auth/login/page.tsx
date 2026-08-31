@@ -18,10 +18,10 @@ import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { redirect } from "next/navigation";
+import { type FC, Suspense } from "react";
 import "server-only";
 
 import { getSystemYear } from "@nfl-pool-monorepo/db/src/queries/systemValue";
-import type { FC } from "react";
 
 import GoogleAuthButton from "@/components/GoogleAuthButton/GoogleAuthButton";
 import LoginForm from "@/components/LoginForm/LoginForm";
@@ -29,13 +29,19 @@ import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import TextSeparator from "@/components/TextSeparator/TextSeparator";
 import { requireLoggedOut } from "@/lib/auth";
 
+import AuthLoading from "../loading";
+
 const TITLE = "Login";
 
 export const metadata: Metadata = {
   title: TITLE,
 };
 
-const Login: FC<PageProps<"/auth/login">> = async ({ searchParams }) => {
+type LoginContentProps = {
+  searchParams: PageProps<"/auth/login">["searchParams"];
+};
+
+const LoginContent: FC<LoginContentProps> = async ({ searchParams }) => {
   const redirectUrl = await requireLoggedOut();
 
   if (redirectUrl) {
@@ -87,6 +93,14 @@ const Login: FC<PageProps<"/auth/login">> = async ({ searchParams }) => {
         </>
       )}
     </div>
+  );
+};
+
+const Login: FC<PageProps<"/auth/login">> = ({ searchParams }) => {
+  return (
+    <Suspense fallback={<AuthLoading />}>
+      <LoginContent searchParams={searchParams} />
+    </Suspense>
   );
 };
 

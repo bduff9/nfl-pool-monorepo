@@ -1,10 +1,11 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import "server-only";
 
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
 
+import { cacheTags } from "@/lib/cacheTags";
 import { authActionClient } from "@/lib/safe-action";
 import { serverActionResultSchema, updateMyTiebreakerScoreSchema } from "@/lib/validation";
 
@@ -59,6 +60,7 @@ export const updateMyTiebreakerScore = authActionClient
     }
 
     revalidatePath("/picks/set");
+    updateTag(cacheTags.weeklyMv(week));
 
     return {
       metadata: {},

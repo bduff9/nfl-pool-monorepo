@@ -27,7 +27,7 @@ import RankingPieChartLoader from "@/components/RankingPieChart/RankingPieChartL
 
 const OverallRankingsLoader: FC = () => {
   return (
-    <div className="h-full flex">
+    <div className="h-full flex" data-testid="route-loading">
       <PageContent className="mx-2 pt-0 md:pt-3 pb-4">
         <div className="flex flex-wrap">
           <div className="hidden md:inline-block w-1/2 text-center h-[205px]">

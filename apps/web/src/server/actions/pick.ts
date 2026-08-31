@@ -6,18 +6,24 @@ import { sendQuickPickConfirmationEmail } from "@nfl-pool-monorepo/transactional
 import sendPicksSubmittedPushNotification from "@nfl-pool-monorepo/transactional/pushNotifications/picksSubmitted";
 import sendPicksSubmittedSMS from "@nfl-pool-monorepo/transactional/sms/picksSubmitted";
 import { sql } from "kysely";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import "server-only";
 
 import { getLowestUnusedPoint } from "@nfl-pool-monorepo/db/src/queries/pick";
 import { weekSchema } from "@nfl-pool-monorepo/utils/validation";
 import { type } from "arktype";
 
+import { cacheTags } from "@/lib/cacheTags";
 import type { AutoPickStrategy } from "@/lib/constants";
 import { actionClient, authActionClient } from "@/lib/safe-action";
 import { autoPickSchema, serverActionResultSchema, setMyPickSchema, validateMyPicksSchema } from "@/lib/validation";
 
 import { getCurrentSession } from "../loaders/sessions";
+
+const expirePickCaches = (week: number, path: "/picks/set" | "/picks/view"): void => {
+  revalidatePath(path);
+  updateTag(cacheTags.weeklyMv(week));
+};
 
 const shouldAutoPickHome = (type: (typeof AutoPickStrategy)[number]): boolean => {
   if (type === "Home") return true;
@@ -95,7 +101,7 @@ export const autoPickMyPicks = authActionClient
       throw new Error("Failed to auto pick for week");
     }
 
-    revalidatePath("/picks/set");
+    expirePickCaches(week, "/picks/set");
 
     return {
       metadata: {},
@@ -228,7 +234,7 @@ export const resetMyPicksForWeek = authActionClient
       throw new Error("Failed to reset picks for week");
     }
 
-    revalidatePath("/picks/set");
+    expirePickCaches(week, "/picks/set");
 
     return {
       metadata: {},
@@ -325,7 +331,7 @@ export const setMyPick = authActionClient
       throw new Error("Failed to set pick");
     }
 
-    revalidatePath("/picks/set");
+    expirePickCaches(week, "/picks/set");
 
     return {
       metadata: {},
@@ -446,7 +452,7 @@ export const submitMyPicks = authActionClient
       throw new Error("Failed to submit picks");
     }
 
-    revalidatePath("/picks/view");
+    expirePickCaches(week, "/picks/view");
 
     return {
       metadata: {},
@@ -506,7 +512,7 @@ export const validateMyPicks = authActionClient
       throw new Error("Failed to validate picks");
     }
 
-    revalidatePath("/picks/set");
+    expirePickCaches(week, "/picks/set");
 
     return {
       metadata: {},

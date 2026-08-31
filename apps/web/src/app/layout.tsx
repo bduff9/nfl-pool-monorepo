@@ -1,37 +1,24 @@
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuSkeleton,
-  SidebarProvider,
-} from "@nfl-pool-monorepo/ui/components/sidebar";
+import { SidebarProvider } from "@nfl-pool-monorepo/ui/components/sidebar";
+import { Toaster } from "@nfl-pool-monorepo/ui/components/sonner";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata, Viewport } from "next";
 import { Roboto } from "next/font/google";
 import Script from "next/script";
-import { type FC, Suspense, ViewTransition } from "react";
+import { type FC, Suspense } from "react";
 import { PiFootballDuotone } from "react-icons/pi";
 import "server-only";
 
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-
 import "./globals.css";
 
-import { Toaster } from "@nfl-pool-monorepo/ui/components/sonner";
-import { cookies } from "next/headers";
-
-import AppSidebar from "@/components/AppSidebar/AppSidebar";
-import { CommandMenu } from "@/components/CommandMenu/CommandMenu";
+import SidebarOpenSync from "@/components/AppSidebar/SidebarOpenSync.client";
+import AuthenticatedNavigation from "@/components/AuthenticatedNavigation/AuthenticatedNavigation";
+import { AuthenticatedNavPresenceProvider } from "@/components/AuthenticatedNavigation/AuthenticatedNavPresence.client";
+import LogRocketGate from "@/components/LogRocketBoot/LogRocketGate";
 import OfflineBanner from "@/components/OfflineBanner/OfflineBanner";
 import Providers from "@/components/Providers/providers";
 import { env } from "@/lib/env";
-import { getCurrentSession } from "@/server/loaders/sessions";
 
 const roboto = Roboto({
   display: "swap",
@@ -45,11 +32,6 @@ const appColor = "#8c8c8c";
 const siteName = "A Site With No Name";
 const ogImage = `${env.NEXT_PUBLIC_SITE_URL}/bkgd-pitch.png`;
 const twitterAccount = "@Duffmaster33";
-
-// This app is fully auth-gated - every route already reads cookies() to check the session,
-// so there's no static shell to produce. Opt the whole app out of Cache Components' static-shell
-// requirement rather than restructuring every route to carve out a cookie-free shell.
-export const instant = false;
 
 export const metadata: Metadata = {
   appleWebApp: {
@@ -114,90 +96,53 @@ const PageLoadingFallback: FC = () => (
   </div>
 );
 
-const RootLayout: FC<LayoutProps<"/">> = async ({ children }) => {
-  const { user } = await getCurrentSession();
-  const cookieStore = await cookies();
-  const defaultOpen = cookieStore.get("sidebar_state")?.value !== "false";
-
+const RootLayout: FC<LayoutProps<"/">> = ({ children }) => {
   return (
-    <ViewTransition>
-      <html className={cn("h-full", roboto.className)} lang="en" suppressHydrationWarning>
-        <head>
-          {env.NEXT_PUBLIC_ENV === "production" && (
-            <Script
-              data-cf-beacon='{"token": "7948b9354d734d69b6866cecb098731f", "spa": true}'
-              defer
-              src="https://static.cloudflareinsights.com/beacon.min.js"
-            />
-          )}
-          {env.NEXT_PUBLIC_ENV === "preview" && (
-            <Script
-              data-cf-beacon='{"token": "4b2c9a4eecaa4b7d85552ebc8b355c8b", "spa": true}'
-              defer
-              src="https://static.cloudflareinsights.com/beacon.min.js"
-            />
-          )}
-        </head>
+    <html className={cn("h-full", roboto.className)} lang="en" suppressHydrationWarning>
+      <head>
+        {env.NEXT_PUBLIC_ENV === "production" && (
+          <Script
+            data-cf-beacon='{"token": "7948b9354d734d69b6866cecb098731f", "spa": true}'
+            defer
+            src="https://static.cloudflareinsights.com/beacon.min.js"
+          />
+        )}
+        {env.NEXT_PUBLIC_ENV === "preview" && (
+          <Script
+            data-cf-beacon='{"token": "4b2c9a4eecaa4b7d85552ebc8b355c8b", "spa": true}'
+            defer
+            src="https://static.cloudflareinsights.com/beacon.min.js"
+          />
+        )}
+      </head>
 
-        <body className="h-full bg-black bg-[url('/bkgd-pitch.png')] bg-no-repeat bg-fixed bg-top bg-cover">
-          <Providers user={user}>
+      <body className="h-full bg-black bg-[url('/bkgd-pitch.png')] bg-no-repeat bg-fixed bg-top bg-cover">
+        <Providers>
+          <Suspense fallback={null}>
+            <LogRocketGate />
+          </Suspense>
+          <div style={{ viewTransitionName: "offline-banner" }}>
             <OfflineBanner />
-            {user ? (
-              <SidebarProvider defaultOpen={defaultOpen}>
-                <Suspense fallback={null}>
-                  <CommandMenu user={user} />
-                </Suspense>
-                <Suspense
-                  fallback={
-                    <Sidebar>
-                      <SidebarHeader>
-                        <SidebarMenu>
-                          <SidebarMenuSkeleton className="mb-8" />
-                        </SidebarMenu>
-                      </SidebarHeader>
-                      <SidebarContent>
-                        {Array.from({ length: 5 }).map((_, index) => (
-                          // biome-ignore lint/suspicious/noArrayIndexKey: We have no other data besides index
-                          <SidebarGroup key={index}>
-                            <SidebarGroupContent>
-                              <SidebarMenu>
-                                <SidebarMenuItem>
-                                  <SidebarMenuSkeleton />
-                                </SidebarMenuItem>
-                              </SidebarMenu>
-                            </SidebarGroupContent>
-                          </SidebarGroup>
-                        ))}
-                      </SidebarContent>
-
-                      <SidebarFooter>
-                        <SidebarMenu>
-                          <SidebarMenuItem>
-                            <SidebarMenuSkeleton showIcon />
-                          </SidebarMenuItem>
-                        </SidebarMenu>
-                      </SidebarFooter>
-                    </Sidebar>
-                  }
-                >
-                  <AppSidebar user={user} />
-                </Suspense>
-                <main className="w-full relative">
-                  <Suspense fallback={<PageLoadingFallback />}>{children}</Suspense>
-                </main>
-              </SidebarProvider>
-            ) : (
-              <Suspense fallback={<PageLoadingFallback />}>
-                <div className="min-h-full relative">{children}</div>
+          </div>
+          <SidebarProvider>
+            <SidebarOpenSync />
+            <AuthenticatedNavPresenceProvider>
+              <Suspense fallback={null}>
+                <AuthenticatedNavigation />
               </Suspense>
-            )}
+              <main className="w-full relative">
+                <Suspense fallback={<PageLoadingFallback />}>{children}</Suspense>
+              </main>
+            </AuthenticatedNavPresenceProvider>
+          </SidebarProvider>
+          <div style={{ viewTransitionName: "app-toaster" }}>
             <Toaster richColors />
-          </Providers>
-          <Analytics />
-          <SpeedInsights />
-        </body>
-      </html>
-    </ViewTransition>
+          </div>
+        </Providers>
+        <Analytics />
+        <SpeedInsights />
+      </body>
+    </html>
   );
 };
 

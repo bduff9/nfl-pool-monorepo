@@ -25,14 +25,18 @@ import {
   getSurvivorStatus,
   getSurvivorWeeklyCounts,
 } from "@/server/loaders/survivorMv";
-import { getSelectedWeek, getWeekStatus } from "@/server/loaders/week";
+import { getWeekStatus } from "@/server/loaders/week";
 
 import { ProgressBarLink } from "../ProgressBar/ProgressBar";
 import ProgressChart from "../ProgressChart/ProgressChart";
 import SurvivorDashboardIcon from "../SurvivorDashboardIcon/SurvivorDashboardIcon";
 
-const SurvivorDashboard: FC = async () => {
-  const [selectedWeek, { user }] = await Promise.all([getSelectedWeek(), getCurrentSession()]);
+type Props = {
+  selectedWeek: number;
+};
+
+const SurvivorDashboard: FC<Props> = async ({ selectedWeek }) => {
+  const { user } = await getCurrentSession();
 
   if (!user) {
     return redirect("/auth/login");

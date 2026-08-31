@@ -15,7 +15,7 @@
  */
 
 import { redirect } from "next/navigation";
-import type { FC } from "react";
+import { type FC, Suspense } from "react";
 import "server-only";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
@@ -26,7 +26,9 @@ import { editMyProfile } from "@/server/actions/user";
 import { getUserNotifications } from "@/server/loaders/notification";
 import { getCurrentUser, userHasGoogle } from "@/server/loaders/user";
 
-const EditProfile: FC<PageProps<"/users/edit">> = async () => {
+import UsersLoading from "../loading";
+
+const EditProfilePageBody: FC<PageProps<"/users/edit">> = async () => {
   const redirectPath = await requireRegistered();
 
   if (redirectPath) {
@@ -54,5 +56,11 @@ const EditProfile: FC<PageProps<"/users/edit">> = async () => {
     </div>
   );
 };
+
+const EditProfile: FC<PageProps<"/users/edit">> = (props) => (
+  <Suspense fallback={<UsersLoading />}>
+    <EditProfilePageBody {...props} />
+  </Suspense>
+);
 
 export default EditProfile;
