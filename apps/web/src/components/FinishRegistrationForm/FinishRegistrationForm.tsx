@@ -31,8 +31,8 @@ import "client-only";
 import type { Status } from "@nfl-pool-monorepo/types";
 import { useRouter } from "next/navigation";
 import { useAction } from "next-safe-action/hooks";
-import { type FC, useState } from "react";
-import { type SubmitHandler, useForm } from "react-hook-form";
+import { type FC, useEffect, useState } from "react";
+import { type SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import { RegistrationFields } from "./RegistrationFields";
@@ -86,13 +86,23 @@ const FinishRegistrationForm: FC<FinishRegistrationFormProps> = ({
 
   useBeforeUnload(form.formState.isDirty);
 
-  const onSubmit: SubmitHandler<typeof finishRegistrationSchema.infer> = (data) => {
-    // Only backfill UserName from first/last name when it doesn't already look like a real
-    // two-part name - this preserves a real display name (e.g. from Google) over a synthesized one.
-    const hasRealName = data.UserName.match(/\w{2,}\s\w{2,}/);
-    const UserName = hasRealName ? data.UserName : `${data.UserFirstName.trim()} ${data.UserLastName.trim()}`;
+  const userFirstName = useWatch({ control: form.control, name: "UserFirstName" });
+  const userLastName = useWatch({ control: form.control, name: "UserLastName" });
 
-    execute({ ...data, UserName });
+  // UserName has no input of its own - it's derived from first/last name. Only backfill it when it
+  // doesn't already look like a real two-part name, so a real display name (e.g. from Google) is
+  // preserved over a synthesized one. Runs on every first/last name change (not just on submit) so
+  // validation never sees a stale/empty UserName from a user with no name on file yet.
+  useEffect(() => {
+    const hasRealName = form.getValues("UserName").match(/\w{2,}\s\w{2,}/);
+
+    if (!hasRealName) {
+      form.setValue("UserName", `${userFirstName.trim()} ${userLastName.trim()}`, { shouldValidate: true });
+    }
+  }, [form, userFirstName, userLastName]);
+
+  const onSubmit: SubmitHandler<typeof finishRegistrationSchema.infer> = (data) => {
+    execute(data);
   };
 
   if (showUntrusted) {
