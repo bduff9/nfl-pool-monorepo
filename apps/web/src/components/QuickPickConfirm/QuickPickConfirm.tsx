@@ -12,10 +12,9 @@ import { quickPick } from "@/server/actions/pick";
 type Props = {
   teamId: number;
   teamLabel: string;
-  userId: number;
 };
 
-const QuickPickConfirm: FC<Props> = ({ teamId, teamLabel, userId }) => {
+const QuickPickConfirm: FC<Props> = ({ teamId, teamLabel }) => {
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -33,7 +32,7 @@ const QuickPickConfirm: FC<Props> = ({ teamId, teamLabel, userId }) => {
 
   const handleConfirm = () => {
     setErrorMessage(null);
-    execute({ teamId, userId });
+    execute({ teamId });
   };
 
   return (

@@ -15,12 +15,14 @@
  */
 
 import { getTeamById } from "@nfl-pool-monorepo/db/src/queries/team";
+import { redirect } from "next/navigation";
 import "server-only";
 
 import { type FC, type ReactNode, Suspense } from "react";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import QuickPickConfirm from "@/components/QuickPickConfirm/QuickPickConfirm";
+import { getCurrentSession } from "@/server/loaders/sessions";
 
 import PageLoading from "../../../loading";
 
@@ -36,6 +38,19 @@ const QuickPickCard: FC<{ children: ReactNode; title: string }> = ({ children, t
 
 const QuickPickPageBody: FC<PageProps<"/quick-pick/[userId]/[teamId]">> = async ({ params }) => {
   const { userId, teamId } = await params;
+  const { user } = await getCurrentSession();
+
+  // The proxy sets a redirect_to cookie for anonymous visitors, so they'll be sent
+  // back to this exact link once they authenticate.
+  if (!user) {
+    redirect("/auth/login");
+  }
+
+  // If someone opens another user's quick pick link, send them to their own instead.
+  if (user.id !== Number(userId)) {
+    redirect(`/quick-pick/${user.id}/${teamId}`);
+  }
+
   const team = await getTeamById(Number(teamId));
 
   if (!team) {
@@ -48,11 +63,7 @@ const QuickPickPageBody: FC<PageProps<"/quick-pick/[userId]/[teamId]">> = async 
 
   return (
     <QuickPickCard title="Confirm Quick Pick">
-      <QuickPickConfirm
-        teamId={Number(teamId)}
-        teamLabel={`${team.TeamCity} ${team.TeamName}`}
-        userId={Number(userId)}
-      />
+      <QuickPickConfirm teamId={Number(teamId)} teamLabel={`${team.TeamCity} ${team.TeamName}`} />
     </QuickPickCard>
   );
 };

@@ -15,10 +15,8 @@ import { type } from "arktype";
 
 import { cacheTags } from "@/lib/cacheTags";
 import type { AutoPickStrategy } from "@/lib/constants";
-import { actionClient, authActionClient } from "@/lib/safe-action";
+import { ActionError, authActionClient } from "@/lib/safe-action";
 import { autoPickSchema, serverActionResultSchema, setMyPickSchema, validateMyPicksSchema } from "@/lib/validation";
-
-import { getCurrentSession } from "../loaders/sessions";
 
 const expirePickCaches = (week: number, path: "/picks/set" | "/picks/view"): void => {
   revalidatePath(path);
@@ -98,7 +96,7 @@ export const autoPickMyPicks = authActionClient
         throw error;
       }
 
-      throw new Error("Failed to auto pick for week");
+      throw new ActionError("Failed to auto pick for week");
     }
 
     expirePickCaches(week, "/picks/set");
@@ -109,27 +107,16 @@ export const autoPickMyPicks = authActionClient
     };
   });
 
-export const quickPick = actionClient
+export const quickPick = authActionClient
   .inputSchema(
     type({
       teamId: type("string | number").pipe((v) => Number(v), type("0 < number.integer <= 33")),
-      userId: type("string | number").pipe((v) => Number(v), type("number.integer > 0")),
     }),
   )
   .outputSchema(serverActionResultSchema)
-  .action(async ({ parsedInput }) => {
-    const { user } = await getCurrentSession();
-    const givenUserID = user?.id;
-    const { teamId, userId } = parsedInput;
-
-    if (givenUserID && givenUserID !== userId) {
-      console.error("Passed user ID does not match context", { teamId, user, userId });
-
-      return {
-        metadata: {},
-        status: "Success",
-      };
-    }
+  .action(async ({ ctx, parsedInput }) => {
+    const { user } = ctx;
+    const { teamId } = parsedInput;
 
     const game = await db
       .selectFrom("Games")
@@ -141,35 +128,37 @@ export const quickPick = actionClient
       .executeTakeFirst();
 
     if (!game) {
-      console.error("No matching game found", { teamId, user, userId });
+      console.error("No matching game found", { teamId, user });
 
-      throw new Error("No matching game found");
+      throw new ActionError("No matching game found");
     }
 
     const pick = await db
       .selectFrom("Picks")
       .select(["PickID", "PickPoints", "TeamID", "UserID"])
       .where("GameID", "=", game.GameID)
-      .where("UserID", "=", userId)
+      .where("UserID", "=", user.id)
       .executeTakeFirstOrThrow();
 
     if (pick.TeamID || pick.PickPoints) {
-      console.error("Pick has already been made", { game, pick, teamId, user, userId });
+      console.error("Pick has already been made", { game, pick, teamId, user });
 
-      throw new Error("Pick has already been made");
+      throw new ActionError("Pick has already been made");
     }
 
-    const lowestPoint = await getLowestUnusedPoint(game.GameWeek, userId);
+    const lowestPoint = await getLowestUnusedPoint(game.GameWeek, user.id);
 
     if (lowestPoint === null) {
       console.error("Quick pick failed because user has not made this pick but also has no points left to use", {
         game,
         pick,
         teamId,
-        userId,
+        userId: user.id,
       });
 
-      throw new Error("Quick pick failed because you have not made this pick but also you have no points left to use");
+      throw new ActionError(
+        "Quick pick failed because you have not made this pick but also you have no points left to use",
+      );
     }
 
     await db
@@ -177,16 +166,16 @@ export const quickPick = actionClient
       .set({
         PickPoints: lowestPoint,
         PickUpdated: new Date(),
-        PickUpdatedBy: user?.email,
+        PickUpdatedBy: user.email,
         TeamID: teamId,
       })
       .where("PickID", "=", pick.PickID)
       .executeTakeFirstOrThrow();
 
     try {
-      await sendQuickPickConfirmationEmail(userId, teamId, lowestPoint, game.GameWeek);
+      await sendQuickPickConfirmationEmail(user.id, teamId, lowestPoint, game.GameWeek);
     } catch (error) {
-      console.error("Failed to send quick pick confirmation email", { error, teamId, userId });
+      console.error("Failed to send quick pick confirmation email", { error, teamId, userId: user.id });
     }
 
     return {
@@ -231,7 +220,7 @@ export const resetMyPicksForWeek = authActionClient
         throw error;
       }
 
-      throw new Error("Failed to reset picks for week");
+      throw new ActionError("Failed to reset picks for week");
     }
 
     expirePickCaches(week, "/picks/set");
@@ -264,7 +253,7 @@ export const setMyPick = authActionClient
           const hasStarted = oldPick.GameKickoff < new Date();
 
           if (hasStarted) {
-            throw new Error("Game has already started!");
+            throw new ActionError("Game has already started!");
           }
 
           await trx
@@ -292,11 +281,11 @@ export const setMyPick = authActionClient
             .executeTakeFirst();
 
           if (!newPick) {
-            throw new Error("No pick found that can be changed!");
+            throw new ActionError("No pick found that can be changed!");
           }
 
           if (newPick.HomeTeamID !== teamID && newPick.VisitorTeamID !== teamID) {
-            throw new Error("Invalid team passed for pick!");
+            throw new ActionError("Invalid team passed for pick!");
           }
 
           const gamesInWeek = await trx
@@ -306,7 +295,7 @@ export const setMyPick = authActionClient
             .executeTakeFirstOrThrow();
 
           if (points > gamesInWeek.count) {
-            throw new Error("Invalid point value passed for week!");
+            throw new ActionError("Invalid point value passed for week!");
           }
 
           await trx
@@ -328,7 +317,7 @@ export const setMyPick = authActionClient
         throw error;
       }
 
-      throw new Error("Failed to set pick");
+      throw new ActionError("Failed to set pick");
     }
 
     expirePickCaches(week, "/picks/set");
@@ -344,6 +333,7 @@ export const submitMyPicks = authActionClient
   .outputSchema(serverActionResultSchema)
   .action(async ({ ctx, parsedInput }) => {
     const { week } = parsedInput;
+    let tiebreakerLastScore = 0;
 
     try {
       await db.transaction().execute(async (trx) => {
@@ -368,11 +358,11 @@ export const submitMyPicks = authActionClient
           const hasGameStarted = pick.GameKickoff < new Date();
 
           if (pick.PickPoints !== point) {
-            throw new Error(`Missing point value found! (${point})`);
+            throw new ActionError(`Missing point value found! (${point})`);
           }
 
           if (pick.TeamID === null && !hasGameStarted) {
-            throw new Error("Missing team pick found!");
+            throw new ActionError("Missing team pick found!");
           }
         }
 
@@ -391,7 +381,7 @@ export const submitMyPicks = authActionClient
           .executeTakeFirstOrThrow();
 
         if (myTiebreaker.TiebreakerLastScore < 1 && !lastGameHasStarted) {
-          throw new Error("Tiebreaker last score must be greater than zero!");
+          throw new ActionError("Tiebreaker last score must be greater than zero!");
         }
 
         await trx
@@ -404,32 +394,7 @@ export const submitMyPicks = authActionClient
           .where("TiebreakerID", "=", myTiebreaker.TiebreakerID)
           .executeTakeFirstOrThrow();
 
-        const notification = await trx
-          .selectFrom("Notifications as N")
-          .select(["N.NotificationEmail", "N.NotificationSMS", "N.NotificationPushNotification"])
-          .innerJoin("Users as U", "U.UserID", "N.UserID")
-          .where("U.UserCommunicationsOptedOut", "=", 0)
-          .where("N.NotificationType", "=", "PicksSubmitted")
-          .where("N.UserID", "=", ctx.user.id)
-          .executeTakeFirst();
-
-        if (notification?.NotificationEmail === 1) {
-          await sendPicksSubmittedEmail(ctx.user, week, myTiebreaker.TiebreakerLastScore);
-        }
-
-        if (notification?.NotificationSMS === 1) {
-          await sendPicksSubmittedSMS(ctx.user, week, myTiebreaker.TiebreakerLastScore);
-        }
-
-        if (notification?.NotificationPushNotification === 1) {
-          const user = await db
-            .selectFrom("Users")
-            .select(["UserID", "UserFirstName"])
-            .where("UserID", "=", ctx.user.id)
-            .executeTakeFirstOrThrow();
-
-          await sendPicksSubmittedPushNotification(user, week);
-        }
+        tiebreakerLastScore = myTiebreaker.TiebreakerLastScore;
 
         await trx
           .insertInto("Logs")
@@ -449,10 +414,43 @@ export const submitMyPicks = authActionClient
         throw error;
       }
 
-      throw new Error("Failed to submit picks");
+      throw new ActionError("Failed to submit picks");
     }
 
     expirePickCaches(week, "/picks/view");
+
+    // Notifications fire after the transaction commits so the pooled connection is never
+    // held across external HTTP calls; a notification failure must not fail the submit.
+    try {
+      const notification = await db
+        .selectFrom("Notifications as N")
+        .select(["N.NotificationEmail", "N.NotificationSMS", "N.NotificationPushNotification"])
+        .innerJoin("Users as U", "U.UserID", "N.UserID")
+        .where("U.UserCommunicationsOptedOut", "=", 0)
+        .where("N.NotificationType", "=", "PicksSubmitted")
+        .where("N.UserID", "=", ctx.user.id)
+        .executeTakeFirst();
+
+      if (notification?.NotificationEmail === 1) {
+        await sendPicksSubmittedEmail(ctx.user, week, tiebreakerLastScore);
+      }
+
+      if (notification?.NotificationSMS === 1) {
+        await sendPicksSubmittedSMS(ctx.user, week, tiebreakerLastScore);
+      }
+
+      if (notification?.NotificationPushNotification === 1) {
+        const user = await db
+          .selectFrom("Users")
+          .select(["UserID", "UserFirstName"])
+          .where("UserID", "=", ctx.user.id)
+          .executeTakeFirstOrThrow();
+
+        await sendPicksSubmittedPushNotification(user, week);
+      }
+    } catch (error) {
+      console.error("Failed to send picks submitted notifications", { error, week });
+    }
 
     return {
       metadata: {},
@@ -488,7 +486,7 @@ export const validateMyPicks = authActionClient
                 .executeTakeFirst();
 
         if (!unusedCount || unusedCount.count > 0) {
-          throw new Error("Points are not in sync");
+          throw new ActionError("Points are not in sync");
         }
 
         const tiebreaker = await trx
@@ -499,7 +497,7 @@ export const validateMyPicks = authActionClient
           .executeTakeFirstOrThrow();
 
         if (tiebreaker.TiebreakerLastScore !== lastScore) {
-          throw new Error("Tiebreaker last score on FE does not match BE");
+          throw new ActionError("Tiebreaker last score on FE does not match BE");
         }
       });
     } catch (error) {
@@ -509,7 +507,7 @@ export const validateMyPicks = authActionClient
         throw error;
       }
 
-      throw new Error("Failed to validate picks");
+      throw new ActionError("Failed to validate picks");
     }
 
     expirePickCaches(week, "/picks/set");

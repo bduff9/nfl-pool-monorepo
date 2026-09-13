@@ -134,21 +134,21 @@ describe("quickPick", () => {
     vi.resetModules();
   });
 
-  it("silently no-ops when the passed userId doesn't match the session user", async () => {
-    getCurrentSession.mockResolvedValue({ session: { id: "s1" }, user: { ...AUTHED_USER, id: 2 } });
+  it("throws Unauthorized when there is no session", async () => {
+    getCurrentSession.mockResolvedValue({ session: null, user: null });
 
     const { quickPick } = await import("./pick");
-    const result = await quickPick({ teamId: 5, userId: 1 });
+    const result = await quickPick({ teamId: 5 });
 
-    expect(result?.data?.status).toBe("Success");
-    expect(mockDb.executeTakeFirstOrThrow).not.toHaveBeenCalled();
+    expect(result?.serverError).toBe("Unauthorized");
+    expect(mockDb.executeTakeFirst).not.toHaveBeenCalled();
   });
 
   it("throws when no matching game is found", async () => {
     mockDb.executeTakeFirst.mockResolvedValueOnce(undefined);
 
     const { quickPick } = await import("./pick");
-    const result = await quickPick({ teamId: 5, userId: 1 });
+    const result = await quickPick({ teamId: 5 });
 
     expect(result?.serverError).toContain("No matching game found");
   });
@@ -158,7 +158,7 @@ describe("quickPick", () => {
     mockDb.executeTakeFirstOrThrow.mockResolvedValueOnce({ PickID: 1, PickPoints: 3, TeamID: 5, UserID: 1 });
 
     const { quickPick } = await import("./pick");
-    const result = await quickPick({ teamId: 5, userId: 1 });
+    const result = await quickPick({ teamId: 5 });
 
     expect(result?.serverError).toContain("Pick has already been made");
   });
@@ -169,7 +169,7 @@ describe("quickPick", () => {
     getLowestUnusedPoint.mockResolvedValueOnce(null);
 
     const { quickPick } = await import("./pick");
-    const result = await quickPick({ teamId: 5, userId: 1 });
+    const result = await quickPick({ teamId: 5 });
 
     expect(result?.serverError).toContain("no points left to use");
   });
@@ -182,7 +182,7 @@ describe("quickPick", () => {
     getLowestUnusedPoint.mockResolvedValueOnce(4);
 
     const { quickPick } = await import("./pick");
-    const result = await quickPick({ teamId: 5, userId: 1 });
+    const result = await quickPick({ teamId: 5 });
 
     expect(result?.data?.status).toBe("Success");
     expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({ PickPoints: 4, TeamID: 5 }));
@@ -198,7 +198,7 @@ describe("quickPick", () => {
     sendQuickPickConfirmationEmail.mockRejectedValueOnce(new Error("SMTP down"));
 
     const { quickPick } = await import("./pick");
-    const result = await quickPick({ teamId: 5, userId: 1 });
+    const result = await quickPick({ teamId: 5 });
 
     expect(result?.serverError).toBeUndefined();
     expect(result?.data?.status).toBe("Success");
@@ -329,7 +329,7 @@ describe("autoPickMyPicks", () => {
     expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({ PickPoints: 1, TeamID: 2 }));
   });
 
-  it("wraps a transaction failure in a descriptive error", async () => {
+  it("returns a generic error for transaction failures instead of leaking the cause", async () => {
     mockDb.execute.mockResolvedValueOnce([
       { GameKickoff: FUTURE, HomeTeamID: 1, PickID: 1, PickPoints: null, VisitorTeamID: 2 },
     ]);
@@ -338,7 +338,7 @@ describe("autoPickMyPicks", () => {
     const { autoPickMyPicks } = await import("./pick");
     const result = await autoPickMyPicks({ type: "Home", week: 1 });
 
-    expect(result?.serverError).toBe("connection lost");
+    expect(result?.serverError).toBe("Something went wrong, please try again.");
     expect(revalidatePath).not.toHaveBeenCalled();
     expect(updateTag).not.toHaveBeenCalled();
   });
@@ -366,13 +366,13 @@ describe("resetMyPicksForWeek", () => {
     expectPickTagsExpired();
   });
 
-  it("wraps a transaction failure in a descriptive error", async () => {
+  it("returns a generic error for transaction failures instead of leaking the cause", async () => {
     mockDb.executeTakeFirstOrThrow.mockRejectedValueOnce(new Error("deadlock"));
 
     const { resetMyPicksForWeek } = await import("./pick");
     const result = await resetMyPicksForWeek({ week: 1 });
 
-    expect(result?.serverError).toBe("deadlock");
+    expect(result?.serverError).toBe("Something went wrong, please try again.");
   });
 });
 
