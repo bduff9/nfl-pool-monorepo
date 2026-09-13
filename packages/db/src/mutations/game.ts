@@ -6,9 +6,9 @@ import {
 } from "@nfl-pool-monorepo/api/src/utils";
 import type { ApiMatchup, NFLWeekArray } from "@nfl-pool-monorepo/api/src/validation";
 import { ADMIN_USER } from "@nfl-pool-monorepo/utils/constants";
-import type { Transaction, UpdateObject } from "kysely";
+import type { Selectable, Transaction, UpdateObject } from "kysely";
 
-import type { DB } from "..";
+import type { DB, Games } from "..";
 import { db } from "../kysely";
 import { validateAPIData } from "../queries/game";
 import { getTeamFromDB, getTeamsFromDB } from "../queries/team";
@@ -179,4 +179,52 @@ export const updateSpreads = async (week: number, apiGame: ApiMatchup): Promise<
     })
     .where("GameID", "=", game.GameID)
     .executeTakeFirstOrThrow();
+};
+
+type ManualGameUpdate = {
+  gameID: number;
+  homeScore: number;
+  status: Selectable<Games>["GameStatus"];
+  updatedBy: string;
+  visitorScore: number;
+};
+
+/**
+ * Commissioner override: sets a game's score and status by hand and derives the winner,
+ * for cases where the upstream API is wrong or stuck. MVs are refreshed by the caller.
+ */
+export const manuallyUpdateGame = async ({
+  gameID,
+  homeScore,
+  status,
+  updatedBy,
+  visitorScore,
+}: ManualGameUpdate): Promise<void> => {
+  await db.transaction().execute(async (trx) => {
+    const game = await trx
+      .selectFrom("Games")
+      .select(["GameID", "HomeTeamID", "VisitorTeamID"])
+      .where("GameID", "=", gameID)
+      .executeTakeFirstOrThrow();
+
+    const winnerTeamID =
+      status === "Final" && homeScore !== visitorScore
+        ? homeScore > visitorScore
+          ? game.HomeTeamID
+          : game.VisitorTeamID
+        : null;
+
+    await trx
+      .updateTable("Games")
+      .set({
+        GameHomeScore: homeScore,
+        GameStatus: status,
+        GameUpdated: new Date(),
+        GameUpdatedBy: updatedBy,
+        GameVisitorScore: visitorScore,
+        WinnerTeamID: winnerTeamID,
+      })
+      .where("GameID", "=", gameID)
+      .executeTakeFirstOrThrow();
+  });
 };

@@ -20,6 +20,7 @@ import {
   SidebarMenuButton,
 } from "@nfl-pool-monorepo/ui/components/sidebar";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
+import type { Route } from "next";
 import type { FC } from "react";
 import { LuChevronDown } from "react-icons/lu";
 
@@ -108,6 +109,12 @@ export const SidebarNavigation: FC<SidebarNavigationProps> = ({
               </NavLink>
               <NavLink href="/overall" isNested show={showOverallResults(overallMvCount)}>
                 Overall Results
+              </NavLink>
+              <NavLink href="/history" isNested>
+                Pool History
+              </NavLink>
+              <NavLink href={"/head-to-head" as Route} isNested>
+                Head-to-Head
               </NavLink>
             </SidebarGroupContent>
           </CollapsibleContent>
@@ -236,6 +243,9 @@ export const SidebarNavigation: FC<SidebarNavigationProps> = ({
             </SidebarGroupLabel>
             <CollapsibleContent>
               <SidebarGroupContent>
+                <NavLink href={"/admin/games" as Route} isNested>
+                  Games
+                </NavLink>
                 <NavLink href="/admin/api" isNested>
                   API Logs
                 </NavLink>
