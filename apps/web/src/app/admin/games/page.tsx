@@ -25,7 +25,7 @@ import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { requireAdmin } from "@/lib/auth";
-import { getGamesForWeekScoreboardCached } from "@/server/loaders/game";
+import { getGamesForWeekCached } from "@/server/loaders/game";
 import { getSelectedWeekFromParams } from "@/server/loaders/week";
 
 import AdminLoading from "../loading";
@@ -51,13 +51,15 @@ const AdminGamesPageBody: FC<PageProps<"/weekly">> = async ({ searchParams }) =>
   }
 
   const selectedWeek = await getSelectedWeekFromParams(searchParams);
-  const games = await getGamesForWeekScoreboardCached(selectedWeek);
+  // Request-scoped read so the table always reflects the DB right after a save
+  // (the scoreboard loader is cross-request cached and served stale rows here).
+  const games = await getGamesForWeekCached(selectedWeek);
 
   return (
     <PageTransition>
       <div className="h-full flex flex-col md:mx-3">
         <CustomHead title={TITLE} />
-        <PageContent className="pt-0 md:pt-3 pb-4">
+        <PageContent className="px-3 pt-5 pb-4 md:px-5 md:pt-3">
           <h1 className="text-4xl font-semibold tracking-tight mb-2">{TITLE}</h1>
           <p className="text-muted-foreground mb-6">
             Week {selectedWeek} &mdash; manually correct scores and status when the API is wrong or stuck. Standings
