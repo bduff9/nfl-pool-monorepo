@@ -7,6 +7,7 @@ const envSchema = type({
   DATABASE_URL: "string.url",
   domain: "string.url",
   EMAIL_FROM: "string",
+  EMAIL_LINK_SECRET: "string = ''",
   TWILIO_ACCOUNT_SID: "string",
   TWILIO_AUTH_TOKEN: "string",
   TWILIO_PHONE_NUMBER: "string",

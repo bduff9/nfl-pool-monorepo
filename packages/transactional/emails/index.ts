@@ -3,6 +3,7 @@ import { SES } from "@aws-sdk/client-ses";
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
 
 import { EMAIL_SUBJECT_PREFIX } from "../src/constants";
+import { signEmailLink } from "../src/emailToken";
 import { env } from "../src/env";
 import type { EmailTypes } from "./types";
 
@@ -39,11 +40,14 @@ export const getBaseEmailClass = async ({
   return null;
 };
 
-export const getBrowserLink = (emailId: string | null): string => (emailId ? `${env.domain}/api/email/${emailId}` : "");
+export const getBrowserLink = (emailId: string | null): string =>
+  emailId ? `${env.domain}/api/email/${emailId}?t=${signEmailLink(emailId)}` : "";
 
 export const getUnsubscribeLink = (toEmails: string[]): string =>
   `${env.domain}/api/email/unsubscribe${
-    toEmails.length === 1 && toEmails[0] ? `?email=${encodeURIComponent(toEmails[0])}` : ""
+    toEmails.length === 1 && toEmails[0]
+      ? `?email=${encodeURIComponent(toEmails[0])}&t=${signEmailLink(toEmails[0])}`
+      : ""
   }`;
 
 const ses = new SES({
