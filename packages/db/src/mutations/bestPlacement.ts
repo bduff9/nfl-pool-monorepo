@@ -49,6 +49,13 @@ type UserBestResult = {
   canAchieveThird: boolean;
 };
 
+/**
+ * The best-placement simulator enumerates 3^K scenarios in memory, which explodes
+ * combinatorially. Above this many undecided games the compute cost (and Lambda runtime)
+ * is not worth the signal, so the update is skipped until enough games resolve.
+ */
+const MAX_UNDECIDED_GAMES = 8;
+
 // --- Pure ranking functions (mirror SQL variable-rank logic) ---
 
 export const rankUsersWeekly = (users: WeeklyRankInput[]): Map<number, number> => {
@@ -447,6 +454,12 @@ export const updateBestPlacementWeekly = async (week: number): Promise<void> => 
   }
 
   const K = undecidedGames.length;
+
+  if (K > MAX_UNDECIDED_GAMES) {
+    console.log(`Best placement weekly: skipping, ${K} undecided games exceeds the ${MAX_UNDECIDED_GAMES} cap`);
+    return;
+  }
+
   const scenarioCount = 3 ** K;
 
   let results: Map<number, UserBestResult>;
@@ -510,6 +523,12 @@ export const updateBestPlacementOverall = async (week: number): Promise<void> =>
   }
 
   const K = undecidedGames.length;
+
+  if (K > MAX_UNDECIDED_GAMES) {
+    console.log(`Best placement overall: skipping, ${K} undecided games exceeds the ${MAX_UNDECIDED_GAMES} cap`);
+    return;
+  }
+
   const scenarioCount = 3 ** K;
 
   let overallResults: Map<number, UserBestResult>;
