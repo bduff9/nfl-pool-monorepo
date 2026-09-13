@@ -285,6 +285,17 @@ export interface Picks {
   UserID: number;
 }
 
+export interface RateLimits {
+  RateLimitAdded: Generated<Date>;
+  RateLimitAddedBy: string;
+  RateLimitAttempts: Generated<number>;
+  RateLimitID: Generated<number>;
+  RateLimitKey: string;
+  RateLimitUpdated: Generated<Date>;
+  RateLimitUpdatedBy: string;
+  RateLimitWindowStart: Generated<Date>;
+}
+
 export interface Sessions {
   SessionAccessToken: string;
   SessionAdded: Generated<Date>;
@@ -448,6 +459,7 @@ export interface Users {
 export interface VerificationRequests {
   VerificationRequestAdded: Generated<Date>;
   VerificationRequestAddedBy: string;
+  VerificationRequestAttempts: Generated<number>;
   VerificationRequestDeleted: Date | null;
   VerificationRequestDeletedBy: string | null;
   VerificationRequestExpires: Generated<Date>;
@@ -500,6 +512,7 @@ export interface DB {
   OverallMV: OverallMV;
   Payments: Payments;
   Picks: Picks;
+  RateLimits: RateLimits;
   Sessions: Sessions;
   SupportContent: SupportContent;
   SurvivorMV: SurvivorMV;
