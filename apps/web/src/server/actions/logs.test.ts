@@ -19,17 +19,7 @@ describe("writeLog", () => {
     vi.resetModules();
   });
 
-  it("uses the explicit userId when one is provided", async () => {
-    getCurrentSession.mockResolvedValue({ session: null, user: null });
-    mockDb.executeTakeFirstOrThrow.mockResolvedValueOnce({});
-
-    const { writeLog } = await import("./logs");
-    await writeLog({ LogAction: "LOGOUT", LogData: null, LogMessage: "signed out", userId: 7 });
-
-    expect(mockDb.values).toHaveBeenCalledWith(expect.objectContaining({ LogAddedBy: "7", UserID: 7 }));
-  });
-
-  it("falls back to the current session's user id when none is passed", async () => {
+  it("attributes the log entry to the current session's user", async () => {
     getCurrentSession.mockResolvedValue({ session: { id: "s1" }, user: { id: 3 } });
     mockDb.executeTakeFirstOrThrow.mockResolvedValueOnce({});
 
@@ -39,7 +29,7 @@ describe("writeLog", () => {
     expect(mockDb.values).toHaveBeenCalledWith(expect.objectContaining({ LogAddedBy: "3", UserID: 3 }));
   });
 
-  it("falls back to 'unknown' when there's no session and no explicit userId", async () => {
+  it("falls back to 'unknown' when there's no session", async () => {
     getCurrentSession.mockResolvedValue({ session: null, user: null });
     mockDb.executeTakeFirstOrThrow.mockResolvedValueOnce({});
 
@@ -57,7 +47,7 @@ describe("writeLog", () => {
     mockDb.executeTakeFirstOrThrow.mockRejectedValueOnce(duplicateEntryError);
 
     const { writeLog } = await import("./logs");
-    const result = await writeLog({ LogAction: "404", LogData: null, LogMessage: "/some-path", userId: 7 });
+    const result = await writeLog({ LogAction: "404", LogData: null, LogMessage: "/some-path" });
 
     expect(result.status).toBe("Success");
   });
@@ -69,7 +59,7 @@ describe("writeLog", () => {
 
     const { writeLog } = await import("./logs");
 
-    await expect(writeLog({ LogAction: "404", LogData: null, LogMessage: "/some-path", userId: 7 })).rejects.toThrow(
+    await expect(writeLog({ LogAction: "404", LogData: null, LogMessage: "/some-path" })).rejects.toThrow(
       "connection lost",
     );
   });

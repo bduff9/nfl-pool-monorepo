@@ -6,17 +6,15 @@ import { writeLog } from "@/server/actions/logs";
 
 type Props = {
   href: string;
-  userId?: number | undefined;
 };
 
-const SlackLink: FC<Props> = ({ href, userId }) => {
+const SlackLink: FC<Props> = ({ href }) => {
   const logSlackClick = async (): Promise<void> => {
     try {
       await writeLog({
         LogAction: "SLACK",
         LogData: null,
         LogMessage: null,
-        userId,
       });
     } catch (error) {
       console.error({

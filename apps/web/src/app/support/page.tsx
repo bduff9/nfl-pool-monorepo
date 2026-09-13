@@ -190,7 +190,7 @@ type SupportPageBodyProps = {
 };
 
 const SupportPageBody: FC<SupportPageBodyProps> = async ({ searchParams }) => {
-  const { session, user } = await getCurrentSession();
+  const { session } = await getCurrentSession();
   const { faqs, rules, slackLink, supportEmail } = await getSupportContent();
   const { q = "" } = await searchParams;
   const query = Array.isArray(q) ? "" : q;
@@ -276,7 +276,7 @@ const SupportPageBody: FC<SupportPageBodyProps> = async ({ searchParams }) => {
           </h2>
           <Separator className="my-4 h-px bg-muted" />
           <div className="text-center">
-            <SlackLink href={slackLink} userId={user?.id} />
+            <SlackLink href={slackLink} />
             <br />
             <br />
             Feel free to reach out for any questions or issues you may have

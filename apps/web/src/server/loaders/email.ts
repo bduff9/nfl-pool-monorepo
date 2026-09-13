@@ -79,3 +79,9 @@ export const getEmail = cache(async (emailID: string) => {
 
   return result?.EmailHtml ?? null;
 });
+
+export const getEmailRecipient = cache(async (emailID: string): Promise<string | null> => {
+  const result = await db.selectFrom("Emails").select("EmailTo").where("EmailID", "=", emailID).executeTakeFirst();
+
+  return result?.EmailTo ?? null;
+});

@@ -14,6 +14,7 @@
  * Home: https://asitewithnoname.com/
  */
 
+import { verifyEmailLink } from "@nfl-pool-monorepo/transactional/src/emailToken";
 import type { NextRequest } from "next/server";
 
 import { unsubscribe } from "@/server/actions/email";
@@ -30,6 +31,7 @@ export const GET = async (req: NextRequest, _ctx: RouteContext<"/api/email/unsub
   const { nextUrl } = req;
   const { searchParams } = nextUrl;
   const email = escapeHtml(searchParams.get("email") ?? "");
+  const token = escapeHtml(searchParams.get("t") ?? "");
 
   const html = `
 <!doctype html>
@@ -42,6 +44,7 @@ export const GET = async (req: NextRequest, _ctx: RouteContext<"/api/email/unsub
 	<body>
 		<form action="/api/email/unsubscribe" autocomplete="on" method="POST">
 			<input autocomplete="email" name="email" type="email" value="${email}" />
+			<input name="t" type="hidden" value="${token}" />
 			<button type="submit">Unsubscribe</button>
 		</form>
 	</body>
@@ -58,6 +61,7 @@ export const GET = async (req: NextRequest, _ctx: RouteContext<"/api/email/unsub
 export const POST = async (req: NextRequest, _ctx: RouteContext<"/api/email/unsubscribe">): Promise<Response> => {
   const formData = await req.formData();
   const email = formData.get("email");
+  const token = formData.get("t");
 
   if (typeof email !== "string" || !email) {
     return new Response("<h1>Please provide a valid email address</h1>", {
@@ -65,6 +69,17 @@ export const POST = async (req: NextRequest, _ctx: RouteContext<"/api/email/unsu
         "Content-Type": "text/html",
       },
       status: 400,
+    });
+  }
+
+  // Only links signed by the email pipeline may unsubscribe an address, so a third party
+  // can't opt someone else out by email alone.
+  if (typeof token !== "string" || !verifyEmailLink(email, token)) {
+    return new Response("<h1>Please use the unsubscribe link from your email</h1>", {
+      headers: {
+        "Content-Type": "text/html",
+      },
+      status: 403,
     });
   }
 

@@ -13,19 +13,16 @@ export const writeLog = async ({
   LogAction,
   LogMessage,
   LogData,
-  userId,
 }: {
   LeagueID?: number;
   LogAction: Logs["LogAction"];
   LogMessage: null | string;
   LogData: null | string;
-  userId?: number | undefined;
 }): Promise<ServerActionResult> => {
+  // Attribution always comes from the server session — a caller-supplied userId would
+  // let a client forge log entries attributed to someone else.
   const { user } = await getCurrentSession();
-
-  if (!userId) {
-    userId = user?.id;
-  }
+  const userId = user?.id;
 
   const auditUser = userId?.toString() ?? "unknown";
 

@@ -46,7 +46,7 @@ const NotFoundContent: FC = async () => {
         </div>
       )}
       <CustomHead title="404" />
-      <Write404Log user={user} />
+      <Write404Log />
       <div className="bg-muted/80 text-foreground absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 mx-3 border rounded-sm px-3 py-6 w-full md:w-1/2">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-center mb-6">
           What have you done?!
