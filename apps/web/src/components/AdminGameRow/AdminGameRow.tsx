@@ -4,8 +4,9 @@ import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import { Input } from "@nfl-pool-monorepo/ui/components/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nfl-pool-monorepo/ui/components/select";
 import { TableCell, TableRow } from "@nfl-pool-monorepo/ui/components/table";
+import { useRouter } from "next/navigation";
 import { useAction } from "next-safe-action/hooks";
-import type { FC } from "react";
+import { type FC, useState } from "react";
 import { toast } from "sonner";
 
 import { adminUpdateGame } from "@/server/actions/games";
@@ -33,12 +34,18 @@ type AdminGameRowProps = {
 };
 
 const AdminGameRow: FC<AdminGameRowProps> = ({ away, gameID, home, homeScore, kickoffLabel, status, visitorScore }) => {
+  const router = useRouter();
+  // Bumping the key remounts the form from server props, rolling the row back when a save fails.
+  const [formKey, setFormKey] = useState(0);
+
   const { execute, isPending } = useAction(adminUpdateGame, {
     onError: ({ error }) => {
       toast.error("Failed to update game", { description: error.serverError ?? "Please try again." });
+      setFormKey((key) => key + 1);
     },
     onSuccess: () => {
       toast.success(`Game ${gameID} updated`);
+      router.refresh();
     },
   });
 
@@ -62,7 +69,14 @@ const AdminGameRow: FC<AdminGameRowProps> = ({ away, gameID, home, homeScore, ki
         <div className="text-xs text-muted-foreground">{kickoffLabel}</div>
       </TableCell>
       <TableCell className="align-middle">
-        <form action={handleSubmit} className="flex flex-wrap items-center justify-end gap-2">
+        {/* Keying on the server values remounts the uncontrolled controls whenever the
+            database changes (React's post-action form reset would otherwise revert them
+            to whatever the initial page load rendered). */}
+        <form
+          action={handleSubmit}
+          className="flex flex-wrap items-center justify-end gap-2"
+          key={`${status}-${homeScore}-${visitorScore}-${formKey}`}
+        >
           <Input
             aria-label={`${away} score`}
             className="w-20"
