@@ -1,17 +1,12 @@
 "use client";
 
-import type { User } from "@nfl-pool-monorepo/types";
 import { usePathname } from "next/navigation";
 import type { FC } from "react";
 import { useEffect } from "react";
 
 import { writeLog } from "@/server/actions/logs";
 
-type Props = {
-  user: User | null;
-};
-
-const Write404Log: FC<Props> = ({ user }) => {
+const Write404Log: FC = () => {
   const path = usePathname();
 
   useEffect(() => {
@@ -19,9 +14,8 @@ const Write404Log: FC<Props> = ({ user }) => {
       LogAction: "404",
       LogData: null,
       LogMessage: path,
-      userId: user?.id,
     });
-  }, [path, user?.id]);
+  }, [path]);
 
   return null;
 };
