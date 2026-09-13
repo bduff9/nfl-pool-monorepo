@@ -1,10 +1,16 @@
 import {
+  aws_cloudwatch as cloudwatch,
+  aws_cloudwatch_actions as cloudwatchActions,
   Duration,
   aws_events as events,
+  aws_iam as iam,
   aws_lambda as lambda,
+  aws_logs as logs,
+  Size,
   Stack,
   type StackProps,
   aws_s3 as s3,
+  aws_sns as sns,
   aws_events_targets as targets,
 } from "aws-cdk-lib";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
@@ -20,12 +26,15 @@ export class CdkStackProd extends Stack {
     const environment: { [key: string]: string } = {
       API_HOST: process.env.API_HOST ?? "",
       API_NEWS_KEY: process.env.API_NEWS_KEY ?? "",
+      AWS_AK_ID: process.env.AWS_AK_ID ?? "",
       AWS_R: process.env.AWS_R ?? "",
+      AWS_SAK_ID: process.env.AWS_SAK_ID ?? "",
       BACKUP_BUCKET_NAME: "aswnn-mysql-backup.prod",
       BACKUP_KEEP_COUNT: process.env.BACKUP_KEEP_COUNT ?? "10",
       DATABASE_URL: process.env.DATABASE_URL_PROD ?? "",
       domain: process.env.DOMAIN_PROD ?? "",
       EMAIL_FROM: process.env.EMAIL_FROM_PROD ?? "",
+      EMAIL_LINK_SECRET: process.env.EMAIL_LINK_SECRET ?? "",
       NEXT_PUBLIC_VAPID_PUBLIC_KEY: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "",
       TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID ?? "",
       TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN ?? "",
@@ -42,9 +51,10 @@ export class CdkStackProd extends Stack {
       environment,
       functionName: "CurrentWeekUpdaterProd",
       handler: "handler",
+      memorySize: 512,
       retryAttempts: 0,
       runtime: lambda.Runtime.NODEJS_22_X,
-      timeout: Duration.minutes(1),
+      timeout: Duration.minutes(5),
     });
 
     const onceAnHourScheduleRule = new events.Rule(this, "onceAnHourScheduleRule", {
@@ -71,12 +81,13 @@ export class CdkStackProd extends Stack {
       },
       entry: "./functions/backupNflDatabase.ts",
       environment,
+      ephemeralStorageSize: Size.mebibytes(1024),
       functionName: "BackupNflDatabaseProd",
       handler: "handler",
-      memorySize: 1024,
+      memorySize: 2048,
       retryAttempts: 0,
       runtime: lambda.Runtime.NODEJS_22_X,
-      timeout: Duration.seconds(60),
+      timeout: Duration.seconds(300),
     });
 
     backupBucketProd.grantReadWrite(backupNflDatabaseProd);
@@ -103,9 +114,10 @@ export class CdkStackProd extends Stack {
       environment,
       functionName: "FutureGameUpdaterProd",
       handler: "handler",
+      memorySize: 256,
       retryAttempts: 0,
       runtime: lambda.Runtime.NODEJS_22_X,
-      timeout: Duration.seconds(60),
+      timeout: Duration.minutes(5),
     });
 
     const twiceADayOnTheHalfHoursScheduleRule = new events.Rule(this, "twiceADayOnTheHalfHoursScheduleRule", {
@@ -129,10 +141,10 @@ export class CdkStackProd extends Stack {
       environment,
       functionName: "LiveGameUpdaterProd",
       handler: "handler",
-      memorySize: 256,
+      memorySize: 512,
       retryAttempts: 0,
       runtime: lambda.Runtime.NODEJS_22_X,
-      timeout: Duration.seconds(300),
+      timeout: Duration.minutes(5),
     });
 
     const every5MinutesScheduleRule = new events.Rule(this, "every5MinutesScheduleRule", {
@@ -148,7 +160,7 @@ export class CdkStackProd extends Stack {
 
     every5MinutesScheduleRule.addTarget(new targets.LambdaFunction(liveGameUpdaterProd));
 
-    new NodejsFunction(this, "ResetPoolProd", {
+    const resetPoolProd = new NodejsFunction(this, "ResetPoolProd", {
       bundling: {
         externalModules: [],
         nodeModules: [],
@@ -157,9 +169,71 @@ export class CdkStackProd extends Stack {
       environment,
       functionName: "ResetPoolProd",
       handler: "handler",
+      memorySize: 256,
       retryAttempts: 0,
       runtime: lambda.Runtime.NODEJS_22_X,
       timeout: Duration.seconds(300),
     });
+
+    const alertsTopic = new sns.Topic(this, "ProdAlertsTopic", {
+      displayName: "NFL Pool Prod Alerts",
+      topicName: "nfl-pool-prod-alerts",
+    });
+
+    alertsTopic.addToResourcePolicy(
+      new iam.PolicyStatement({
+        actions: ["sns:Publish"],
+        conditions: { StringEquals: { "aws:SourceAccount": Stack.of(this).account } },
+        principals: [new iam.ServicePrincipal("cloudwatch.amazonaws.com")],
+        resources: [alertsTopic.topicArn],
+        sid: "AllowCloudWatchAlarmsToPublish",
+      }),
+    );
+
+    const prodFunctions: Array<{ fn: NodejsFunction; memorySize: number }> = [
+      { fn: backupNflDatabaseProd, memorySize: 2048 },
+      { fn: currentWeekUpdaterProd, memorySize: 512 },
+      { fn: futureGameUpdaterProd, memorySize: 256 },
+      { fn: liveGameUpdaterProd, memorySize: 512 },
+      { fn: resetPoolProd, memorySize: 256 },
+    ];
+
+    for (const { fn, memorySize } of prodFunctions) {
+      const functionName = fn.node.id;
+      const memoryAlarmThreshold = Math.round(memorySize * 0.9);
+
+      const errorsAlarm = new cloudwatch.Alarm(this, `${functionName}ErrorsAlarm`, {
+        alarmDescription: `${functionName} reported at least one invocation error (includes timeouts and out-of-memory kills). Check logs at /aws/lambda/${functionName}.`,
+        alarmName: `nfl-pool-prod-${functionName}-errors`,
+        evaluationPeriods: 1,
+        metric: fn.metricErrors({ period: Duration.minutes(5) }),
+        threshold: 1,
+        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+      });
+      errorsAlarm.addAlarmAction(new cloudwatchActions.SnsAction(alertsTopic));
+
+      // MemoryUtilization is not emitted in this account, so track the "Max Memory Used" value
+      // from each invocation's REPORT line via a log metric filter instead. Metric filter
+      // patterns must consume the entire log line and allow only one ellipsis and two regex
+      // terms, so this matches warm successes (which end at "MB"); OOM/timeout invocations
+      // are covered by the errors alarm above.
+      const memoryMetricFilter = new logs.MetricFilter(this, `${functionName}MemoryMetricFilter`, {
+        filterPattern: logs.FilterPattern.literal("[REPORT, ..., Max, Memory, usedLbl=%Used:%, memUsed, MB]"),
+        logGroup: logs.LogGroup.fromLogGroupName(this, `${functionName}LogGroup`, `/aws/lambda/${functionName}`),
+        metricName: `${functionName}MaxMemoryMB`,
+        metricNamespace: "NFLPool/Lambda",
+        metricValue: "$memUsed",
+      });
+
+      const memoryAlarm = new cloudwatch.Alarm(this, `${functionName}MemoryAlarm`, {
+        alarmDescription: `${functionName} used ${memoryAlarmThreshold}+ MB of its ${memorySize} MB in a single invocation. Consider raising memorySize in cdk-stack-prod.ts.`,
+        alarmName: `nfl-pool-prod-${functionName}-memory`,
+        evaluationPeriods: 1,
+        metric: memoryMetricFilter.metric({ period: Duration.minutes(5), statistic: cloudwatch.Stats.MAXIMUM }),
+        threshold: memoryAlarmThreshold,
+        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+      });
+      memoryAlarm.addAlarmAction(new cloudwatchActions.SnsAction(alertsTopic));
+    }
   }
 }
