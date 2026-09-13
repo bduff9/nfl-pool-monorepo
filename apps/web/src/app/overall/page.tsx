@@ -30,9 +30,11 @@ import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import ProgressChart from "@/components/ProgressChart/ProgressChart";
 import RankingPieChart from "@/components/RankingPieChart/RankingPieChart";
 import RetryableSection from "@/components/RetryableSection/RetryableSection";
+import ScoreboardLiveRefresh from "@/components/ScoreboardLiveRefresh/ScoreboardLiveRefresh";
 import Crossfade from "@/components/ViewTransitions/Crossfade";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { requireRegistered } from "@/lib/auth";
+import { getGamesForWeekScoreboardCached } from "@/server/loaders/game";
 import {
   getMyOverallRank,
   getOverallMvCount,
@@ -40,7 +42,7 @@ import {
   getOverallRankings,
 } from "@/server/loaders/overallMv";
 import { getCurrentUser } from "@/server/loaders/user";
-import { getSeasonStatus } from "@/server/loaders/week";
+import { getCurrentWeekCached, getSeasonStatus } from "@/server/loaders/week";
 
 import OverallLoading from "./loading";
 
@@ -125,10 +127,16 @@ const OverallRankingsPageBody: FC<PageProps<"/overall">> = async () => {
   const aheadOfMe = me - 1;
   const behindMe = overallTotalCount - me - overallTiedCount;
 
+  const currentWeekGames = await getGamesForWeekScoreboardCached(await getCurrentWeekCached());
+  const hasLiveGames =
+    seasonStatus === "In Progress" &&
+    currentWeekGames.some((game) => game.GameStatus !== "Pregame" && game.GameStatus !== "Final");
+
   return (
     <PageTransition>
       <div className="h-full flex flex-col md:mx-3">
         <CustomHead title={TITLE} />
+        <ScoreboardLiveRefresh enabled={hasLiveGames} />
         <PageContent className="pt-0 md:pt-3 pb-4">
           <div className="flex flex-wrap">
             <div className="hidden md:inline-block w-1/2 text-center h-[205px]">

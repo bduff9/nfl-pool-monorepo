@@ -28,11 +28,13 @@ import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import ProgressChart from "@/components/ProgressChart/ProgressChart";
 import RankingPieChart from "@/components/RankingPieChart/RankingPieChart";
 import RetryableSection from "@/components/RetryableSection/RetryableSection";
+import ScoreboardLiveRefresh from "@/components/ScoreboardLiveRefresh/ScoreboardLiveRefresh";
 import Crossfade from "@/components/ViewTransitions/Crossfade";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { WeeklyDashboardResults, WeeklyDashboardTitle } from "@/components/WeeklyDashboard/WeeklyDashboard.client";
 import { requireRegistered } from "@/lib/auth";
 import { withWeek } from "@/lib/weekSearchParams";
+import { getGamesForWeekScoreboardCached } from "@/server/loaders/game";
 import { getCurrentUser } from "@/server/loaders/user";
 import { getSelectedWeekFromParams, getWeekStatus } from "@/server/loaders/week";
 import { getMyWeeklyRank, getWeeklyMvCount, getWeeklyMvTiedCount, getWeeklyRankings } from "@/server/loaders/weeklyMv";
@@ -132,10 +134,16 @@ const WeeklyRankingsPageBody: FC<PageProps<"/weekly">> = async ({ searchParams }
   const aheadOfMe = me - 1;
   const behindMe = weeklyTotalCount - me - weeklyTiedCount;
 
+  const weekGames = await getGamesForWeekScoreboardCached(selectedWeek);
+  const hasLiveGames =
+    weekStatus === "In Progress" &&
+    weekGames.some((game) => game.GameStatus !== "Pregame" && game.GameStatus !== "Final");
+
   return (
     <PageTransition>
       <div className="h-full flex flex-col md:mx-3">
         <CustomHead title={`Week ${selectedWeek} Ranks`} />
+        <ScoreboardLiveRefresh enabled={hasLiveGames} />
         <PageContent className="pt-0 md:pt-3 pb-4">
           <div className="flex flex-wrap">
             <div className="hidden md:inline-block w-1/2 text-center h-[205px]">
