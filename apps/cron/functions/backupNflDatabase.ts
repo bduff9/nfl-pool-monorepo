@@ -1,6 +1,7 @@
-import { promises as fs } from "node:fs";
+import { createReadStream, promises as fs } from "node:fs";
 
-import { DeleteObjectCommand, ListObjectsV2Command, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, ListObjectsV2Command, S3Client } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
 import { getBackupName, parseDbUrl } from "@nfl-pool-monorepo/utils/database";
 import type { Handler } from "aws-lambda";
 import mysqldump from "mysqldump";
@@ -44,15 +45,18 @@ export const handler: Handler<never, void> = async (_event, _context) => {
     region: process.env.AWS_R ?? "",
   });
 
-  const fileContent = await fs.readFile(dumpFile);
-
-  const putCommand = new PutObjectCommand({
-    Body: fileContent,
-    Bucket: process.env.BACKUP_BUCKET_NAME,
-    Key: blobName,
+  // Stream the dump straight to S3 in parts - loading the whole file into memory would
+  // OOM the Lambda as the database grows over the season.
+  const upload = new Upload({
+    client,
+    params: {
+      Body: createReadStream(dumpFile),
+      Bucket: process.env.BACKUP_BUCKET_NAME,
+      Key: blobName,
+    },
   });
 
-  await client.send(putCommand);
+  await upload.done();
 
   console.log("Blob was uploaded successfully.");
 
@@ -64,24 +68,34 @@ export const handler: Handler<never, void> = async (_event, _context) => {
 
   console.log("Listing blobs...");
 
-  const listCommand = new ListObjectsV2Command({
-    Bucket: process.env.BACKUP_BUCKET_NAME,
-  });
+  const backups: string[] = [];
+  let continuationToken: string | undefined;
 
-  const { Contents: blobs } = await client.send(listCommand);
-  const backups: Array<string> = [];
+  do {
+    const listCommand = new ListObjectsV2Command({
+      Bucket: process.env.BACKUP_BUCKET_NAME,
+      ContinuationToken: continuationToken,
+    });
 
-  for (const blob of blobs ?? []) {
-    if (blob.Key) {
-      console.log(blob.Key);
-      backups.push(blob.Key);
+    const { Contents: blobs, NextContinuationToken } = await client.send(listCommand);
+
+    for (const blob of blobs ?? []) {
+      if (blob.Key) {
+        console.log(blob.Key);
+        backups.push(blob.Key);
+      }
     }
-  }
+
+    continuationToken = NextContinuationToken;
+  } while (continuationToken);
 
   backups.sort();
   console.log(`Found ${backups.length} backups`);
 
-  while (backups.length > +(process.env.BACKUP_KEEP_COUNT ?? 10)) {
+  // Number(...) of an unset env is NaN, which would silently disable retention.
+  const keepCount = Number(process.env.BACKUP_KEEP_COUNT ?? 10) || 10;
+
+  while (backups.length > keepCount) {
     const backupToDelete = backups.shift();
 
     if (backupToDelete) {

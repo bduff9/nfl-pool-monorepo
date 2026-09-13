@@ -18,12 +18,18 @@ const updateBestPlacementWeekly = vi.fn();
 const updateBestPlacementOverall = vi.fn();
 const updateAllPayouts = vi.fn();
 const lockLatePaymentUsers = vi.fn();
+const getSystemYear = vi.fn();
+const hasSystemValue = vi.fn();
+const setSystemValue = vi.fn();
+const hasUnfinishedGames = vi.fn();
 const sendWeekStartedNotifications = vi.fn();
 const sendWeekEndedNotifications = vi.fn();
 const sendWeeklyEmails = vi.fn();
 
 vi.mock("@nfl-pool-monorepo/db/src/queries/week", () => ({ getCurrentWeek }));
-vi.mock("@nfl-pool-monorepo/db/src/queries/game", () => ({ checkDBIfUpdatesNeeded }));
+vi.mock("@nfl-pool-monorepo/db/src/queries/game", () => ({ checkDBIfUpdatesNeeded, hasUnfinishedGames }));
+vi.mock("@nfl-pool-monorepo/db/src/queries/systemValue", () => ({ getSystemYear, hasSystemValue }));
+vi.mock("@nfl-pool-monorepo/db/src/mutations/systemValue", () => ({ setSystemValue }));
 vi.mock("@nfl-pool-monorepo/db/src/queries/team", () => ({ getTeamFromDB }));
 vi.mock("@nfl-pool-monorepo/api/src", () => ({ getSingleWeekFromApi }));
 vi.mock("@nfl-pool-monorepo/api/src/utils", () => ({ getDbGameFromApi, parseTeamsFromApi }));
@@ -77,6 +83,10 @@ const resetAllMocks = () => {
   updateBestPlacementOverall.mockReset().mockResolvedValue(undefined);
   updateAllPayouts.mockReset().mockResolvedValue(undefined);
   lockLatePaymentUsers.mockReset().mockResolvedValue(undefined);
+  getSystemYear.mockReset().mockResolvedValue(2026);
+  hasSystemValue.mockReset().mockResolvedValue(false);
+  setSystemValue.mockReset().mockResolvedValue(undefined);
+  hasUnfinishedGames.mockReset().mockResolvedValue(false);
   sendWeekStartedNotifications.mockReset().mockResolvedValue(undefined);
   sendWeekEndedNotifications.mockReset().mockResolvedValue(undefined);
   sendWeeklyEmails.mockReset().mockResolvedValue(undefined);
@@ -158,6 +168,7 @@ describe("liveGameUpdater handler", () => {
     getDbGameFromApi.mockResolvedValue({ GameNumber: 1, GameStatus: "InProgress" });
     updateDBGame.mockResolvedValue({ GameStatus: "InProgress" });
     getSingleWeekFromApi.mockResolvedValue([makeGame()]);
+    hasUnfinishedGames.mockResolvedValue(true);
 
     const { handler } = await import("./liveGameUpdater");
     await handler(null as never, null as never, null as never);
