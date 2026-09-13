@@ -101,13 +101,31 @@ export const Point: FC<PointProps> = ({
 
 type PickTeam = Pick<Selectable<Teams>, "TeamID" | "TeamCity" | "TeamLogo" | "TeamName"> | null;
 
+type SpreadValue = null | number | string | undefined;
+
+const formatSpread = (spread: SpreadValue): string | null => {
+  if (spread === null || spread === undefined || spread === "") {
+    return null;
+  }
+
+  const value = Number(spread);
+
+  if (Number.isNaN(value)) {
+    return null;
+  }
+
+  return value > 0 ? `+${value}` : `${value}`;
+};
+
 type TeamLogoButtonProps = {
   onClick: () => void;
+  spread: SpreadValue;
   team: PickTeam;
 };
 
-const TeamLogoButton: FC<TeamLogoButtonProps> = ({ onClick, team }) => {
+const TeamLogoButton: FC<TeamLogoButtonProps> = ({ onClick, spread, team }) => {
   const label = `${team?.TeamCity} ${team?.TeamName}`;
+  const formattedSpread = formatSpread(spread);
 
   return (
     <button
@@ -118,6 +136,9 @@ const TeamLogoButton: FC<TeamLogoButtonProps> = ({ onClick, team }) => {
     >
       <TeamLogo size={60} team={team} />
       <div className={cn("block md:hidden decoration-dotted underline underline-offset-2")}>{team?.TeamName}</div>
+      {formattedSpread !== null && (
+        <div className={cn("block md:hidden text-xs text-muted-foreground")}>{formattedSpread}</div>
+      )}
     </button>
   );
 };
@@ -126,6 +147,7 @@ type TeamTextButtonProps = {
   isSelected: boolean;
   onClick: () => void;
   selectedIconSide: "end" | "start";
+  spread: SpreadValue;
   team: PickTeam;
   unselectedIconSide: "end" | "start";
 };
@@ -134,9 +156,12 @@ const TeamTextButton: FC<TeamTextButtonProps> = ({
   isSelected,
   onClick,
   selectedIconSide,
+  spread,
   team,
   unselectedIconSide,
 }) => {
+  const formattedSpread = formatSpread(spread);
+
   return (
     <button
       aria-label={`${team?.TeamCity} ${team?.TeamName}`}
@@ -147,6 +172,7 @@ const TeamTextButton: FC<TeamTextButtonProps> = ({
       {team?.TeamCity}
       <br />
       {team?.TeamName}
+      {formattedSpread !== null && <div className="text-xs text-muted-foreground">{formattedSpread}</div>}
       {isSelected ? (
         <FaTimesCircle
           className={cn(
@@ -212,11 +238,12 @@ const PickGame: FC<PickGameProps> = ({
         />
       </div>
       <div className="w-1/2 md:w-2/3 flex items-center text-center">
-        <TeamLogoButton onClick={onClick} team={pick.visitorTeam} />
+        <TeamLogoButton onClick={onClick} spread={pick.GameVisitorSpread} team={pick.visitorTeam} />
         <TeamTextButton
           isSelected={isSelected}
           onClick={onClick}
           selectedIconSide="start"
+          spread={pick.GameVisitorSpread}
           team={pick.visitorTeam}
           unselectedIconSide="start"
         />
@@ -227,10 +254,11 @@ const PickGame: FC<PickGameProps> = ({
           isSelected={isSelected}
           onClick={onClick}
           selectedIconSide="start"
+          spread={pick.GameHomeSpread}
           team={pick.homeTeam}
           unselectedIconSide="end"
         />
-        <TeamLogoButton onClick={onClick} team={pick.homeTeam} />
+        <TeamLogoButton onClick={onClick} spread={pick.GameHomeSpread} team={pick.homeTeam} />
       </div>
       <div className="w-1/4 md:w-1/6 flex items-center justify-center md:justify-start">
         <Point
