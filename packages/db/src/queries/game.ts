@@ -20,6 +20,17 @@ export const checkDBIfUpdatesNeeded = async (week: number): Promise<boolean> => 
   return result.length > 0;
 };
 
+export const hasUnfinishedGames = async (week: number): Promise<boolean> => {
+  const result = await db
+    .selectFrom("Games")
+    .select("GameID")
+    .where("GameWeek", "=", week)
+    .where("GameStatus", "<>", "Final")
+    .execute();
+
+  return result.length > 0;
+};
+
 export const findFutureGame = (homeTeamID: number, visitorTeamID: number, week: number) => {
   return db
     .selectFrom("Games")

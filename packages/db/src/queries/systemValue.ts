@@ -150,3 +150,13 @@ export const verifySeasonYearForReset = async (): Promise<null | number> => {
 
   return null;
 };
+
+export const hasSystemValue = async (name: string): Promise<boolean> => {
+  const systemValue = await db
+    .selectFrom("SystemValues")
+    .select("SystemValueValue")
+    .where("SystemValueName", "=", name)
+    .executeTakeFirst();
+
+  return systemValue?.SystemValueValue === "1";
+};
