@@ -101,7 +101,7 @@ const HeadToHeadPageBody: FC<HeadToHeadPageBodyProps> = async ({ searchParams })
     <PageTransition>
       <div className="h-full flex flex-col md:mx-3">
         <CustomHead title={TITLE} />
-        <PageContent className="pt-0 md:pt-3 pb-4">
+        <PageContent className="px-3 pt-5 pb-4 md:px-5 md:pt-3">
           <h1 className="text-4xl font-semibold tracking-tight mb-6">{TITLE}</h1>
           <form className="flex flex-wrap items-end gap-3 mb-6" method="get">
             <input name="week" type="hidden" value={selectedWeek} />

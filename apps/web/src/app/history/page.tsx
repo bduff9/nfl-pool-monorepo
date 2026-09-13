@@ -150,7 +150,7 @@ const HistoryPageBody: FC = async () => {
     <PageTransition>
       <div className="h-full flex flex-col md:mx-3">
         <CustomHead title={TITLE} />
-        <PageContent className="pt-0 md:pt-3 pb-4">
+        <PageContent className="px-3 pt-5 pb-4 md:px-5 md:pt-3">
           <h1 className="text-4xl font-semibold tracking-tight mb-6">{TITLE}</h1>
           {years.length === 0 ? (
             <p className="text-muted-foreground">No history recorded yet.</p>
