@@ -82,7 +82,7 @@ describe("updateMissedPicks", () => {
     expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({ PickPoints: 1 }));
   });
 
-  it("throws when the user has missed a pick but has no points left to use", async () => {
+  it("leaves the pick empty and continues when the user has no points left to use", async () => {
     mockDb.execute
       .mockResolvedValueOnce([
         {
@@ -99,7 +99,7 @@ describe("updateMissedPicks", () => {
 
     const { updateMissedPicks } = await import("./pick");
 
-    await expect(updateMissedPicks(makeGame())).rejects.toThrow("User missed pick but has no picks remaining");
+    await expect(updateMissedPicks(makeGame())).resolves.toBeUndefined();
     expect(mockDb.executeTakeFirstOrThrow).not.toHaveBeenCalled();
   });
 

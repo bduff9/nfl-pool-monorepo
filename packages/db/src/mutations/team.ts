@@ -19,6 +19,9 @@ export const updateTeamByeWeeks = async (week: number): Promise<void> => {
       ),
     )
     .where("TeamCity", "!=", "Tie")
+    // Only set a bye for teams with no bye yet or a later (less trustworthy) week, so
+    // repeated healing passes over the same season never clobber an already-set bye.
+    .where((eb) => eb.or([eb("TeamByeWeek", "=", 0), eb("TeamByeWeek", ">", week)]))
     .executeTakeFirstOrThrow();
 };
 

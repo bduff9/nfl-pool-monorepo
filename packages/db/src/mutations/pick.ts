@@ -40,9 +40,12 @@ export const updateMissedPicks = async (game: Awaited<ReturnType<typeof getDbGam
       const lowestPoint = await getLowestUnusedPoint(game.GameWeek, pick.UserID);
 
       if (lowestPoint === null) {
-        console.error("User missed pick but has no picks remaining", { game, pick });
+        // Throwing here would abort the whole update and leave the game stuck in Pregame
+        // forever (the same missed pick re-triggers every run). The pick stays unassigned
+        // instead, which scores as a miss for the user and lets the game proceed.
+        console.error("User missed pick but has no points left to assign; leaving pick empty", { game, pick });
 
-        throw new Error("User missed pick but has no picks remaining");
+        continue;
       }
 
       await db
