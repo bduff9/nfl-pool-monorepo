@@ -6,7 +6,11 @@ import type { DB } from ".";
 export const db = new Kysely<DB>({
   dialect: new MysqlDialect({
     pool: createPool({
-      connectionLimit: 10,
+      connectionLimit: process.env.NODE_ENV === "production" ? 5 : 10,
+      // Keep warm-container connections healthy across idle periods (NAT gateways and
+      // firewalls drop idle sockets, which surfaces as ECONNRESET on the next query).
+      enableKeepAlive: true,
+      maxIdle: 5,
       timezone: "Z",
       uri: process.env.DATABASE_URL ?? "",
     }),
@@ -14,10 +18,12 @@ export const db = new Kysely<DB>({
   log: (event) => {
     if (event.level === "error") {
       console.error("Kysely error:", event);
-    } else {
+    } else if (process.env.LOG_QUERIES === "true") {
+      // Query logging includes bound parameters (emails, phone numbers), so it stays
+      // opt-in for production rather than flooding CloudWatch with PII.
       console.log("Kysely log:", {
         duration: event.queryDurationMillis,
-        parms: event.query.parameters,
+        parameters: event.query.parameters,
         sql: event.query.sql,
       });
     }
