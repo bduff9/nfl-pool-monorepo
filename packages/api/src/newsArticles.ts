@@ -18,6 +18,7 @@ import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { getRandomInteger } from "@nfl-pool-monorepo/utils/numbers";
 import { type } from "arktype";
 
+import { fetchWithRetry } from "./fetchWithRetry";
 import { type APINewsArticle, newsArticlesSchema } from "./validation";
 
 const getAPINewsURL = (week: number, from: string): string =>
@@ -32,7 +33,7 @@ export const getArticlesForWeek = async (week: number) => {
     .executeTakeFirstOrThrow();
   const firstGameDate = firstGame.GameKickoff.toISOString().substring(0, 10);
   const url = getAPINewsURL(week, firstGameDate);
-  const response = await fetch(url);
+  const response = await fetchWithRetry(url);
 
   if (!response.ok) {
     console.error("Error calling news API", { response, week });

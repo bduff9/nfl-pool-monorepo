@@ -18,6 +18,7 @@ import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { getSystemYear } from "@nfl-pool-monorepo/db/src/queries/systemValue";
 import { type } from "arktype";
 
+import { fetchWithRetry } from "./fetchWithRetry";
 import { type ApiMatchup, EntireSeasonResponseSchema, type NFLWeekArray, SingleWeekResponseSchema } from "./validation";
 
 const callApi = async (year: number, week?: number): Promise<[string, unknown]> => {
@@ -27,7 +28,7 @@ const callApi = async (year: number, week?: number): Promise<[string, unknown]> 
     url = `${process.env.API_HOST}/fflnetdynamic${year}/nfl_sched_${week}.json`;
   }
 
-  const response = await fetch(url, { headers: { "User-Agent": "ASWNN-NFL Pool" } });
+  const response = await fetchWithRetry(url, { headers: { "User-Agent": "ASWNN-NFL Pool" } });
 
   if (!response.ok) {
     console.error("Error calling API", { response, url, week, year });
