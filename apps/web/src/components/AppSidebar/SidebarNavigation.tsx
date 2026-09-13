@@ -30,6 +30,7 @@ import NavLink from "../NavLink/NavLink";
 import {
   showAdminSection,
   showDropOutOfSurvivor,
+  showHeadToHead,
   showMakePicks,
   showMakeSurvivorPick,
   showOverallResults,
@@ -113,7 +114,7 @@ export const SidebarNavigation: FC<SidebarNavigationProps> = ({
               <NavLink href="/history" isNested>
                 Pool History
               </NavLink>
-              <NavLink href={"/head-to-head" as Route} isNested>
+              <NavLink href={"/head-to-head" as Route} isNested show={showHeadToHead(weeklyMvCount)}>
                 Head-to-Head
               </NavLink>
             </SidebarGroupContent>
@@ -243,9 +244,6 @@ export const SidebarNavigation: FC<SidebarNavigationProps> = ({
             </SidebarGroupLabel>
             <CollapsibleContent>
               <SidebarGroupContent>
-                <NavLink href={"/admin/games" as Route} isNested>
-                  Games
-                </NavLink>
                 <NavLink href="/admin/api" isNested>
                   API Logs
                 </NavLink>
@@ -254,6 +252,9 @@ export const SidebarNavigation: FC<SidebarNavigationProps> = ({
                 </NavLink>
                 <NavLink href="/admin/email" isNested>
                   Emails
+                </NavLink>
+                <NavLink href={"/admin/games" as Route} isNested>
+                  Games
                 </NavLink>
                 <NavLink href="/admin/logs" isNested>
                   Logs

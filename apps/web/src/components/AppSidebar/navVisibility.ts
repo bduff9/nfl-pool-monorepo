@@ -4,6 +4,8 @@ export const showWeekResults = (weeklyMvCount: number): boolean => weeklyMvCount
 
 export const showOverallResults = (overallMvCount: number): boolean => overallMvCount > 0;
 
+export const showHeadToHead = (weeklyMvCount: number): boolean => weeklyMvCount > 0;
+
 export const showMakePicks = (tiebreakerHasSubmitted: number | null | undefined): boolean =>
   tiebreakerHasSubmitted !== 1;
 
