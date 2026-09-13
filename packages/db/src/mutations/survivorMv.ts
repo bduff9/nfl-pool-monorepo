@@ -1,4 +1,4 @@
-import { executeSqlFile } from "@nfl-pool-monorepo/utils/database";
+import { executeSqlFile, withAdvisoryLock } from "@nfl-pool-monorepo/utils/database";
 import { weekSchema } from "@nfl-pool-monorepo/utils/validation";
 import { type } from "arktype";
 
@@ -45,12 +45,18 @@ export const updateSurvivorMV = async (week: number): Promise<void> => {
 	set foreign_key_checks = 1;
 `;
 
-  try {
-    await executeSqlFile(query);
-  } catch (error) {
-    console.error("Error when populating SurvivorMV: ", error);
-    await executeSqlFile(recoverQuery);
+  const didRefresh = await withAdvisoryLock("mv-refresh", async () => {
+    try {
+      await executeSqlFile(query);
+    } catch (error) {
+      console.error("Error when populating SurvivorMV: ", error);
+      await executeSqlFile(recoverQuery);
 
-    throw error;
+      throw error;
+    }
+  });
+
+  if (!didRefresh) {
+    console.log("SurvivorMV refresh skipped: another refresh is already in flight");
   }
 };

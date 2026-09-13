@@ -2,13 +2,27 @@ import mysql from "mysql2";
 import type { ConnectionOptions } from "mysqldump";
 
 export const parseDbUrl = (dbUrl: string): ConnectionOptions => {
-  const [_, user, password, host, portString, database] = dbUrl.match(/^mysql:\/\/(.+):(.+)@(.+):(\d+)\/(.+)$/) ?? [];
+  let url: URL;
 
-  if (!user || !password || !host || !portString || !database) {
+  try {
+    url = new URL(dbUrl);
+  } catch {
     throw new Error("Invalid database URL");
   }
 
-  return { database, host, password, port: +portString, user } as const;
+  if (url.protocol !== "mysql:") {
+    throw new Error("Invalid database URL");
+  }
+
+  const user = decodeURIComponent(url.username);
+  const password = decodeURIComponent(url.password);
+  const database = url.pathname.replace(/^\//, "");
+
+  if (!user || !password || !url.hostname || !database) {
+    throw new Error("Invalid database URL");
+  }
+
+  return { database, host: url.hostname, password, port: Number(url.port) || 3306, user } as const;
 };
 
 export const getBackupName = (): string => {
@@ -27,7 +41,7 @@ export const executeSqlFile = (fileContents: string): Promise<unknown> =>
     const connection = mysql.createConnection({
       ...connOptions,
       multipleStatements: true,
-      timezone: "local",
+      timezone: "Z",
     });
 
     connection.connect();
@@ -41,3 +55,35 @@ export const executeSqlFile = (fileContents: string): Promise<unknown> =>
       connection.end();
     });
   });
+
+/**
+ * Runs `fn` while holding a named MySQL advisory lock, so overlapping scheduled runs can
+ * single-flight instead of piling up on the same work. Returns false when another holder
+ * has the lock (fn is not invoked). The lock lives on its own connection and is released
+ * when fn settles.
+ */
+export const withAdvisoryLock = async <T>(lockName: string, fn: () => Promise<T>): Promise<boolean> => {
+  const connOptions = parseDbUrl(process.env.DATABASE_URL ?? "") as mysql.ConnectionOptions;
+  const connection = mysql.createConnection({ ...connOptions, timezone: "Z" });
+  const promiseConnection = connection.promise();
+
+  try {
+    await promiseConnection.connect();
+    const [rows] = await promiseConnection.query("SELECT GET_LOCK(?, 0) AS Acquired", [lockName]);
+    const acquired = (rows as Array<{ Acquired: number }>)[0]?.Acquired === 1;
+
+    if (!acquired) {
+      return false;
+    }
+
+    try {
+      await fn();
+    } finally {
+      await promiseConnection.query("DO RELEASE_LOCK(?)", [lockName]);
+    }
+
+    return true;
+  } finally {
+    await promiseConnection.end();
+  }
+};

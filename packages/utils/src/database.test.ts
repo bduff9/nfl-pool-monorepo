@@ -15,10 +15,11 @@ describe("parseDbUrl", () => {
     });
   });
 
-  it("handles passwords with special characters", () => {
-    const url = "mysql://root:p@ssw0rd!#$@db.example.com:3307/my_db";
+  it("handles passwords with special characters that are percent-encoded", () => {
+    const url = "mysql://root:p%40ssw0rd!%23$@db.example.com:3307/my_db";
     const result = parseDbUrl(url);
     expect(result.user).toBe("root");
+    expect(result.password).toBe("p@ssw0rd!#$");
     expect(result.host).toBe("db.example.com");
     expect(result.port).toBe(3307);
     expect(result.database).toBe("my_db");
@@ -32,8 +33,10 @@ describe("parseDbUrl", () => {
     expect(() => parseDbUrl("postgres://user:pass@host:5432/db")).toThrow("Invalid database URL");
   });
 
-  it("throws when port is missing", () => {
-    expect(() => parseDbUrl("mysql://user:pass@host/db")).toThrow("Invalid database URL");
+  it("defaults the port to 3306 when it is missing", () => {
+    const result = parseDbUrl("mysql://user:pass@host/db");
+    expect(result.port).toBe(3306);
+    expect(result.database).toBe("db");
   });
 
   it("converts port string to a number", () => {
