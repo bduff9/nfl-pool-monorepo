@@ -5,7 +5,7 @@ import { type } from "arktype";
 import webpush from "web-push";
 
 import { env } from "@/lib/env";
-import { authActionClient } from "@/lib/safe-action";
+import { ActionError, authActionClient } from "@/lib/safe-action";
 import { serverActionResultSchema } from "@/lib/validation";
 
 webpush.setVapidDetails("mailto:info@asitewithnoname.com", env.NEXT_PUBLIC_VAPID_PUBLIC_KEY, env.VAPID_PRIVATE_KEY);
@@ -43,7 +43,7 @@ export const subscribeUser = authActionClient
         throw error;
       }
 
-      throw new Error("Error subscribing user's device");
+      throw new ActionError("Error subscribing user's device");
     }
 
     return { metadata: {}, status: "Success" };
@@ -68,7 +68,7 @@ export const unsubscribeUser = authActionClient
         throw error;
       }
 
-      throw new Error("Error unsubscribing user's device");
+      throw new ActionError("Error unsubscribing user's device");
     }
 
     return { metadata: {}, status: "Success" };

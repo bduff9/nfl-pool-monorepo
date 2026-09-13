@@ -1,9 +1,10 @@
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { sql } from "kysely";
 
+import { ActionError } from "@/lib/safe-action";
 import "server-only";
 
-export class AuthVerificationError extends Error {
+export class AuthVerificationError extends ActionError {
   readonly statusCode: number;
 
   constructor(message: string, statusCode = 400) {

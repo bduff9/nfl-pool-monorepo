@@ -6,7 +6,7 @@ import "server-only";
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
 
 import { cacheTags } from "@/lib/cacheTags";
-import { authActionClient } from "@/lib/safe-action";
+import { ActionError, authActionClient } from "@/lib/safe-action";
 import { serverActionResultSchema, updateMyTiebreakerScoreSchema } from "@/lib/validation";
 
 export const updateMyTiebreakerScore = authActionClient
@@ -25,7 +25,7 @@ export const updateMyTiebreakerScore = authActionClient
           .executeTakeFirstOrThrow();
 
         if (lastGame.GameKickoff < new Date()) {
-          throw new Error("Game has already started!");
+          throw new ActionError("Game has already started!");
         }
 
         const myTiebreaker = await trx
@@ -36,7 +36,7 @@ export const updateMyTiebreakerScore = authActionClient
           .executeTakeFirstOrThrow();
 
         if (myTiebreaker.TiebreakerHasSubmitted) {
-          throw new Error("Tiebreaker has already been submitted!");
+          throw new ActionError("Tiebreaker has already been submitted!");
         }
 
         await trx
@@ -56,7 +56,7 @@ export const updateMyTiebreakerScore = authActionClient
         throw error;
       }
 
-      throw new Error("Failed to update my tiebreaker score");
+      throw new ActionError("Failed to update my tiebreaker score");
     }
 
     revalidatePath("/picks/set");

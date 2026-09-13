@@ -8,7 +8,7 @@ import {
   getPlainText as getCustomPlainText,
 } from "@nfl-pool-monorepo/transactional/emails/templates/CustomEmail";
 
-import { actionClient, adminActionClient } from "@/lib/safe-action";
+import { ActionError, actionClient, adminActionClient } from "@/lib/safe-action";
 import { emailPreviewSchema, sendAdminEmailSchema, serverActionResultSchema } from "@/lib/validation";
 import "server-only";
 
@@ -23,7 +23,7 @@ export const getEmailPreview = adminActionClient
     const { emailType, subject, body, preview, userFirstName } = parsedInput;
 
     if (emailType !== "Custom") {
-      throw new Error(`Invalid email type: ${emailType}`);
+      throw new ActionError(`Invalid email type: ${emailType}`);
     }
 
     const [html, text] = await Promise.all([
@@ -88,7 +88,7 @@ export const sendAdminEmail = adminActionClient
     } else {
       const exhaustiveCheck: never = sendTo;
 
-      throw new Error(`Unhandled sendTo value: ${exhaustiveCheck}`);
+      throw new ActionError(`Unhandled sendTo value: ${exhaustiveCheck}`);
     }
 
     for (const to of users) {
@@ -108,7 +108,7 @@ export const sendAdminEmail = adminActionClient
       } else {
         const exhaustiveCheck: never = emailType;
 
-        throw new Error(`Unhandled emailType value: ${exhaustiveCheck}`);
+        throw new ActionError(`Unhandled emailType value: ${exhaustiveCheck}`);
       }
     }
 
@@ -172,7 +172,7 @@ export const unsubscribe = actionClient
         throw error;
       }
 
-      throw new Error("Failed to unsubscribe");
+      throw new ActionError("Failed to unsubscribe");
     }
 
     return {

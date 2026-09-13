@@ -8,7 +8,7 @@ import { getCurrentWeekInProgress } from "@nfl-pool-monorepo/db/src/queries/game
 import { sendPrizesSetEmail } from "@nfl-pool-monorepo/transactional/emails/prizesSet";
 import { revalidatePath } from "next/cache";
 
-import { adminActionClient } from "@/lib/safe-action";
+import { ActionError, adminActionClient } from "@/lib/safe-action";
 import { payoutsSchema, serverActionResultSchema } from "@/lib/validation";
 
 export const updatePayouts = adminActionClient
@@ -57,7 +57,7 @@ export const updatePayouts = adminActionClient
         throw error;
       }
 
-      throw new Error("Failed to save payouts");
+      throw new ActionError("Failed to save payouts");
     }
 
     const users = await db

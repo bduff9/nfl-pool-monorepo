@@ -5,7 +5,7 @@ import { registerUserForSurvivor, unregisterUserForSurvivor } from "@nfl-pool-mo
 import { sql } from "kysely";
 import { revalidatePath } from "next/cache";
 
-import { adminActionClient, authActionClient } from "@/lib/safe-action";
+import { ActionError, adminActionClient, authActionClient } from "@/lib/safe-action";
 import { makeSurvivorPickSchema, serverActionResultSchema } from "@/lib/validation";
 import "server-only";
 
@@ -23,7 +23,7 @@ export const makeSurvivorPick = authActionClient
       .executeTakeFirst();
 
     if (ctx.user.playsSurvivor === 0 || mv?.IsAliveOverall === 0) {
-      throw new Error("Cannot make pick, user is already out of survivor");
+      throw new ActionError("Cannot make pick, user is already out of survivor");
     }
 
     const gamesStarted = await db
@@ -34,7 +34,7 @@ export const makeSurvivorPick = authActionClient
       .executeTakeFirstOrThrow();
 
     if (gamesStarted.count > 0) {
-      throw new Error("Week has already started, no more survivor picks can be made");
+      throw new ActionError("Week has already started, no more survivor picks can be made");
     }
 
     const game = await db
@@ -50,7 +50,7 @@ export const makeSurvivorPick = authActionClient
         user: ctx.user,
       });
 
-      throw new Error("Invalid game and team in week sent");
+      throw new ActionError("Invalid game and team in week sent");
     }
 
     try {
@@ -86,7 +86,7 @@ export const makeSurvivorPick = authActionClient
         throw error;
       }
 
-      throw new Error(`Failed to make survivor pick for week ${week}`);
+      throw new ActionError(`Failed to make survivor pick for week ${week}`);
     }
 
     revalidatePath("/survivor/set");
@@ -99,7 +99,7 @@ export const makeSurvivorPick = authActionClient
 
 export const registerForSurvivor = authActionClient.outputSchema(serverActionResultSchema).action(async ({ ctx }) => {
   if (ctx.user.playsSurvivor) {
-    throw new Error("Already registered for survivor");
+    throw new ActionError("Already registered for survivor");
   }
 
   try {
@@ -113,7 +113,7 @@ export const registerForSurvivor = authActionClient.outputSchema(serverActionRes
       throw error;
     }
 
-    throw new Error("Failed to register user for survivor");
+    throw new ActionError("Failed to register user for survivor");
   }
 
   revalidatePath("/", "layout");
@@ -150,7 +150,7 @@ export const toggleUserSurvivor = adminActionClient
         throw error;
       }
 
-      throw new Error("Failed to toggle user survivor");
+      throw new ActionError("Failed to toggle user survivor");
     }
 
     revalidatePath("/admin/users");
@@ -163,7 +163,7 @@ export const toggleUserSurvivor = adminActionClient
 
 export const unregisterForSurvivor = authActionClient.outputSchema(serverActionResultSchema).action(async ({ ctx }) => {
   if (!ctx.user.playsSurvivor) {
-    throw new Error("Not registered for survivor");
+    throw new ActionError("Not registered for survivor");
   }
 
   try {
@@ -177,7 +177,7 @@ export const unregisterForSurvivor = authActionClient.outputSchema(serverActionR
       throw error;
     }
 
-    throw new Error("Failed to unregister user for survivor");
+    throw new ActionError("Failed to unregister user for survivor");
   }
 
   revalidatePath("/", "layout");

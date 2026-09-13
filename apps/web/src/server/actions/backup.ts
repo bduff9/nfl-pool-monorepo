@@ -3,7 +3,7 @@
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { executeSqlFile } from "@nfl-pool-monorepo/utils/database";
 
-import { adminActionClient } from "@/lib/safe-action";
+import { ActionError, adminActionClient } from "@/lib/safe-action";
 import { restoreBackupSchema, serverActionResultSchema } from "@/lib/validation";
 import "server-only";
 
@@ -30,7 +30,7 @@ export const restoreBackup = adminActionClient
       const { Body } = await s3Client.send(getObjectCommand);
 
       if (!Body) {
-        throw new Error("Failed to get S3 object body as a readable stream.");
+        throw new ActionError("Failed to get S3 object body as a readable stream.");
       }
 
       const sqlFile = await Body.transformToString("utf-8");
@@ -53,7 +53,7 @@ export const restoreBackup = adminActionClient
         throw error;
       }
 
-      throw new Error(`Failed to restore backup ${backupName}`);
+      throw new ActionError(`Failed to restore backup ${backupName}`);
     }
 
     return {

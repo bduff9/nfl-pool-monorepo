@@ -4,7 +4,7 @@ import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { sql } from "kysely";
 import { revalidatePath } from "next/cache";
 
-import { adminActionClient } from "@/lib/safe-action";
+import { ActionError, adminActionClient } from "@/lib/safe-action";
 import { serverActionResultSchema } from "@/lib/validation";
 import "server-only";
 
@@ -61,7 +61,7 @@ export const updateUserPaid = adminActionClient
         const newOwed = Number(balanceResult.balance) + amountPaid;
 
         if (newOwed > 0) {
-          throw new Error("Amount paid is greater than owed, cancelling...");
+          throw new ActionError("Amount paid is greater than owed, cancelling...");
         }
 
         await trx
@@ -109,7 +109,7 @@ export const updateUserPaid = adminActionClient
         throw error;
       }
 
-      throw new Error("Failed to update user paid amount");
+      throw new ActionError("Failed to update user paid amount");
     }
 
     revalidatePath("/admin/users");
