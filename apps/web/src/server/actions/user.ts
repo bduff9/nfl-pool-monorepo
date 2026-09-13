@@ -13,7 +13,7 @@ import { sendPasswordResetEmail } from "@nfl-pool-monorepo/transactional/emails/
 import { sendTrustedEmail } from "@nfl-pool-monorepo/transactional/emails/trusted";
 import { sendUntrustedEmail } from "@nfl-pool-monorepo/transactional/emails/untrusted";
 import { ADMIN_USER, DEFAULT_AUTO_PICKS } from "@nfl-pool-monorepo/utils/constants";
-import type { Selectable, Transaction } from "kysely";
+import { type Selectable, sql, type Transaction } from "kysely";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -29,7 +29,8 @@ import {
   verifyPasswordStrength,
 } from "@/lib/auth";
 import { verifyLoginEligibility, verifyRegistrationEligibility } from "@/lib/auth-verification";
-import { actionClient, adminActionClient, authActionClient } from "@/lib/safe-action";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { ActionError, actionClient, adminActionClient, authActionClient } from "@/lib/safe-action";
 import {
   editProfileSchema,
   finishRegistrationSchema,
@@ -133,7 +134,7 @@ export const finishRegistration = authActionClient
   .outputSchema(serverActionResultSchema)
   .action(async ({ ctx, parsedInput }) => {
     if (ctx.user.doneRegistering === 1) {
-      throw new Error("User has already finished registration");
+      throw new ActionError("User has already finished registration");
     }
 
     const user = await db
@@ -143,11 +144,11 @@ export const finishRegistration = authActionClient
       .executeTakeFirst();
 
     if (!user) {
-      throw new Error("User not found");
+      throw new ActionError("User not found");
     }
 
     if (user.UserTrusted === 0) {
-      throw new Error("User has been blocked");
+      throw new ActionError("User has been blocked");
     }
 
     let isTrusted = user.UserTrusted === 1;
@@ -259,7 +260,7 @@ export const finishRegistration = authActionClient
         throw error;
       }
 
-      throw new Error("Failed to register user");
+      throw new ActionError("Failed to register user");
     }
 
     revalidatePath("/users/create");
@@ -277,6 +278,15 @@ export const login = actionClient
   .outputSchema(serverActionResultSchema)
   .action(async ({ parsedInput }) => {
     const { email, password } = parsedInput;
+    const ip = await getClientIp();
+
+    const isLoginAllowed =
+      (await checkRateLimit({ key: `login:user:${email}`, limit: 8, windowMs: 15 * 60 * 1000 })) &&
+      (await checkRateLimit({ key: `login:ip:${ip}`, limit: 20, windowMs: 15 * 60 * 1000 }));
+
+    if (!isLoginAllowed) {
+      throw new ActionError("Too many login attempts. Please try again later.");
+    }
 
     const user = await db
       .selectFrom("Users")
@@ -285,17 +295,17 @@ export const login = actionClient
       .executeTakeFirst();
 
     if (!user) {
-      throw new Error("Invalid email or password");
+      throw new ActionError("Invalid email or password");
     }
 
     if (!user.UserPasswordHash) {
-      throw new Error("Please use the 'Forgot Password?' button to set up your account");
+      throw new ActionError("Please use the 'Forgot Password?' button to set up your account");
     }
 
     const isPasswordValid = await verifyPasswordHash(user.UserPasswordHash, password);
 
     if (!isPasswordValid) {
-      throw new Error("Invalid email or password");
+      throw new ActionError("Invalid email or password");
     }
 
     await verifyLoginEligibility(user);
@@ -320,7 +330,7 @@ export const markUserAsTrusted = adminActionClient
     const { userId, referredByUserId } = parsedInput;
 
     if (userId === referredByUserId) {
-      throw new Error("User cannot refer themselves");
+      throw new ActionError("User cannot refer themselves");
     }
 
     try {
@@ -342,7 +352,7 @@ export const markUserAsTrusted = adminActionClient
           .executeTakeFirstOrThrow();
 
         if (user.UserTrusted === 1 || user.UserReferredBy !== null) {
-          throw new Error("User is already trusted");
+          throw new ActionError("User is already trusted");
         }
 
         await trx
@@ -366,7 +376,7 @@ export const markUserAsTrusted = adminActionClient
         throw error;
       }
 
-      throw new Error("Failed to mark user as trusted");
+      throw new ActionError("Failed to mark user as trusted");
     }
 
     revalidatePath("/admin/users");
@@ -383,6 +393,10 @@ export const register = actionClient
   .action(async ({ parsedInput }) => {
     const { email, password } = parsedInput;
 
+    if (!(await checkRateLimit({ key: `register:ip:${await getClientIp()}`, limit: 5, windowMs: 60 * 60 * 1000 }))) {
+      throw new ActionError("Too many registration attempts. Please try again later.");
+    }
+
     const existingUser = await db
       .selectFrom("Users")
       .select(["UserID"])
@@ -390,19 +404,19 @@ export const register = actionClient
       .executeTakeFirst();
 
     if (existingUser) {
-      throw new Error("User already exists. Please use the login page or reset your password if you forgot it.");
+      throw new ActionError("User already exists. Please use the login page or reset your password if you forgot it.");
     }
 
     const isValidMx = await mxExists(email);
 
     if (!isValidMx) {
-      throw new Error("It looks like your email is not valid, please double check it and try again");
+      throw new ActionError("It looks like your email is not valid, please double check it and try again");
     }
 
     const isStrongPassword = await verifyPasswordStrength(password);
 
     if (!isStrongPassword) {
-      throw new Error("Passwords must be at least 8 characters and should not be reused from other sites");
+      throw new ActionError("Passwords must be at least 8 characters and should not be reused from other sites");
     }
 
     const hashedPassword = await hashPassword(password);
@@ -458,7 +472,7 @@ export const removeUserFromAdmin = adminActionClient
           .executeTakeFirstOrThrow();
 
         if (userToRemove.UserTrusted === 1) {
-          throw new Error("Cannot delete a trusted user");
+          throw new ActionError("Cannot delete a trusted user");
         }
 
         await trx.deleteFrom("Users").where("UserID", "=", userID).executeTakeFirstOrThrow();
@@ -470,7 +484,7 @@ export const removeUserFromAdmin = adminActionClient
         throw error;
       }
 
-      throw new Error("Failed to remove user");
+      throw new ActionError("Failed to remove user");
     }
 
     revalidatePath("/admin/users");
@@ -490,6 +504,14 @@ export const sendPasswordResetOTP = actionClient
   .outputSchema(serverActionResultSchema)
   .action(async ({ parsedInput }) => {
     const { email } = parsedInput;
+
+    const isOtpSendAllowed =
+      (await checkRateLimit({ key: `otp-send:user:${email}`, limit: 3, windowMs: 15 * 60 * 1000 })) &&
+      (await checkRateLimit({ key: `otp-send:ip:${await getClientIp()}`, limit: 10, windowMs: 60 * 60 * 1000 }));
+
+    if (!isOtpSendAllowed) {
+      throw new ActionError("Too many password reset requests. Please try again later.");
+    }
 
     const user = await db
       .selectFrom("Users")
@@ -529,7 +551,7 @@ export const sendPasswordResetOTP = actionClient
     } catch (error) {
       console.error("Failed to send password reset OTP:", error);
 
-      throw new Error("Failed to send password reset email. Please try again.");
+      throw new ActionError("Failed to send password reset email. Please try again.");
     }
 
     return {
@@ -544,20 +566,39 @@ export const verifyOTPAndResetPassword = actionClient
   .action(async ({ parsedInput }) => {
     const { email, otp, newPassword } = parsedInput;
 
+    if (!(await checkRateLimit({ key: `otp-verify:ip:${await getClientIp()}`, limit: 20, windowMs: 60 * 60 * 1000 }))) {
+      throw new ActionError("Too many attempts. Please try again later.");
+    }
+
     const verificationRequest = await db
       .selectFrom("VerificationRequests")
-      .select(["VerificationRequestToken", "VerificationRequestExpires"])
+      .select(["VerificationRequestAttempts", "VerificationRequestExpires", "VerificationRequestToken"])
       .where("VerificationRequestIdentifier", "=", email)
       .executeTakeFirst();
 
     if (!verificationRequest) {
-      throw new Error("Invalid or expired verification code. Please request a new one.");
+      throw new ActionError("Invalid or expired verification code. Please request a new one.");
     }
+
+    // Cap guesses per issued code so a 6-digit OTP can't be brute forced within its
+    // 15 minute validity window.
+    if (verificationRequest.VerificationRequestAttempts >= 5) {
+      throw new ActionError("Too many incorrect attempts. Please request a new code.");
+    }
+
+    await db
+      .updateTable("VerificationRequests")
+      .set({
+        VerificationRequestAttempts: sql`VerificationRequestAttempts + 1`,
+        VerificationRequestUpdatedBy: "OTP_VERIFY",
+      })
+      .where("VerificationRequestIdentifier", "=", email)
+      .execute();
 
     if (new Date() > verificationRequest.VerificationRequestExpires) {
       await db.deleteFrom("VerificationRequests").where("VerificationRequestIdentifier", "=", email).execute();
 
-      throw new Error("Verification code has expired. Please request a new one.");
+      throw new ActionError("Verification code has expired. Please request a new one.");
     }
 
     const storedTokenBuffer = Buffer.from(verificationRequest.VerificationRequestToken);
@@ -565,19 +606,19 @@ export const verifyOTPAndResetPassword = actionClient
     const isOtpValid = storedTokenBuffer.length === otpBuffer.length && timingSafeEqual(storedTokenBuffer, otpBuffer);
 
     if (!isOtpValid) {
-      throw new Error("Invalid verification code. Please check your code and try again.");
+      throw new ActionError("Invalid verification code. Please check your code and try again.");
     }
 
     const user = await db.selectFrom("Users").select(["UserID"]).where("UserEmail", "=", email).executeTakeFirst();
 
     if (!user) {
-      throw new Error("User not found.");
+      throw new ActionError("User not found.");
     }
 
     const isStrongPassword = await verifyPasswordStrength(newPassword);
 
     if (!isStrongPassword) {
-      throw new Error("Passwords must be at least 8 characters and should not be reused from other sites");
+      throw new ActionError("Passwords must be at least 8 characters and should not be reused from other sites");
     }
 
     try {
@@ -602,7 +643,7 @@ export const verifyOTPAndResetPassword = actionClient
     } catch (error) {
       console.error("Failed to reset password:", error);
 
-      throw new Error("Failed to reset password. Please try again.");
+      throw new ActionError("Failed to reset password. Please try again.");
     }
 
     return {
