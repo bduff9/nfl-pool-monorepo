@@ -18,7 +18,6 @@
 
 import type { User } from "@nfl-pool-monorepo/types";
 import * as Sentry from "@sentry/nextjs";
-import LogRocket from "logrocket";
 import { useEffect } from "react";
 
 import { env } from "../env.client";
@@ -31,27 +30,27 @@ export const useLogrocket = (user?: User | null): void => {
       return;
     }
 
-    LogRocket.init(env.NEXT_PUBLIC_LOGROCKET_PROJ ?? "");
-    LogRocket.getSessionURL((sessionURL) => {
-      Sentry.withScope((scope) => {
-        scope.setExtra("sessionURL", sessionURL);
+    // Dynamically imported so the recording SDK stays out of the shared layout bundle and
+    // loads after first paint.
+    void import("logrocket").then((LogRocket) => {
+      const LogRocketModule = LogRocket.default;
+
+      LogRocketModule.init(env.NEXT_PUBLIC_LOGROCKET_PROJ ?? "");
+      LogRocketModule.getSessionURL((sessionURL) => {
+        Sentry.withScope((scope) => {
+          scope.setExtra("sessionURL", sessionURL);
+        });
       });
+
+      if (user) {
+        const { name, image: picture, ...rest } = user;
+
+        LogRocketModule.identify(`${user.id}`, {
+          name: name ?? "",
+          picture: picture ?? "",
+          ...rest,
+        });
+      }
     });
-  }, [isBrowser]);
-
-  useEffect((): void => {
-    if (!isBrowser) {
-      return;
-    }
-
-    if (user) {
-      const { name, image: picture, ...rest } = user;
-
-      LogRocket.identify(`${user.id}`, {
-        name: name ?? "",
-        picture: picture ?? "",
-        ...rest,
-      });
-    }
   }, [isBrowser, user]);
 };

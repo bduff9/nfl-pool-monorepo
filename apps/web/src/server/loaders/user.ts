@@ -149,6 +149,10 @@ export const getAdminUsers = cache(async (params: Awaited<PageProps<"/admin/user
 
   if (pageSize !== "all") {
     queryResult = queryResult.limit(pageSize).offset((page - 1) * pageSize);
+  } else {
+    // Cap the "all" page size so one request can't recompute every correlated subquery
+    // for the entire user table.
+    queryResult = queryResult.limit(200);
   }
 
   const [count, results] = await Promise.all([countResult.executeTakeFirstOrThrow(), queryResult.execute()]);

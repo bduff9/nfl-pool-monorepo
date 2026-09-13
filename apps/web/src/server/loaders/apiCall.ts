@@ -17,7 +17,9 @@ export const loadAPICalls = cache(async (params: Awaited<PageProps<"/admin/api">
   const sort = parseJsonParam(params?.sort, sortSchema, [{ desc: true, id: "ApiCallID" as const }]);
   const filter = parseJsonParam(params?.filter, filterSchema, []);
   const page = coerceNumber(params?.page, 1);
-  const pageSize = params?.pageSize === "all" ? ("all" as const) : coerceNumber(params?.pageSize, DEFAULT_PAGE_SIZE);
+  // Cap the "all" page size so a single request can't pull every row's full JSON payload.
+  const pageSize =
+    params?.pageSize === "all" ? ("all" as const) : Math.min(coerceNumber(params?.pageSize, DEFAULT_PAGE_SIZE), 100);
 
   let countResult = db.selectFrom("ApiCalls").select(sql<number>`COUNT(*)`.as("count"));
   let queryResult = db.selectFrom("ApiCalls").selectAll();
@@ -33,6 +35,8 @@ export const loadAPICalls = cache(async (params: Awaited<PageProps<"/admin/api">
 
   if (page && pageSize !== "all") {
     queryResult = queryResult.limit(pageSize).offset((page - 1) * pageSize);
+  } else if (page) {
+    queryResult = queryResult.limit(200);
   }
 
   const [count, results] = await Promise.all([countResult.executeTakeFirstOrThrow(), queryResult.execute()]);
