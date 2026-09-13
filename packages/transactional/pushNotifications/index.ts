@@ -42,6 +42,7 @@ export const sendPushNotification = async (
             body,
             title,
           }),
+          { timeout: 10_000 },
         ),
       ),
     );

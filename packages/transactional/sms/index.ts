@@ -22,7 +22,7 @@ import { EMAIL_SUBJECT_PREFIX } from "../src/constants";
 import { env } from "../src/env";
 
 const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER } = env;
-const twilioClient = new Twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+const twilioClient = new Twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, { timeout: 10_000 });
 
 const getBaseSMSClass = async ({
   id,

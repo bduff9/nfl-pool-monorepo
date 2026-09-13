@@ -1,3 +1,4 @@
+import { getArticlesForWeek } from "@nfl-pool-monorepo/api/src/newsArticles";
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
 
 import { sendWeekEndedEmail } from "../emails/weekEnded";
@@ -92,9 +93,12 @@ export const sendWeeklyEmails = async (week: number): Promise<void> => {
     .where("n.NotificationType", "=", "Essentials")
     .execute();
 
+  // Articles are the same for every recipient, so fetch them once instead of per user.
+  const articles = await getArticlesForWeek(week);
+
   for (const user of emails) {
     try {
-      await sendWeeklyEmail(user, week);
+      await sendWeeklyEmail(user, week, articles);
     } catch (error) {
       console.error(`Error sending weekly email to ${user.UserEmail}`, error);
     }

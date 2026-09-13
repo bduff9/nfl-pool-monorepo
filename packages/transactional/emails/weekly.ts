@@ -1,4 +1,5 @@
 import { getArticlesForWeek } from "@nfl-pool-monorepo/api/src/newsArticles";
+import type { APINewsArticle } from "@nfl-pool-monorepo/api/src/validation";
 import type { Users } from "@nfl-pool-monorepo/db/src";
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { getSurvivorPoolStatus } from "@nfl-pool-monorepo/db/src/queries/survivor";
@@ -12,7 +13,11 @@ import { getHtml, getPlainText, getSubject } from "./templates/WeeklyEmail";
 export const sendWeeklyEmail = async (
   user: Pick<Selectable<Users>, "UserID" | "UserEmail" | "UserFirstName">,
   week: number,
+  articles?: APINewsArticle[],
 ): Promise<void> => {
+  // Articles are week-wide, so callers sending to many users should fetch once and pass
+  // them in rather than hitting the news API per recipient.
+  const weekArticles = articles ?? (await getArticlesForWeek(week));
   const userMessages: string[] = [];
   const poolUpdates: string[] = [];
   const survivorUpdates: string[] = [];
@@ -84,7 +89,6 @@ export const sendWeeklyEmail = async (
     survivorUpdates.push(`There are still ${survivorStatus.stillAlive.length} people left alive`);
   }
 
-  const articles = await getArticlesForWeek(week);
   const to = [user.UserEmail];
   const emailId = await getBaseEmailClass({ to, type: "weekly" });
   const browserLink = getBrowserLink(emailId);
@@ -92,7 +96,7 @@ export const sendWeeklyEmail = async (
   const subject = getSubject(week);
   const [html, text] = await Promise.all([
     getHtml({
-      articles,
+      articles: weekArticles,
       browserLink,
       messages: userMessages,
       poolUpdates,
@@ -102,7 +106,7 @@ export const sendWeeklyEmail = async (
       week,
     }),
     getPlainText({
-      articles,
+      articles: weekArticles,
       browserLink,
       messages: userMessages,
       poolUpdates,
@@ -124,7 +128,7 @@ export const sendWeeklyEmail = async (
     console.error("Failed to send weekly email: ", {
       error,
       props: {
-        articles,
+        articles: weekArticles,
         browserLink,
         messages: userMessages,
         poolUpdates,
