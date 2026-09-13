@@ -20,12 +20,15 @@ export class CdkStackLocal extends Stack {
     const environment: { [key: string]: string } = {
       API_HOST: process.env.API_HOST ?? "",
       API_NEWS_KEY: process.env.API_NEWS_KEY ?? "",
+      AWS_AK_ID: process.env.AWS_AK_ID ?? "",
       AWS_R: process.env.AWS_R ?? "",
+      AWS_SAK_ID: process.env.AWS_SAK_ID ?? "",
       BACKUP_BUCKET_NAME: "aswnn-mysql-backup.local",
       BACKUP_KEEP_COUNT: process.env.BACKUP_KEEP_COUNT ?? "10",
       DATABASE_URL: process.env.DATABASE_URL_LOCAL ?? "",
       domain: process.env.DOMAIN_LOCAL ?? "",
       EMAIL_FROM: process.env.EMAIL_FROM_LOCAL ?? "",
+      EMAIL_LINK_SECRET: process.env.EMAIL_LINK_SECRET ?? "",
       NEXT_PUBLIC_VAPID_PUBLIC_KEY: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "",
       TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID ?? "",
       TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN ?? "",
@@ -42,9 +45,10 @@ export class CdkStackLocal extends Stack {
       environment,
       functionName: "CurrentWeekUpdaterLocal",
       handler: "handler",
+      memorySize: 256,
       retryAttempts: 0,
       runtime: lambda.Runtime.NODEJS_22_X,
-      timeout: Duration.seconds(30),
+      timeout: Duration.minutes(5),
     });
 
     const onceAnHourScheduleRule = new events.Rule(this, "onceAnHourScheduleRule", {
@@ -105,9 +109,10 @@ export class CdkStackLocal extends Stack {
       environment,
       functionName: "FutureGameUpdaterLocal",
       handler: "handler",
+      memorySize: 256,
       retryAttempts: 0,
       runtime: lambda.Runtime.NODEJS_22_X,
-      timeout: Duration.seconds(60),
+      timeout: Duration.minutes(5),
     });
 
     const twiceADayOnTheHalfHoursScheduleRule = new events.Rule(this, "twiceADayOnTheHalfHoursScheduleRule", {
@@ -135,7 +140,7 @@ export class CdkStackLocal extends Stack {
       memorySize: 256,
       retryAttempts: 0,
       runtime: lambda.Runtime.NODEJS_22_X,
-      timeout: Duration.seconds(300),
+      timeout: Duration.minutes(5),
     });
 
     const every5MinutesScheduleRule = new events.Rule(this, "every5MinutesScheduleRule", {
