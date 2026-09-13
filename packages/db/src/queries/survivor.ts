@@ -89,7 +89,19 @@ export const isAliveInSurvivor = async (userId: number): Promise<boolean> => {
     .executeTakeFirst();
 
   if (!myRank) {
-    return false;
+    // The MV only contains the users who have picks for its last-refreshed week, so a
+    // user who hasn't picked the newer week yet is absent rather than dead. Fall back to
+    // their pick history: they are alive unless a pick they made actually lost.
+    const lostPick = await db
+      .selectFrom("SurvivorPicks as SP")
+      .innerJoin("Games as G", "G.GameID", "SP.GameID")
+      .where("SP.UserID", "=", userId)
+      .where("SP.SurvivorPickDeleted", "is", null)
+      .where("G.WinnerTeamID", "is not", null)
+      .where((eb) => eb("SP.TeamID", "!=", eb.ref("G.WinnerTeamID")))
+      .executeTakeFirst();
+
+    return !lostPick;
   }
 
   return myRank.IsAliveOverall === 1;
