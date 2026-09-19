@@ -20,9 +20,30 @@ type ConfirmCallback = {
   title: string;
 };
 
+type LastGame = Awaited<ReturnType<typeof getMyWeeklyPicks>>[number] | undefined;
+
+// fallow-ignore-next-line complexity -- two independent precondition checks extracted from submitPicks; not further reducible
+const getSubmitPicksValidationError = (
+  available: Array<number>,
+  lastGame: LastGame,
+  tiebreakerLastScore: number | null | undefined,
+): string | null => {
+  if (available.length > 0) {
+    return "Missing point value found! Please use all points before submitting";
+  }
+
+  const lastGameHasStarted = lastGame && lastGame.GameKickoff < new Date();
+
+  if ((tiebreakerLastScore ?? 0) < 1 && !lastGameHasStarted) {
+    return "Tiebreaker last score must be greater than zero";
+  }
+
+  return null;
+};
+
 type UsePickActionsArgs = {
   available: Array<number>;
-  lastGame: Awaited<ReturnType<typeof getMyWeeklyPicks>>[number] | undefined;
+  lastGame: LastGame;
   optimisticPicks: Awaited<ReturnType<typeof getMyWeeklyPicks>>;
   selectedWeek: number;
   setOptimisticPicks: (picks: Awaited<ReturnType<typeof getMyWeeklyPicks>>) => void;
@@ -186,7 +207,7 @@ export const usePickActions = ({
       acceptButton: "Reset",
       body: (
         <>
-          <div className="mb-3">Are you sure you want to reset all your picks?</div>
+          <span className="mb-3 block">Are you sure you want to reset all your picks?</span>
           <small>
             Note: Any games that have already started will not be affected. Only games that have not kicked off yet will
             be reset.
@@ -201,22 +222,10 @@ export const usePickActions = ({
   const submitPicks = async (): Promise<void> => {
     setLoading("submit");
 
-    if (available.length > 0) {
-      toast.error("Something went wrong!", {
-        description: "Missing point value found! Please use all points before submitting",
-      });
-      setLoading(null);
-      setCallback(null);
+    const validationError = getSubmitPicksValidationError(available, lastGame, tiebreaker.TiebreakerLastScore);
 
-      return;
-    }
-
-    const lastGameHasStarted = lastGame && lastGame.GameKickoff < new Date();
-
-    if ((tiebreaker.TiebreakerLastScore ?? 0) < 1 && !lastGameHasStarted) {
-      toast.error("Something went wrong!", {
-        description: "Tiebreaker last score must be greater than zero",
-      });
+    if (validationError) {
+      toast.error("Something went wrong!", { description: validationError });
       setLoading(null);
       setCallback(null);
 
@@ -239,7 +248,7 @@ export const usePickActions = ({
       acceptButton: "Submit",
       body: (
         <>
-          <div className="mb-3">Are you sure you are ready to submit?</div>
+          <span className="mb-3 block">Are you sure you are ready to submit?</span>
           <small>
             Note: You will be unable to make any more changes to this week&apos;s picks once submitted and this cannot
             be undone.

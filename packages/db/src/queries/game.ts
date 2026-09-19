@@ -269,6 +269,8 @@ export const getGamesForWeek = async (week: number) => {
       ).as("winnerTeam"),
     ])
     .where("G.GameWeek", "=", week)
+    .orderBy("G.GameKickoff", "asc")
+    .orderBy("G.GameID", "asc")
     .execute();
 };
 
