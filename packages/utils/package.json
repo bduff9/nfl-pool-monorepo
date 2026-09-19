@@ -4,13 +4,13 @@
   "contributors": [],
   "dependencies": {
     "arktype": "2.2.3",
-    "clsx": "2.1.1",
-    "mysql2": "3.24.2",
-    "mysqldump": "3.2.0",
-    "tailwind-merge": "3.6.0"
+    "cn": "0.3.0",
+    "mysql2": "3.24.4",
+    "mysqldump": "3.2.0"
   },
   "description": "Utility functions for the NFL Pool.",
   "devDependencies": {
+    "@chenglou/freerange": "0.0.5",
     "@nfl-pool-monorepo/tsconfig": "workspace:*"
   },
   "engines": {
@@ -33,6 +33,7 @@
   "private": true,
   "repository": "",
   "scripts": {
+    "freerange": "fr",
     "lint": "biome check ./src --write && npmPkgJsonLint .",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
