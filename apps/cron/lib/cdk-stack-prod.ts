@@ -53,7 +53,7 @@ export class CdkStackProd extends Stack {
       handler: "handler",
       memorySize: 512,
       retryAttempts: 0,
-      runtime: lambda.Runtime.NODEJS_22_X,
+      runtime: lambda.Runtime.NODEJS_24_X,
       timeout: Duration.minutes(5),
     });
 
@@ -86,7 +86,7 @@ export class CdkStackProd extends Stack {
       handler: "handler",
       memorySize: 2048,
       retryAttempts: 0,
-      runtime: lambda.Runtime.NODEJS_22_X,
+      runtime: lambda.Runtime.NODEJS_24_X,
       timeout: Duration.seconds(300),
     });
 
@@ -116,7 +116,7 @@ export class CdkStackProd extends Stack {
       handler: "handler",
       memorySize: 256,
       retryAttempts: 0,
-      runtime: lambda.Runtime.NODEJS_22_X,
+      runtime: lambda.Runtime.NODEJS_24_X,
       timeout: Duration.minutes(5),
     });
 
@@ -143,7 +143,7 @@ export class CdkStackProd extends Stack {
       handler: "handler",
       memorySize: 512,
       retryAttempts: 0,
-      runtime: lambda.Runtime.NODEJS_22_X,
+      runtime: lambda.Runtime.NODEJS_24_X,
       timeout: Duration.minutes(5),
     });
 
@@ -171,7 +171,7 @@ export class CdkStackProd extends Stack {
       handler: "handler",
       memorySize: 256,
       retryAttempts: 0,
-      runtime: lambda.Runtime.NODEJS_22_X,
+      runtime: lambda.Runtime.NODEJS_24_X,
       timeout: Duration.seconds(300),
     });
 

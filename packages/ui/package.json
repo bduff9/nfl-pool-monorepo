@@ -47,7 +47,7 @@
     "tailwindcss": "4.3.3"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=24"
   },
   "exports": {
     "./components/*": "./src/*.tsx",

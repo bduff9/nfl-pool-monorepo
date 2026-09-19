@@ -50,7 +50,7 @@
     "@nfl-pool-monorepo/tsconfig": "workspace:*",
     "@playwright/test": "1.63.0",
     "@tailwindcss/postcss": "4.3.3",
-    "@types/node": "26.6.2",
+    "@types/node": "26.6.1",
     "@types/quill": "2.0.14",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
@@ -70,7 +70,7 @@
     "vite-tsconfig-paths": "6.1.1"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=24"
   },
   "homepage": "",
   "keywords": [],

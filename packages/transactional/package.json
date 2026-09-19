@@ -21,14 +21,14 @@
   "devDependencies": {
     "@chenglou/freerange": "0.0.5",
     "@nfl-pool-monorepo/tsconfig": "workspace:*",
-    "@types/node": "26.6.2",
+    "@types/node": "26.6.1",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@types/web-push": "3.6.4",
     "typescript": "7.0.2"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=24"
   },
   "homepage": "",
   "keywords": [],

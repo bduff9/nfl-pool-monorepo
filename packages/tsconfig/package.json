@@ -6,7 +6,7 @@
   "description": "Shared TypeScript configurations for the NFL Pool.",
   "devDependencies": {},
   "engines": {
-    "node": ">=22"
+    "node": ">=24"
   },
   "homepage": "",
   "keywords": [],

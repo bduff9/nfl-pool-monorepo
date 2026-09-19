@@ -12,10 +12,10 @@
   "devDependencies": {
     "@chenglou/freerange": "0.0.5",
     "@nfl-pool-monorepo/tsconfig": "workspace:*",
-    "@types/node": "26.6.2"
+    "@types/node": "26.6.1"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=24"
   },
   "homepage": "",
   "keywords": [],

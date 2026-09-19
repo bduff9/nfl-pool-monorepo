@@ -14,7 +14,7 @@
     "@nfl-pool-monorepo/tsconfig": "workspace:*"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=24"
   },
   "exports": {
     ".": "./src",

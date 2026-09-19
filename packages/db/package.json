@@ -22,7 +22,7 @@
     "sync-dotenv": "2.7.0"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=24"
   },
   "homepage": "",
   "keywords": [],

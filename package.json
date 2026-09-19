@@ -3,7 +3,7 @@
   "config": {},
   "contributors": [],
   "dependencies": {
-    "turbo": "2.11.2"
+    "turbo": "2.11.0"
   },
   "description": "NFL Pool Monorepo.",
   "devDependencies": {
@@ -18,7 +18,7 @@
     "vitest": "5.0.1"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=24"
   },
   "homepage": "",
   "keywords": [],

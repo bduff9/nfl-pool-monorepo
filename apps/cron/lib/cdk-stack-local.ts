@@ -47,7 +47,7 @@ export class CdkStackLocal extends Stack {
       handler: "handler",
       memorySize: 256,
       retryAttempts: 0,
-      runtime: lambda.Runtime.NODEJS_22_X,
+      runtime: lambda.Runtime.NODEJS_24_X,
       timeout: Duration.minutes(5),
     });
 
@@ -80,7 +80,7 @@ export class CdkStackLocal extends Stack {
       handler: "handler",
       memorySize: 256,
       retryAttempts: 0,
-      runtime: lambda.Runtime.NODEJS_22_X,
+      runtime: lambda.Runtime.NODEJS_24_X,
       timeout: Duration.seconds(60),
     });
 
@@ -111,7 +111,7 @@ export class CdkStackLocal extends Stack {
       handler: "handler",
       memorySize: 256,
       retryAttempts: 0,
-      runtime: lambda.Runtime.NODEJS_22_X,
+      runtime: lambda.Runtime.NODEJS_24_X,
       timeout: Duration.minutes(5),
     });
 
@@ -139,7 +139,7 @@ export class CdkStackLocal extends Stack {
       handler: "handler",
       memorySize: 256,
       retryAttempts: 0,
-      runtime: lambda.Runtime.NODEJS_22_X,
+      runtime: lambda.Runtime.NODEJS_24_X,
       timeout: Duration.minutes(5),
     });
 
@@ -166,7 +166,7 @@ export class CdkStackLocal extends Stack {
       functionName: "ResetPoolLocal",
       handler: "handler",
       retryAttempts: 0,
-      runtime: lambda.Runtime.NODEJS_22_X,
+      runtime: lambda.Runtime.NODEJS_24_X,
       timeout: Duration.seconds(120),
     });
   }
