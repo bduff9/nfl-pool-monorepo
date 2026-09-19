@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const getCurrentWeek = vi.fn();
 const getSingleWeekFromApi = vi.fn();
-const updateTeamData = vi.fn();
+const updateTeamDataByShortName = vi.fn();
 const updateSpreads = vi.fn();
 const getHoursToWeekStart = vi.fn();
 const sendReminderEmails = vi.fn();
@@ -11,7 +11,7 @@ const sendReminderPushNotifications = vi.fn();
 
 vi.mock("@nfl-pool-monorepo/db/src/queries/week", () => ({ getCurrentWeek }));
 vi.mock("@nfl-pool-monorepo/api/src", () => ({ getSingleWeekFromApi }));
-vi.mock("@nfl-pool-monorepo/api/src/utils", () => ({ updateTeamData }));
+vi.mock("@nfl-pool-monorepo/api/src/utils", () => ({ updateTeamDataByShortName }));
 vi.mock("@nfl-pool-monorepo/db/src/mutations/game", () => ({ updateSpreads }));
 vi.mock("@nfl-pool-monorepo/db/src/queries/game", () => ({ getHoursToWeekStart }));
 vi.mock("@nfl-pool-monorepo/transactional/src/reminders", () => ({
@@ -30,7 +30,7 @@ const makeGame = () => ({
 const resetAllMocks = () => {
   getCurrentWeek.mockReset().mockResolvedValue(5);
   getSingleWeekFromApi.mockReset().mockResolvedValue([makeGame()]);
-  updateTeamData.mockReset().mockResolvedValue(undefined);
+  updateTeamDataByShortName.mockReset().mockResolvedValue(undefined);
   updateSpreads.mockReset().mockResolvedValue(undefined);
   getHoursToWeekStart.mockReset().mockResolvedValue(0);
   sendReminderEmails.mockReset().mockResolvedValue(undefined);
@@ -47,7 +47,7 @@ describe("currentWeekUpdater handler", () => {
     await handler(null as never, null as never, null as never);
 
     expect(updateSpreads).toHaveBeenCalledWith(5, expect.anything());
-    expect(updateTeamData).toHaveBeenCalledTimes(2);
+    expect(updateTeamDataByShortName).toHaveBeenCalledTimes(2);
   });
 
   it("doesn't send reminders when the week hasn't started yet in less than the reminder window", async () => {

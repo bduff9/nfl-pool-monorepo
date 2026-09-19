@@ -37,6 +37,29 @@ const coercePositiveInt = type("string | number").pipe(
   type("number.integer >= 1"),
 );
 
+type PaymentAccountValidationTarget = {
+  UserPaymentAccount: string;
+  UserPaymentType: (typeof PaymentMethod)[number];
+};
+
+const getPaymentAccountValidationError = (
+  data: PaymentAccountValidationTarget,
+): { expected: string; path: ["UserPaymentAccount"] } | null => {
+  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.UserPaymentAccount);
+  const isPhone = isValidPhoneNumber(data.UserPaymentAccount, "US");
+  const isUsername = /^[\w-]{3,20}$/.test(data.UserPaymentAccount);
+
+  if (data.UserPaymentType === "Zelle") {
+    return isEmail || isPhone
+      ? null
+      : { expected: "account phone number or email address", path: ["UserPaymentAccount"] };
+  }
+
+  return isEmail || isPhone || isUsername
+    ? null
+    : { expected: "account username, phone number or email address", path: ["UserPaymentAccount"] };
+};
+
 export const editProfileSchema = type({
   notifications: type({
     NotificationEmail: "number.integer",
@@ -66,24 +89,9 @@ export const editProfileSchema = type({
     .narrow((s, ctx) => s === "" || isValidPhoneNumber(s) || ctx.reject("Please enter a valid phone number")),
   UserTeamName: type("string").pipe((s) => s.trim()),
 }).narrow((data, ctx) => {
-  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.UserPaymentAccount);
-  const isPhone = isValidPhoneNumber(data.UserPaymentAccount, "US");
-  const isUsername = /^[\w-]{3,20}$/.test(data.UserPaymentAccount);
+  const error = getPaymentAccountValidationError(data);
 
-  if (data.UserPaymentType === "Zelle") {
-    if (!(isEmail || isPhone)) {
-      return ctx.reject({
-        expected: "account phone number or email address",
-        path: ["UserPaymentAccount"],
-      });
-    }
-  } else if (!(isEmail || isPhone || isUsername)) {
-    return ctx.reject({
-      expected: "account username, phone number or email address",
-      path: ["UserPaymentAccount"],
-    });
-  }
-  return true;
+  return error ? ctx.reject(error) : true;
 });
 
 export const emailPreviewSchema = type({
@@ -117,24 +125,9 @@ export const finishRegistrationSchema = type({
     ),
   UserTeamName: type("string").pipe((s) => s.trim()),
 }).narrow((data, ctx) => {
-  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.UserPaymentAccount);
-  const isPhone = isValidPhoneNumber(data.UserPaymentAccount, "US");
-  const isUsername = /^[\w-]{3,20}$/.test(data.UserPaymentAccount);
+  const error = getPaymentAccountValidationError(data);
 
-  if (data.UserPaymentType === "Zelle") {
-    if (!(isEmail || isPhone)) {
-      return ctx.reject({
-        expected: "account phone number or email address",
-        path: ["UserPaymentAccount"],
-      });
-    }
-  } else if (!(isEmail || isPhone || isUsername)) {
-    return ctx.reject({
-      expected: "account username, phone number or email address",
-      path: ["UserPaymentAccount"],
-    });
-  }
-  return true;
+  return error ? ctx.reject(error) : true;
 });
 
 export const loginSchema = type({

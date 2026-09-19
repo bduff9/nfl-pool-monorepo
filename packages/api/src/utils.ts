@@ -75,7 +75,7 @@ export const parseTeamsFromApi = (teams: Array<ApiTeam>): [ApiTeam, ApiTeam] => 
   return [home, visitor];
 };
 
-export const updateTeamData = async (
+export const updateTeamDataByShortName = async (
   teamShortName: string,
   team: ApiTeam,
   week: number,

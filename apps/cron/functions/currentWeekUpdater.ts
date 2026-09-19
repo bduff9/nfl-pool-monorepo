@@ -1,5 +1,5 @@
 import { getSingleWeekFromApi } from "@nfl-pool-monorepo/api/src/index";
-import { updateTeamData } from "@nfl-pool-monorepo/api/src/utils";
+import { updateTeamDataByShortName } from "@nfl-pool-monorepo/api/src/utils";
 import { updateSpreads } from "@nfl-pool-monorepo/db/src/mutations/game";
 import { getHoursToWeekStart } from "@nfl-pool-monorepo/db/src/queries/game";
 import { getCurrentWeek } from "@nfl-pool-monorepo/db/src/queries/week";
@@ -20,7 +20,7 @@ export const handler: Handler<never, void> = async (_event, _context) => {
 
       for (const team of game.team) {
         // react-doctor-disable-next-line async-await-in-loop -- team updates for this game are sequential DB writes, not independent work
-        await updateTeamData(team.id, team, currentWeek);
+        await updateTeamDataByShortName(team.id, team, currentWeek);
       }
     } catch (error) {
       console.error("Failed to update spread/team data for game, continuing with remaining games", { error, game });

@@ -137,16 +137,9 @@ export const rankUsersOverall = (users: OverallRankInput[]): Map<number, number>
   return ranks;
 };
 
-// --- Scenario enumerator (base-3 counter) ---
+// --- Shared scenario-enumerator helpers (identical setup/aggregation for both the weekly and overall simulators) ---
 
-export const computeBestPlacements = (
-  eligibleUsers: EligibleUser[],
-  undecidedGames: UndecidedGame[],
-  tieTeamID: number,
-  lastGameKickoff: Date | null,
-): Map<number, UserBestResult> => {
-  const K = undecidedGames.length;
-  const scenarioCount = 3 ** K;
+const createInitialResults = (eligibleUsers: EligibleUser[]): Map<number, UserBestResult> => {
   const results = new Map<number, UserBestResult>();
 
   for (const user of eligibleUsers) {
@@ -158,8 +151,10 @@ export const computeBestPlacements = (
     });
   }
 
-  if (eligibleUsers.length === 0) return results;
+  return results;
+};
 
+const buildPicksByGameID = (eligibleUsers: EligibleUser[]): Map<number, Map<number, UserPick>> => {
   const picksByGameID = new Map<number, Map<number, UserPick>>();
 
   for (const user of eligibleUsers) {
@@ -174,6 +169,42 @@ export const computeBestPlacements = (
       gamePicks.set(user.userID, pick);
     }
   }
+
+  return picksByGameID;
+};
+
+const applyRankResults = (results: Map<number, UserBestResult>, ranks: Map<number, number>): void => {
+  for (const [userID, rank] of ranks) {
+    const result = results.get(userID);
+
+    if (!result) continue;
+
+    if (rank < result.bestRank) {
+      result.bestRank = rank;
+    }
+
+    if (rank <= 1) result.canAchieveFirst = true;
+    if (rank <= 2) result.canAchieveSecond = true;
+    if (rank <= 3) result.canAchieveThird = true;
+  }
+};
+
+// --- Scenario enumerator (base-3 counter) ---
+
+// fallow-ignore-next-line complexity -- exhaustive 3^K scenario simulation with tiebreaker tracking; shared setup/aggregation already extracted, remaining branching is the algorithm itself
+export const computeBestPlacements = (
+  eligibleUsers: EligibleUser[],
+  undecidedGames: UndecidedGame[],
+  tieTeamID: number,
+  lastGameKickoff: Date | null,
+): Map<number, UserBestResult> => {
+  const K = undecidedGames.length;
+  const scenarioCount = 3 ** K;
+  const results = createInitialResults(eligibleUsers);
+
+  if (eligibleUsers.length === 0) return results;
+
+  const picksByGameID = buildPicksByGameID(eligibleUsers);
 
   const lastGameID =
     lastGameKickoff !== null
@@ -232,19 +263,7 @@ export const computeBestPlacements = (
 
     const ranks = rankUsersWeekly(weeklyInputs);
 
-    for (const [userID, rank] of ranks) {
-      const result = results.get(userID);
-
-      if (!result) continue;
-
-      if (rank < result.bestRank) {
-        result.bestRank = rank;
-      }
-
-      if (rank <= 1) result.canAchieveFirst = true;
-      if (rank <= 2) result.canAchieveSecond = true;
-      if (rank <= 3) result.canAchieveThird = true;
-    }
+    applyRankResults(results, ranks);
   }
 
   return results;
@@ -603,6 +622,7 @@ export const updateBestPlacementOverall = async (week: number): Promise<void> =>
   );
 };
 
+// fallow-ignore-next-line complexity -- exhaustive 3^K scenario simulation; shared setup/aggregation already extracted, remaining branching is the algorithm itself
 export const computeBestPlacementsOverall = (
   eligibleUsers: EligibleUser[],
   undecidedGames: UndecidedGame[],
@@ -610,33 +630,11 @@ export const computeBestPlacementsOverall = (
 ): Map<number, UserBestResult> => {
   const K = undecidedGames.length;
   const scenarioCount = 3 ** K;
-  const results = new Map<number, UserBestResult>();
-
-  for (const user of eligibleUsers) {
-    results.set(user.userID, {
-      bestRank: Number.MAX_SAFE_INTEGER,
-      canAchieveFirst: false,
-      canAchieveSecond: false,
-      canAchieveThird: false,
-    });
-  }
+  const results = createInitialResults(eligibleUsers);
 
   if (eligibleUsers.length === 0) return results;
 
-  const picksByGameID = new Map<number, Map<number, UserPick>>();
-
-  for (const user of eligibleUsers) {
-    for (const pick of user.picks) {
-      let gamePicks = picksByGameID.get(pick.gameID);
-
-      if (!gamePicks) {
-        gamePicks = new Map();
-        picksByGameID.set(pick.gameID, gamePicks);
-      }
-
-      gamePicks.set(user.userID, pick);
-    }
-  }
+  const picksByGameID = buildPicksByGameID(eligibleUsers);
 
   for (let scenario = 0; scenario < scenarioCount; scenario++) {
     const outcomes = decodeScenario(scenario, K);
@@ -666,19 +664,7 @@ export const computeBestPlacementsOverall = (
 
     const ranks = rankUsersOverall(overallInputs);
 
-    for (const [userID, rank] of ranks) {
-      const result = results.get(userID);
-
-      if (!result) continue;
-
-      if (rank < result.bestRank) {
-        result.bestRank = rank;
-      }
-
-      if (rank <= 1) result.canAchieveFirst = true;
-      if (rank <= 2) result.canAchieveSecond = true;
-      if (rank <= 3) result.canAchieveThird = true;
-    }
+    applyRankResults(results, ranks);
   }
 
   return results;

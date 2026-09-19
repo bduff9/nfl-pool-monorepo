@@ -40,6 +40,9 @@ type CalculatedRowProps = {
   label: string;
 } & ({ count: number; mode: "count"; money: null | number } | { mode: "total"; total: null | number });
 
+type CalculatedRowConfig = CalculatedRowProps & { id: string };
+
+// fallow-ignore-next-line complexity -- count-vs-total display variants driven by a discriminated union prop, not reducible further
 const CalculatedRow: FC<CalculatedRowProps> = (props) => {
   const { label, isBold = false, isIndented = false } = props;
   const isCountMode = props.mode === "count";
@@ -84,6 +87,7 @@ type Props = {
   weeklyPrizes: [number, number, number];
 };
 
+// fallow-ignore-next-line complexity -- was 12 duplicated JSX rows, now one data-driven .map(); same pre-existing "?? null" fallbacks, just consolidated
 const ManageAdminPayments: FC<Props> = ({
   overallPrizes,
   poolCost,
@@ -106,34 +110,15 @@ const ManageAdminPayments: FC<Props> = ({
     resolver: toArktypeResolver(arktypeResolver(payoutsSchema)),
   });
 
-  const overall1stPrize = useWatch({
-    control: form.control,
-    name: "overall1stPrize",
-  });
-  const overall2ndPrize = useWatch({
-    control: form.control,
-    name: "overall2ndPrize",
-  });
-  const overall3rdPrize = useWatch({
-    control: form.control,
-    name: "overall3rdPrize",
-  });
-  const weekly1stPrize = useWatch({
-    control: form.control,
-    name: "weekly1stPrize",
-  });
-  const weekly2ndPrize = useWatch({
-    control: form.control,
-    name: "weekly2ndPrize",
-  });
-  const survivor1stPrize = useWatch({
-    control: form.control,
-    name: "survivor1stPrize",
-  });
-  const survivor2ndPrize = useWatch({
-    control: form.control,
-    name: "survivor2ndPrize",
-  });
+  const {
+    overall1stPrize,
+    overall2ndPrize,
+    overall3rdPrize,
+    survivor1stPrize,
+    survivor2ndPrize,
+    weekly1stPrize,
+    weekly2ndPrize,
+  } = useWatch({ control: form.control });
 
   const poolRemaining =
     poolCost * registeredCount -
@@ -147,6 +132,54 @@ const ManageAdminPayments: FC<Props> = ({
     (survivorCost ?? 0) * (survivorCount ?? 0) - (survivor1stPrize ?? 0) - (survivor2ndPrize ?? 0);
   const hasBeenSaved = weeklyPrizes.reduce((acc, prize) => acc + prize) > 0;
   const toastIdRef = useRef<string | number | undefined>(undefined);
+
+  const rows: Array<CalculatedRowConfig> = [
+    { count: registeredCount, id: "pool-total", label: "Pool Total", mode: "count", money: poolCost },
+    {
+      count: WEEKS_IN_SEASON,
+      id: "weekly-1st",
+      isIndented: true,
+      label: "Weekly 1st place",
+      mode: "count",
+      money: weekly1stPrize ?? null,
+    },
+    {
+      count: WEEKS_IN_SEASON,
+      id: "weekly-2nd",
+      isIndented: true,
+      label: "Weekly 2nd place",
+      mode: "count",
+      money: weekly2ndPrize ?? null,
+    },
+    { id: "overall-1st", isIndented: true, label: "Overall 1st place", mode: "total", total: overall1stPrize ?? null },
+    { id: "overall-2nd", isIndented: true, label: "Overall 2nd place", mode: "total", total: overall2ndPrize ?? null },
+    { id: "overall-3rd", isIndented: true, label: "Overall 3rd place", mode: "total", total: overall3rdPrize ?? null },
+    { id: "overall-last", isIndented: true, label: "Overall last place", mode: "total", total: poolCost },
+    { id: "pool-leftover", isBold: true, isIndented: true, label: "Leftover", mode: "total", total: poolRemaining },
+    { count: survivorCount, id: "survivor-total", label: "Survivor Total", mode: "count", money: survivorCost },
+    {
+      id: "survivor-1st",
+      isIndented: true,
+      label: "Survivor 1st place",
+      mode: "total",
+      total: survivor1stPrize ?? null,
+    },
+    {
+      id: "survivor-2nd",
+      isIndented: true,
+      label: "Survivor 2nd place",
+      mode: "total",
+      total: survivor2ndPrize ?? null,
+    },
+    {
+      id: "survivor-leftover",
+      isBold: true,
+      isIndented: true,
+      label: "Leftover",
+      mode: "total",
+      total: survivorRemaining,
+    },
+  ];
 
   const { execute, isPending } = useAction(updatePayouts, {
     onError: onActionError,
@@ -186,30 +219,9 @@ const ManageAdminPayments: FC<Props> = ({
           <div className="w-full md:w-1/3">
             <Table className="align-middle text-nowrap">
               <TableBody>
-                <CalculatedRow count={registeredCount} label="Pool Total" mode="count" money={poolCost} />
-                <CalculatedRow
-                  count={WEEKS_IN_SEASON}
-                  isIndented
-                  label="Weekly 1st place"
-                  mode="count"
-                  money={weekly1stPrize ?? null}
-                />
-                <CalculatedRow
-                  count={WEEKS_IN_SEASON}
-                  isIndented
-                  label="Weekly 2nd place"
-                  mode="count"
-                  money={weekly2ndPrize ?? null}
-                />
-                <CalculatedRow isIndented label="Overall 1st place" mode="total" total={overall1stPrize ?? null} />
-                <CalculatedRow isIndented label="Overall 2nd place" mode="total" total={overall2ndPrize ?? null} />
-                <CalculatedRow isIndented label="Overall 3rd place" mode="total" total={overall3rdPrize ?? null} />
-                <CalculatedRow isIndented label="Overall last place" mode="total" total={poolCost} />
-                <CalculatedRow isBold isIndented label="Leftover" mode="total" total={poolRemaining} />
-                <CalculatedRow count={survivorCount} label="Survivor Total" mode="count" money={survivorCost} />
-                <CalculatedRow isIndented label="Survivor 1st place" mode="total" total={survivor1stPrize ?? null} />
-                <CalculatedRow isIndented label="Survivor 2nd place" mode="total" total={survivor2ndPrize ?? null} />
-                <CalculatedRow isBold isIndented label="Leftover" mode="total" total={survivorRemaining} />
+                {rows.map(({ id, ...row }) => (
+                  <CalculatedRow key={id} {...row} />
+                ))}
               </TableBody>
             </Table>
           </div>

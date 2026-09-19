@@ -2,7 +2,7 @@ import {
   getDbGameFromApi,
   getGameStatusFromAPI,
   parseTeamsFromApi,
-  updateTeamData,
+  updateTeamDataByShortName,
 } from "@nfl-pool-monorepo/api/src/utils";
 import type { ApiMatchup, NFLWeekArray } from "@nfl-pool-monorepo/api/src/validation";
 import { ADMIN_USER } from "@nfl-pool-monorepo/utils/constants";
@@ -67,11 +67,11 @@ export const populateGames = async (trx: Transaction<DB>, newSeason: NFLWeekArra
 
       // Update home team data
       // react-doctor-disable-next-line async-await-in-loop -- shares the same trx connection as above
-      await updateTeamData(hTeamData.id, hTeamData, week, trx);
+      await updateTeamDataByShortName(hTeamData.id, hTeamData, week, trx);
 
       // Update visiting team data
       // react-doctor-disable-next-line async-await-in-loop -- shares the same trx connection as above
-      await updateTeamData(vTeamData.id, vTeamData, week, trx);
+      await updateTeamDataByShortName(vTeamData.id, vTeamData, week, trx);
     }
   }
 };
