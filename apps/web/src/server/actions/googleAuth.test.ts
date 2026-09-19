@@ -8,11 +8,10 @@ const createAuthorizationURL = vi.fn();
 vi.mock("next/headers", () => ({
   cookies: async () => ({ set: cookiesSet }),
 }));
-vi.mock("arctic", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("arctic")>();
-
-  return { ...actual, generateCodeVerifier, generateState };
-});
+vi.mock("@/lib/googleOAuth", () => ({
+  generateGoogleCodeVerifier: generateCodeVerifier,
+  generateGoogleOAuthState: generateState,
+}));
 vi.mock("@/lib/auth", () => ({
   google: { createAuthorizationURL },
 }));

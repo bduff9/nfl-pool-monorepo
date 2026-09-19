@@ -1,14 +1,14 @@
 "use server";
 
-import { generateCodeVerifier, generateState } from "arctic";
 import { cookies } from "next/headers";
 import "server-only";
 
 import { google } from "@/lib/auth";
+import { generateGoogleCodeVerifier, generateGoogleOAuthState } from "@/lib/googleOAuth";
 
 export const getGoogleAuthorizationUrl = async (): Promise<string> => {
-  const state = generateState();
-  const codeVerifier = generateCodeVerifier();
+  const state = generateGoogleOAuthState();
+  const codeVerifier = generateGoogleCodeVerifier();
   const url = google.createAuthorizationURL(state, codeVerifier, ["openid", "profile", "email"]);
   const cookieStore = await cookies();
 
