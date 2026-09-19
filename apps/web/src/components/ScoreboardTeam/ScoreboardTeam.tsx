@@ -27,13 +27,22 @@ type ScoreboardTeamProps = {
   hasPossession: boolean;
   isInRedzone: boolean;
   isWinner: boolean;
+  priority?: boolean;
   score: number;
   team:
     | Awaited<ReturnType<typeof getGamesForWeekCached>>[number]["homeTeam"]
     | Awaited<ReturnType<typeof getGamesForWeekCached>>[number]["visitorTeam"];
 };
 
-const ScoreboardTeam: FC<ScoreboardTeamProps> = ({ gameStatus, hasPossession, isInRedzone, isWinner, score, team }) => {
+const ScoreboardTeam: FC<ScoreboardTeamProps> = ({
+  gameStatus,
+  hasPossession,
+  isInRedzone,
+  isWinner,
+  priority = false,
+  score,
+  team,
+}) => {
   const isLoser = !isWinner && gameStatus === "Final";
 
   if (!team) return null;
@@ -41,7 +50,7 @@ const ScoreboardTeam: FC<ScoreboardTeamProps> = ({ gameStatus, hasPossession, is
   return (
     <>
       <div>
-        <TeamLogo className={cn("h-auto m-w-full", isLoser && "grayscale")} team={team} />
+        <TeamLogo className={cn("h-auto m-w-full", isLoser && "grayscale")} priority={priority} team={team} />
       </div>
       <div
         className={cn(
