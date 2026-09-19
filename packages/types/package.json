@@ -5,6 +5,7 @@
   "dependencies": {},
   "description": "Shared TypeScript types for the NFL Pool.",
   "devDependencies": {
+    "@chenglou/freerange": "0.0.5",
     "@nfl-pool-monorepo/tsconfig": "workspace:*"
   },
   "engines": {
@@ -21,6 +22,7 @@
   "private": true,
   "repository": "",
   "scripts": {
+    "freerange": "fr",
     "lint": "biome lint ./src && npmPkgJsonLint .",
     "typecheck": "tsc --noEmit"
   },

@@ -1,0 +1,4 @@
+{
+  "entry": ["packages/transactional/emails/templates/*.tsx", "apps/web/public/sw.js"],
+  "ignoreDependencies": ["shadcn", "react-doctor", "jiti", "nypm", "postcss-load-config"]
+}

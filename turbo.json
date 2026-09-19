@@ -51,6 +51,9 @@
     "format:fix": {
       "dependsOn": ["^topo"]
     },
+    "freerange": {
+      "cache": true
+    },
     "knip": {
       "cache": true
     },

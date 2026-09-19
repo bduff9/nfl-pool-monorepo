@@ -1,0 +1,86 @@
+{
+  "analysis_identity": {
+    "mode": "syntactic",
+    "semantic_schema_version": 1,
+    "capabilities": [],
+    "project_config_hash": "",
+    "backend_family": "",
+    "completeness": "complete"
+  },
+  "unused_files": [
+    "apps/web/public/sw.js"
+  ],
+  "unused_exports": [
+    "packages/transactional/emails/templates/CustomEmail.tsx:default",
+    "packages/transactional/emails/templates/InterestEmail.tsx:default",
+    "packages/transactional/emails/templates/InvalidGamesEmail.tsx:default",
+    "packages/transactional/emails/templates/LockedOutEmail.tsx:default",
+    "packages/transactional/emails/templates/NewUserEmail.tsx:default",
+    "packages/transactional/emails/templates/PasswordResetEmail.tsx:default",
+    "packages/transactional/emails/templates/PickReminder.tsx:default",
+    "packages/transactional/emails/templates/PicksSubmitted.tsx:default",
+    "packages/transactional/emails/templates/PrizesSetEmail.tsx:default",
+    "packages/transactional/emails/templates/QuickPickConfirmationEmail.tsx:default",
+    "packages/transactional/emails/templates/QuickPickEmail.tsx:default",
+    "packages/transactional/emails/templates/SurvivorReminder.tsx:default",
+    "packages/transactional/emails/templates/TrustedEmail.tsx:default",
+    "packages/transactional/emails/templates/UntrustedEmail.tsx:default",
+    "packages/transactional/emails/templates/WeekEndedEmail.tsx:default",
+    "packages/transactional/emails/templates/WeekStartedEmail.tsx:default",
+    "packages/transactional/emails/templates/WeeklyEmail.tsx:default"
+  ],
+  "unused_types": [],
+  "private_type_leaks": [],
+  "unused_dependencies": [
+    "packages/ui/package.json:shadcn"
+  ],
+  "unused_dev_dependencies": [
+    "package.json:react-doctor",
+    "packages/db/package.json:jiti",
+    "packages/db/package.json:nypm"
+  ],
+  "circular_dependencies": [
+    "apps/web/src/lib/auth.ts->apps/web/src/server/loaders/sessions.ts"
+  ],
+  "re_export_cycles": [],
+  "unused_optional_dependencies": [],
+  "unused_enum_members": [],
+  "unused_class_members": [],
+  "unused_store_members": [],
+  "unprovided_injects": [],
+  "unrendered_components": [],
+  "unused_component_props": [],
+  "unused_component_emits": [],
+  "unused_component_inputs": [],
+  "unused_component_outputs": [],
+  "unused_svelte_events": [],
+  "unused_server_actions": [],
+  "unused_load_data_keys": [],
+  "unresolved_imports": [],
+  "unlisted_dependencies": [
+    "nuqs",
+    "postcss-load-config",
+    "vite-tsconfig-paths"
+  ],
+  "duplicate_exports": [
+    "updateTeamData|packages/api/src/utils.ts|packages/db/src/mutations/team.ts"
+  ],
+  "type_only_dependencies": [],
+  "test_only_dependencies": [],
+  "dev_dependencies_in_production": [],
+  "boundary_violations": [],
+  "boundary_coverage_violations": [],
+  "boundary_call_violations": [],
+  "policy_violations": [],
+  "stale_suppressions": [],
+  "unused_catalog_entries": [],
+  "empty_catalog_groups": [],
+  "unresolved_catalog_references": [],
+  "unused_dependency_overrides": [],
+  "misconfigured_dependency_overrides": [],
+  "invalid_client_exports": [],
+  "mixed_client_server_barrels": [],
+  "misplaced_directives": [],
+  "route_collisions": [],
+  "dynamic_segment_name_conflicts": []
+}

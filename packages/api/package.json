@@ -6,12 +6,13 @@
     "@nfl-pool-monorepo/db": "workspace:*",
     "@nfl-pool-monorepo/utils": "workspace:*",
     "arktype": "2.2.3",
-    "kysely": "0.29.5"
+    "kysely": "0.29.6"
   },
   "description": "API package for the NFL Pool.",
   "devDependencies": {
+    "@chenglou/freerange": "0.0.5",
     "@nfl-pool-monorepo/tsconfig": "workspace:*",
-    "@types/node": "26.4.0"
+    "@types/node": "26.6.2"
   },
   "engines": {
     "node": ">=22"
@@ -24,6 +25,7 @@
   "private": true,
   "repository": "",
   "scripts": {
+    "freerange": "fr",
     "lint": "biome check ./src --write && npmPkgJsonLint .",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"

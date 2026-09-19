@@ -3,19 +3,19 @@
   "config": {},
   "contributors": [],
   "dependencies": {
-    "turbo": "2.10.12"
+    "turbo": "2.11.2"
   },
   "description": "NFL Pool Monorepo.",
   "devDependencies": {
-    "@biomejs/biome": "2.5.11",
+    "@biomejs/biome": "2.5.14",
+    "fallow": "3.27.0",
     "husky": "9.1.7",
-    "npm-package-json-lint": "10.4.1",
+    "npm-package-json-lint": "11.0.0",
     "nuqs": "2.10.1",
-    "react-doctor": "^0.9.12",
+    "react-doctor": "^0.9.14",
     "typescript": "7.0.2",
     "typesync": "0.14.3",
-    "vite-tsconfig-paths": "6.1.1",
-    "vitest": "4.1.11"
+    "vitest": "5.0.1"
   },
   "engines": {
     "node": ">=22"
@@ -25,7 +25,7 @@
   "license": "MIT",
   "main": "index.js",
   "name": "nfl-pool-monorepo",
-  "packageManager": "pnpm@11.2.2",
+  "packageManager": "pnpm@12.4.2+sha512.08adc6613180275c7c9edada39dcf08c9c61ad4e7eaf330a4f3461f102b0f907423454d117f98e72d47fef0616070644d7bffc973a6a57f5090a6d7c368b07c9",
   "private": true,
   "repository": "",
   "scripts": {
@@ -34,14 +34,16 @@
     "clean": "turbo clean",
     "dev": "turbo dev",
     "env": "turbo env",
+    "fallow": "fallow audit --dead-code-baseline .fallow-dead-code-baseline.json",
     "format": "turbo format --continue --",
     "format:fix": "turbo format --continue -- --write",
+    "freerange": "turbo freerange --continue",
     "knip": "turbo knip",
     "lint": "turbo lint --continue --",
     "lint:fix": "turbo lint --continue -- --apply",
     "lint:package": "npmPkgJsonLint .",
     "prepare": "husky",
-    "prepush": "turbo knip lint typecheck test --log-order stream --parallel",
+    "prepush": "turbo knip lint typecheck test freerange --log-order stream --parallel && fallow audit --dead-code-baseline .fallow-dead-code-baseline.json",
     "setup": "typesync && pnpm install",
     "test": "turbo test --continue",
     "typecheck": "turbo typecheck --continue",
