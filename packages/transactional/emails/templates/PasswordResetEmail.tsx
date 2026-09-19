@@ -1,13 +1,13 @@
-import { Button, Column, Container, Head, Html, Preview, Row, Section, Text } from "@react-email/components";
 import { render } from "@react-email/render";
 // biome-ignore lint/style/useImportType: This is needed for react-email
 import * as React from "react";
+import { Button, Container, Html, Preview, Section, Text } from "react-email";
 
 import { env } from "../../src/env";
 import type { Email } from "../../src/types";
 import BodyWrapper from "./_components/BodyWrapper";
+import EmailBodySection from "./_components/EmailBodySection";
 import Footer from "./_components/Footer";
-import Header from "./_components/Header";
 
 type Props = {
   children?: React.ReactNode;
@@ -21,52 +21,43 @@ const PasswordResetEmail: Email<Props> = ({ browserLink, otp, userFirstName, uns
 
   return (
     <Html>
-      <Head>
-        <title>{getSubject()}</title>
-      </Head>
-      <BodyWrapper>
+      <BodyWrapper title={getSubject()}>
         <Preview>{preview}</Preview>
-        <Container>
-          <Header browserLink={browserLink} />
+        <Container className="max-w-[600px] md:max-w-[800px]">
+          <EmailBodySection browserLink={browserLink}>
+            <Text className="text-lg">
+              Hello {userFirstName || "there"},
+              <br />
+              <br />
+              You requested to reset your password for the NFL Confidence Pool. Please use the verification code below
+              to complete your password reset:
+            </Text>
 
-          <Section>
-            <Row>
-              <Column className="bg-white pt-8 px-6 pb-4 rounded-b-xl">
-                <Text className="text-lg">
-                  Hello {userFirstName || "there"},
-                  <br />
-                  <br />
-                  You requested to reset your password for the NFL Confidence Pool. Please use the verification code
-                  below to complete your password reset:
-                </Text>
+            <Section className="bg-gray-100 rounded-lg py-6 px-4 my-6 text-center">
+              <Text className="text-3xl font-bold tracking-wider text-gray-900 mb-0">{otp}</Text>
+              <Text className="text-sm text-gray-600 mt-2 mb-0">This code will expire in 15 minutes</Text>
+            </Section>
 
-                <Section className="bg-gray-100 rounded-lg py-6 px-4 my-6 text-center">
-                  <Text className="text-3xl font-bold tracking-wider text-gray-900 mb-0">{otp}</Text>
-                  <Text className="text-sm text-gray-600 mt-2 mb-0">This code will expire in 15 minutes</Text>
-                </Section>
+            <Text className="text-lg">
+              Enter this code on the password reset page to set your new password.
+              <br />
+              <br />
+              If you didn't request a password reset, you can safely ignore this email. Your password will remain
+              unchanged.
+              <br />
+              <br />
+              Thanks!
+              <br />
+              Brian and Billy
+            </Text>
 
-                <Text className="text-lg">
-                  Enter this code on the password reset page to set your new password.
-                  <br />
-                  <br />
-                  If you didn't request a password reset, you can safely ignore this email. Your password will remain
-                  unchanged.
-                  <br />
-                  <br />
-                  Thanks!
-                  <br />
-                  Brian and Billy
-                </Text>
-
-                <Button
-                  className="bg-blue-600 text-white py-3 px-6 rounded-lg text-center block mx-auto mt-6"
-                  href={`${domain}/auth/forgot-password`}
-                >
-                  Reset Password
-                </Button>
-              </Column>
-            </Row>
-          </Section>
+            <Button
+              className="bg-blue-600 text-white py-3 px-6 rounded-lg text-center block mx-auto mt-6"
+              href={`${domain}/auth/forgot-password`}
+            >
+              Reset Password
+            </Button>
+          </EmailBodySection>
 
           <Footer unsubscribeLink={unsubscribeLink} />
         </Container>

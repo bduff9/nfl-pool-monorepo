@@ -1,13 +1,13 @@
-import { Button, Column, Container, Head, Html, Preview, Row, Section, Text } from "@react-email/components";
 import { render } from "@react-email/render";
 // biome-ignore lint/style/useImportType: This is needed for react-email
 import * as React from "react";
+import { Button, Container, Html, Preview, Text } from "react-email";
 
 import { env } from "../../src/env";
 import type { Email } from "../../src/types";
 import BodyWrapper from "./_components/BodyWrapper";
+import EmailBodySection from "./_components/EmailBodySection";
 import Footer from "./_components/Footer";
-import Header from "./_components/Header";
 
 type Props = {
   children?: React.ReactNode;
@@ -28,9 +28,9 @@ type Props = {
 
 const QuickPickConfirmationEmail: Email<Props> = ({
   browserLink,
-  notSelectedTeam,
+  notSelectedTeam = { TeamCity: "", TeamName: "", TeamPrimaryColor: "" },
   point,
-  selectedTeam,
+  selectedTeam = { TeamCity: "", TeamName: "", TeamPrimaryColor: "" },
   unsubscribeLink,
   userFirstName,
   week,
@@ -40,44 +40,35 @@ const QuickPickConfirmationEmail: Email<Props> = ({
 
   return (
     <Html>
-      <Head>
-        <title>{getSubject(week)}</title>
-      </Head>
-      <BodyWrapper>
+      <BodyWrapper title={getSubject(week)}>
         <Preview>{preview}</Preview>
-        <Container>
-          <Header browserLink={browserLink} />
+        <Container className="max-w-[600px] md:max-w-[800px]">
+          <EmailBodySection browserLink={browserLink}>
+            <Text className="text-xl">Phew {userFirstName}!</Text>
 
-          <Section>
-            <Row>
-              <Column className="bg-white pt-8 px-6 pb-4 rounded-b-xl">
-                <Text className="text-xl">Phew {userFirstName}!</Text>
+            <Text className="text-lg">
+              That was a close one! Your week {week} game 1 pick has been saved for {point} points.
+            </Text>
 
-                <Text className="text-lg">
-                  That was a close one! Your week {week} game 1 pick has been saved for {point} points.
-                </Text>
+            <Text>You picked the:</Text>
 
-                <Text>You picked the:</Text>
+            <Text className="text-3xl font-bold" style={{ color: selectedTeam.TeamPrimaryColor }}>
+              {selectedTeam.TeamCity} {selectedTeam.TeamName}
+            </Text>
 
-                <Text className="text-3xl font-bold" style={{ color: selectedTeam.TeamPrimaryColor }}>
-                  {selectedTeam.TeamCity} {selectedTeam.TeamName}
-                </Text>
+            <Text>to beat the</Text>
 
-                <Text>to beat the</Text>
+            <Text className="text-xl font-semibold" style={{ color: notSelectedTeam.TeamPrimaryColor }}>
+              {notSelectedTeam.TeamCity} {notSelectedTeam.TeamName}
+            </Text>
 
-                <Text className="text-xl font-semibold" style={{ color: notSelectedTeam.TeamPrimaryColor }}>
-                  {notSelectedTeam.TeamCity} {notSelectedTeam.TeamName}
-                </Text>
-
-                <Button
-                  className="bg-green-700 text-white w-full text-center py-2.5 rounded-md"
-                  href={`${domain}/picks/set`}
-                >
-                  Finish your picks
-                </Button>
-              </Column>
-            </Row>
-          </Section>
+            <Button
+              className="bg-green-700 text-white w-full text-center py-2.5 rounded-md"
+              href={`${domain}/picks/set`}
+            >
+              Finish your picks
+            </Button>
+          </EmailBodySection>
 
           <Footer unsubscribeLink={unsubscribeLink} />
         </Container>

@@ -1,12 +1,13 @@
-import { Body, Tailwind } from "@react-email/components";
 // biome-ignore lint/style/useImportType: This is needed for react-email
 import * as React from "react";
+import { Body, Head, Tailwind } from "react-email";
 
 type Props = {
   children: React.ReactNode;
+  title: string;
 };
 
-const BodyWrapper: React.FC<Props> = ({ children }) => {
+const BodyWrapper: React.FC<Props> = ({ children, title }) => {
   return (
     <Tailwind
       config={{
@@ -66,6 +67,9 @@ const BodyWrapper: React.FC<Props> = ({ children }) => {
         },
       }}
     >
+      <Head>
+        <title>{title}</title>
+      </Head>
       <Body className="m-0 bg-gray-100" style={{ fontFamily: "Roboto, Helvetica, Arial, sans-serif" }}>
         {children}
       </Body>

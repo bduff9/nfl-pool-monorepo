@@ -1,13 +1,13 @@
-import { Button, Column, Container, Head, Html, Preview, Row, Section, Text } from "@react-email/components";
 import { render } from "@react-email/render";
 // biome-ignore lint/style/useImportType: This is needed for react-email
 import * as React from "react";
+import { Button, Container, Html, Preview, Text } from "react-email";
 
 import { env } from "../../src/env";
 import type { Email } from "../../src/types";
 import BodyWrapper from "./_components/BodyWrapper";
+import EmailBodySection from "./_components/EmailBodySection";
 import Footer from "./_components/Footer";
-import Header from "./_components/Header";
 
 type Props = {
   adminUserFirstName: string;
@@ -36,44 +36,35 @@ const NewUserEmail: Email<Props> = ({
 
   return (
     <Html>
-      <Head>
-        <title>{getSubject()}</title>
-      </Head>
-      <BodyWrapper>
+      <BodyWrapper title={getSubject()}>
         <Preview>{preview}</Preview>
-        <Container>
-          <Header browserLink={browserLink} />
-
-          <Section>
-            <Row>
-              <Column className="bg-white pt-8 px-6 pb-4 rounded-b-xl">
-                <Text className="text-lg">
-                  Hello {adminUserFirstName},
-                  <br />
-                  <br />
-                  This is just a notice that a {isReturning ? "returning" : "new"} user has just registered with the
-                  following information:
-                </Text>
-                <ul className="mt-0.5 text-sm">
-                  <li>Name: {newUserUserName}</li>
-                  <li>Team Name: {newUserUserTeamName}</li>
-                  <li>Email: {newUserUserEmail}</li>
-                  {isReturning ? (
-                    <li>Previous years played: {yearsPlayed}</li>
-                  ) : (
-                    <li>Referred by: {newUserUserReferredByRaw}</li>
-                  )}
-                </ul>
-                <Text className="text-lg">You can maintain this user using the button below:</Text>
-                <Button
-                  className="bg-green-700 text-white w-full text-center py-2.5 rounded-md"
-                  href={`${domain}/admin/users`}
-                >
-                  Manage Users
-                </Button>
-              </Column>
-            </Row>
-          </Section>
+        <Container className="max-w-[600px] md:max-w-[800px]">
+          <EmailBodySection browserLink={browserLink}>
+            <Text className="text-lg">
+              Hello {adminUserFirstName},
+              <br />
+              <br />
+              This is just a notice that a {isReturning ? "returning" : "new"} user has just registered with the
+              following information:
+            </Text>
+            <ul className="mt-0.5 text-sm">
+              <li>Name: {newUserUserName}</li>
+              <li>Team Name: {newUserUserTeamName}</li>
+              <li>Email: {newUserUserEmail}</li>
+              {isReturning ? (
+                <li>Previous years played: {yearsPlayed}</li>
+              ) : (
+                <li>Referred by: {newUserUserReferredByRaw}</li>
+              )}
+            </ul>
+            <Text className="text-lg">You can maintain this user using the button below:</Text>
+            <Button
+              className="bg-green-700 text-white w-full text-center py-2.5 rounded-md"
+              href={`${domain}/admin/users`}
+            >
+              Manage Users
+            </Button>
+          </EmailBodySection>
 
           <Footer unsubscribeLink={unsubscribeLink} />
         </Container>

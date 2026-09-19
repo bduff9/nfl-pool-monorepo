@@ -1,13 +1,13 @@
-import { Button, Column, Container, Head, Html, Preview, Row, Section, Text } from "@react-email/components";
 import { render } from "@react-email/render";
 // biome-ignore lint/style/useImportType: This is needed for react-email
 import * as React from "react";
+import { Button, Container, Html, Preview, Text } from "react-email";
 
 import { env } from "../../src/env";
 import type { Email } from "../../src/types";
 import BodyWrapper from "./_components/BodyWrapper";
+import EmailBodySection from "./_components/EmailBodySection";
 import Footer from "./_components/Footer";
-import Header from "./_components/Header";
 
 type Props = {
   children?: React.ReactNode;
@@ -19,7 +19,7 @@ type Props = {
 
 const PicksSubmittedEmail: Email<Props> = ({
   browserLink,
-  picks,
+  picks = [],
   tiebreakerLastScore,
   userFirstName,
   week,
@@ -31,44 +31,35 @@ const PicksSubmittedEmail: Email<Props> = ({
 
   return (
     <Html>
-      <Head>
-        <title>{getSubject(week)}</title>
-      </Head>
-      <BodyWrapper>
+      <BodyWrapper title={getSubject(week)}>
         <Preview>{preview}</Preview>
-        <Container>
-          <Header browserLink={browserLink} />
-
-          <Section>
-            <Row>
-              <Column className="bg-white pt-8 px-6 pb-4 rounded-b-xl">
-                <Text className="text-lg">
-                  Hello {userFirstName},
-                  <br />
-                  <br />
-                  This is a confirmation that your week {week} picks have been submitted.
-                  <br />
-                  <br />
-                  Your picks are:
-                </Text>
-                <ul className="mt-0.5 text-sm list-none pl-0">
-                  {picks.map((pick) => (
-                    <li className="text-base" key={pick.PickPoints}>
-                      {pick.PickPoints} - {pick.TeamID ? `${pick.TeamCity} ${pick.TeamName}` : "Missed Pick"}
-                    </li>
-                  ))}
-                </ul>
-                <Text className="text-lg">Tiebreaker Score: {tiebreakerLastScore}</Text>
-                <Text className="text-lg">You can also use the link below to view everyone's submitted picks:</Text>
-                <Button
-                  className="bg-green-700 text-white w-full text-center py-2.5 rounded-md"
-                  href={`${domain}/picks/viewall`}
-                >
-                  View All Picks
-                </Button>
-              </Column>
-            </Row>
-          </Section>
+        <Container className="max-w-[600px] md:max-w-[800px]">
+          <EmailBodySection browserLink={browserLink}>
+            <Text className="text-lg">
+              Hello {userFirstName},
+              <br />
+              <br />
+              This is a confirmation that your week {week} picks have been submitted.
+              <br />
+              <br />
+              Your picks are:
+            </Text>
+            <ul className="mt-0.5 text-sm list-none pl-0">
+              {picks.map((pick) => (
+                <li className="text-base" key={pick.PickPoints}>
+                  {pick.PickPoints} - {pick.TeamID ? `${pick.TeamCity} ${pick.TeamName}` : "Missed Pick"}
+                </li>
+              ))}
+            </ul>
+            <Text className="text-lg">Tiebreaker Score: {tiebreakerLastScore}</Text>
+            <Text className="text-lg">You can also use the link below to view everyone's submitted picks:</Text>
+            <Button
+              className="bg-green-700 text-white w-full text-center py-2.5 rounded-md"
+              href={`${domain}/picks/viewall`}
+            >
+              View All Picks
+            </Button>
+          </EmailBodySection>
 
           <Footer unsubscribeLink={unsubscribeLink} />
         </Container>

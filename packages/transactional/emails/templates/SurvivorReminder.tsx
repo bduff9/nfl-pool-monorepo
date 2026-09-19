@@ -1,13 +1,13 @@
-import { Button, Column, Container, Head, Html, Preview, Row, Section, Text } from "@react-email/components";
 import { render } from "@react-email/render";
-// biome-ignore lint/style/useImportType: This is needed for react-email
 import * as React from "react";
+import { Container, Html, Preview } from "react-email";
 
 import { env } from "../../src/env";
 import type { Email } from "../../src/types";
 import BodyWrapper from "./_components/BodyWrapper";
 import Footer from "./_components/Footer";
 import Header from "./_components/Header";
+import ReminderEmailContent from "./_components/ReminderEmailContent";
 
 type Props = {
   children?: React.ReactNode;
@@ -22,39 +22,25 @@ const PickReminderEmail: Email<Props> = ({ browserLink, hoursLeft, userFirstName
 
   return (
     <Html>
-      <Head>
-        <title>{getSubject(userFirstName)}</title>
-      </Head>
-      <BodyWrapper>
+      <BodyWrapper title={getSubject(userFirstName)}>
         <Preview>{preview}</Preview>
-        <Container>
+        <Container className="max-w-[600px] md:max-w-[800px]">
           <Header browserLink={browserLink} />
 
-          <Section>
-            <Row>
-              <Column className="bg-white pt-8 px-6 pb-4 rounded-b-xl">
-                <Text className="text-lg">
-                  Hello forgetful {userFirstName},
-                  <br />
-                  <br />
-                  This is your friendly reminder that you have not submitted your survivor pick yet for week {week} and
-                  you now have less than {hoursLeft} hours.
-                  <br />
-                  <br />
-                  Click the button below to make your pick.
-                  <br />
-                  <br />
-                  Good luck!
-                </Text>
-                <Button
-                  className="bg-green-700 text-white w-full text-center py-2.5 rounded-md"
-                  href={`${domain}/survivor/set`}
-                >
-                  Make Survivor Pick
-                </Button>
-              </Column>
-            </Row>
-          </Section>
+          <ReminderEmailContent
+            actionHref={`${domain}/survivor/set`}
+            actionLabel="Make Survivor Pick"
+            message={
+              <React.Fragment>
+                This is your friendly reminder that you have not submitted your survivor pick yet for week {week} and
+                you now have less than {hoursLeft} hours.
+                <br />
+                <br />
+                Click the button below to make your pick.
+              </React.Fragment>
+            }
+            userFirstName={userFirstName}
+          />
 
           <Footer unsubscribeLink={unsubscribeLink} />
         </Container>

@@ -1,13 +1,13 @@
-import { Button, Column, Container, Head, Html, Preview, Row, Section, Text } from "@react-email/components";
 import { render } from "@react-email/render";
 // biome-ignore lint/style/useImportType: This is needed for react-email
 import * as React from "react";
+import { Button, Container, Html, Preview, Text } from "react-email";
 
 import { env } from "../../src/env";
 import type { Email } from "../../src/types";
 import BodyWrapper from "./_components/BodyWrapper";
+import EmailBodySection from "./_components/EmailBodySection";
 import Footer from "./_components/Footer";
-import Header from "./_components/Header";
 
 type Props = {
   children?: React.ReactNode;
@@ -41,65 +41,55 @@ const PrizesSetEmail: Email<Props> = ({
 
   return (
     <Html>
-      <Head>
-        <title>{getSubject()}</title>
-      </Head>
-      <BodyWrapper>
+      <BodyWrapper title={getSubject()}>
         <Preview>{preview}</Preview>
-        <Container>
-          <Header browserLink={browserLink} />
+        <Container className="max-w-[600px] md:max-w-[800px]">
+          <EmailBodySection browserLink={browserLink}>
+            <Text className="text-xl">Hi {userFirstName},</Text>
 
-          <Section>
-            <Row>
-              <Column className="bg-white pt-8 px-6 pb-4 rounded-b-xl">
-                <Text className="text-xl">Hi {userFirstName},</Text>
+            <Text className="text-lg">
+              This is a notification that everyone has now paid and so the payouts for this season have now been set.
+            </Text>
 
-                <Text className="text-lg">
-                  This is a notification that everyone has now paid and so the payouts for this season have now been
-                  set.
-                </Text>
+            <Text className="underline text-lg">Weekly Payouts</Text>
+            <ul className="mt-0.5 list-none pl-0">
+              <li>1st place - ${weekly1stPrize}</li>
+              <li>2nd place - ${weekly2ndPrize}</li>
+            </ul>
 
-                <Text className="underline text-lg">Weekly Payouts</Text>
-                <ul className="mt-0.5 list-none pl-0">
-                  <li>1st place - ${weekly1stPrize}</li>
-                  <li>2nd place - ${weekly2ndPrize}</li>
-                </ul>
+            <Text className="underline text-lg">Overall Payouts</Text>
+            <ul className="mt-0.5 list-none pl-0">
+              <li>1st place - ${overall1stPrize}</li>
+              <li>2nd place - ${overall2ndPrize}</li>
+              <li>3rd place - ${overall3rdPrize}</li>
+              <li>
+                Last place<span className="text-red-500">*</span> - ${overallLastPrize}
+              </li>
+            </ul>
+            <Text className="text-red-500">
+              * - Must not miss picking any games from this point forward to be eligible for the last place prize
+            </Text>
 
-                <Text className="underline text-lg">Overall Payouts</Text>
-                <ul className="mt-0.5 list-none pl-0">
-                  <li>1st place - ${overall1stPrize}</li>
-                  <li>2nd place - ${overall2ndPrize}</li>
-                  <li>3rd place - ${overall3rdPrize}</li>
-                  <li>
-                    Last place<span className="text-red-500">*</span> - ${overallLastPrize}
-                  </li>
-                </ul>
-                <Text className="text-red-500">
-                  * - Must not miss picking any games from this point forward to be eligible for the last place prize
-                </Text>
+            <Text className="underline text-lg">Survivor Payouts</Text>
+            <ul className="mt-0.5 list-none pl-0">
+              <li>1st place - ${survivor1stPrize}</li>
+              <li>2nd place - ${survivor2ndPrize}</li>
+            </ul>
 
-                <Text className="underline text-lg">Survivor Payouts</Text>
-                <ul className="mt-0.5 list-none pl-0">
-                  <li>1st place - ${survivor1stPrize}</li>
-                  <li>2nd place - ${survivor2ndPrize}</li>
-                </ul>
+            <Text className="text-lg">
+              Reminder that all payouts will be done after the season has completed. Any questions or concerns please
+              let us know!
+            </Text>
 
-                <Text className="text-lg">
-                  Reminder that all payouts will be done after the season has completed. Any questions or concerns
-                  please let us know!
-                </Text>
+            <Text className="text-lg">You can view all current prizes you've won at the link below.</Text>
 
-                <Text className="text-lg">You can view all current prizes you've won at the link below.</Text>
-
-                <Button
-                  className="bg-green-700 text-white w-full text-center py-2.5 rounded-md"
-                  href={`${domain}/users/payments`}
-                >
-                  View my Prizes
-                </Button>
-              </Column>
-            </Row>
-          </Section>
+            <Button
+              className="bg-green-700 text-white w-full text-center py-2.5 rounded-md"
+              href={`${domain}/users/payments`}
+            >
+              View my Prizes
+            </Button>
+          </EmailBodySection>
 
           <Footer unsubscribeLink={unsubscribeLink} />
         </Container>

@@ -1,6 +1,6 @@
-import { Column, Img, Link, Row, Section, Text } from "@react-email/components";
 // biome-ignore lint/style/useImportType: This is needed for react-email
 import * as React from "react";
+import { Column, Img, Link, Row, Section, Text } from "react-email";
 
 type Props = {
   browserLink: string;

@@ -1,13 +1,13 @@
-import { Button, Column, Container, Head, Html, Preview, Row, Section, Text } from "@react-email/components";
 import { render } from "@react-email/render";
 // biome-ignore lint/style/useImportType: This is needed for react-email
 import * as React from "react";
+import { Button, Container, Html, Preview, Text } from "react-email";
 
 import { env } from "../../src/env";
 import type { Email } from "../../src/types";
 import BodyWrapper from "./_components/BodyWrapper";
+import EmailBodySection from "./_components/EmailBodySection";
 import Footer from "./_components/Footer";
-import Header from "./_components/Header";
 
 type Props = {
   children?: React.ReactNode;
@@ -31,14 +31,16 @@ type Props = {
   week: number;
 };
 
+const emptyTeam = { TeamCity: "", TeamID: 0, TeamName: "", TeamPrimaryColor: "", TeamSecondaryColor: "" };
+
 const QuickPickEmail: Email<Props> = ({
   browserLink,
-  homeTeam,
+  homeTeam = emptyTeam,
   hoursLeft,
   unsubscribeLink,
   userFirstName,
   userId,
-  visitorTeam,
+  visitorTeam = emptyTeam,
   week,
 }) => {
   const { domain } = env;
@@ -47,63 +49,53 @@ const QuickPickEmail: Email<Props> = ({
 
   return (
     <Html>
-      <Head>
-        <title>{getSubject(userFirstName)}</title>
-      </Head>
-      <BodyWrapper>
+      <BodyWrapper title={getSubject(userFirstName)}>
         <Preview>{preview}</Preview>
-        <Container>
-          <Header browserLink={browserLink} />
+        <Container className="max-w-[600px] md:max-w-[800px]">
+          <EmailBodySection browserLink={browserLink}>
+            <Text className="text-xl">Quick {userFirstName}!</Text>
 
-          <Section>
-            <Row>
-              <Column className="bg-white pt-8 px-6 pb-4 rounded-b-xl">
-                <Text className="text-xl">Quick {userFirstName}!</Text>
+            <Text className="text-lg">
+              You have not made your pick for game 1 of week {week} yet and you now have less than {hoursLeft} hours.
+            </Text>
 
-                <Text className="text-lg">
-                  You have not made your pick for game 1 of week {week} yet and you now have less than {hoursLeft}{" "}
-                  hours.
-                </Text>
+            <Text className="text-lg">
+              You can avoid losing points for this game by simply clicking one of the teams below to set your pick.
+            </Text>
 
-                <Text className="text-lg">
-                  You can avoid losing points for this game by simply clicking one of the teams below to set your pick.
-                </Text>
+            <Text>
+              <strong>Note:</strong> This email is only good up until kickoff of this game, so act now to avoid losing
+              points for this week!
+            </Text>
 
-                <Text>
-                  <strong>Note:</strong> This email is only good up until kickoff of this game, so act now to avoid
-                  losing points for this week!
-                </Text>
+            <div className="flex">
+              <Button
+                className="w-full text-center py-2.5 rounded-md"
+                href={`${domain}/quick-pick/${userId}/${visitorTeam.TeamID}`}
+                style={{
+                  backgroundColor: visitorTeam.TeamPrimaryColor,
+                  border: `1px solid ${visitorTeam.TeamSecondaryColor}`,
+                  color: visitorTeam.TeamSecondaryColor,
+                }}
+              >
+                {visitorTeam.TeamCity} {visitorTeam.TeamName}
+              </Button>
 
-                <div className="flex">
-                  <Button
-                    className="w-full text-center py-2.5 rounded-md"
-                    href={`${domain}/quick-pick/${userId}/${visitorTeam.TeamID}`}
-                    style={{
-                      backgroundColor: visitorTeam.TeamPrimaryColor,
-                      border: `1px solid ${visitorTeam.TeamSecondaryColor}`,
-                      color: visitorTeam.TeamSecondaryColor,
-                    }}
-                  >
-                    {visitorTeam.TeamCity} {visitorTeam.TeamName}
-                  </Button>
+              <div className="text-lg flex items-center">@</div>
 
-                  <div className="text-lg flex items-center">@</div>
-
-                  <Button
-                    className="w-full text-center py-2.5 rounded-md"
-                    href={`${domain}/quick-pick/${userId}/${homeTeam.TeamID}`}
-                    style={{
-                      backgroundColor: homeTeam.TeamPrimaryColor,
-                      border: `1px solid ${homeTeam.TeamSecondaryColor}`,
-                      color: homeTeam.TeamSecondaryColor,
-                    }}
-                  >
-                    {homeTeam.TeamCity} {homeTeam.TeamName}
-                  </Button>
-                </div>
-              </Column>
-            </Row>
-          </Section>
+              <Button
+                className="w-full text-center py-2.5 rounded-md"
+                href={`${domain}/quick-pick/${userId}/${homeTeam.TeamID}`}
+                style={{
+                  backgroundColor: homeTeam.TeamPrimaryColor,
+                  border: `1px solid ${homeTeam.TeamSecondaryColor}`,
+                  color: homeTeam.TeamSecondaryColor,
+                }}
+              >
+                {homeTeam.TeamCity} {homeTeam.TeamName}
+              </Button>
+            </div>
+          </EmailBodySection>
 
           <Footer unsubscribeLink={unsubscribeLink} />
         </Container>

@@ -1,7 +1,7 @@
-import { Button, Column, Container, Head, Html, Img, Preview, Row, Section, Text } from "@react-email/components";
 import { render } from "@react-email/render";
 // biome-ignore lint/style/useImportType: This is needed for react-email
 import React from "react";
+import { Button, Column, Container, Html, Img, Preview, Row, Section, Text } from "react-email";
 
 import { env } from "../../src/env";
 import type { Email } from "../../src/types";
@@ -27,11 +27,11 @@ type Props = {
 };
 
 const WeeklyEmail: Email<Props> = ({
-  articles,
+  articles = [],
   browserLink,
-  messages,
-  poolUpdates,
-  survivorUpdates,
+  messages = [],
+  poolUpdates = [],
+  survivorUpdates = [],
   unsubscribeLink,
   userFirstName,
   week,
@@ -41,12 +41,9 @@ const WeeklyEmail: Email<Props> = ({
 
   return (
     <Html>
-      <Head>
-        <title>{getSubject(week)}</title>
-      </Head>
-      <BodyWrapper>
+      <BodyWrapper title={getSubject(week)}>
         <Preview>{preview}</Preview>
-        <Container>
+        <Container className="max-w-[600px] md:max-w-[800px]">
           <Header browserLink={browserLink} />
 
           <Section>
