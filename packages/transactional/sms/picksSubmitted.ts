@@ -33,6 +33,7 @@ const sendPicksSubmittedSMS = async (user: User, week: number, tiebreakerLastSco
     .select(["t.TeamShortName"])
     .where("g.GameWeek", "=", week)
     .where("p.UserID", "=", user.id)
+    .orderBy("p.PickPoints", "desc")
     .execute();
   let message = `Hi ${userResult.UserFirstName},
 This is a confirmation that your week ${week} picks have been submitted.

@@ -13,6 +13,7 @@ export const sendPicksSubmittedEmail = async (user: User, week: number, tiebreak
     .select(["t.TeamName", "t.TeamCity"])
     .where("g.GameWeek", "=", week)
     .where("p.UserID", "=", user.id)
+    .orderBy("p.PickPoints", "desc")
     .execute();
   const userResult = await db
     .selectFrom("Users")
