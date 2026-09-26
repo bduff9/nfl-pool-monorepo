@@ -14,6 +14,7 @@
  * Home: https://asitewithnoname.com/
  */
 
+import type { Metadata, Route } from "next";
 import { redirect } from "next/navigation";
 import "server-only";
 
@@ -26,12 +27,18 @@ import { withWeek } from "@/lib/weekSearchParams";
 import { getGamesForWeekCached, getWeekInProgress } from "@/server/loaders/game";
 import { getIsAliveInSurvivor, getMySurvivorPicks } from "@/server/loaders/survivor";
 import { getTeamsOnBye } from "@/server/loaders/team";
+import { getCurrentUser } from "@/server/loaders/user";
 import { getSelectedWeekFromParams } from "@/server/loaders/week";
 
 import CustomHead from "../../../components/CustomHead/CustomHead";
 import PageContent from "../../../components/PageContent/PageContent";
 import SurvivorSetLoading from "./loading";
 
+export const metadata: Metadata = {
+  title: { absolute: "Make Survivor Picks" },
+};
+
+// fallow-ignore-next-line complexity -- redirect preconditions only; the elimination check was reordered, not added
 const SetSurvivorPageBody: FC<PageProps<"/survivor/set">> = async ({ searchParams }) => {
   const redirectUrl = await requireRegistered();
 
@@ -43,18 +50,27 @@ const SetSurvivorPageBody: FC<PageProps<"/survivor/set">> = async ({ searchParam
   const isAlivePromise = getIsAliveInSurvivor();
   const weekInProgressPromise = getWeekInProgress();
   const survivorPicksPromise = getMySurvivorPicks();
+  const userPromise = getCurrentUser();
 
-  const [selectedWeek, isAlive, weekInProgress, survivorPicks] = await Promise.all([
+  const [selectedWeek, isAlive, weekInProgress, survivorPicks, user] = await Promise.all([
     selectedWeekPromise,
     isAlivePromise,
     weekInProgressPromise,
     survivorPicksPromise,
+    userPromise,
   ]);
 
   const gamesPromise = getGamesForWeekCached(selectedWeek);
   const teamsOnByePromise = getTeamsOnBye(selectedWeek);
 
   const [games, teamsOnBye] = await Promise.all([gamesPromise, teamsOnByePromise]);
+
+  // An eliminated survivor player is bounced to the survivor view with an explanation
+  // regardless of which week they aimed for. Observers (not playing survivor) keep the
+  // original silent redirects below.
+  if (!isAlive && user.UserPlaysSurvivor === 1) {
+    return redirect(withWeek("/survivor/view?eliminated=1" as Route, selectedWeek));
+  }
 
   if (weekInProgress && selectedWeek <= weekInProgress) {
     return redirect(withWeek("/survivor/view", selectedWeek));

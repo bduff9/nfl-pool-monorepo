@@ -14,6 +14,7 @@
  * Home: https://asitewithnoname.com/
  */
 
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { type FC, Suspense } from "react";
 import "server-only";
@@ -27,6 +28,10 @@ import { getUserNotifications } from "@/server/loaders/notification";
 import { getCurrentUser, userHasGoogle } from "@/server/loaders/user";
 
 import UsersLoading from "../loading";
+
+export const metadata: Metadata = {
+  title: { absolute: "Edit My Profile" },
+};
 
 const EditProfilePageBody: FC<PageProps<"/users/edit">> = async () => {
   const redirectPath = await requireRegistered();

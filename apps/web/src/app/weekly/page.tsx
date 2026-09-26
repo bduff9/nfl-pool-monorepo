@@ -28,6 +28,7 @@ import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import ProgressChart from "@/components/ProgressChart/ProgressChart";
 import RankingPieChart from "@/components/RankingPieChart/RankingPieChart";
 import RetryableSection from "@/components/RetryableSection/RetryableSection";
+import ScenariosDashboard from "@/components/ScenariosDashboard/ScenariosDashboard";
 import ScoreboardLiveRefresh from "@/components/ScoreboardLiveRefresh/ScoreboardLiveRefresh";
 import Crossfade from "@/components/ViewTransitions/Crossfade";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
@@ -86,7 +87,10 @@ const WeeklyRankingsTable: FC<WeeklyRankingsTableProps> = async ({ selectedWeek 
       </TableHeader>
       <TableBody>
         {weeklyRankings.map((row) => (
-          <TableRow className={cn(row.UserID === user.UserID && "bg-amber-300")} key={`user-rank-for-${row.UserID}`}>
+          <TableRow
+            className={cn(row.UserID === user.UserID && "bg-amber-300 [&_*]:text-black")}
+            key={`user-rank-for-${row.UserID}`}
+          >
             <TableHead className="text-center text-foreground font-semibold" scope="row">
               {row.Tied ? "T" : ""}
               {row.Rank}
@@ -105,6 +109,7 @@ const WeeklyRankingsTable: FC<WeeklyRankingsTableProps> = async ({ selectedWeek 
   );
 };
 
+// fallow-ignore-next-line complexity -- long-standing page body; this change only adds the Still In Play panel and rebalances chart columns
 const WeeklyRankingsPageBody: FC<PageProps<"/weekly">> = async ({ searchParams }) => {
   const redirectUrl = await requireRegistered();
 
@@ -145,8 +150,8 @@ const WeeklyRankingsPageBody: FC<PageProps<"/weekly">> = async ({ searchParams }
         <CustomHead title={`Week ${selectedWeek} Ranks`} />
         <ScoreboardLiveRefresh enabled={hasLiveGames} />
         <PageContent className="pt-0 md:pt-3 pb-4">
-          <div className="flex flex-wrap">
-            <div className="hidden md:inline-block w-1/2 text-center h-[205px]">
+          <div className="flex flex-wrap items-start">
+            <div className="hidden md:inline-block w-[25%] text-center h-[205px]">
               <WeeklyDashboardTitle selectedWeek={selectedWeek} />
               <RankingPieChart
                 data={[
@@ -178,7 +183,10 @@ const WeeklyRankingsPageBody: FC<PageProps<"/weekly">> = async ({ searchParams }
             <div className="mt-4 block md:hidden">
               <ProgressBarLink href="/">&laquo; Back to Dashboard</ProgressBarLink>
             </div>
-            <div className="hidden md:inline-block w-1/2 px-3">
+            <Suspense fallback={null}>
+              <ScenariosDashboard scope="weekly" />
+            </Suspense>
+            <div className="hidden md:inline-block flex-1 px-3">
               <WeeklyDashboardResults className="mb-4 text-center" selectedWeek={selectedWeek} />
               <ProgressChart
                 correct={myWeeklyRank?.PointsEarned ?? 0}

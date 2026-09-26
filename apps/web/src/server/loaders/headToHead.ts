@@ -35,9 +35,11 @@ const getPicksForUser = cache(async (week: number, userID: number) => {
 
   const picks = await db
     .selectFrom("Picks")
-    .select(["GameID", "TeamID", "PickPoints"])
-    .where("UserID", "=", userID)
-    .where("PickDeleted", "is", null)
+    .innerJoin("Games", "Games.GameID", "Picks.GameID")
+    .select(["Picks.GameID", "Picks.TeamID", "Picks.PickPoints"])
+    .where("Picks.UserID", "=", userID)
+    .where("Picks.PickDeleted", "is", null)
+    .where("Games.GameWeek", "=", week)
     .execute();
 
   return new Map(picks.map((pick) => [pick.GameID, pick]));

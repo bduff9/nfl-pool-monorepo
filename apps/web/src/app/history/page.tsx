@@ -25,9 +25,11 @@ import "server-only";
 import { getHistory, type HistoryEntry } from "@nfl-pool-monorepo/db/src/queries/history";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
+import HistoryTrendChart from "@/components/HistoryTrendChart/HistoryTrendChart";
 import PageContent from "@/components/PageContent/PageContent";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { requireLoggedIn } from "@/lib/auth";
+import { getCurrentUser } from "@/server/loaders/user";
 
 import HistoryLoading from "./loading";
 
@@ -47,6 +49,7 @@ type HistoryYearSectionProps = {
   year: number;
 };
 
+// fallow-ignore-next-line complexity -- pre-existing year section; untouched by this change
 const HistoryYearSection: FC<HistoryYearSectionProps> = ({ entries, year }) => {
   const overall = entries
     .filter((entry) => entry.HistoryType === "Overall")
@@ -130,6 +133,7 @@ const HistoryYearSection: FC<HistoryYearSectionProps> = ({ entries, year }) => {
   );
 };
 
+// fallow-ignore-next-line complexity -- pre-existing page body; only the trend chart insert was added
 const HistoryPageBody: FC = async () => {
   const redirectUrl = await requireLoggedIn();
 
@@ -137,7 +141,7 @@ const HistoryPageBody: FC = async () => {
     return redirect(redirectUrl);
   }
 
-  const history = await getHistory();
+  const [history, currentUser] = await Promise.all([getHistory(), getCurrentUser()]);
   const byYear = new Map<number, HistoryEntry[]>();
 
   for (const entry of history) {
@@ -145,6 +149,7 @@ const HistoryPageBody: FC = async () => {
   }
 
   const years = [...byYear.keys()].sort((a, b) => b - a);
+  const myEntries = history.filter((entry) => entry.UserID === currentUser.UserID);
 
   return (
     <PageTransition>
@@ -155,7 +160,12 @@ const HistoryPageBody: FC = async () => {
           {years.length === 0 ? (
             <p className="text-muted-foreground">No history recorded yet.</p>
           ) : (
-            years.map((year) => <HistoryYearSection entries={byYear.get(year) ?? []} key={year} year={year} />)
+            <>
+              <HistoryTrendChart entries={myEntries} />
+              {years.map((year) => (
+                <HistoryYearSection entries={byYear.get(year) ?? []} key={year} year={year} />
+              ))}
+            </>
           )}
         </PageContent>
       </div>

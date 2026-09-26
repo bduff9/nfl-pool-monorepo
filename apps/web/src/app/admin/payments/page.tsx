@@ -21,6 +21,7 @@ import {
   getSurvivorPrizeAmounts,
   getWeeklyPrizeAmounts,
 } from "@nfl-pool-monorepo/db/src/queries/systemValue";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { type FC, Suspense } from "react";
 
@@ -33,6 +34,10 @@ import { getUserPayoutsForAdmin } from "@/server/loaders/payment";
 import { getRegisteredCount, getSurvivorCount } from "@/server/loaders/user";
 
 import AdminLoading from "../loading";
+
+export const metadata: Metadata = {
+  title: { absolute: "Manage Payments" },
+};
 
 const AdminPaymentsPageBody: FC<PageProps<"/admin/payments">> = async ({ searchParams }) => {
   const redirectUrl = await requireAdmin();

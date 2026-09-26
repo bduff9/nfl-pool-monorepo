@@ -14,6 +14,7 @@
  * Home: https://asitewithnoname.com/
  */
 
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { type FC, Suspense } from "react";
 
@@ -25,6 +26,10 @@ import { requireAdmin } from "@/lib/auth";
 import { getAdminEmails } from "@/server/loaders/email";
 
 import AdminLoading from "../loading";
+
+export const metadata: Metadata = {
+  title: { absolute: "Email Users" },
+};
 
 const AdminEmailPageBody: FC<PageProps<"/admin/email">> = async ({ searchParams }) => {
   const redirectUrl = await requireAdmin();

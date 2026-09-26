@@ -14,6 +14,7 @@
  * Home: https://asitewithnoname.com/
  */
 
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { type FC, Suspense } from "react";
 
@@ -24,6 +25,10 @@ import { requireAdmin } from "@/lib/auth";
 import { getAdminBackups } from "@/server/loaders/backup";
 
 import AdminLoading from "../loading";
+
+export const metadata: Metadata = {
+  title: { absolute: "Backups Admin" },
+};
 
 const AdminBackupsPageBody: FC<PageProps<"/admin/backups">> = async () => {
   const redirectUrl = await requireAdmin();

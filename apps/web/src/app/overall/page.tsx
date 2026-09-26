@@ -30,6 +30,7 @@ import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import ProgressChart from "@/components/ProgressChart/ProgressChart";
 import RankingPieChart from "@/components/RankingPieChart/RankingPieChart";
 import RetryableSection from "@/components/RetryableSection/RetryableSection";
+import ScenariosDashboard from "@/components/ScenariosDashboard/ScenariosDashboard";
 import ScoreboardLiveRefresh from "@/components/ScoreboardLiveRefresh/ScoreboardLiveRefresh";
 import Crossfade from "@/components/ViewTransitions/Crossfade";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
@@ -81,7 +82,10 @@ const OverallRankingsTable: FC = async () => {
       </TableHeader>
       <TableBody>
         {overallRankings.map((row) => (
-          <TableRow className={cn(row.UserID === user.UserID && "bg-amber-300")} key={`user-rank-for-${row.UserID}`}>
+          <TableRow
+            className={cn(row.UserID === user.UserID && "bg-amber-300 [&_*]:text-black")}
+            key={`user-rank-for-${row.UserID}`}
+          >
             <TableHead className="text-center text-foreground font-semibold" scope="row">
               {row.Tied ? "T" : ""}
               {row.Rank}
@@ -100,6 +104,7 @@ const OverallRankingsTable: FC = async () => {
   );
 };
 
+// fallow-ignore-next-line complexity -- long-standing page body; this change only adds the Still In Play panel and rebalances chart columns
 const OverallRankingsPageBody: FC<PageProps<"/overall">> = async () => {
   const redirectUrl = await requireRegistered();
 
@@ -138,8 +143,8 @@ const OverallRankingsPageBody: FC<PageProps<"/overall">> = async () => {
         <CustomHead title={TITLE} />
         <ScoreboardLiveRefresh enabled={hasLiveGames} />
         <PageContent className="pt-0 md:pt-3 pb-4">
-          <div className="flex flex-wrap">
-            <div className="hidden md:inline-block w-1/2 text-center h-[205px]">
+          <div className="flex flex-wrap items-start">
+            <div className="hidden md:inline-block w-[25%] text-center h-[205px]">
               <OverallDashboardTitle />
               <RankingPieChart
                 data={[
@@ -171,7 +176,10 @@ const OverallRankingsPageBody: FC<PageProps<"/overall">> = async () => {
             <div className="mt-4 block md:hidden">
               <ProgressBarLink href="/">&laquo; Back to Dashboard</ProgressBarLink>
             </div>
-            <div className="hidden md:inline-block w-1/2 px-3">
+            <Suspense fallback={null}>
+              <ScenariosDashboard scope="overall" />
+            </Suspense>
+            <div className="hidden md:inline-block flex-1 px-3">
               <OverallDashboardResults className="mb-4 text-center" />
               <ProgressChart
                 correct={myOverallRank?.PointsEarned ?? 0}

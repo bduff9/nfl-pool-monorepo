@@ -14,14 +14,17 @@
  * Home: https://asitewithnoname.com/
  */
 
+import { Alert, AlertDescription, AlertTitle } from "@nfl-pool-monorepo/ui/components/alert";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@nfl-pool-monorepo/ui/components/table";
 import { WEEKS_IN_SEASON } from "@nfl-pool-monorepo/utils/constants";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
+import type { Metadata } from "next";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import "server-only";
 
 import { type FC, Suspense } from "react";
+import { PiInfoDuotone } from "react-icons/pi";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
@@ -44,6 +47,44 @@ import { getSelectedWeekFromParams, getWeekStatus } from "@/server/loaders/week"
 
 import SurvivorViewLoading from "./loading";
 
+export const metadata: Metadata = {
+  title: { absolute: "View Survivor Picks" },
+};
+
+// fallow-ignore-next-line complexity -- two-level loop over rankings x picks is inherent to computing per-week consensus percentages
+const getSurvivorPoolPercentage = (
+  survivorRankings: Awaited<ReturnType<typeof getSurvivorRankings>>,
+  week: number,
+  teamID: null | number,
+): number | null => {
+  if (!teamID) {
+    return null;
+  }
+
+  let teamCount = 0;
+  let totalCount = 0;
+
+  for (const row of survivorRankings) {
+    for (const pick of row.allPicks) {
+      if (pick.SurvivorPickWeek !== week || !pick.TeamID) {
+        continue;
+      }
+
+      totalCount++;
+
+      if (pick.TeamID === teamID) {
+        teamCount++;
+      }
+    }
+  }
+
+  if (!totalCount) {
+    return null;
+  }
+
+  return Math.round((teamCount / totalCount) * 100);
+};
+
 const getPickCellColor = (
   pick: Awaited<ReturnType<typeof getSurvivorRankings>>[number]["allPicks"][number],
 ): string => {
@@ -58,6 +99,7 @@ const getPickCellColor = (
   return pick.WinnerTeamID === pick.TeamID ? "bg-green-700" : "bg-red-700";
 };
 
+// fallow-ignore-next-line complexity -- long-standing page body; added only the eliminated-notice alert
 const ViewSurvivorPageBody: FC<PageProps<"/survivor/view">> = async ({ searchParams }) => {
   const redirectUrl = await requireRegistered();
 
@@ -66,7 +108,8 @@ const ViewSurvivorPageBody: FC<PageProps<"/survivor/view">> = async ({ searchPar
   }
 
   const selectedWeek = await getSelectedWeekFromParams(searchParams);
-
+  const { eliminated: eliminatedParam } = await searchParams;
+  const showEliminatedNotice = eliminatedParam === "1";
   const weekStatusPromise = getWeekStatus(selectedWeek);
   const isAliveInSurvivorPromise = getIsAliveInSurvivor();
   const userPromise = getCurrentUser();
@@ -112,6 +155,16 @@ const ViewSurvivorPageBody: FC<PageProps<"/survivor/view">> = async ({ searchPar
         <CustomHead title="View Survivor Picks" />
         <PageContent className="pt-5 md:pt-3 pb-4">
           <div className="flex flex-col min-h-screen">
+            {showEliminatedNotice && !isAliveInSurvivor && user.UserPlaysSurvivor === 1 && (
+              <Alert className="mb-4 shrink-0">
+                <PiInfoDuotone />
+                <AlertTitle>You&apos;ve been eliminated from the survivor pool</AlertTitle>
+                <AlertDescription>
+                  Your picks are shown below. The overall confidence pool is still wide open, though — keep those weekly
+                  picks coming!
+                </AlertDescription>
+              </Alert>
+            )}
             <div className="flex">
               <div className={cn("hidden md:inline-block w-1/3 text-center h-[205px]")}>
                 <SurvivorDashboardIcon
@@ -187,29 +240,47 @@ const ViewSurvivorPageBody: FC<PageProps<"/survivor/view">> = async ({ searchPar
                           {row.TeamName}
                         </span>
                       </TableHead>
-                      {row.allPicks.map((pick) => (
-                        <TableCell
-                          className={cn(getPickCellColor(pick))}
-                          key={`pick-for-user-${row.UserID}-week-${pick.SurvivorPickWeek}`}
-                        >
-                          {pick.TeamID ? (
-                            <Image
-                              alt={`${pick.TeamCity} ${pick.TeamName}`}
-                              className="m-auto"
-                              height={70}
-                              src={`/NFLLogos/${pick.TeamLogo}`}
-                              title={`${pick.TeamCity} ${pick.TeamName}`}
-                              width={70}
-                            />
-                          ) : (
-                            <h4 className="mb-0 scroll-m-20 text-xl font-semibold tracking-tight">
-                              No
-                              <br />
-                              Pick
-                            </h4>
-                          )}
-                        </TableCell>
-                      ))}
+                      {row.allPicks.map((pick) => {
+                        const poolPercentage = getSurvivorPoolPercentage(
+                          survivorRankings,
+                          pick.SurvivorPickWeek,
+                          pick.TeamID,
+                        );
+
+                        return (
+                          <TableCell
+                            className={cn(getPickCellColor(pick))}
+                            key={`pick-for-user-${row.UserID}-week-${pick.SurvivorPickWeek}`}
+                          >
+                            {pick.TeamID ? (
+                              <>
+                                <Image
+                                  alt={`${pick.TeamCity} ${pick.TeamName}`}
+                                  className="m-auto"
+                                  height={70}
+                                  src={`/NFLLogos/${pick.TeamLogo}`}
+                                  title={`${pick.TeamCity} ${pick.TeamName}`}
+                                  width={70}
+                                />
+                                {poolPercentage !== null && (
+                                  <div
+                                    className="text-xs font-light text-foreground"
+                                    title={`${poolPercentage}% of the pool picked the ${pick.TeamCity} ${pick.TeamName} this week`}
+                                  >
+                                    {poolPercentage}%
+                                  </div>
+                                )}
+                              </>
+                            ) : (
+                              <h4 className="mb-0 scroll-m-20 text-xl font-semibold tracking-tight">
+                                No
+                                <br />
+                                Pick
+                              </h4>
+                            )}
+                          </TableCell>
+                        );
+                      })}
                     </TableRow>
                   ))}
                 </TableBody>

@@ -14,6 +14,7 @@
  * Home: https://asitewithnoname.com/
  */
 
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { type FC, Suspense } from "react";
 
@@ -24,6 +25,10 @@ import { requireAdmin } from "@/lib/auth";
 import { getAdminLogs } from "@/server/loaders/log";
 
 import AdminLoading from "../loading";
+
+export const metadata: Metadata = {
+  title: { absolute: "View All Logs" },
+};
 
 const AdminLogsPageBody: FC<PageProps<"/admin/logs">> = async ({ searchParams }) => {
   const redirectUrl = await requireAdmin();

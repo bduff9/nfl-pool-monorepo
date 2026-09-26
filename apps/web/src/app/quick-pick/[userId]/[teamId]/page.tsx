@@ -15,6 +15,7 @@
  */
 
 import { getTeamById } from "@nfl-pool-monorepo/db/src/queries/team";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import "server-only";
 
@@ -25,6 +26,10 @@ import QuickPickConfirm from "@/components/QuickPickConfirm/QuickPickConfirm";
 import { getCurrentSession } from "@/server/loaders/sessions";
 
 import PageLoading from "../../../loading";
+
+export const metadata: Metadata = {
+  title: { absolute: "Quick Pick" },
+};
 
 const QuickPickCard: FC<{ children: ReactNode; title: string }> = ({ children, title }) => (
   <div className="min-h-screen flex flex-col md:mx-3">

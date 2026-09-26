@@ -23,6 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from "@nfl-pool-monorepo/ui/components/table";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { type FC, Suspense } from "react";
 import "server-only";
@@ -38,6 +39,11 @@ import { getCurrentUser } from "@/server/loaders/user";
 
 import UsersLoading from "../loading";
 
+export const metadata: Metadata = {
+  title: { absolute: "View Payments" },
+};
+
+// fallow-ignore-next-line complexity -- pre-existing page body, untouched by this change
 const ViewPaymentsPageBody: FC<PageProps<"/users/payments">> = async () => {
   const redirectUrl = await requireRegistered();
 

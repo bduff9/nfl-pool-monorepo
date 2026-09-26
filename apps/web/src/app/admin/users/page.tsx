@@ -14,6 +14,7 @@
  * Home: https://asitewithnoname.com/
  */
 
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { type FC, Suspense } from "react";
 
@@ -24,6 +25,10 @@ import { requireAdmin } from "@/lib/auth";
 import { getAdminUsers, getTrustedUsersDropdown } from "@/server/loaders/user";
 
 import AdminLoading from "../loading";
+
+export const metadata: Metadata = {
+  title: { absolute: "User Admin" },
+};
 
 const AdminUsersPageBody: FC<PageProps<"/admin/users">> = async ({ searchParams }) => {
   const redirectUrl = await requireAdmin();

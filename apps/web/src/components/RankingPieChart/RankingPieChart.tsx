@@ -46,10 +46,10 @@ const CenterLabel: FC<{ data: Array<PieChartData> }> = ({ data }) => {
 
   return (
     <g style={{ pointerEvents: "none" }}>
-      <text dy={22} fontSize="4rem" textAnchor="middle" x={cx} y={cy}>
+      <text className="fill-black dark:fill-white" dy={22} fontSize="4rem" textAnchor="middle" x={cx} y={cy}>
         {item.myPlace}
       </text>
-      <text dy={100} fontSize="1rem" textAnchor="middle" x={cx} y={cy}>
+      <text className="fill-black dark:fill-white" dy={100} fontSize="1rem" textAnchor="middle" x={cx} y={cy}>
         Out of {item.total}
       </text>
     </g>

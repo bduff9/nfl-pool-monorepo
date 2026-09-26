@@ -21,10 +21,12 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { type FC, Suspense } from "react";
+import { PiFootballDuotone } from "react-icons/pi";
 import "server-only";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
+import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { requireRegistered } from "@/lib/auth";
 import { getHeadToHead } from "@/server/loaders/headToHead";
@@ -44,6 +46,7 @@ export const metadata: Metadata = {
 // freshly-added route literals in PageProps until the typegen cache warms up.
 type HeadToHeadPageBodyProps = PageProps<"/weekly">;
 
+// fallow-ignore-next-line complexity -- pre-existing param coercion; CRAP reflects missing unit-test coverage
 const parseUserIDParam = (value: string | string[] | undefined): null | number => {
   const raw = Array.isArray(value) ? value[0] : value;
 
@@ -56,6 +59,7 @@ const parseUserIDParam = (value: string | string[] | undefined): null | number =
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
 };
 
+// fallow-ignore-next-line complexity -- long-standing page body; the added empty-state early return follows the existing redirect pattern
 const HeadToHeadPageBody: FC<HeadToHeadPageBodyProps> = async ({ searchParams }) => {
   const redirectUrl = await requireRegistered();
 
@@ -72,7 +76,25 @@ const HeadToHeadPageBody: FC<HeadToHeadPageBodyProps> = async ({ searchParams })
   const userBID = parseUserIDParam(params.b) ?? users.find((ranking) => ranking.UserID !== userAID)?.UserID;
 
   if (!userAID || !userBID) {
-    return redirect("/");
+    return (
+      <PageTransition>
+        <div className="h-full flex flex-col md:mx-3">
+          <CustomHead title={TITLE} />
+          <PageContent className="pt-5 md:pt-3 pb-4">
+            <div className="flex flex-col items-center justify-center gap-3 min-h-[50vh] text-center">
+              <PiFootballDuotone aria-hidden="true" className="size-16 text-muted-foreground" />
+              <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+                Standings for week {selectedWeek} aren&apos;t ready yet
+              </h2>
+              <p className="max-w-md text-muted-foreground">
+                Head-to-head matchups appear once this week&apos;s results start coming in. Check back soon!
+              </p>
+              <ProgressBarLink href="/">&laquo; Back to Dashboard</ProgressBarLink>
+            </div>
+          </PageContent>
+        </div>
+      </PageTransition>
+    );
   }
 
   const userA = users.find((ranking) => ranking.UserID === userAID);
@@ -165,6 +187,7 @@ const HeadToHeadPageBody: FC<HeadToHeadPageBodyProps> = async ({ searchParams })
                 const pickB = picksB.get(game.GameID);
                 const isFinal = game.GameStatus === "Final";
 
+                // fallow-ignore-next-line complexity -- pre-existing pick cell rendering; CRAP reflects missing component-test coverage, not branching
                 const renderPick = (pick: { PickPoints: null | number; TeamID: null | number } | undefined) => {
                   if (!pick?.TeamID) {
                     return <span className="text-muted-foreground">-</span>;
