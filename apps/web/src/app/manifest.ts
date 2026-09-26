@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 const manifest = (): MetadataRoute.Manifest => {
   return {
-    background_color: "#8c8c8c",
+    background_color: "#0f0f0f",
     description: "A confidence pool for the NFL regular season",
     display: "standalone",
     icons: [
@@ -31,7 +31,7 @@ const manifest = (): MetadataRoute.Manifest => {
     scope: "/",
     short_name: "NFL CP",
     start_url: "/",
-    theme_color: "#8c8c8c",
+    theme_color: "#0f0f0f",
   };
 };
 

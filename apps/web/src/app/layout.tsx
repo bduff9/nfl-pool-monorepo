@@ -28,7 +28,6 @@ const roboto = Roboto({
 });
 const appTitle = "NFL Confidence Pool";
 const appDescription = "A confidence pool for the NFL regular season";
-const appColor = "#8c8c8c";
 const siteName = "A Site With No Name";
 const ogImage = `${env.NEXT_PUBLIC_SITE_URL}/bkgd-pitch.png`;
 const twitterAccount = "@Duffmaster33";
@@ -86,7 +85,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: appColor,
+  // Two media-scoped metas are required: iOS 26 standalone web apps fall back to a blue
+  // system tint when a single theme-color is paired with the apple status-bar-style meta.
+  // The color matches the top of bkgd-pitch.png (near-black) so the status bar blends with
+  // the app top in both themes — the background image is theme-independent.
+  themeColor: [
+    { color: "#0f0f0f", media: "(prefers-color-scheme: light)" },
+    { color: "#0f0f0f", media: "(prefers-color-scheme: dark)" },
+  ],
 };
 
 const PageLoadingFallback: FC = () => (
@@ -135,7 +141,8 @@ const RootLayout: FC<LayoutProps<"/">> = ({ children }) => {
               </main>
             </AuthenticatedNavPresenceProvider>
           </SidebarProvider>
-          <div style={{ viewTransitionName: "app-toaster" }}>
+          {/* z-[60] keeps the toaster a stacking context above fixed chrome (PickActionsBar z-49) and Radix portals (z-50), which the view-transition-name context would otherwise pin at z-0 */}
+          <div className="relative z-[60]" style={{ viewTransitionName: "app-toaster" }}>
             <Toaster richColors />
           </div>
         </Providers>
