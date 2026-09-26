@@ -2,6 +2,7 @@ import { healPicks, healWeek } from "@nfl-pool-monorepo/api/src/healing";
 import { getEntireSeasonFromApi } from "@nfl-pool-monorepo/api/src/index";
 import { getSystemYear } from "@nfl-pool-monorepo/db/src/queries/systemValue";
 import { getCurrentWeek } from "@nfl-pool-monorepo/db/src/queries/week";
+import { sendGameTimeChangedNotifications } from "@nfl-pool-monorepo/transactional/src/gameTimeChanged";
 import { WEEKS_IN_SEASON } from "@nfl-pool-monorepo/utils/constants";
 import type { Handler } from "aws-lambda";
 
@@ -22,7 +23,8 @@ export const handler: Handler<never, void> = async (_event, _context) => {
 
   for (let week = currentWeek; week <= WEEKS_IN_SEASON; week++) {
     try {
-      await healWeek(week, season);
+      const kickoffChanges = await healWeek(week, season);
+      await sendGameTimeChangedNotifications(kickoffChanges);
       await healPicks(week);
     } catch (error) {
       console.error("Failed to heal week, continuing with remaining weeks", { error, week });

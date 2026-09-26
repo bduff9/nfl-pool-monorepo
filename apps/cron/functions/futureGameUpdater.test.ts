@@ -5,18 +5,21 @@ const getEntireSeasonFromApi = vi.fn();
 const getCurrentWeek = vi.fn();
 const healWeek = vi.fn();
 const healPicks = vi.fn();
+const sendGameTimeChangedNotifications = vi.fn();
 
 vi.mock("@nfl-pool-monorepo/db/src/queries/systemValue", () => ({ getSystemYear }));
 vi.mock("@nfl-pool-monorepo/api/src/index", () => ({ getEntireSeasonFromApi }));
 vi.mock("@nfl-pool-monorepo/db/src/queries/week", () => ({ getCurrentWeek }));
 vi.mock("@nfl-pool-monorepo/api/src/healing", () => ({ healPicks, healWeek }));
+vi.mock("@nfl-pool-monorepo/transactional/src/gameTimeChanged", () => ({ sendGameTimeChangedNotifications }));
 
 const resetAllMocks = () => {
   getSystemYear.mockReset().mockResolvedValue(2026);
   getEntireSeasonFromApi.mockReset().mockResolvedValue([{ week: 1 }]);
   getCurrentWeek.mockReset().mockResolvedValue(17);
-  healWeek.mockReset().mockResolvedValue(undefined);
+  healWeek.mockReset().mockResolvedValue([]);
   healPicks.mockReset().mockResolvedValue(undefined);
+  sendGameTimeChangedNotifications.mockReset().mockResolvedValue(undefined);
   vi.resetModules();
 };
 

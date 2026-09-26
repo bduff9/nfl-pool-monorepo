@@ -5,7 +5,7 @@ const checkDBIfUpdatesNeeded = vi.fn();
 const getSingleWeekFromApi = vi.fn();
 const getDbGameFromApi = vi.fn();
 const parseTeamsFromApi = vi.fn();
-const getTeamFromDB = vi.fn();
+const getTeamsFromDB = vi.fn();
 const updateTeamData = vi.fn();
 const updateSpreads = vi.fn();
 const updateDBGame = vi.fn();
@@ -23,6 +23,8 @@ const hasSystemValue = vi.fn();
 const setSystemValue = vi.fn();
 const hasUnfinishedGames = vi.fn();
 const sendWeekStartedNotifications = vi.fn();
+const sendPicksAutoSubmittedNotifications = vi.fn();
+const sendSurvivorEliminatedNotifications = vi.fn();
 const sendWeekEndedNotifications = vi.fn();
 const sendWeeklyEmails = vi.fn();
 
@@ -30,7 +32,7 @@ vi.mock("@nfl-pool-monorepo/db/src/queries/week", () => ({ getCurrentWeek }));
 vi.mock("@nfl-pool-monorepo/db/src/queries/game", () => ({ checkDBIfUpdatesNeeded, hasUnfinishedGames }));
 vi.mock("@nfl-pool-monorepo/db/src/queries/systemValue", () => ({ getSystemYear, hasSystemValue }));
 vi.mock("@nfl-pool-monorepo/db/src/mutations/systemValue", () => ({ setSystemValue }));
-vi.mock("@nfl-pool-monorepo/db/src/queries/team", () => ({ getTeamFromDB }));
+vi.mock("@nfl-pool-monorepo/db/src/queries/team", () => ({ getTeamsFromDB }));
 vi.mock("@nfl-pool-monorepo/api/src", () => ({ getSingleWeekFromApi }));
 vi.mock("@nfl-pool-monorepo/api/src/utils", () => ({ getDbGameFromApi, parseTeamsFromApi }));
 vi.mock("@nfl-pool-monorepo/db/src/mutations/team", () => ({ updateTeamData }));
@@ -45,6 +47,8 @@ vi.mock("@nfl-pool-monorepo/db/src/mutations/bestPlacement", () => ({
   updateBestPlacementWeekly,
 }));
 vi.mock("@nfl-pool-monorepo/db/src/mutations/payment", () => ({ lockLatePaymentUsers, updateAllPayouts }));
+vi.mock("@nfl-pool-monorepo/transactional/src/picksAutoSubmitted", () => ({ sendPicksAutoSubmittedNotifications }));
+vi.mock("@nfl-pool-monorepo/transactional/src/survivorEliminated", () => ({ sendSurvivorEliminatedNotifications }));
 vi.mock("@nfl-pool-monorepo/transactional/src/alerts", () => ({
   sendWeekEndedNotifications,
   sendWeeklyEmails,
@@ -70,12 +74,12 @@ const resetAllMocks = () => {
   getSingleWeekFromApi.mockReset().mockResolvedValue([]);
   getDbGameFromApi.mockReset().mockResolvedValue({ GameNumber: 2, GameStatus: "Pregame" });
   parseTeamsFromApi.mockReset().mockReturnValue([{ id: "5" }, { id: "9" }]);
-  getTeamFromDB.mockReset().mockResolvedValue({ TeamID: 1 });
+  getTeamsFromDB.mockReset().mockResolvedValue({ "5": 1, "9": 1 });
   updateTeamData.mockReset().mockResolvedValue(undefined);
   updateSpreads.mockReset().mockResolvedValue(undefined);
-  updateDBGame.mockReset().mockResolvedValue({ GameStatus: "InProgress" });
-  updateMissedPicks.mockReset().mockResolvedValue(undefined);
-  markEmptySurvivorPicksAsDead.mockReset().mockResolvedValue(undefined);
+  updateDBGame.mockReset().mockResolvedValue({ eliminatedUserIDs: [], GameStatus: "InProgress" });
+  updateMissedPicks.mockReset().mockResolvedValue([]);
+  markEmptySurvivorPicksAsDead.mockReset().mockResolvedValue([]);
   updateSurvivorMV.mockReset().mockResolvedValue(undefined);
   updateWeeklyMV.mockReset().mockResolvedValue(undefined);
   updateOverallMV.mockReset().mockResolvedValue(undefined);
@@ -87,6 +91,8 @@ const resetAllMocks = () => {
   hasSystemValue.mockReset().mockResolvedValue(false);
   setSystemValue.mockReset().mockResolvedValue(undefined);
   hasUnfinishedGames.mockReset().mockResolvedValue(false);
+  sendPicksAutoSubmittedNotifications.mockReset().mockResolvedValue(undefined);
+  sendSurvivorEliminatedNotifications.mockReset().mockResolvedValue(undefined);
   sendWeekStartedNotifications.mockReset().mockResolvedValue(undefined);
   sendWeekEndedNotifications.mockReset().mockResolvedValue(undefined);
   sendWeeklyEmails.mockReset().mockResolvedValue(undefined);
@@ -111,7 +117,7 @@ describe("liveGameUpdater handler", () => {
     const { handler } = await import("./liveGameUpdater");
     await handler(null as never, null as never, null as never);
 
-    expect(getTeamFromDB).not.toHaveBeenCalled();
+    expect(getTeamsFromDB).not.toHaveBeenCalled();
   });
 
   it("only updates spreads for games that haven't kicked off yet", async () => {

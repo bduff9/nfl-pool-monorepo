@@ -16,7 +16,15 @@ const shouldAutoPickHome = (type: Selectable<Users>["UserAutoPickStrategy"]): bo
   return randomInt(0, 10) < 5;
 };
 
-export const updateMissedPicks = async (game: Awaited<ReturnType<typeof getDbGameFromApi>>): Promise<void> => {
+export type AutoFilledPick = {
+  gameID: number;
+  pickPoints: number;
+  userID: number;
+};
+
+export const updateMissedPicks = async (
+  game: Awaited<ReturnType<typeof getDbGameFromApi>>,
+): Promise<Array<AutoFilledPick>> => {
   const missed = await db
     .selectFrom("Picks as p")
     .innerJoin("Users as u", "u.UserID", "p.UserID")
@@ -34,8 +42,12 @@ export const updateMissedPicks = async (game: Awaited<ReturnType<typeof getDbGam
     .where("p.GameID", "=", game.GameID)
     .execute();
 
+  const autoFilled: Array<AutoFilledPick> = [];
+
   for (const pick of missed) {
-    if (!pick.PickPoints) {
+    let pickPoints = pick.PickPoints ?? null;
+
+    if (!pickPoints) {
       // react-doctor-disable-next-line async-await-in-loop -- must run sequentially: getLowestUnusedPoint re-reads currently-used points, so running two missed picks for the same user concurrently could assign the same point twice
       const lowestPoint = await getLowestUnusedPoint(game.GameWeek, pick.UserID);
 
@@ -57,6 +69,8 @@ export const updateMissedPicks = async (game: Awaited<ReturnType<typeof getDbGam
         })
         .where("PickID", "=", pick.PickID)
         .executeTakeFirstOrThrow();
+
+      pickPoints = lowestPoint;
     }
 
     if (pick.UserAutoPickStrategy && pick.UserAutoPicksLeft > 0) {
@@ -86,5 +100,9 @@ export const updateMissedPicks = async (game: Awaited<ReturnType<typeof getDbGam
     } else {
       console.log("Auto assigned points for missed pick", { pick });
     }
+
+    autoFilled.push({ gameID: game.GameID, pickPoints, userID: pick.UserID });
   }
+
+  return autoFilled;
 };

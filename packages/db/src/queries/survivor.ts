@@ -95,6 +95,7 @@ export const isAliveInSurvivor = async (userId: number): Promise<boolean> => {
     const lostPick = await db
       .selectFrom("SurvivorPicks as SP")
       .innerJoin("Games as G", "G.GameID", "SP.GameID")
+      .select("SP.SurvivorPickID")
       .where("SP.UserID", "=", userId)
       .where("SP.SurvivorPickDeleted", "is", null)
       .where("G.WinnerTeamID", "is not", null)

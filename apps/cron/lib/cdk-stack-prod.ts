@@ -11,6 +11,7 @@ import {
   type StackProps,
   aws_s3 as s3,
   aws_sns as sns,
+  aws_sqs as sqs,
   aws_events_targets as targets,
 } from "aws-cdk-lib";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
@@ -20,6 +21,7 @@ import { config } from "dotenv";
 config();
 
 export class CdkStackProd extends Stack {
+  // fallow-ignore-next-line complexity -- declarative infra wiring; the DLQ loop mirrors the existing per-function alarm loop
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
@@ -67,8 +69,6 @@ export class CdkStackProd extends Stack {
       }),
     });
 
-    onceAnHourScheduleRule.addTarget(new targets.LambdaFunction(currentWeekUpdaterProd));
-
     const backupBucketProd = new s3.Bucket(this, "aswnn-mysql-backup.prod", {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       bucketName: "aswnn-mysql-backup.prod",
@@ -103,8 +103,6 @@ export class CdkStackProd extends Stack {
       }),
     });
 
-    twiceADayScheduleRule.addTarget(new targets.LambdaFunction(backupNflDatabaseProd));
-
     const futureGameUpdaterProd = new NodejsFunction(this, "FutureGameUpdaterProd", {
       bundling: {
         externalModules: [],
@@ -129,8 +127,6 @@ export class CdkStackProd extends Stack {
         year: "*",
       }),
     });
-
-    twiceADayOnTheHalfHoursScheduleRule.addTarget(new targets.LambdaFunction(futureGameUpdaterProd));
 
     const liveGameUpdaterProd = new NodejsFunction(this, "LiveGameUpdaterProd", {
       bundling: {
@@ -157,8 +153,6 @@ export class CdkStackProd extends Stack {
         year: "*",
       }),
     });
-
-    every5MinutesScheduleRule.addTarget(new targets.LambdaFunction(liveGameUpdaterProd));
 
     const resetPoolProd = new NodejsFunction(this, "ResetPoolProd", {
       bundling: {
@@ -189,6 +183,36 @@ export class CdkStackProd extends Stack {
         sid: "AllowCloudWatchAlarmsToPublish",
       }),
     );
+
+    const scheduledFunctions: Array<{ fn: NodejsFunction; rule: events.Rule }> = [
+      { fn: backupNflDatabaseProd, rule: twiceADayScheduleRule },
+      { fn: currentWeekUpdaterProd, rule: onceAnHourScheduleRule },
+      { fn: futureGameUpdaterProd, rule: twiceADayOnTheHalfHoursScheduleRule },
+      { fn: liveGameUpdaterProd, rule: every5MinutesScheduleRule },
+    ];
+
+    for (const { fn, rule } of scheduledFunctions) {
+      const functionName = fn.node.id;
+
+      // Scheduled invocations run with retryAttempts: 0, so a failed run would otherwise be
+      // dropped silently; the DLQ keeps the event so it can be inspected and replayed.
+      const dlq = new sqs.Queue(this, `${functionName}Dlq`, {
+        queueName: `nfl-pool-prod-${functionName}-dlq`,
+        retentionPeriod: Duration.days(14),
+      });
+
+      const dlqAlarm = new cloudwatch.Alarm(this, `${functionName}DlqAlarm`, {
+        alarmDescription: `${functionName} has undelivered scheduled invocations in its dead-letter queue. Inspect and fix the failure, then replay the event by re-invoking the Lambda.`,
+        alarmName: `nfl-pool-prod-${functionName}-dlq`,
+        evaluationPeriods: 1,
+        metric: dlq.metricApproximateNumberOfMessagesVisible({ period: Duration.minutes(5) }),
+        threshold: 1,
+        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+      });
+      dlqAlarm.addAlarmAction(new cloudwatchActions.SnsAction(alertsTopic));
+
+      rule.addTarget(new targets.LambdaFunction(fn, { deadLetterQueue: dlq }));
+    }
 
     const prodFunctions: Array<{ fn: NodejsFunction; memorySize: number }> = [
       { fn: backupNflDatabaseProd, memorySize: 2048 },

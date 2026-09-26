@@ -99,7 +99,7 @@ describe("updateMissedPicks", () => {
 
     const { updateMissedPicks } = await import("./pick");
 
-    await expect(updateMissedPicks(makeGame())).resolves.toBeUndefined();
+    await expect(updateMissedPicks(makeGame())).resolves.toEqual([]);
     expect(mockDb.executeTakeFirstOrThrow).not.toHaveBeenCalled();
   });
 

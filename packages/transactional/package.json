@@ -41,6 +41,7 @@
     "dev": "cp .env ../../node_modules/react-email/dist/preview && email dev --dir emails/templates",
     "freerange": "fr",
     "lint": "biome check . --write && npmPkgJsonLint .",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "version": "0.1.0"

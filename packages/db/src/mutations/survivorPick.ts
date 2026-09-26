@@ -19,7 +19,7 @@ const markUserDead = async (userID: number, week: number, trx?: Transaction<DB>)
     .executeTakeFirstOrThrow();
 };
 
-export const markEmptySurvivorPicksAsDead = async (week: number): Promise<void> => {
+export const markEmptySurvivorPicksAsDead = async (week: number): Promise<Array<number>> => {
   if (week === 1) {
     const users = await db
       .selectFrom("SurvivorPicks")
@@ -59,13 +59,15 @@ export const markEmptySurvivorPicksAsDead = async (week: number): Promise<void> 
     // react-doctor-disable-next-line async-await-in-loop -- kept sequential so survivor eliminations are applied one user at a time rather than racing concurrent writes to SurvivorPicks
     await markUserDead(user.UserID, week);
   }
+
+  return dead.map(({ UserID }) => UserID);
 };
 
 export const markWrongSurvivorPicksAsDead = async (
   week: number,
   losingID: number,
   trx?: Transaction<DB>,
-): Promise<void> => {
+): Promise<Array<number>> => {
   const dead = await (trx ?? db)
     .selectFrom("SurvivorPicks")
     .select(["UserID"])
@@ -77,4 +79,6 @@ export const markWrongSurvivorPicksAsDead = async (
     // react-doctor-disable-next-line async-await-in-loop -- when trx is set these updates share one transaction connection; mysql2 processes queries on a connection sequentially, so Promise.all here would not run them concurrently
     await markUserDead(user.UserID, week, trx);
   }
+
+  return dead.map(({ UserID }) => UserID);
 };

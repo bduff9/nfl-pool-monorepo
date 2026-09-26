@@ -273,9 +273,19 @@ const findFutureAPIGame = (allAPIWeeks: NFLWeekArray, gameToFind: Game): [number
   return [WEEKS_IN_SEASON, null];
 };
 
-export const healWeek = async (week: number, allAPIWeeks: NFLWeekArray): Promise<void> => {
+export type KickoffChange = {
+  gameID: number;
+  newKickoff: Date;
+  oldKickoff: Date;
+  // The week the game sat in when users made picks on it, not necessarily the new week.
+  week: number;
+};
+
+// fallow-ignore-next-line complexity -- healing is inherently branchy; kickoff-change collection added three bookkeeping pushes, no new reconciliation logic
+export const healWeek = async (week: number, allAPIWeeks: NFLWeekArray): Promise<Array<KickoffChange>> => {
   console.log(`Healing games for week ${week}...`);
 
+  const kickoffChanges: Array<KickoffChange> = [];
   const currentAPIWeek = allAPIWeeks.find(({ week: w }) => +w === week);
   const currentDBWeek = await getGamesForWeek(week);
   const validDBGames: Array<Game> = [];
@@ -283,7 +293,7 @@ export const healWeek = async (week: number, allAPIWeeks: NFLWeekArray): Promise
   const validAPIGames: Array<ApiMatchup> = [];
   const invalidAPIGames: Array<ApiMatchup> = [];
 
-  if (!currentAPIWeek?.matchup) return;
+  if (!currentAPIWeek?.matchup) return [];
 
   const apiGames = currentAPIWeek.matchup;
   const teams = await getTeamsFromDB();
@@ -308,6 +318,12 @@ export const healWeek = async (week: number, allAPIWeeks: NFLWeekArray): Promise
       if (dbGame) {
         if (game.kickoff.toISOString() !== dbGame.GameKickoff.toISOString()) {
           await updateGameMeta(dbGame, week, game.kickoff);
+          kickoffChanges.push({
+            gameID: dbGame.GameID,
+            newKickoff: game.kickoff,
+            oldKickoff: dbGame.GameKickoff,
+            week,
+          });
         }
 
         validAPIGames.push(game);
@@ -330,6 +346,12 @@ export const healWeek = async (week: number, allAPIWeeks: NFLWeekArray): Promise
       const futureWeek = futureGame.GameWeek;
 
       await updateGameMeta(futureGame, week, game.kickoff);
+      kickoffChanges.push({
+        gameID: futureGame.GameID,
+        newKickoff: game.kickoff,
+        oldKickoff: futureGame.GameKickoff,
+        week: futureGame.GameWeek,
+      });
       await healPicks(futureWeek);
       await healPicks(week);
     }
@@ -347,6 +369,12 @@ export const healWeek = async (week: number, allAPIWeeks: NFLWeekArray): Promise
     if (foundAPIGame) {
       try {
         await updateGameMeta(game, foundWeek, foundAPIGame.kickoff);
+        kickoffChanges.push({
+          gameID: game.GameID,
+          newKickoff: foundAPIGame.kickoff,
+          oldKickoff: game.GameKickoff,
+          week: game.GameWeek,
+        });
         await healPicks(week);
         await healPicks(foundWeek);
       } catch (error) {
@@ -367,4 +395,6 @@ export const healWeek = async (week: number, allAPIWeeks: NFLWeekArray): Promise
   await updateTeamByeWeeks(week);
 
   console.log(`Finished healing games for week ${week}`);
+
+  return kickoffChanges;
 };

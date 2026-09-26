@@ -79,7 +79,7 @@ export const populateGames = async (trx: Transaction<DB>, newSeason: NFLWeekArra
 export const updateDBGame = async (
   game: ApiMatchup,
   dbGame: Awaited<ReturnType<typeof getDbGameFromApi>>,
-): ReturnType<typeof getDbGameFromApi> => {
+): Promise<Awaited<ReturnType<typeof getDbGameFromApi>> & { eliminatedUserIDs: Array<number> }> => {
   const [homeTeam, visitingTeam] = parseTeamsFromApi(game.team);
   const homeTeamID = dbGame.HomeTeamID;
   const visitingTeamID = dbGame.VisitorTeamID;
@@ -88,7 +88,7 @@ export const updateDBGame = async (
   if (!apiUpdateIsValid) {
     console.error("Invalid API data found, skipping all DB updates...");
 
-    return dbGame;
+    return { ...dbGame, eliminatedUserIDs: [] };
   }
 
   const updatedGame: UpdateObject<DB, "Games", "Games"> = {
@@ -135,10 +135,13 @@ export const updateDBGame = async (
   updatedGame.GameUpdated = new Date();
   updatedGame.GameUpdatedBy = ADMIN_USER;
 
+  const eliminatedUserIDs: Array<number> = [];
+
   await db.transaction().execute(async (trx) => {
     for (const losingTeamID of losingTeamIDs) {
       // react-doctor-disable-next-line async-await-in-loop -- these updates share one transaction connection (trx); mysql2 processes queries on a connection sequentially, so Promise.all here would not run them concurrently
-      await markWrongSurvivorPicksAsDead(dbGame.GameWeek, losingTeamID, trx);
+      const userIDs = await markWrongSurvivorPicksAsDead(dbGame.GameWeek, losingTeamID, trx);
+      eliminatedUserIDs.push(...userIDs);
     }
 
     await trx.updateTable("Games").set(updatedGame).where("GameID", "=", dbGame.GameID).executeTakeFirstOrThrow();
@@ -160,7 +163,8 @@ export const updateDBGame = async (
       "g.GameTimeLeftInSeconds",
     ])
     .where("g.GameID", "=", dbGame.GameID)
-    .executeTakeFirstOrThrow();
+    .executeTakeFirstOrThrow()
+    .then((game) => ({ ...game, eliminatedUserIDs }));
 };
 
 export const updateSpreads = async (week: number, apiGame: ApiMatchup): Promise<void> => {

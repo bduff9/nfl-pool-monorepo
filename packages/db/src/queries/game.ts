@@ -34,7 +34,7 @@ export const hasUnfinishedGames = async (week: number): Promise<boolean> => {
 export const findFutureGame = (homeTeamID: number, visitorTeamID: number, week: number) => {
   return db
     .selectFrom("Games")
-    .select(["GameID", "GameWeek", "GameNumber"])
+    .select(["GameID", "GameWeek", "GameNumber", "GameKickoff"])
     .where("HomeTeamID", "=", homeTeamID)
     .where("VisitorTeamID", "=", visitorTeamID)
     .where("GameWeek", ">", week)

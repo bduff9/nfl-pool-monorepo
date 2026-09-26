@@ -15,13 +15,15 @@ import { updateTeamData } from "@nfl-pool-monorepo/db/src/mutations/team";
 import { updateWeeklyMV } from "@nfl-pool-monorepo/db/src/mutations/weeklyMv";
 import { checkDBIfUpdatesNeeded, hasUnfinishedGames } from "@nfl-pool-monorepo/db/src/queries/game";
 import { getSystemYear, hasSystemValue } from "@nfl-pool-monorepo/db/src/queries/systemValue";
-import { getTeamFromDB } from "@nfl-pool-monorepo/db/src/queries/team";
+import { getTeamsFromDB } from "@nfl-pool-monorepo/db/src/queries/team";
 import { getCurrentWeek } from "@nfl-pool-monorepo/db/src/queries/week";
 import {
   sendWeekEndedNotifications,
   sendWeeklyEmails,
   sendWeekStartedNotifications,
 } from "@nfl-pool-monorepo/transactional/src/alerts";
+import { sendPicksAutoSubmittedNotifications } from "@nfl-pool-monorepo/transactional/src/picksAutoSubmitted";
+import { sendSurvivorEliminatedNotifications } from "@nfl-pool-monorepo/transactional/src/survivorEliminated";
 import type { Handler } from "aws-lambda";
 
 /**
@@ -52,6 +54,7 @@ const finalizeWeekIfNeeded = async (week: number): Promise<void> => {
   console.log(`Week ${week} finalized!`);
 };
 
+// fallow-ignore-next-line complexity -- per-game orchestration hub; the notification sends mirror the existing week-started pattern
 export const handler: Handler<never, void> = async (_event, _context) => {
   const timeStamp = new Date().toISOString();
 
@@ -80,15 +83,21 @@ export const handler: Handler<never, void> = async (_event, _context) => {
     return;
   }
 
+  const teams = await getTeamsFromDB();
+
   for (const game of games) {
     try {
       const kickoff = game.kickoff;
 
       for (const team of game.team) {
-        const dbTeam = await getTeamFromDB(team.id);
+        const teamID = teams[team.id];
+
+        if (teamID === undefined) {
+          throw new Error(`Team ${team.id} from API not found in DB`);
+        }
 
         // react-doctor-disable-next-line async-await-in-loop -- team updates for this game are sequential DB writes, not independent work
-        await updateTeamData(dbTeam.TeamID, team, currentWeek);
+        await updateTeamData(teamID, team, currentWeek);
       }
 
       if (now < kickoff || game.status === "SCHED") {
@@ -102,7 +111,8 @@ export const handler: Handler<never, void> = async (_event, _context) => {
       const oldStatus = dbGame.GameStatus;
 
       if (oldStatus === "Pregame") {
-        await updateMissedPicks(dbGame);
+        const autoFilledPicks = await updateMissedPicks(dbGame);
+        await sendPicksAutoSubmittedNotifications(currentWeek, autoFilledPicks);
 
         if (dbGame.GameNumber === 1) {
           const startedFlag = `Started-${await getSystemYear()}-${currentWeek}`;
@@ -112,16 +122,19 @@ export const handler: Handler<never, void> = async (_event, _context) => {
           if (!(await hasSystemValue(startedFlag))) {
             await setSystemValue(startedFlag, "1");
             await sendWeekStartedNotifications(currentWeek);
-            await markEmptySurvivorPicksAsDead(currentWeek);
+            const eliminatedUserIDs = await markEmptySurvivorPicksAsDead(currentWeek);
+            await sendSurvivorEliminatedNotifications(currentWeek, eliminatedUserIDs);
             await updateSurvivorMV(currentWeek);
           }
         }
       }
 
-      dbGame = await updateDBGame(game, dbGame);
+      const { eliminatedUserIDs, ...updatedGame } = await updateDBGame(game, dbGame);
+      dbGame = updatedGame;
 
       if (dbGame.GameStatus === "Final" && oldStatus !== dbGame.GameStatus) {
         needMVsUpdated = true;
+        await sendSurvivorEliminatedNotifications(currentWeek, eliminatedUserIDs);
       }
     } catch (error) {
       console.error("Failed to process game update, continuing with remaining games", { error, game });
