@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { readdirSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 
@@ -9,7 +9,9 @@ const require = createRequire(import.meta.url);
 const cliPath = path.join(path.dirname(require.resolve("logrocket-cli/package.json")), "bin/logrocket");
 
 const apiKey = process.env.LOGROCKET_TOKEN ?? "";
-const staticDir = path.resolve(import.meta.dirname, "../.next/static/chunks");
+const appDir = path.resolve(import.meta.dirname, "..");
+const repoDir = path.resolve(appDir, "../..");
+const canonicalChunksDir = path.join(appDir, ".next/static/chunks");
 
 let release = process.env.LOGROCKET_RELEASE ?? process.env.VERCEL_GIT_COMMIT_SHA ?? "";
 
@@ -17,22 +19,37 @@ if (!release) {
   release = (spawnSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).stdout ?? "").trim();
 }
 
-const hasJsMaps = () => {
+const mapCount = (dir) => {
   try {
-    return readdirSync(staticDir).some((file) => file.endsWith(".js.map"));
+    return readdirSync(dir).filter((file) => file.endsWith(".js.map")).length;
   } catch {
-    return false;
+    return 0;
   }
 };
 
-const missing = [
-  !apiKey && "LOGROCKET_TOKEN",
-  !release && "a release hash",
-  !hasJsMaps() && "built source maps in .next/static/chunks",
-].filter(Boolean);
+// Normally the browser maps live in .next/static, but Vercel's build hooks process the Next
+// dist dir before this script runs and may relocate them — probe the known locations.
+const candidateStaticDirs = [
+  path.join(appDir, ".next/static"),
+  path.join(appDir, ".vercel/output/static/_next/static"),
+  path.join(repoDir, ".vercel/output/static/_next/static"),
+  "/vercel/output/static/_next/static",
+];
 
-if (missing.length > 0) {
-  console.log(`Skipping LogRocket source map upload (missing: ${missing.join(", ")})`);
+const staticDir = candidateStaticDirs.find((dir) => mapCount(path.join(dir, "chunks")) > 0);
+
+if (!apiKey || !release || !staticDir) {
+  const chunkFiles = existsSync(canonicalChunksDir) ? readdirSync(canonicalChunksDir) : [];
+  const distDirs = readdirSync(appDir)
+    .filter((name) => name.startsWith(".next"))
+    .join(", ");
+
+  console.log(
+    `Skipping LogRocket source map upload (LOGROCKET_TOKEN ${apiKey ? "set" : "missing"}, release ${release || "missing"}, maps at ${staticDir ?? "no known location"})`,
+  );
+  console.log(
+    `Diagnostic: ${canonicalChunksDir} has ${chunkFiles.length} files (${mapCount(canonicalChunksDir)} maps); Next dist dirs in app: ${distDirs || "none"}`,
+  );
 } else {
   // Registering the release is best-effort: it already existing is fine — this upload is
   // observability only and must never fail the deployment, so failures are logged, not thrown.
@@ -44,7 +61,7 @@ if (missing.length > 0) {
 
   // The CLI resolves upload paths via path.join(process.cwd(), arg), which corrupts absolute
   // paths — it only accepts paths relative to the current directory.
-  const uploadArg = path.relative(process.cwd(), path.dirname(staticDir));
+  const uploadArg = path.relative(process.cwd(), staticDir);
 
   const result = spawnSync(
     process.execPath,

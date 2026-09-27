@@ -14,6 +14,7 @@
         "BACKUP_BUCKET_NAME",
         "DATABASE_URL",
         "EMAIL_FROM",
+        "EMAIL_LINK_SECRET",
         "GOOGLE_ID",
         "GOOGLE_SECRET",
         "LOGFLARE_API_KEY",
