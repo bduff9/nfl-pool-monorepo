@@ -2,7 +2,13 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
+  env: {
+    // Inlined at build time and must match the --release passed by scripts/upload-sourcemaps.mjs
+    // so LogRocket can apply the uploaded source maps to this deployment's stack traces.
+    NEXT_PUBLIC_LOGROCKET_RELEASE: process.env.VERCEL_GIT_COMMIT_SHA ?? "",
+  },
   partialPrefetching: true,
+  productionBrowserSourceMaps: true,
   reactCompiler: true,
   experimental: {
     // Only for the "instant()" Playwright helper running against a production build in CI —

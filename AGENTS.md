@@ -95,7 +95,7 @@ sam local invoke CurrentWeekUpdaterLocal --no-event -t ./cdk.out/CdkStackLocal.t
 
 **Auth:** custom DB-backed session management (not a third-party auth library) plus Google OAuth; sessions validated server-side for protected routes.
 
-**Error handling:** ZSA (Zod Server Actions) for typed server actions; Sentry for error tracking.
+**Error handling:** ZSA (Zod Server Actions) for typed server actions; LogRocket for session replay and client-side error tracking (source maps uploaded at build time via `logrocket-cli`); CloudWatch alarms + DLQs for the cron Lambdas.
 
 ## Engineering principles
 

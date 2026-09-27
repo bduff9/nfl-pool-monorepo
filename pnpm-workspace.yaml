@@ -3,8 +3,10 @@ packages:
   - "packages/*"
 
 allowBuilds:
+  # react-doctor (root devDependency) uses @sentry/cli internally.
   '@sentry/cli': true
   aws-sdk: false
+  core-js: false
   esbuild: true
   msw: true
   sharp: true

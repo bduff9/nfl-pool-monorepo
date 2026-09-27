@@ -17,7 +17,6 @@
  */
 
 import type { User } from "@nfl-pool-monorepo/types";
-import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
 
 import { env } from "../env.client";
@@ -35,11 +34,8 @@ export const useLogrocket = (user?: User | null): void => {
     void import("logrocket").then((LogRocket) => {
       const LogRocketModule = LogRocket.default;
 
-      LogRocketModule.init(env.NEXT_PUBLIC_LOGROCKET_PROJ ?? "");
-      LogRocketModule.getSessionURL((sessionURL) => {
-        Sentry.withScope((scope) => {
-          scope.setExtra("sessionURL", sessionURL);
-        });
+      LogRocketModule.init(env.NEXT_PUBLIC_LOGROCKET_PROJ ?? "", {
+        ...(env.NEXT_PUBLIC_LOGROCKET_RELEASE ? { release: env.NEXT_PUBLIC_LOGROCKET_RELEASE } : {}),
       });
 
       if (user) {
