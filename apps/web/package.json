@@ -80,7 +80,7 @@
   "private": true,
   "repository": "",
   "scripts": {
-    "build": "next build && node scripts/upload-sourcemaps.mjs",
+    "build": "next build",
     "dev": "next dev",
     "env": "sync-dotenv",
     "freerange": "fr",

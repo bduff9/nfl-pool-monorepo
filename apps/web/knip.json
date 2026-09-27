@@ -1,5 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": ["scripts/upload-sourcemaps.mjs"],
   "ignoreBinaries": ["biome", "npmPkgJsonLint", "vitest"],
   "ignoreDependencies": ["vite-tsconfig-paths"],
   "ignoreFiles": ["public/sw.js", "vitest.config.ts", "vitest.setup.ts", "src/**/*.test.ts"],
