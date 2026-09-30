@@ -69,8 +69,6 @@ const staticRootFor = (mapPath) => {
   return null;
 };
 
-const missing = [!apiKey && "LOGROCKET_TOKEN", !release && "a release hash"].filter(Boolean);
-
 let staticDir =
   hasJsMaps(canonicalChunksDir) || hasJsMaps(path.dirname(canonicalChunksDir))
     ? path.dirname(canonicalChunksDir)
