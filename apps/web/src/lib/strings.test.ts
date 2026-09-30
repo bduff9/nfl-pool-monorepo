@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { addCustomStyling, getAbbreviation, getBackgroundColor, getShortQuarter, parseDragData } from "./strings";
+import {
+  addCustomStyling,
+  getAbbreviation,
+  getBackgroundColor,
+  getForegroundColor,
+  getShortQuarter,
+  parseDragData,
+} from "./strings";
 
 describe("getAbbreviation", () => {
   it("returns first letters of each word, uppercased", () => {
@@ -50,6 +57,26 @@ describe("getBackgroundColor", () => {
     const red = parseInt(match?.[1] ?? "0", 10);
     const green = parseInt(match?.[2] ?? "0", 10);
     expect(red).toBeGreaterThan(green);
+  });
+});
+
+describe("getForegroundColor", () => {
+  it("returns inherit when value is 0", () => {
+    expect(getForegroundColor(0, 16)).toBe("inherit");
+  });
+
+  it("returns black text on the yellow midpoint", () => {
+    expect(getForegroundColor(8, 16)).toBe("#000");
+  });
+
+  it("returns black text on bright green at max", () => {
+    expect(getForegroundColor(16, 16)).toBe("#000");
+  });
+
+  it("returns black text on every point of the red-to-green ramp", () => {
+    for (let value = 1; value <= 16; value++) {
+      expect(getForegroundColor(value, 16)).toBe("#000");
+    }
   });
 });
 

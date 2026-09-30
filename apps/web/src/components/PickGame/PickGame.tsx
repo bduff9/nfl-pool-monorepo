@@ -21,7 +21,7 @@ import type { Selectable } from "kysely";
 import type { FC } from "react";
 import { FaAt, FaInfoCircle, FaTimesCircle } from "react-icons/fa";
 
-import { getBackgroundColor } from "@/lib/strings";
+import { getBackgroundColor, getForegroundColor } from "@/lib/strings";
 
 import type { LoadingType } from "../MakePicksClient/MakePicksClient";
 import TeamLogo from "../TeamLogo/TeamLogo";
@@ -54,6 +54,7 @@ const DraggablePoint: FC<DraggablePointProps> = ({ index, isDragDisabled = false
           style={{
             backgroundColor: getBackgroundColor(value, maxValue),
             border: `1px solid ${getBackgroundColor(value, maxValue, "#000")}`,
+            color: getForegroundColor(value, maxValue),
             ...provided.draggableProps.style,
           }}
         >

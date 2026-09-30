@@ -46,6 +46,28 @@ export const getBackgroundColor = (value: number, maxValue: number, defaultColor
   return `rgb(${red}, ${green}, ${blue})`;
 };
 
+// WCAG relative luminance, used to pick the readable text color on top of a background
+const getRelativeLuminance = (red: number, green: number, blue: number): number => {
+  const linearize = (channel: number): number => {
+    const srgb = channel / 255;
+
+    return srgb <= 0.03928 ? srgb / 12.92 : ((srgb + 0.055) / 1.055) ** 2.4;
+  };
+
+  return 0.2126 * linearize(red) + 0.7152 * linearize(green) + 0.0722 * linearize(blue);
+};
+
+export const getForegroundColor = (value: number, maxValue: number): string => {
+  if (value === 0) return "inherit";
+
+  const background = getBackgroundColor(value, maxValue);
+  const channels = background.match(/\d+/g)?.map(Number) ?? [255, 255, 255];
+  const luminance = getRelativeLuminance(channels[0] ?? 255, channels[1] ?? 255, channels[2] ?? 255);
+
+  // 0.179 is the luminance at which black and white text have equal WCAG contrast against the background
+  return luminance > 0.179 ? "#000" : "#fff";
+};
+
 export const getShortQuarter = (quarter: string): string => {
   if (!quarter) return "";
 
