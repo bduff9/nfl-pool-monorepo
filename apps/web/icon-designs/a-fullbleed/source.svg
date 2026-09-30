@@ -1,0 +1,34 @@
+<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="ball" cx="0.35" cy="0.28" r="1.1">
+      <stop offset="0" stop-color="#cf8148"/>
+      <stop offset="0.55" stop-color="#9c4f22"/>
+      <stop offset="1" stop-color="#6b3212"/>
+    </radialGradient>
+    <clipPath id="ballClip">
+      <path d="M 122 512 C 140 435, 330 292, 512 292 C 694 292, 884 435, 902 512 C 884 589, 694 732, 512 732 C 330 732, 140 589, 122 512 Z"/>
+    </clipPath>
+  </defs>
+  <rect width="1024" height="1024" fill="#0b0d10"/>
+  <g transform="rotate(-20 512 490) translate(512 490) scale(1.40) translate(-512 -512)">
+    <path d="M 122 512 C 140 435, 330 292, 512 292 C 694 292, 884 435, 902 512 C 884 589, 694 732, 512 732 C 330 732, 140 589, 122 512 Z" fill="url(#ball)"/>
+    <g clip-path="url(#ballClip)">
+      <rect x="172" y="272" width="60" height="480" fill="#f5f1e8"/>
+      <rect x="792" y="272" width="60" height="480" fill="#f5f1e8"/>
+    </g>
+    <g transform="translate(0 -14)">
+    <line x1="417" y1="512" x2="607" y2="512" stroke="#f5f1e8" stroke-width="15" stroke-linecap="round"/>
+    <g stroke="#f5f1e8" stroke-width="15" stroke-linecap="round">
+      <line x1="428" y1="482" x2="428" y2="542"/>
+      <line x1="470" y1="482" x2="470" y2="542"/>
+      <line x1="512" y1="482" x2="512" y2="542"/>
+      <line x1="554" y1="482" x2="554" y2="542"/>
+      <line x1="596" y1="482" x2="596" y2="542"/>
+    </g></g>
+    <text transform="translate(337.1 664.0) rotate(16.94) scale(0.959)" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="104" font-weight="800" letter-spacing="0" fill="#faf6ee">A</text>
+    <text transform="translate(417.4 682.5) rotate(9.07) scale(0.988)" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="104" font-weight="800" letter-spacing="0" fill="#faf6ee">S</text>
+    <text transform="translate(509.1 690.0) rotate(0.27) scale(1.000)" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="104" font-weight="800" letter-spacing="0" fill="#faf6ee">W</text>
+    <text transform="translate(603.8 682.9) rotate(-8.80) scale(0.989)" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="104" font-weight="800" letter-spacing="0" fill="#faf6ee">N</text>
+    <text transform="translate(686.9 664.0) rotate(-16.94) scale(0.959)" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="104" font-weight="800" letter-spacing="0" fill="#faf6ee">N</text>
+  </g>
+</svg>

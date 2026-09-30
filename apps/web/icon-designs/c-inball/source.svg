@@ -1,0 +1,30 @@
+<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="18"/></filter>
+    <filter id="glowT" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="8"/></filter>
+    <radialGradient id="halo" cx="0.5" cy="0.5" r="0.55">
+      <stop offset="0" stop-color="#ff9d3c" stop-opacity="0.07"/>
+      <stop offset="1" stop-color="#ff9d3c" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="#07080a"/>
+  <circle cx="512" cy="512" r="430" fill="url(#halo)"/>
+  <g transform="translate(512 512) scale(1.18) translate(-512 -512)">
+    <path d="M 122 512 C 140 435, 330 292, 512 292 C 694 292, 884 435, 902 512 C 884 589, 694 732, 512 732 C 330 732, 140 589, 122 512 Z" fill="none" stroke="#ff9d3c" stroke-width="20" opacity="0.7" filter="url(#glow)"/>
+    <path d="M 122 512 C 140 435, 330 292, 512 292 C 694 292, 884 435, 902 512 C 884 589, 694 732, 512 732 C 330 732, 140 589, 122 512 Z" fill="none" stroke="#ffc37e" stroke-width="10"/>
+    <g stroke="#ffe9cf" stroke-width="9" stroke-linecap="round">
+    <line x1="417" y1="512" x2="607" y2="512"/>
+    <line x1="428" y1="482" x2="428" y2="542"/>
+    <line x1="470" y1="482" x2="470" y2="542"/>
+    <line x1="512" y1="482" x2="512" y2="542"/>
+    <line x1="554" y1="482" x2="554" y2="542"/>
+    <line x1="596" y1="482" x2="596" y2="542"/>
+      <line x1="194" y1="420" x2="186" y2="602"/>
+      <line x1="224" y1="414" x2="218" y2="606"/>
+      <line x1="828" y1="420" x2="836" y2="602"/>
+      <line x1="798" y1="414" x2="804" y2="606"/>
+    </g>
+    <text x="512" y="664" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="94" font-weight="700" letter-spacing="10" fill="#ffd9a8" opacity="0.55" filter="url(#glowT)">ASWNN</text>
+    <text x="512" y="664" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="94" font-weight="700" letter-spacing="10" fill="#ffd9a8">ASWNN</text>
+  </g>
+</svg>
