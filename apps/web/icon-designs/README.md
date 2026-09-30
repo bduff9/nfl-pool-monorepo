@@ -29,8 +29,19 @@ Sizes are rendered from `source.svg` with librsvg:
 rsvg-convert -w 512 -h 512 source.svg -o icon-512x512.png
 ```
 
-`favicon.ico` is generated from the 256px render with Pillow
-(`img.save("favicon.ico", sizes=[(16,16),(32,32),(48,48)])`).
+`favicon.ico` is generated from the 256px render with Pillow. The `.convert("RGBA")`
+is mandatory: Next/Turbopack's build-time image pipeline decodes the PNG entries
+inside the ICO and hard-fails the build on non-RGBA ones
+("The PNG is not in RGBA format!").
+
+```bash
+rsvg-convert -w 256 -h 256 source.svg -o tmp256.png
+python3 -c "from PIL import Image; Image.open('tmp256.png').convert('RGBA').save('favicon.ico', sizes=[(16,16),(32,32),(48,48)])"
+```
+
+`src/app/apple-icon.png` and `src/app/favicon.ico` (Next.js file conventions) are
+processed by the build — after editing them, run `npx next build` locally before
+pushing.
 
 ## Notes
 
