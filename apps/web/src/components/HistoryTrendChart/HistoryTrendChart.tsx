@@ -2,6 +2,7 @@ import type { HistoryEntry } from "@nfl-pool-monorepo/db/src/queries/history";
 import type { FC } from "react";
 
 type Props = {
+  allYears: number[];
   entries: HistoryEntry[];
 };
 
@@ -13,7 +14,7 @@ const DID_NOT_PLACE = 4;
 const Y_LABELS = ["1st", "2nd", "3rd", "Didn't place"];
 
 // fallow-ignore-next-line complexity -- SVG chart composition; branching is the fixed 4-row scale mapping
-const HistoryTrendChart: FC<Props> = ({ entries }) => {
+const HistoryTrendChart: FC<Props> = ({ allYears, entries }) => {
   const overallByYear = new Map<number, number>();
   const survivorByYear = new Map<number, number>();
 
@@ -27,7 +28,8 @@ const HistoryTrendChart: FC<Props> = ({ entries }) => {
     }
   }
 
-  const years = [...new Set([...overallByYear.keys(), ...survivorByYear.keys()])].sort((a, b) => a - b);
+  // Every year the pool has history for, so years without a placement still get an x-axis value
+  const years = [...allYears].sort((a, b) => a - b);
 
   if (years.length < 2) {
     return null;

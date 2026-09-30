@@ -161,7 +161,7 @@ const HistoryPageBody: FC = async () => {
             <p className="text-muted-foreground">No history recorded yet.</p>
           ) : (
             <>
-              <HistoryTrendChart entries={myEntries} />
+              <HistoryTrendChart allYears={years} entries={myEntries} />
               {years.map((year) => (
                 <HistoryYearSection entries={byYear.get(year) ?? []} key={year} year={year} />
               ))}
