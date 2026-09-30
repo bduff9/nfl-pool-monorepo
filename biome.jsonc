@@ -42,7 +42,8 @@
       "!**/dist",
       "!**/out",
       "!**/.next",
-      "!**/public/*"
+      "!**/public/*",
+      "!**/icon-designs/*"
     ]
   },
   "formatter": {
