@@ -19,6 +19,7 @@
 import { arktypeResolver } from "@hookform/resolvers/arktype";
 import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import { Form } from "@nfl-pool-monorepo/ui/components/form";
+import { cn } from "@nfl-pool-monorepo/utils/styles";
 
 import { onActionError } from "@/lib/actionErrorToast";
 import { processFormErrors, toArktypeResolver } from "@/lib/form-errors";
@@ -60,6 +61,23 @@ const correctPhoneNumber = (phoneNumber: string | null): string | null => {
 
   return `+1${phoneNumber}`;
 };
+
+const withSmsOff = <T extends { NotificationSMS: number; NotificationSMSHoursBefore: number | null }>(
+  notification: T,
+): T => ({ ...notification, NotificationSMS: 0, NotificationSMSHoursBefore: null });
+
+const smsOffUnlessPhone = <T extends { NotificationSMS: number; NotificationSMSHoursBefore: number | null }>(
+  hasValidPhone: boolean,
+  notifications: Array<T>,
+): Array<T> => (hasValidPhone ? notifications : notifications.map(withSmsOff));
+
+const ChannelHeader: FC<{ className?: string }> = ({ className }) => (
+  <div className={cn("flex justify-end gap-x-4", className)}>
+    <div title="Notifications sent to your email address">Email</div>
+    <div title="Notifications sent to your phone via text message">SMS</div>
+    <div title="Notifications sent to your device via push notification">Push</div>
+  </div>
+);
 
 const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasGoogle }) => {
   const { isSubscribing, isSupported, subscribeToPush, subscription, unsubscribeFromPush } = usePushNotifications();
@@ -139,10 +157,10 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
     // A phone number is required for SMS notifications - if it's missing or invalid, don't submit
     // SMS as enabled even if the toggle was left on before the phone field became invalid.
     const hasValidPhone = data.UserPhone.length >= 10 && !form.formState.errors.UserPhone?.message;
-    const notifications = hasValidPhone
-      ? data.notifications
-      : data.notifications.map((notification) => ({ ...notification, NotificationSMS: 0 }));
+    const notifications = smsOffUnlessPhone(hasValidPhone, data.notifications);
 
+    // Mirror what is saved so the toggles show SMS off and the post-save form reset doesn't restore them.
+    form.setValue("notifications", notifications);
     execute({ ...data, notifications });
   };
 
@@ -154,11 +172,9 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
 
           <TextSeparator className="col-span-full">Notifications</TextSeparator>
 
-          <div className="col-span-full flex justify-end gap-x-4">
-            <div title="Notifications sent to your email address">Email</div>
-            <div title="Notifications sent to your phone via text message">SMS</div>
-            <div title="Notifications sent to your device via push notification">Push</div>
-          </div>
+          {/* Notification rows fill both grid columns on wider screens, so each column needs its own header. */}
+          <ChannelHeader />
+          <ChannelHeader className="hidden md:flex" />
 
           {myNotifications.map((notification, i) => (
             <NotificationRow
