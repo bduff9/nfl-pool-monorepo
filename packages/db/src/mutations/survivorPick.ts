@@ -53,6 +53,7 @@ export const markEmptySurvivorPicksAsDead = async (week: number): Promise<Array<
     .select(["UserID"])
     .where("SurvivorPickWeek", "=", week)
     .where("TeamID", "is", null)
+    .where("SurvivorPickDeleted", "is", null)
     .execute();
 
   for (const user of dead) {
@@ -73,6 +74,7 @@ export const markWrongSurvivorPicksAsDead = async (
     .select(["UserID"])
     .where("SurvivorPickWeek", "=", week)
     .where("TeamID", "=", losingID)
+    .where("SurvivorPickDeleted", "is", null)
     .execute();
 
   for (const user of dead) {

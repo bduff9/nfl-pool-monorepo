@@ -58,6 +58,15 @@ describe("markEmptySurvivorPicksAsDead", () => {
     expect(unregisterUserForSurvivor).not.toHaveBeenCalled();
   });
 
+  it("only considers picks that have not already been deleted, so eliminated users are not re-reported", async () => {
+    mockDb.execute.mockResolvedValueOnce([]);
+
+    const { markEmptySurvivorPicksAsDead } = await import("./survivorPick");
+    await markEmptySurvivorPicksAsDead(4);
+
+    expect(mockDb.where).toHaveBeenCalledWith("SurvivorPickDeleted", "is", null);
+  });
+
   it("marks users with no pick for the week as dead", async () => {
     mockDb.execute.mockResolvedValueOnce([{ UserID: 20 }, { UserID: 21 }]);
     mockDb.executeTakeFirstOrThrow.mockResolvedValue({ numUpdatedRows: 1n });
@@ -86,6 +95,15 @@ describe("markWrongSurvivorPicksAsDead", () => {
 
     expect(mockDb.where).toHaveBeenCalledWith("TeamID", "=", 99);
     expect(mockDb.executeTakeFirstOrThrow).toHaveBeenCalledTimes(1);
+  });
+
+  it("only considers picks that have not already been deleted", async () => {
+    mockDb.execute.mockResolvedValueOnce([]);
+
+    const { markWrongSurvivorPicksAsDead } = await import("./survivorPick");
+    await markWrongSurvivorPicksAsDead(4, 7);
+
+    expect(mockDb.where).toHaveBeenCalledWith("SurvivorPickDeleted", "is", null);
   });
 
   it("does nothing when no one picked the losing team", async () => {
