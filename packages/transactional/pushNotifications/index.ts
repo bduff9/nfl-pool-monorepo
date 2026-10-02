@@ -25,6 +25,10 @@ webpush.setVapidDetails(
   process.env.VAPID_PRIVATE_KEY ?? "",
 );
 
+// Push services answer 404/410 once a subscription is permanently gone (e.g. the PWA was reinstalled).
+const isSubscriptionGone = (error: unknown): boolean =>
+  error instanceof webpush.WebPushError && (error.statusCode === 404 || error.statusCode === 410);
+
 export const sendPushNotification = async (
   userId: number,
   title: string,
@@ -32,19 +36,32 @@ export const sendPushNotification = async (
   type: (typeof EmailTypes)[number],
 ): Promise<void> => {
   try {
-    const subscriptions = await db.selectFrom("Devices").select("DeviceSub").where("UserID", "=", userId).execute();
+    const subscriptions = await db
+      .selectFrom("Devices")
+      .select(["DeviceID", "DeviceSub"])
+      .where("UserID", "=", userId)
+      .execute();
 
     await Promise.all(
-      subscriptions.map((subscription) =>
-        webpush.sendNotification(
-          JSON.parse(subscription.DeviceSub) as webpush.PushSubscription,
-          JSON.stringify({
-            body,
-            title,
-          }),
-          { timeout: 10_000 },
-        ),
-      ),
+      subscriptions.map(async (subscription) => {
+        try {
+          await webpush.sendNotification(
+            JSON.parse(subscription.DeviceSub) as webpush.PushSubscription,
+            JSON.stringify({
+              body,
+              title,
+            }),
+            { timeout: 10_000 },
+          );
+        } catch (error) {
+          if (!isSubscriptionGone(error)) {
+            throw error;
+          }
+
+          console.warn("Removing expired push subscription", { deviceID: subscription.DeviceID, type, userId });
+          await db.deleteFrom("Devices").where("DeviceID", "=", subscription.DeviceID).execute();
+        }
+      }),
     );
   } catch (error) {
     console.error("Error sending push notification:", { body, error, title, type, userId });
