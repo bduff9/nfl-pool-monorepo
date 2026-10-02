@@ -58,8 +58,10 @@ export const editMyProfile = authActionClient
       UserLastName,
       UserPaymentType,
       UserPaymentAccount,
+      UserPhone,
       UserTeamName,
     } = parsedInput;
+    const phone = UserPhone === "" ? null : UserPhone;
 
     await db.transaction().execute(async (trx) => {
       await trx
@@ -73,6 +75,7 @@ export const editMyProfile = authActionClient
           UserName: `${UserFirstName} ${UserLastName}`,
           UserPaymentAccount,
           UserPaymentType,
+          UserPhone: phone,
           UserTeamName,
         })
         .where("UserID", "=", ctx.user.id)
@@ -87,8 +90,9 @@ export const editMyProfile = authActionClient
             NotificationEmailHoursBefore: notification.NotificationEmailHoursBefore,
             NotificationPushNotification: notification.NotificationPushNotification,
             NotificationPushNotificationHoursBefore: notification.NotificationPushNotificationHoursBefore,
-            NotificationSMS: notification.NotificationSMS,
-            NotificationSMSHoursBefore: notification.NotificationSMSHoursBefore,
+            // SMS can't be delivered without a phone number, so never persist it as enabled.
+            NotificationSMS: phone === null ? 0 : notification.NotificationSMS,
+            NotificationSMSHoursBefore: phone === null ? null : notification.NotificationSMSHoursBefore,
             NotificationType: notification.NotificationType,
           })
           .where("NotificationID", "=", notification.NotificationID)

@@ -138,6 +138,51 @@ describe("editMyProfile", () => {
   });
 });
 
+describe("editMyProfile phone handling", () => {
+  beforeEach(resetAllMocks);
+
+  const PROFILE = {
+    UserAutoPickStrategy: "Home" as const,
+    UserAutoPicksLeft: 3,
+    UserEmail: "user@example.com",
+    UserFirstName: "Brian",
+    UserLastName: "Duffey",
+    UserPaymentAccount: "brian@example.com",
+    UserPaymentType: "Paypal" as const,
+    UserTeamName: "Team",
+  };
+  const SMS_NOTIFICATION = {
+    NotificationEmail: 1,
+    NotificationEmailHoursBefore: 12,
+    NotificationID: 1,
+    NotificationPushNotification: 0,
+    NotificationPushNotificationHoursBefore: null,
+    NotificationSMS: 1,
+    NotificationSMSHoursBefore: 4,
+    NotificationType: "SubmitPickReminder",
+  };
+
+  it("saves the phone number and keeps SMS enabled", async () => {
+    const { editMyProfile } = await import("./user");
+    await editMyProfile({ ...PROFILE, notifications: [SMS_NOTIFICATION], UserPhone: "+12025550123" });
+
+    expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({ UserPhone: "+12025550123" }));
+    expect(mockDb.set).toHaveBeenCalledWith(
+      expect.objectContaining({ NotificationSMS: 1, NotificationSMSHoursBefore: 4 }),
+    );
+  });
+
+  it("clears the phone number and forces SMS off when the phone is empty", async () => {
+    const { editMyProfile } = await import("./user");
+    await editMyProfile({ ...PROFILE, notifications: [SMS_NOTIFICATION], UserPhone: "" });
+
+    expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({ UserPhone: null }));
+    expect(mockDb.set).toHaveBeenCalledWith(
+      expect.objectContaining({ NotificationSMS: 0, NotificationSMSHoursBefore: null }),
+    );
+  });
+});
+
 describe("finishRegistration", () => {
   beforeEach(resetAllMocks);
 
