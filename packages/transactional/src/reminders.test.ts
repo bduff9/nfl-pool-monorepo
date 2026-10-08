@@ -103,3 +103,39 @@ describe("sendReminderEmails", () => {
     expect(sendPickReminderEmail).not.toHaveBeenCalled();
   });
 });
+
+describe("sendReminderPushNotifications", () => {
+  beforeEach(resetAllMocks);
+
+  it("sends a pick reminder push only when the user has not submitted picks", async () => {
+    mockDb.execute.mockResolvedValueOnce([{ ...baseUser, NotificationType: "PickReminder" }]);
+    hasUserSubmittedPicksForWeek.mockResolvedValueOnce(true);
+
+    const { sendReminderPushNotifications } = await import("./reminders");
+
+    await sendReminderPushNotifications(12, 5);
+    expect(sendPickReminderPushNotification).not.toHaveBeenCalled();
+
+    mockDb.execute.mockResolvedValueOnce([{ ...baseUser, NotificationType: "PickReminder" }]);
+    await sendReminderPushNotifications(12, 5);
+
+    expect(hasUserSubmittedPicksForWeek).toHaveBeenCalledWith(1, 5);
+    expect(sendPickReminderPushNotification).toHaveBeenCalledTimes(1);
+  });
+
+  it("sends a survivor push only when the user has not made a survivor pick", async () => {
+    mockDb.execute.mockResolvedValueOnce([{ ...baseUser, NotificationType: "SurvivorReminder" }]);
+    hasUserSubmittedSurvivorPickForWeek.mockResolvedValueOnce(true);
+
+    const { sendReminderPushNotifications } = await import("./reminders");
+
+    await sendReminderPushNotifications(12, 5);
+    expect(sendSurvivorReminderPushNotification).not.toHaveBeenCalled();
+
+    mockDb.execute.mockResolvedValueOnce([{ ...baseUser, NotificationType: "SurvivorReminder" }]);
+    await sendReminderPushNotifications(12, 5);
+
+    expect(hasUserSubmittedSurvivorPickForWeek).toHaveBeenCalledWith(1, 5);
+    expect(sendSurvivorReminderPushNotification).toHaveBeenCalledTimes(1);
+  });
+});

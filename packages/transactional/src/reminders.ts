@@ -110,10 +110,16 @@ export const sendReminderPushNotifications = async (hoursLeft: number, week: num
     try {
       switch (NotificationType) {
         case "PickReminder":
-          await sendPickReminderPushNotification({ UserFirstName, UserID }, week, hoursLeft);
+          if (!(await hasUserSubmittedPicksForWeek(UserID, week))) {
+            await sendPickReminderPushNotification({ UserFirstName, UserID }, week, hoursLeft);
+          }
+
           break;
         case "SurvivorReminder":
-          await sendSurvivorReminderPushNotification({ UserFirstName, UserID }, week, hoursLeft);
+          if (!(await hasUserSubmittedSurvivorPickForWeek(UserID, week))) {
+            await sendSurvivorReminderPushNotification({ UserFirstName, UserID }, week, hoursLeft);
+          }
+
           break;
         default:
           console.error("Invalid reminder push notifications notification type found", {

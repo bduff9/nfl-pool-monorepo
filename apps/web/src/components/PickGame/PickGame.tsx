@@ -131,7 +131,7 @@ const TeamLogoButton: FC<TeamLogoButtonProps> = ({ onClick, spread, team }) => {
   return (
     <button
       aria-label={label}
-      className={cn("cursor-pointer w-2/5 md:w-1/5 flex flex-wrap justify-center bg-transparent border-0 p-0")}
+      className={cn("cursor-pointer w-2/5 md:w-1/5 flex flex-col items-center bg-transparent border-0 p-0")}
       onClick={onClick}
       type="button"
     >
