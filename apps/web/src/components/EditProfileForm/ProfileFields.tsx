@@ -72,7 +72,7 @@ export const ProfileFields: FC<ProfileFieldsProps> = ({ control }) => {
       <FormLabel className="h-5">
         Phone Number &nbsp;<span className="text-xs text-muted-foreground">(Optional)</span>&nbsp;
         <Popover>
-          <PopoverTrigger aria-label="More information about phone number" type="button">
+          <PopoverTrigger aria-label="More information about phone number" className="-m-3 p-3" type="button">
             <PiQuestionDuotone className="size-5" />
           </PopoverTrigger>
           <PopoverContent className="max-w-[300px]">
@@ -117,7 +117,7 @@ export const ProfileFields: FC<ProfileFieldsProps> = ({ control }) => {
       <FormLabel className="h-5">
         Auto Picks Remaining&nbsp;
         <Popover>
-          <PopoverTrigger aria-label="More information about auto picks" type="button">
+          <PopoverTrigger aria-label="More information about auto picks" className="-m-3 p-3" type="button">
             <PiQuestionDuotone className="size-5" />
           </PopoverTrigger>
           <PopoverContent className="max-w-[300px]">

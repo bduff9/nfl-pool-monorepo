@@ -100,7 +100,7 @@ const createFAQList = (faqs: FuseResult<Selectable<SupportContent>>[]): ReactNod
 
     faqList.push(
       <details className="text-emerald-600 ml-20 mb-3" key={`faq-${faq.item.SupportContentID}`}>
-        <summary className="text-foreground -ml-12">
+        <summary className="text-foreground -ml-12 py-3 md:py-0">
           <FuseHighlight attribute="SupportContentDescription" hit={faq} />
         </summary>
         <FuseHighlight attribute="SupportContentDescription2" hit={faq} />

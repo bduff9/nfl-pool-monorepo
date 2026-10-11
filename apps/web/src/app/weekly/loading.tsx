@@ -37,7 +37,7 @@ const WeeklyRankingsLoader: FC = () => {
             </div>
           </div>
           <div className="mt-4 block md:hidden">
-            <WeekLink className="underline" href="/">
+            <WeekLink className="inline-block py-2.5 underline" href="/">
               &laquo; Back to Dashboard
             </WeekLink>
           </div>

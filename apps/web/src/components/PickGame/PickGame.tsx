@@ -44,7 +44,7 @@ const DraggablePoint: FC<DraggablePointProps> = ({ index, isDragDisabled = false
       {(provided, snapshot) => (
         <div
           className={cn(
-            "inline-block rounded-full text-center pt-1 md:size-[60px] md:text-[2rem] size-[31px] text-base",
+            "inline-block rounded-full text-center pt-1 md:size-[60px] md:text-[2rem] size-10 text-lg",
             isDragDisabled ? "cursor-not-allowed" : "cursor-move",
             snapshot.isDragging && "opacity-75",
           )}
@@ -82,7 +82,7 @@ export const Point: FC<PointProps> = ({
       {(provided, snapshot) => (
         <div
           className={cn(
-            "relative inline-block rounded-full text-center cursor-move md:size-[60px] md:text-[2rem] size-[31px] text-base",
+            "relative inline-block rounded-full text-center cursor-move md:size-[60px] md:text-[2rem] size-10 text-lg",
             !value && "bg-card border border-border",
             snapshot.isDraggingOver && "bg-blue-300",
           )}

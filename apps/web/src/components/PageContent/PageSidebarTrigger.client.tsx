@@ -18,7 +18,7 @@ const PageSidebarTrigger: FC<Props> = ({ className }) => {
     return null;
   }
 
-  return <SidebarTrigger className={cn("size-10 md:size-7", className)} />;
+  return <SidebarTrigger className={cn("size-11 md:size-7", className)} />;
 };
 
 export default PageSidebarTrigger;

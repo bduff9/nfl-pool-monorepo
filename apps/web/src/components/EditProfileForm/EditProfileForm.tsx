@@ -73,9 +73,15 @@ const smsOffUnlessPhone = <T extends { NotificationSMS: number; NotificationSMSH
 
 const ChannelHeader: FC<{ className?: string }> = ({ className }) => (
   <div className={cn("flex justify-end gap-x-4", className)}>
-    <div title="Notifications sent to your email address">Email</div>
-    <div title="Notifications sent to your phone via text message">SMS</div>
-    <div title="Notifications sent to your device via push notification">Push</div>
+    <div className="w-11 text-center md:w-auto" title="Notifications sent to your email address">
+      Email
+    </div>
+    <div className="w-11 text-center md:w-auto" title="Notifications sent to your phone via text message">
+      SMS
+    </div>
+    <div className="w-11 text-center md:w-auto" title="Notifications sent to your device via push notification">
+      Push
+    </div>
   </div>
 );
 

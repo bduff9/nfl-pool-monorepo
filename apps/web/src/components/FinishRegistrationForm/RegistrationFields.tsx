@@ -140,7 +140,7 @@ export const RegistrationFields: FC<RegistrationFieldsProps> = ({
       <FormLabel className="required h-5">
         Add on survivor game?&nbsp;
         <Popover>
-          <PopoverTrigger aria-label="More information about the survivor game" type="button">
+          <PopoverTrigger aria-label="More information about the survivor game" className="-m-3 p-3" type="button">
             <PiQuestionDuotone className="size-5" />
           </PopoverTrigger>
           <PopoverContent className="max-w-[300px]">

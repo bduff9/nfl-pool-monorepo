@@ -42,7 +42,7 @@ export const NotificationRow: FC<NotificationRowProps> = ({
   const renderEmailSwitch: ControllerProps<FormValues, `notifications.${number}.NotificationEmail`>["render"] = ({
     field,
   }) => (
-    <FormItem>
+    <FormItem className="flex w-11 justify-center md:w-8">
       <FormControl>
         <Switch
           aria-label={`${notification.NotificationTypeDescription} email notification`}
@@ -58,7 +58,7 @@ export const NotificationRow: FC<NotificationRowProps> = ({
   const renderSmsSwitch: ControllerProps<FormValues, `notifications.${number}.NotificationSMS`>["render"] = ({
     field,
   }) => (
-    <FormItem>
+    <FormItem className="flex w-11 justify-center md:w-8">
       <FormControl>
         <Switch
           aria-label={`${notification.NotificationTypeDescription} SMS notification`}
@@ -74,7 +74,7 @@ export const NotificationRow: FC<NotificationRowProps> = ({
     FormValues,
     `notifications.${number}.NotificationPushNotification`
   >["render"] = ({ field }) => (
-    <FormItem>
+    <FormItem className="flex w-11 justify-center md:w-8">
       <FormControl>
         <Switch
           aria-label={`${notification.NotificationTypeDescription} push notification`}
@@ -95,7 +95,7 @@ export const NotificationRow: FC<NotificationRowProps> = ({
         <Input
           {...field}
           aria-label={`${notification.NotificationTypeDescription} email hours before`}
-          className={cn("w-8 px-1 text-center", fieldState.error && "border-red-600")}
+          className={cn("w-11 px-1 text-center md:w-8", fieldState.error && "border-red-600")}
           max={48}
           min={1}
           value={field.value ?? ""}
@@ -114,7 +114,7 @@ export const NotificationRow: FC<NotificationRowProps> = ({
         <Input
           {...field}
           aria-label={`${notification.NotificationTypeDescription} SMS hours before`}
-          className={cn("w-8 px-1 text-center", fieldState.error && "border-red-600")}
+          className={cn("w-11 px-1 text-center md:w-8", fieldState.error && "border-red-600")}
           max={48}
           min={1}
           value={field.value ?? ""}
@@ -133,7 +133,7 @@ export const NotificationRow: FC<NotificationRowProps> = ({
         <Input
           {...field}
           aria-label={`${notification.NotificationTypeDescription} push notification hours before`}
-          className={cn("w-8 px-1 text-center", fieldState.error && "border-red-600")}
+          className={cn("w-11 px-1 text-center md:w-8", fieldState.error && "border-red-600")}
           max={48}
           min={1}
           value={field.value ?? ""}
@@ -144,12 +144,12 @@ export const NotificationRow: FC<NotificationRowProps> = ({
   );
 
   return (
-    <div className="grid grid-cols-2">
+    <div className="grid grid-cols-2 py-3 md:py-0">
       <Label className="items-start">
         {notification.NotificationTypeDescription}{" "}
         {!!notification.NotificationTypeTooltip && (
           <Popover>
-            <PopoverTrigger aria-label="More information" className="mt-[-3px]" type="button">
+            <PopoverTrigger aria-label="More information" className="-m-3 -mt-[15px] p-3" type="button">
               <PiQuestionDuotone className="size-5" />
             </PopoverTrigger>
             <PopoverContent className="max-w-[300px]">{notification.NotificationTypeTooltip}</PopoverContent>
@@ -161,13 +161,13 @@ export const NotificationRow: FC<NotificationRowProps> = ({
         {notification.NotificationTypeHasEmail === 1 ? (
           <FormField control={control} name={`notifications.${index}.NotificationEmail`} render={renderEmailSwitch} />
         ) : (
-          <div className="w-8" />
+          <div className="w-11 md:w-8" />
         )}
 
         {notification.NotificationTypeHasSMS === 1 ? (
           <FormField control={control} name={`notifications.${index}.NotificationSMS`} render={renderSmsSwitch} />
         ) : (
-          <div className="w-8" />
+          <div className="w-11 md:w-8" />
         )}
 
         {hasPushSubscription && notification.NotificationTypeHasPushNotification === 1 ? (
@@ -177,7 +177,7 @@ export const NotificationRow: FC<NotificationRowProps> = ({
             render={renderPushSwitch}
           />
         ) : (
-          <div className="w-8" />
+          <div className="w-11 md:w-8" />
         )}
       </div>
 
@@ -192,7 +192,7 @@ export const NotificationRow: FC<NotificationRowProps> = ({
               render={renderEmailHoursBefore}
             />
           ) : (
-            <div className="w-10" />
+            <div className="w-11 md:w-10" />
           )}
 
           {watchNotification?.NotificationSMS === 1 ? (
@@ -202,7 +202,7 @@ export const NotificationRow: FC<NotificationRowProps> = ({
               render={renderSmsHoursBefore}
             />
           ) : (
-            <div className="w-8" />
+            <div className="w-11 md:w-8" />
           )}
 
           {hasPushSubscription && watchNotification?.NotificationPushNotification === 1 ? (
@@ -212,7 +212,7 @@ export const NotificationRow: FC<NotificationRowProps> = ({
               render={renderPushHoursBefore}
             />
           ) : (
-            <div className="w-8" />
+            <div className="w-11 md:w-8" />
           )}
         </div>
       )}

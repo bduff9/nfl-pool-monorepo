@@ -102,7 +102,7 @@ const HistoryYearSection: FC<HistoryYearSectionProps> = ({ entries, year }) => {
       </div>
       {weeklyByWeek.size > 0 && (
         <details className="mt-4">
-          <summary className="cursor-pointer text-lg font-medium">Weekly winners</summary>
+          <summary className="cursor-pointer py-2.5 text-lg font-medium md:py-0">Weekly winners</summary>
           <Table className="mt-2">
             <TableHeader>
               <TableRow>

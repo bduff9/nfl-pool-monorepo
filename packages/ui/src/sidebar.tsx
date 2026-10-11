@@ -309,7 +309,7 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
 function SidebarInput({ className, ...props }: React.ComponentProps<typeof Input>) {
   return (
     <Input
-      className={cn("bg-background h-8 w-full shadow-none", className)}
+      className={cn("bg-background h-11 md:h-8 w-full shadow-none", className)}
       data-sidebar="input"
       data-slot="sidebar-input"
       {...props}
@@ -385,7 +385,7 @@ function SidebarGroupLabel({
   return (
     <Comp
       className={cn(
-        "text-sidebar-foreground/70 ring-sidebar-ring flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+        "text-sidebar-foreground/70 ring-sidebar-ring flex h-11 md:h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
         "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0",
         className,
       )}
@@ -461,9 +461,9 @@ const sidebarMenuButtonVariants = cva(
     },
     variants: {
       size: {
-        default: "h-8 text-sm",
+        default: "h-11 md:h-8 text-sm",
         lg: "h-12 text-sm group-data-[collapsible=icon]:p-0!",
-        sm: "h-7 text-xs",
+        sm: "h-10 md:h-7 text-xs",
       },
       variant: {
         default: "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",

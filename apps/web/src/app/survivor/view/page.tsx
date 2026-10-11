@@ -175,7 +175,9 @@ const ViewSurvivorPageBody: FC<PageProps<"/survivor/view">> = async ({ searchPar
                 />
               </div>
               <div className="mt-4 block md:hidden">
-                <WeekLink href="/">&laquo; Back to Dashboard</WeekLink>
+                <WeekLink className="inline-block py-2.5" href="/">
+                  &laquo; Back to Dashboard
+                </WeekLink>
               </div>
               <div className={cn("hidden md:inline-block w-2/3 pt-8 px-3")}>
                 <ProgressChart

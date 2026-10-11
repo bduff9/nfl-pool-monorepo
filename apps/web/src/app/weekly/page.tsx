@@ -181,7 +181,9 @@ const WeeklyRankingsPageBody: FC<PageProps<"/weekly">> = async ({ searchParams }
               />
             </div>
             <div className="mt-4 block md:hidden">
-              <WeekLink href="/">&laquo; Back to Dashboard</WeekLink>
+              <WeekLink className="inline-block py-2.5" href="/">
+                &laquo; Back to Dashboard
+              </WeekLink>
             </div>
             <Suspense fallback={null}>
               <ScenariosDashboard scope="weekly" />

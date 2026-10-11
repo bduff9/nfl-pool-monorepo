@@ -12,7 +12,7 @@ export const paymentAccountLabel: ReactNode = (
   <>
     Payment Account&nbsp;
     <Popover>
-      <PopoverTrigger aria-label="More information about payment account" type="button">
+      <PopoverTrigger aria-label="More information about payment account" className="-m-3 p-3" type="button">
         <PiQuestionDuotone className="size-5" />
       </PopoverTrigger>
       <PopoverContent className="max-w-[300px]">

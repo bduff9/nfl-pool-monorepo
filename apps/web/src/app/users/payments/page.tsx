@@ -104,7 +104,7 @@ const ViewPaymentsPageBody: FC<PageProps<"/users/payments">> = async () => {
         <div className="mx-3">Payment Type: {currentUser.UserPaymentType}</div>
         <div className="mx-3">Payment Account: {currentUser.UserPaymentAccount}</div>
         <div className="mx-3">
-          <WeekLink className="underline" href="/users/edit">
+          <WeekLink className="inline-block py-2.5 underline" href="/users/edit">
             Change the account to be paid out
           </WeekLink>
         </div>

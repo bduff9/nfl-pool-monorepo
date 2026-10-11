@@ -60,14 +60,14 @@ const WeeklyDashboard: FC<Props> = async ({ selectedWeek }) => {
         {myTiebreaker?.TiebreakerHasSubmitted === 1 ? (
           <>
             <div className="text-green-600">You have submitted your picks</div>
-            <WeekLink className="underline" href="/picks/view">
+            <WeekLink className="inline-block py-2.5 underline" href="/picks/view">
               View my picks
             </WeekLink>
           </>
         ) : (
           <>
             <div className="text-red-600">You have not submitted your picks yet!</div>
-            <WeekLink className="underline" href="/picks/set">
+            <WeekLink className="inline-block py-2.5 underline" href="/picks/set">
               Make my picks
             </WeekLink>
           </>
@@ -75,7 +75,7 @@ const WeeklyDashboard: FC<Props> = async ({ selectedWeek }) => {
         {myWeeklyRank === undefined ? (
           <WeeklyDashboardCountdown weekStart={weekStart} />
         ) : (
-          <WeekLink className="underline" href="/weekly">
+          <WeekLink className="inline-block py-2.5 underline" href="/weekly">
             View Details
           </WeekLink>
         )}

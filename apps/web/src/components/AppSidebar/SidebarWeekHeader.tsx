@@ -115,7 +115,7 @@ export const SidebarWeekHeader: FC<SidebarWeekHeaderProps> = ({
               transitionType="nav-back"
             />
           ) : (
-            <span className="invisible size-9" />
+            <span className="invisible size-11 md:size-9" />
           )}
 
           <DropdownMenu>
@@ -148,7 +148,7 @@ export const SidebarWeekHeader: FC<SidebarWeekHeaderProps> = ({
               transitionType="nav-forward"
             />
           ) : (
-            <span className="invisible size-9" />
+            <span className="invisible size-11 md:size-9" />
           )}
         </SidebarMenuItem>
         <SidebarMenuItem className={cn("h-9 -m-2 text-center", user.doneRegistering !== 1 && "invisible")}>

@@ -81,14 +81,14 @@ const SurvivorDashboard: FC<Props> = async ({ selectedWeek }) => {
               <div className="text-red-700">You have not submitted your survivor pick yet!</div>
             ))}
           {mySurvivorMv ? (
-            <WeekLink className={cn("block underline")} href="/survivor/view">
+            <WeekLink className={cn("block py-2.5 underline")} href="/survivor/view">
               View Details
             </WeekLink>
           ) : (
             <div className="md:h-6" />
           )}
           {isAliveInSurvivor && !mySurvivorPickForWeek ? (
-            <WeekLink className={cn("block underline md:mb-1")} href="/survivor/set">
+            <WeekLink className={cn("block py-2.5 underline md:mb-1")} href="/survivor/set">
               Click here to make your pick
             </WeekLink>
           ) : (

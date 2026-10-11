@@ -53,7 +53,7 @@ const OverallDashboard: FC = async () => {
       ) : (
         <div>
           <div className="mb-12">
-            <WeekLink className="md:inline-block underline" href="/overall">
+            <WeekLink className="inline-block py-2.5 underline" href="/overall">
               View Details
             </WeekLink>
           </div>

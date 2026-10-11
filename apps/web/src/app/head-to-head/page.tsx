@@ -89,7 +89,9 @@ const HeadToHeadPageBody: FC<HeadToHeadPageBodyProps> = async ({ searchParams })
               <p className="max-w-md text-muted-foreground">
                 Head-to-head matchups appear once this week&apos;s results start coming in. Check back soon!
               </p>
-              <WeekLink href="/">&laquo; Back to Dashboard</WeekLink>
+              <WeekLink className="inline-block py-2.5" href="/">
+                &laquo; Back to Dashboard
+              </WeekLink>
             </div>
           </PageContent>
         </div>

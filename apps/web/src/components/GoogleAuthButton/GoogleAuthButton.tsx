@@ -56,7 +56,7 @@ const GoogleAuthButton: FC<GoogleAuthButtonProps> = ({ isLinked = false, isRegis
     <button
       aria-label={title}
       className={cn(
-        "flex items-center gap-3 bg-google-button-blue rounded-full p-0.5 pr-4 transition-colors duration-300 hover:bg-google-button-blue-hover disabled:opacity-65",
+        "flex min-h-11 items-center gap-3 bg-google-button-blue rounded-full p-0.5 pr-4 transition-colors duration-300 hover:bg-google-button-blue-hover disabled:opacity-65",
         isLinked && "pointer-events-none",
       )}
       disabled={isLoading || isLinked}
