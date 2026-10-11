@@ -7,10 +7,9 @@ import { sql } from "kysely";
 import { jsonArrayFrom } from "kysely/helpers/mysql";
 import { cache } from "react";
 
-import { DEFAULT_PAGE_SIZE } from "@/lib/constants";
-
-import { coerceNumber, parseJsonParam } from "./param-parsing";
+import { paginate, parseAdminTableParams } from "./admin-table-params";
 import { getCurrentSession, requireUser } from "./sessions";
+import { userFilterPredicate } from "./userFilters";
 
 export const getAdminUsers = cache(async (params: Awaited<PageProps<"/admin/users">["searchParams"]>) => {
   const sortSchema = type({ desc: "boolean", id: type.enumerated("UserName", "UserEmail") }).array();
@@ -19,10 +18,11 @@ export const getAdminUsers = cache(async (params: Awaited<PageProps<"/admin/user
     value: "string",
   }).array();
 
-  const sort = parseJsonParam(params?.sort, sortSchema, [{ desc: false, id: "UserName" as const }]);
-  const filter = parseJsonParam(params?.filter, filterSchema, []);
-  const page = coerceNumber(params?.page, 1);
-  const pageSize = params?.pageSize === "all" ? ("all" as const) : coerceNumber(params?.pageSize, DEFAULT_PAGE_SIZE);
+  const { filter, page, pageSize, sort } = parseAdminTableParams(params, {
+    defaultSort: [{ desc: false, id: "UserName" as const }],
+    filterSchema,
+    sortSchema,
+  });
 
   let countResult = db.selectFrom("Users as u").select(sql<number>`COUNT(*)`.as("count"));
   let queryResult = db.selectFrom("Users as u").select(({ ref, selectFrom }) => [
@@ -90,70 +90,12 @@ export const getAdminUsers = cache(async (params: Awaited<PageProps<"/admin/user
     ).as("UserNotifications"),
   ]);
 
-  for (const s of sort) {
-    queryResult = queryResult.orderBy(s.id, s.desc ? "desc" : "asc");
-  }
-
-  for (const f of filter) {
-    if (f.id === "UserStatus2") {
-      countResult = countResult.where((eb) =>
-        eb(
-          sql<string>`CASE WHEN ${eb.ref("u.UserDoneRegistering")} = 1 THEN 'Registered' WHEN ${eb.ref("u.UserTrusted")} = 1 THEN 'Inactive' ELSE 'Incomplete' END`,
-          "=",
-          f.value,
-        ),
-      );
-      queryResult = queryResult.where((eb) =>
-        eb(
-          sql<string>`CASE WHEN ${eb.ref("u.UserDoneRegistering")} = 1 THEN 'Registered' WHEN ${eb.ref("u.UserTrusted")} = 1 THEN 'Inactive' ELSE 'Incomplete' END`,
-          "=",
-          f.value,
-        ),
-      );
-    } else if (f.id === "UserStatus3") {
-      countResult = countResult.where((eb) =>
-        eb(
-          sql<string>`CASE WHEN ${eb.ref("u.UserDoneRegistering")} <> 1 THEN 'Not Registered' WHEN ${eb.selectFrom("UserHistory as uh").select(sql<number>`COUNT(*)`.as("count")).whereRef("uh.UserID", "=", "u.UserID")} = 1 THEN 'Rookie' ELSE 'Veteran' END`,
-          "=",
-          f.value,
-        ),
-      );
-      queryResult = queryResult.where((eb) =>
-        eb(
-          sql<string>`CASE WHEN ${eb.ref("u.UserDoneRegistering")} <> 1 THEN 'Not Registered' WHEN ${eb.selectFrom("UserHistory as uh").select(sql<number>`COUNT(*)`.as("count")).whereRef("uh.UserID", "=", "u.UserID")} = 1 THEN 'Rookie' ELSE 'Veteran' END`,
-          "=",
-          f.value,
-        ),
-      );
-    } else if (f.id === "UserIsOwing") {
-      countResult = countResult.where(
-        (eb) =>
-          sql<number>`(${eb
-            .selectFrom("Payments as p")
-            .select((eb) => sql<number>`SUM(${eb.ref("p.PaymentAmount")})`.as("balance"))
-            .whereRef("p.UserID", "=", "u.UserID")}) < 0`,
-        "=",
-        Number(f.value),
-      );
-      queryResult = queryResult.where(
-        (eb) =>
-          sql<number>`(${eb
-            .selectFrom("Payments as p")
-            .select((eb) => sql<number>`SUM(${eb.ref("p.PaymentAmount")})`.as("balance"))
-            .whereRef("p.UserID", "=", "u.UserID")}) < 0`,
-        "=",
-        Number(f.value),
-      );
-    }
-  }
-
-  if (pageSize !== "all") {
-    queryResult = queryResult.limit(pageSize).offset((page - 1) * pageSize);
-  } else {
-    // Cap the "all" page size so one request can't recompute every correlated subquery
-    // for the entire user table.
-    queryResult = queryResult.limit(200);
-  }
+  queryResult = sort.reduce((q, s) => q.orderBy(s.id, s.desc ? "desc" : "asc"), queryResult);
+  countResult = filter.reduce((q, f) => q.where((eb) => userFilterPredicate(eb, f)), countResult);
+  queryResult = filter.reduce((q, f) => q.where((eb) => userFilterPredicate(eb, f)), queryResult);
+  // Cap the "all" page size so one request can't recompute every correlated subquery
+  // for the entire user table.
+  queryResult = paginate(queryResult, page, pageSize, 200);
 
   const [count, results] = await Promise.all([countResult.executeTakeFirstOrThrow(), queryResult.execute()]);
 

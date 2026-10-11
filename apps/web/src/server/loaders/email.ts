@@ -3,9 +3,8 @@ import { type } from "arktype";
 import { sql } from "kysely";
 import { cache } from "react";
 
-import { DEFAULT_PAGE_SIZE } from "@/lib/constants";
-
-import { coerceNumber, parseJsonParam } from "./param-parsing";
+import { paginate, parseAdminTableParams } from "./admin-table-params";
+import { buildEmailViewLog } from "./emailView";
 import { getCurrentSession } from "./sessions";
 
 export const getAdminEmails = cache(async (params: Awaited<PageProps<"/admin/email">["searchParams"]>) => {
@@ -15,10 +14,11 @@ export const getAdminEmails = cache(async (params: Awaited<PageProps<"/admin/ema
   }).array();
   const filterSchema = type({ id: type.enumerated("EmailType"), value: "string" }).array();
 
-  const sort = parseJsonParam(params?.sort, sortSchema, [{ desc: true, id: "EmailCreatedAt" as const }]);
-  const filter = parseJsonParam(params?.filter, filterSchema, []);
-  const page = coerceNumber(params?.page, 1);
-  const pageSize = params?.pageSize === "all" ? ("all" as const) : coerceNumber(params?.pageSize, DEFAULT_PAGE_SIZE);
+  const { filter, page, pageSize, sort } = parseAdminTableParams(params, {
+    defaultSort: [{ desc: true, id: "EmailCreatedAt" as const }],
+    filterSchema,
+    sortSchema,
+  });
 
   let countResult = db
     .selectFrom("Emails as e")
@@ -38,18 +38,10 @@ export const getAdminEmails = cache(async (params: Awaited<PageProps<"/admin/ema
     .leftJoin("Users as u", "u.UserEmail", "e.EmailTo")
     .select(["u.UserName"]);
 
-  for (const s of sort) {
-    queryResult = queryResult.orderBy(s.id, s.desc ? "desc" : "asc");
-  }
-
-  for (const f of filter) {
-    countResult = countResult.where(f.id, "=", f.value);
-    queryResult = queryResult.where(f.id, "=", f.value);
-  }
-
-  if (page && pageSize !== "all") {
-    queryResult = queryResult.limit(pageSize).offset((page - 1) * pageSize);
-  }
+  queryResult = sort.reduce((q, s) => q.orderBy(s.id, s.desc ? "desc" : "asc"), queryResult);
+  countResult = filter.reduce((q, f) => q.where(f.id, "=", f.value), countResult);
+  queryResult = filter.reduce((q, f) => q.where(f.id, "=", f.value), queryResult);
+  queryResult = paginate(queryResult, page, pageSize);
 
   const [count, results] = await Promise.all([countResult.executeTakeFirstOrThrow(), queryResult.execute()]);
 
@@ -63,18 +55,10 @@ export const getEmail = cache(async (emailID: string) => {
     .select(["EmailHtml", "EmailTo", "EmailSubject"])
     .where("EmailID", "=", emailID)
     .executeTakeFirst();
-  const userName = user?.name ?? result?.EmailTo ?? "Unknown User";
 
   await db
     .insertInto("Logs")
-    .values({
-      LogAction: "VIEW_HTML_EMAIL",
-      LogAddedBy: userName,
-      LogMessage: `${userName} viewed HTML version of email with subject ${result?.EmailSubject}`,
-      LogUpdated: new Date(),
-      LogUpdatedBy: userName,
-      UserID: user?.id,
-    })
+    .values(buildEmailViewLog(user, result, new Date()))
     .executeTakeFirstOrThrow();
 
   return result?.EmailHtml ?? null;

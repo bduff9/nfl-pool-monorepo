@@ -3,9 +3,7 @@ import { type } from "arktype";
 import { sql } from "kysely";
 import { cache } from "react";
 
-import { DEFAULT_PAGE_SIZE } from "@/lib/constants";
-
-import { coerceNumber, parseJsonParam } from "./param-parsing";
+import { paginate, parseAdminTableParams } from "./admin-table-params";
 
 export const getAdminLogs = cache(async (params: Awaited<PageProps<"/admin/logs">["searchParams"]>) => {
   const sortSchema = type({
@@ -14,10 +12,11 @@ export const getAdminLogs = cache(async (params: Awaited<PageProps<"/admin/logs"
   }).array();
   const filterSchema = type({ id: type.enumerated("LogAction", "UserName"), value: "string" }).array();
 
-  const sort = parseJsonParam(params?.sort, sortSchema, [{ desc: true, id: "LogAdded" as const }]);
-  const filter = parseJsonParam(params?.filter, filterSchema, []);
-  const page = coerceNumber(params?.page, 1);
-  const pageSize = params?.pageSize === "all" ? ("all" as const) : coerceNumber(params?.pageSize, DEFAULT_PAGE_SIZE);
+  const { filter, page, pageSize, sort } = parseAdminTableParams(params, {
+    defaultSort: [{ desc: true, id: "LogAdded" as const }],
+    filterSchema,
+    sortSchema,
+  });
 
   let countResult = db
     .selectFrom("Logs as l")
@@ -29,18 +28,10 @@ export const getAdminLogs = cache(async (params: Awaited<PageProps<"/admin/logs"
     .leftJoin("Users as u", "u.UserID", "l.UserID")
     .select(["u.UserName"]);
 
-  for (const s of sort) {
-    queryResult = queryResult.orderBy(s.id, s.desc ? "desc" : "asc");
-  }
-
-  for (const f of filter) {
-    countResult = countResult.where(f.id, "like", `%${f.value}%`);
-    queryResult = queryResult.where(f.id, "like", `%${f.value}%`);
-  }
-
-  if (page && pageSize !== "all") {
-    queryResult = queryResult.limit(pageSize).offset((page - 1) * pageSize);
-  }
+  queryResult = sort.reduce((q, s) => q.orderBy(s.id, s.desc ? "desc" : "asc"), queryResult);
+  countResult = filter.reduce((q, f) => q.where(f.id, "like", `%${f.value}%`), countResult);
+  queryResult = filter.reduce((q, f) => q.where(f.id, "like", `%${f.value}%`), queryResult);
+  queryResult = paginate(queryResult, page, pageSize);
 
   const [count, results] = await Promise.all([countResult.executeTakeFirstOrThrow(), queryResult.execute()]);
 
