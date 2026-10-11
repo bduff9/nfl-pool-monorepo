@@ -1,18 +1,18 @@
 {
-	"$schema": "https://ui.shadcn.com/schema.json",
-	"aliases": {
-		"components": "src/",
-		"hooks": "src/hooks/",
-		"ui": "src/",
-		"utils": "@nfl-pool-monorepo/utils/styles"
-	},
-	"rsc": true,
-	"style": "new-york",
-	"tailwind": {
-		"baseColor": "slate",
-		"config": "",
-		"css": "../../apps/web/src/app/globals.css",
-		"cssVariables": true
-	},
-	"tsx": true
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "aliases": {
+    "components": "src/",
+    "hooks": "src/hooks/",
+    "ui": "src/",
+    "utils": "@nfl-pool-monorepo/utils/styles"
+  },
+  "rsc": true,
+  "style": "new-york",
+  "tailwind": {
+    "baseColor": "slate",
+    "config": "",
+    "css": "../../apps/web/src/app/globals.css",
+    "cssVariables": true
+  },
+  "tsx": true
 }

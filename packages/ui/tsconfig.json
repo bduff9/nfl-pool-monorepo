@@ -1,18 +1,12 @@
 {
-	"extends": "@nfl-pool-monorepo/tsconfig/ui.json",
-	"compilerOptions": {
-	"paths": {
-		"@/*": ["./src/*"],
-		"@/components/*": ["./src/*"],
-		"@/hooks/*": ["./src/hooks/*"]
-	}
-	},
-	"include": [
-	"**/*.ts",
-	"**/*.tsx",
-	"tailwind.config.ts"
-	],
-	"exclude": [
-	"node_modules"
-	]
-	}
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/components/*": ["./src/*"],
+      "@/hooks/*": ["./src/hooks/*"]
+    }
+  },
+  "exclude": ["node_modules"],
+  "extends": "@nfl-pool-monorepo/tsconfig/ui.json",
+  "include": ["**/*.ts", "**/*.tsx", "tailwind.config.ts"]
+}
