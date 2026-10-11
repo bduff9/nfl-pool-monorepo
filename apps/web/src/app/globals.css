@@ -349,3 +349,9 @@
 html #nprogress .bar {
   top: var(--safe-top);
 }
+
+/* A link whose navigation is still loading (see WeekLink) dims so the tap is acknowledged immediately */
+a:has(> [data-link-pending]) {
+  opacity: 0.6;
+  transition: opacity 150ms ease;
+}

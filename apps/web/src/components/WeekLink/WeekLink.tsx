@@ -1,7 +1,7 @@
 "use client";
 
 import type { Route } from "next";
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { useQueryState } from "nuqs";
 import type { ComponentProps, FC } from "react";
 
@@ -13,6 +13,13 @@ type WeekLinkProps = Omit<ComponentProps<typeof Link>, "href"> & {
   preserveWeek?: boolean;
 };
 
+// Rendered inside the link so it can tell when that link's navigation is pending; globals.css dims a link containing it
+const PendingMarker: FC = () => {
+  const { pending } = useLinkStatus();
+
+  return pending ? <span aria-hidden data-link-pending hidden /> : null;
+};
+
 export const WeekLink: FC<WeekLinkProps> = ({ children, href, preserveWeek = true, ...rest }) => {
   const [week] = useQueryState("week", weekParser);
   const resolvedHref = preserveWeek ? appendWeekIfMissing(href, week) : href;
@@ -20,6 +27,7 @@ export const WeekLink: FC<WeekLinkProps> = ({ children, href, preserveWeek = tru
   return (
     <Link href={resolvedHref} {...rest}>
       {children}
+      <PendingMarker />
     </Link>
   );
 };
