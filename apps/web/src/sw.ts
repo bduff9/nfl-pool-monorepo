@@ -158,10 +158,6 @@ const warmCache = async (week: unknown): Promise<void> => {
 };
 
 const messageHandlers: Record<string, (event: ExtendableMessageEvent) => void> = {
-  // iOS is more dependable at showing a badge set from the worker than one set from the page
-  SET_BADGE: (event) => {
-    event.waitUntil(updateBadge(event.data.count));
-  },
   SKIP_WAITING: () => {
     self.skipWaiting();
   },

@@ -146,16 +146,6 @@ describe("service worker messages", () => {
     expect(sw.skipWaiting).toHaveBeenCalledOnce();
   });
 
-  it("sets the badge when one of our own pages asks it to", async () => {
-    const sw = await load();
-
-    await sw.fire("message", { data: { count: 3, type: "SET_BADGE" }, origin: ORIGIN });
-    await sw.fire("message", { data: { count: 0, type: "SET_BADGE" }, origin: ORIGIN });
-
-    expect(sw.badge).toHaveBeenCalledWith(3);
-    expect(sw.clearBadge).toHaveBeenCalledOnce();
-  });
-
   it("ignores messages from other origins", async () => {
     const sw = await load("?offline=1");
 
