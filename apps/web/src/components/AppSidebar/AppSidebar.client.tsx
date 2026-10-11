@@ -36,38 +36,8 @@ const getCurrentPage = (pathname: string): string => {
   return "";
 };
 
-type Props = {
-  badgeCount: number;
-  currentWeek: number;
-  hasSeasonStarted: boolean;
-  isAliveInSurvivor: boolean;
-  myTiebreaker: Awaited<ReturnType<typeof getMyTiebreaker>>;
-  overallMvCount: number;
-  selectedWeek: number;
-  selectedWeekStatus: Status;
-  survivorMvCount: number;
-  user: User;
-  weeklyMvCount: number;
-};
-
-const AppSidebarClient: FC<Props> = ({
-  badgeCount,
-  currentWeek,
-  hasSeasonStarted,
-  isAliveInSurvivor,
-  myTiebreaker,
-  overallMvCount,
-  selectedWeek: selectedWeekProp,
-  selectedWeekStatus,
-  survivorMvCount,
-  user,
-  weeklyMvCount,
-}) => {
-  const { isMobile, setOpenMobile } = useSidebar();
-  const pathname = usePathname();
+const useSurvivorDialogs = () => {
   const router = useRouter();
-  const [weekParam] = useQueryState("week", weekParser);
-  const selectedWeek = weekParam ?? selectedWeekProp;
   const [registerDialogOpen, setRegisterDialogOpen] = useState<boolean>(false);
   const [unregisterDialogOpen, setUnregisterDialogOpen] = useState<boolean>(false);
 
@@ -102,6 +72,42 @@ const AppSidebarClient: FC<Props> = ({
     open: unregisterDialogOpen,
     setOpen: setUnregisterDialogOpen,
   };
+
+  return { registerDialog, unregisterDialog };
+};
+
+type Props = {
+  badgeCount: number;
+  currentWeek: number;
+  hasSeasonStarted: boolean;
+  isAliveInSurvivor: boolean;
+  myTiebreaker: Awaited<ReturnType<typeof getMyTiebreaker>>;
+  overallMvCount: number;
+  selectedWeek: number;
+  selectedWeekStatus: Status;
+  survivorMvCount: number;
+  user: User;
+  weeklyMvCount: number;
+};
+
+const AppSidebarClient: FC<Props> = ({
+  badgeCount,
+  currentWeek,
+  hasSeasonStarted,
+  isAliveInSurvivor,
+  myTiebreaker,
+  overallMvCount,
+  selectedWeek: selectedWeekProp,
+  selectedWeekStatus,
+  survivorMvCount,
+  user,
+  weeklyMvCount,
+}) => {
+  const { isMobile, setOpenMobile } = useSidebar();
+  const pathname = usePathname();
+  const [weekParam] = useQueryState("week", weekParser);
+  const selectedWeek = weekParam ?? selectedWeekProp;
+  const { registerDialog, unregisterDialog } = useSurvivorDialogs();
 
   const handleCloseMobileSidebar = () => {
     setOpenMobile(false);
