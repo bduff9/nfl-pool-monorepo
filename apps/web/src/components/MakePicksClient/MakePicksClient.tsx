@@ -156,7 +156,7 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
 
   return (
     <>
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col">
         <h4 className="w-full mb-3 text-center shrink-1">
           Drag points to your chosen winning team or click a team to see the game details
         </h4>
@@ -170,29 +170,30 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
           optimisticPicks={optimisticPicks}
           selectedGame={selectedGame}
           setSelectedGame={setSelectedGame}
-        />
-        <div className="w-full mb-3 md:px-5">
-          <Label className="required" htmlFor="tiebreakerScore">
-            Tiebreaker Score
-            {!!lastGame && ` for ${lastGame.visitorTeam?.TeamName} @ ${lastGame.homeTeam?.TeamName} game`}
-          </Label>
-          <Input
-            aria-label="Last score of week for tiebreaker"
-            className="bg-card"
-            defaultValue={tiebreaker.TiebreakerLastScore ?? 0}
-            id="tiebreakerScore"
-            min="1"
-            name="tiebreakerLastScore"
-            onBlur={updateTiebreakerScore}
-            pattern="[0-9]*"
-            placeholder={`Guess the total final score${
-              lastGame ? ` of the ${lastGame.visitorTeam?.TeamName} @ ${lastGame.homeTeam?.TeamName} game` : ""
-            }`}
-            required
-            type="text"
-          />
-          {!!tiebreakerLastScoreError && <div className="text-danger fs-6">{tiebreakerLastScoreError}</div>}
-        </div>
+        >
+          <div className="w-full my-3 md:px-5">
+            <Label className="required" htmlFor="tiebreakerScore">
+              Tiebreaker Score
+              {!!lastGame && ` for ${lastGame.visitorTeam?.TeamName} @ ${lastGame.homeTeam?.TeamName} game`}
+            </Label>
+            <Input
+              aria-label="Last score of week for tiebreaker"
+              className="bg-card"
+              defaultValue={tiebreaker.TiebreakerLastScore ?? 0}
+              id="tiebreakerScore"
+              min="1"
+              name="tiebreakerLastScore"
+              onBlur={updateTiebreakerScore}
+              pattern="[0-9]*"
+              placeholder={`Guess the total final score${
+                lastGame ? ` of the ${lastGame.visitorTeam?.TeamName} @ ${lastGame.homeTeam?.TeamName} game` : ""
+              }`}
+              required
+              type="text"
+            />
+            {!!tiebreakerLastScoreError && <div className="text-danger fs-6">{tiebreakerLastScoreError}</div>}
+          </div>
+        </PicksBoard>
       </div>
       {!!callback && <ConfirmationModal {...callback} onCancel={onCancelCallback} />}
       <PickActionsBar

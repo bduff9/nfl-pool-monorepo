@@ -82,7 +82,7 @@ export const Point: FC<PointProps> = ({
       {(provided, snapshot) => (
         <div
           className={cn(
-            "inline-block rounded-full text-center cursor-move md:size-[60px] md:text-[2rem] size-[31px] text-base",
+            "relative inline-block rounded-full text-center cursor-move md:size-[60px] md:text-[2rem] size-[31px] text-base",
             !value && "bg-card border border-border",
             snapshot.isDraggingOver && "bg-blue-300",
           )}
@@ -93,7 +93,8 @@ export const Point: FC<PointProps> = ({
           ) : (
             <DraggablePoint index={index} isDragDisabled={isDragDisabled} maxValue={maxValue} value={value} />
           )}
-          {provided.placeholder}
+          {/* Slots hold a single point, so the placeholder must not take layout space and shift the row while hovering */}
+          <div className="absolute size-0 overflow-hidden">{provided.placeholder}</div>
         </div>
       )}
     </Droppable>
