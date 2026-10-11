@@ -95,6 +95,7 @@ export const sendWeeklyEmails = async (week: number, articles: Array<APINewsArti
 
   for (const user of emails) {
     try {
+      // react-doctor-disable-next-line async-await-in-loop -- one email at a time keeps SES within its send rate, and each user is wrapped in try/catch so one failure cannot stop the rest
       await sendWeeklyEmail(user, week, articles);
     } catch (error) {
       console.error(`Error sending weekly email to ${user.UserEmail}`, error);

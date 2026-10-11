@@ -24,20 +24,22 @@ const sendWeekStartedSMS = async (
   user: Pick<Selectable<Users>, "UserPhone" | "UserFirstName">,
   week: number,
 ): Promise<void> => {
-  const homeTeam = await db
-    .selectFrom("Teams as t")
-    .select(["t.TeamCity", "t.TeamName"])
-    .innerJoin("Games as g", "g.HomeTeamID", "t.TeamID")
-    .where("g.GameWeek", "=", week)
-    .where("g.GameNumber", "=", 1)
-    .executeTakeFirstOrThrow();
-  const visitorTeam = await db
-    .selectFrom("Teams as t")
-    .select(["t.TeamCity", "t.TeamName"])
-    .innerJoin("Games as g", "g.VisitorTeamID", "t.TeamID")
-    .where("g.GameWeek", "=", week)
-    .where("g.GameNumber", "=", 1)
-    .executeTakeFirstOrThrow();
+  const [homeTeam, visitorTeam] = await Promise.all([
+    db
+      .selectFrom("Teams as t")
+      .select(["t.TeamCity", "t.TeamName"])
+      .innerJoin("Games as g", "g.HomeTeamID", "t.TeamID")
+      .where("g.GameWeek", "=", week)
+      .where("g.GameNumber", "=", 1)
+      .executeTakeFirstOrThrow(),
+    db
+      .selectFrom("Teams as t")
+      .select(["t.TeamCity", "t.TeamName"])
+      .innerJoin("Games as g", "g.VisitorTeamID", "t.TeamID")
+      .where("g.GameWeek", "=", week)
+      .where("g.GameNumber", "=", 1)
+      .executeTakeFirstOrThrow(),
+  ]);
   const message = `${user.UserFirstName}, week ${week} has just started with ${visitorTeam.TeamCity} ${visitorTeam.TeamName} @ ${homeTeam.TeamCity} ${homeTeam.TeamName}`;
 
   try {

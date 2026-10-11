@@ -24,34 +24,36 @@ const sendWeekEndedPushNotification = async (
   user: Pick<Selectable<Users>, "UserID" | "UserFirstName">,
   week: number,
 ): Promise<void> => {
-  const homeTeam = await db
-    .selectFrom("Teams as t")
-    .innerJoin("Games as g", "g.HomeTeamID", "t.TeamID")
-    .select([
-      "g.GameHomeScore",
-      "g.GameVisitorScore",
-      "t.TeamCity",
-      "t.TeamName",
-      "t.TeamPrimaryColor",
-      "t.TeamSecondaryColor",
-    ])
-    .where("g.GameWeek", "=", week)
-    .orderBy("GameKickoff", "desc")
-    .executeTakeFirstOrThrow();
-  const visitorTeam = await db
-    .selectFrom("Teams as t")
-    .select(["t.TeamCity", "t.TeamName", "t.TeamPrimaryColor", "t.TeamSecondaryColor"])
-    .innerJoin("Games as g", "g.VisitorTeamID", "t.TeamID")
-    .where("g.GameWeek", "=", week)
-    .orderBy("GameKickoff", "desc")
-    .executeTakeFirstOrThrow();
-  const winnerTeam = await db
-    .selectFrom("Teams as t")
-    .select(["t.TeamCity", "t.TeamName", "t.TeamPrimaryColor", "t.TeamSecondaryColor"])
-    .innerJoin("Games as g", "g.WinnerTeamID", "t.TeamID")
-    .where("g.GameWeek", "=", week)
-    .orderBy("GameKickoff", "desc")
-    .executeTakeFirstOrThrow();
+  const [homeTeam, visitorTeam, winnerTeam] = await Promise.all([
+    db
+      .selectFrom("Teams as t")
+      .innerJoin("Games as g", "g.HomeTeamID", "t.TeamID")
+      .select([
+        "g.GameHomeScore",
+        "g.GameVisitorScore",
+        "t.TeamCity",
+        "t.TeamName",
+        "t.TeamPrimaryColor",
+        "t.TeamSecondaryColor",
+      ])
+      .where("g.GameWeek", "=", week)
+      .orderBy("GameKickoff", "desc")
+      .executeTakeFirstOrThrow(),
+    db
+      .selectFrom("Teams as t")
+      .select(["t.TeamCity", "t.TeamName", "t.TeamPrimaryColor", "t.TeamSecondaryColor"])
+      .innerJoin("Games as g", "g.VisitorTeamID", "t.TeamID")
+      .where("g.GameWeek", "=", week)
+      .orderBy("GameKickoff", "desc")
+      .executeTakeFirstOrThrow(),
+    db
+      .selectFrom("Teams as t")
+      .select(["t.TeamCity", "t.TeamName", "t.TeamPrimaryColor", "t.TeamSecondaryColor"])
+      .innerJoin("Games as g", "g.WinnerTeamID", "t.TeamID")
+      .where("g.GameWeek", "=", week)
+      .orderBy("GameKickoff", "desc")
+      .executeTakeFirstOrThrow(),
+  ]);
   const [winnerScore, loserScore] =
     homeTeam.GameHomeScore > homeTeam.GameVisitorScore
       ? [homeTeam.GameHomeScore, homeTeam.GameVisitorScore]

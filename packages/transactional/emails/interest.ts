@@ -22,11 +22,13 @@ export const sendInterestEmail = async (
   const emailId = await getBaseEmailClass({ to: sendTo, type: "interest" });
   const browserLink = getBrowserLink(emailId);
   const unsubscribeLink = getUnsubscribeLink(sendTo);
-  const poolYear = await getSystemYear();
-  const payByDateRaw = await getPaymentDueDate();
+  const [poolYear, payByDateRaw, poolCost, survivorCost] = await Promise.all([
+    getSystemYear(),
+    getPaymentDueDate(),
+    getPoolCost(),
+    getSurvivorCost(),
+  ]);
   const payByDate = payByDateFormatter.format(payByDateRaw);
-  const poolCost = await getPoolCost();
-  const survivorCost = await getSurvivorCost();
   const [html, text] = await Promise.all([
     getHtml({
       browserLink,

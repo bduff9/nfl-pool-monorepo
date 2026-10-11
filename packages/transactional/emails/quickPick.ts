@@ -10,20 +10,22 @@ export const sendQuickPickEmail = async (
   week: number,
   hoursLeft: number,
 ): Promise<void> => {
-  const homeTeam = await db
-    .selectFrom("Teams as t")
-    .select(["t.TeamID", "t.TeamCity", "t.TeamName", "t.TeamPrimaryColor", "t.TeamSecondaryColor"])
-    .innerJoin("Games as g", "g.HomeTeamID", "t.TeamID")
-    .where("g.GameWeek", "=", week)
-    .where("g.GameNumber", "=", 1)
-    .executeTakeFirstOrThrow();
-  const visitorTeam = await db
-    .selectFrom("Teams as t")
-    .select(["t.TeamID", "t.TeamCity", "t.TeamName", "t.TeamPrimaryColor", "t.TeamSecondaryColor"])
-    .innerJoin("Games as g", "g.VisitorTeamID", "t.TeamID")
-    .where("g.GameWeek", "=", week)
-    .where("g.GameNumber", "=", 1)
-    .executeTakeFirstOrThrow();
+  const [homeTeam, visitorTeam] = await Promise.all([
+    db
+      .selectFrom("Teams as t")
+      .select(["t.TeamID", "t.TeamCity", "t.TeamName", "t.TeamPrimaryColor", "t.TeamSecondaryColor"])
+      .innerJoin("Games as g", "g.HomeTeamID", "t.TeamID")
+      .where("g.GameWeek", "=", week)
+      .where("g.GameNumber", "=", 1)
+      .executeTakeFirstOrThrow(),
+    db
+      .selectFrom("Teams as t")
+      .select(["t.TeamID", "t.TeamCity", "t.TeamName", "t.TeamPrimaryColor", "t.TeamSecondaryColor"])
+      .innerJoin("Games as g", "g.VisitorTeamID", "t.TeamID")
+      .where("g.GameWeek", "=", week)
+      .where("g.GameNumber", "=", 1)
+      .executeTakeFirstOrThrow(),
+  ]);
   const to = [user.UserEmail];
   const emailId = await getBaseEmailClass({ to, type: "quickPick" });
   const browserLink = getBrowserLink(emailId);

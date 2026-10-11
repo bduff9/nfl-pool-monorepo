@@ -49,6 +49,7 @@ export const sendReminderEmails = async (hoursLeft: number, week: number): Promi
 
       switch (NotificationType) {
         case "PickReminder":
+          // react-doctor-disable-next-line async-await-in-loop -- sent one user at a time to stay within provider rate limits; each user is wrapped in try/catch so one failure cannot stop the rest
           hasUserSubmittedForWeek = await hasUserSubmittedPicksForWeek(UserID, week);
 
           if (!hasUserSubmittedForWeek) {
@@ -110,6 +111,7 @@ export const sendReminderPushNotifications = async (hoursLeft: number, week: num
     try {
       switch (NotificationType) {
         case "PickReminder":
+          // react-doctor-disable-next-line async-await-in-loop -- sent one user at a time to stay within provider rate limits; each user is wrapped in try/catch so one failure cannot stop the rest
           if (!(await hasUserSubmittedPicksForWeek(UserID, week))) {
             await sendPickReminderPushNotification({ UserFirstName, UserID }, week, hoursLeft);
           }
@@ -160,6 +162,7 @@ export const sendReminderTexts = async (hoursLeft: number, week: number): Promis
 
       switch (NotificationType) {
         case "PickReminder":
+          // react-doctor-disable-next-line async-await-in-loop -- sent one user at a time to stay within provider rate limits; each user is wrapped in try/catch so one failure cannot stop the rest
           hasUserSubmittedForWeek = await hasUserSubmittedPicksForWeek(UserID, week);
 
           if (!hasUserSubmittedForWeek) {

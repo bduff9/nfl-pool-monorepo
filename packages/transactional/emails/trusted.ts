@@ -10,8 +10,7 @@ export const sendTrustedEmail = async (user: Pick<Selectable<Users>, "UserEmail"
   const emailId = await getBaseEmailClass({ to, type: "trusted" });
   const browserLink = getBrowserLink(emailId);
   const unsubscribeLink = getUnsubscribeLink(to);
-  const year = await getSystemYear();
-  const paymentDueDate = await getPaymentDueDate();
+  const [year, paymentDueDate] = await Promise.all([getSystemYear(), getPaymentDueDate()]);
   const subject = getSubject(year);
   const [html, text] = await Promise.all([
     getHtml({

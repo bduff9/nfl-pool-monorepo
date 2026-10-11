@@ -30,6 +30,7 @@ export const sendPicksAutoSubmittedNotifications = async (
   console.log("Found auto submitted pick notifications to send", { count: picks.length, week });
 
   for (const pick of picks) {
+    // react-doctor-disable-next-line async-await-in-loop -- one notification at a time keeps providers within their send rates, and each pick handles its own errors
     await sendPicksAutoSubmittedForPick(week, pick);
   }
 };

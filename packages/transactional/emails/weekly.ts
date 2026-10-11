@@ -17,31 +17,33 @@ export const sendWeeklyEmail = async (
   const userMessages: string[] = [];
   const poolUpdates: string[] = [];
   const survivorUpdates: string[] = [];
-  const myPoolRank = await db
-    .selectFrom("WeeklyMV")
-    .select("Rank")
-    .where("Week", "=", week)
-    .where("UserID", "=", user.UserID)
-    .executeTakeFirstOrThrow();
-  const mySurvivorRank = await db
-    .selectFrom("SurvivorMV")
-    .select(["IsAliveOverall", "WeeksAlive"])
-    .where("UserID", "=", user.UserID)
-    .executeTakeFirst();
-  const poolRanks = await db
-    .selectFrom("WeeklyMV as wmv")
-    .innerJoin("Users as u", "u.UserID", "wmv.UserID")
-    .select(["Rank", "UserFirstName", "UserLastName"])
-    .where("Week", "=", week)
-    .where("Rank", "<", 3)
-    .execute();
-  const newlyDead = await db
-    .selectFrom("SurvivorMV")
-    .select("UserID")
-    .where("IsAliveOverall", "=", 0)
-    .where("WeeksAlive", "=", week)
-    .execute();
-  const alerts = await getUserAlerts(user.UserID);
+  const [myPoolRank, mySurvivorRank, poolRanks, newlyDead, alerts] = await Promise.all([
+    db
+      .selectFrom("WeeklyMV")
+      .select("Rank")
+      .where("Week", "=", week)
+      .where("UserID", "=", user.UserID)
+      .executeTakeFirstOrThrow(),
+    db
+      .selectFrom("SurvivorMV")
+      .select(["IsAliveOverall", "WeeksAlive"])
+      .where("UserID", "=", user.UserID)
+      .executeTakeFirst(),
+    db
+      .selectFrom("WeeklyMV as wmv")
+      .innerJoin("Users as u", "u.UserID", "wmv.UserID")
+      .select(["Rank", "UserFirstName", "UserLastName"])
+      .where("Week", "=", week)
+      .where("Rank", "<", 3)
+      .execute(),
+    db
+      .selectFrom("SurvivorMV")
+      .select("UserID")
+      .where("IsAliveOverall", "=", 0)
+      .where("WeeksAlive", "=", week)
+      .execute(),
+    getUserAlerts(user.UserID),
+  ]);
 
   if (myPoolRank.Rank < 3) {
     userMessages.push(`Congrats, you took ${addOrdinal(myPoolRank.Rank)} place this week in the pool!`);
