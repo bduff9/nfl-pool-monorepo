@@ -6,6 +6,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* The installed app on a phone. iOS draws a frosted veil over roughly the status bar plus the 48pt under it, which
+   dims anything placed there, so that band is kept for the menu button and all page content starts below it. */
+@custom-variant standalone (@media (display-mode: standalone) and (max-width: 767px));
+
 :root {
   --background: oklch(100% 0 0deg);
   --foreground: oklch(14.5% 0 0deg);
@@ -44,6 +48,9 @@
   --duration-enter: 210ms;
   --duration-move: 400ms;
   --safe-top: env(safe-area-inset-top, 0px);
+  --top-bar: 0px;
+  --offline-bar: 0px;
+  --top-offset: calc(var(--safe-top) + var(--top-bar) + var(--offline-bar));
   --actions-bar-height: calc(70px + env(safe-area-inset-bottom, 0px));
 }
 
@@ -348,4 +355,15 @@
 /* The progress bar is fixed at the very top of the screen, which is under the status bar in the installed app */
 html #nprogress .bar {
   top: var(--safe-top);
+}
+
+@media (display-mode: standalone) and (width <= 767px) {
+  :root {
+    --top-bar: 3.25rem;
+  }
+}
+
+/* While offline, the pill under the top bar takes room of its own so it never covers page content */
+html[data-offline] {
+  --offline-bar: 2.75rem;
 }

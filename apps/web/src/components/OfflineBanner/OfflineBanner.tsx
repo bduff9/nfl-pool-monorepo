@@ -18,7 +18,7 @@
 
 import "client-only";
 
-import type { FC } from "react";
+import { type FC, useEffect } from "react";
 import { LuWifiOff } from "react-icons/lu";
 
 import { useIsOffline, useLastSynced } from "@/lib/hooks/useIsOffline";
@@ -37,13 +37,19 @@ const OfflineBanner: FC = () => {
   const isOffline = useIsOffline();
   const lastSynced = useLastSynced();
 
+  useEffect(() => {
+    document.documentElement.toggleAttribute("data-offline", isOffline);
+
+    return () => document.documentElement.removeAttribute("data-offline");
+  }, [isOffline]);
+
   if (!isOffline) {
     return null;
   }
 
   return (
     <div
-      className="pointer-events-none fixed inset-x-0 top-[calc(env(safe-area-inset-top)+0.25rem)] z-[70] flex justify-center px-2"
+      className="pointer-events-none fixed inset-x-0 top-[calc(var(--safe-top)+var(--top-bar)+0.25rem)] z-[70] flex justify-center px-2"
       style={{ viewTransitionName: "offline-banner" }}
     >
       <div
