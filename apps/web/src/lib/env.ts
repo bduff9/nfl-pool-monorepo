@@ -30,7 +30,6 @@ export const env = createEnv({
     GOOGLE_SECRET: type("string"),
     LOGFLARE_API_KEY: type("string"),
     LOGFLARE_SOURCE_TOKEN: type("string"),
-    LOGTAIL_SOURCE_TOKEN: type("string"),
     TWILIO_ACCOUNT_SID: type("string.alphanumeric"),
     TWILIO_AUTH_TOKEN: type("string.alphanumeric"),
     TWILIO_PHONE_NUMBER: type("string"),
