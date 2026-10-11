@@ -17,8 +17,16 @@ const logBadgeEnvironment = (count: number): void => {
   });
 };
 
+// iOS is more dependable at showing a badge set from the service worker than one set from the page, so do both
+const syncBadgeFromWorker = async (count: number): Promise<void> => {
+  const registration = await navigator.serviceWorker?.getRegistration();
+
+  registration?.active?.postMessage({ count, type: "SET_BADGE" });
+};
+
 const syncBadge = async (count: number): Promise<void> => {
   try {
+    await syncBadgeFromWorker(count);
     await (count > 0 ? navigator.setAppBadge(count) : navigator.clearAppBadge());
     console.info("App badge set", count);
   } catch (error) {
