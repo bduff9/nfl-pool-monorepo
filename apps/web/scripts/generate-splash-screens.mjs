@@ -1,34 +1,45 @@
-// Regenerates public/splash/*.png, the iOS launch screens shown while the installed app starts. Run from apps/web with
-// `node scripts/generate-splash-screens.mjs` after changing the icon or this list, and keep src/lib/splashScreens.ts
-// in sync. sharp is borrowed from Next's own dependency so it doesn't need to be listed here.
-import { mkdir } from "node:fs/promises";
+// Regenerates public/splash/*.png, the iOS launch screens shown while the installed app starts, by rendering
+// scripts/splash-source.svg (a 390x844 design) at every device size in src/lib/splashScreens.ts. Run from apps/web with
+// `node --experimental-strip-types scripts/generate-splash-screens.mjs`. sharp is borrowed from Next's own dependency
+// so it doesn't need to be listed here.
+import { mkdir, readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 
 import { splashScreens } from "../src/lib/splashScreens.ts";
 
-const sharp = createRequire(import.meta.url)(
-  createRequire(import.meta.url).resolve("sharp", {
-    paths: [path.dirname(createRequire(import.meta.url).resolve("next/package.json"))],
-  }),
-);
+const require = createRequire(import.meta.url);
+const sharp = require(require.resolve("sharp", { paths: [path.dirname(require.resolve("next/package.json"))] }));
 
-// The icon's own background, so the artwork melts into the screen
-const BACKGROUND = { b: 10, g: 8, r: 7 };
-const LOGO_SHARE_OF_SHORT_SIDE = 0.4;
+const DESIGN_WIDTH = 390;
+const DESIGN_HEIGHT = 844;
+const BACKGROUND = "#07080a";
+
+const source = await readFile("scripts/splash-source.svg", "utf8");
+const design = source.slice(source.indexOf(">") + 1, source.lastIndexOf("</svg>"));
+
+// The whole design stays visible and centered; a screen of a different shape shows more of the dark background (and
+// the field, which runs past the design's edges) around it
+const render = ({ height, width }) => {
+  const isWiderThanDesign = width / height > DESIGN_WIDTH / DESIGN_HEIGHT;
+  const viewHeight = isWiderThanDesign ? DESIGN_HEIGHT : (DESIGN_WIDTH * height) / width;
+  const viewWidth = isWiderThanDesign ? (DESIGN_HEIGHT * width) / height : DESIGN_WIDTH;
+  const viewBox = `${(DESIGN_WIDTH - viewWidth) / 2} ${(DESIGN_HEIGHT - viewHeight) / 2} ${viewWidth} ${viewHeight}`;
+
+  return Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${viewBox}">` +
+      `<rect x="-4000" y="-4000" width="8000" height="8000" fill="${BACKGROUND}"/>${design}</svg>`,
+  );
+};
 
 await mkdir("public/splash", { recursive: true });
 
 await Promise.all(
-  splashScreens.map(async ({ height, name, width }) => {
-    const logoSize = Math.round(Math.min(width, height) * LOGO_SHARE_OF_SHORT_SIDE);
-    const logo = await sharp("public/icon-512x512.png").resize(logoSize, logoSize).toBuffer();
-
-    await sharp({ create: { background: BACKGROUND, channels: 3, height, width } })
-      .composite([{ input: logo, left: Math.round((width - logoSize) / 2), top: Math.round((height - logoSize) / 2) }])
-      .png({ compressionLevel: 9, palette: true, quality: 95 })
-      .toFile(`public/splash/${name}.png`);
-  }),
+  splashScreens.map(({ height, name, width }) =>
+    sharp(render({ height, width }))
+      .png({ compressionLevel: 9, effort: 10, palette: true, quality: 90 })
+      .toFile(`public/splash/${name}.png`),
+  ),
 );
 
 console.log(`Wrote ${splashScreens.length} launch screens to public/splash`);

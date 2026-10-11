@@ -4,6 +4,9 @@
   "ignoreBinaries": ["biome", "npmPkgJsonLint", "vitest"],
   "ignoreDependencies": ["vite-tsconfig-paths"],
   "ignoreFiles": ["vitest.config.ts", "vitest.setup.ts", "src/**/*.test.ts"],
+  "ignoreIssues": {
+    "scripts/generate-splash-screens.mjs": ["unlisted"]
+  },
   "paths": {
     "@/*": ["./src/*"]
   },
