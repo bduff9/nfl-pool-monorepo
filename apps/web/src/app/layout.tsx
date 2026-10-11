@@ -35,7 +35,9 @@ const twitterAccount = "@Duffmaster33";
 export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    // The app draws under a transparent status bar (padded by --safe-top), instead of iOS adding its own opaque bar
+    // over the top of the page, which also dimmed whatever sat in the first 44pt under it
+    statusBarStyle: "black-translucent",
     title: appTitle,
   },
   applicationName: appTitle,
@@ -138,7 +140,7 @@ const RootLayout: FC<LayoutProps<"/">> = ({ children }) => {
               <Suspense fallback={null}>
                 <AuthenticatedNavigation />
               </Suspense>
-              <main className="w-full relative grid min-h-dvh">
+              <main className="w-full relative grid min-h-dvh pt-(--safe-top)">
                 <Suspense fallback={<PageLoadingFallback />}>{children}</Suspense>
               </main>
             </AuthenticatedNavPresenceProvider>

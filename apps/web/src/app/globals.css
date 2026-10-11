@@ -43,6 +43,7 @@
   --duration-exit: 150ms;
   --duration-enter: 210ms;
   --duration-move: 400ms;
+  --safe-top: env(safe-area-inset-top, 0px);
   --actions-bar-height: calc(70px + env(safe-area-inset-bottom, 0px));
 }
 
@@ -342,4 +343,9 @@
   ::view-transition-group(*) {
     animation: none;
   }
+}
+
+/* The progress bar is fixed at the very top of the screen, which is under the status bar in the installed app */
+html #nprogress .bar {
+  top: var(--safe-top);
 }
