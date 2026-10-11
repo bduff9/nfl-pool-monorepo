@@ -13,6 +13,7 @@ import "server-only";
 import "./globals.css";
 
 import SidebarOpenSync from "@/components/AppSidebar/SidebarOpenSync.client";
+import AppUpdateWatcher from "@/components/AppUpdateWatcher/AppUpdateWatcher.client";
 import AuthenticatedNavigation from "@/components/AuthenticatedNavigation/AuthenticatedNavigation";
 import { AuthenticatedNavPresenceProvider } from "@/components/AuthenticatedNavigation/AuthenticatedNavPresence.client";
 import LogRocketGate from "@/components/LogRocketBoot/LogRocketGate";
@@ -134,6 +135,7 @@ const RootLayout: FC<LayoutProps<"/">> = ({ children }) => {
             <LogRocketGate />
           </Suspense>
           <OfflineBanner />
+          <AppUpdateWatcher />
           <SidebarProvider>
             <SidebarOpenSync />
             <AuthenticatedNavPresenceProvider>
