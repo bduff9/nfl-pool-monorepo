@@ -139,7 +139,9 @@ const RootLayout: FC<LayoutProps<"/">> = ({ children }) => {
             <LogRocketGate />
           </Suspense>
           <OfflineBanner />
-          <PullToRefresh />
+          <Suspense fallback={null}>
+            <PullToRefresh />
+          </Suspense>
           <ServiceWorkerManager />
           <SidebarProvider>
             <SidebarOpenSync />
