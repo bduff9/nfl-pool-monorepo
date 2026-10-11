@@ -77,39 +77,22 @@ const CalculatedRow: FC<CalculatedRowProps> = (props) => {
   );
 };
 
-type Props = {
-  overallPrizes: [number, number, number, number];
+type PrizeRowsArgs = {
   poolCost: number;
+  prizes: Partial<typeof payoutsSchema.infer>;
   registeredCount: number;
   survivorCost: number;
   survivorCount: number;
-  survivorPrizes: [number, number, number];
-  weeklyPrizes: [number, number, number];
 };
 
-// fallow-ignore-next-line complexity -- was 12 duplicated JSX rows, now one data-driven .map(); same pre-existing "?? null" fallbacks, just consolidated
-const ManageAdminPayments: FC<Props> = ({
-  overallPrizes,
+// fallow-ignore-next-line complexity -- the 12 table rows as plain data; the branching is the "?? null" fallbacks for unset prizes
+const getPrizeRows = ({
   poolCost,
+  prizes,
   registeredCount,
   survivorCost,
   survivorCount,
-  survivorPrizes,
-  weeklyPrizes,
-}) => {
-  const form = useForm<typeof payoutsSchema.infer>({
-    defaultValues: {
-      overall1stPrize: overallPrizes[1],
-      overall2ndPrize: overallPrizes[2],
-      overall3rdPrize: overallPrizes[3],
-      survivor1stPrize: survivorPrizes[1],
-      survivor2ndPrize: survivorPrizes[2],
-      weekly1stPrize: weeklyPrizes[1],
-      weekly2ndPrize: weeklyPrizes[2],
-    },
-    resolver: toArktypeResolver(arktypeResolver(payoutsSchema)),
-  });
-
+}: PrizeRowsArgs): Array<CalculatedRowConfig> => {
   const {
     overall1stPrize,
     overall2ndPrize,
@@ -118,7 +101,7 @@ const ManageAdminPayments: FC<Props> = ({
     survivor2ndPrize,
     weekly1stPrize,
     weekly2ndPrize,
-  } = useWatch({ control: form.control });
+  } = prizes;
 
   const poolRemaining =
     poolCost * registeredCount -
@@ -130,10 +113,7 @@ const ManageAdminPayments: FC<Props> = ({
     (poolCost ?? 0);
   const survivorRemaining =
     (survivorCost ?? 0) * (survivorCount ?? 0) - (survivor1stPrize ?? 0) - (survivor2ndPrize ?? 0);
-  const hasBeenSaved = weeklyPrizes.reduce((acc, prize) => acc + prize) > 0;
-  const toastIdRef = useRef<string | number | undefined>(undefined);
-
-  const rows: Array<CalculatedRowConfig> = [
+  return [
     { count: registeredCount, id: "pool-total", label: "Pool Total", mode: "count", money: poolCost },
     {
       count: WEEKS_IN_SEASON,
@@ -180,6 +160,45 @@ const ManageAdminPayments: FC<Props> = ({
       total: survivorRemaining,
     },
   ];
+};
+
+type Props = {
+  overallPrizes: [number, number, number, number];
+  poolCost: number;
+  registeredCount: number;
+  survivorCost: number;
+  survivorCount: number;
+  survivorPrizes: [number, number, number];
+  weeklyPrizes: [number, number, number];
+};
+
+// fallow-ignore-next-line complexity -- was 12 duplicated JSX rows, now one data-driven .map(); same pre-existing "?? null" fallbacks, just consolidated
+const ManageAdminPayments: FC<Props> = ({
+  overallPrizes,
+  poolCost,
+  registeredCount,
+  survivorCost,
+  survivorCount,
+  survivorPrizes,
+  weeklyPrizes,
+}) => {
+  const form = useForm<typeof payoutsSchema.infer>({
+    defaultValues: {
+      overall1stPrize: overallPrizes[1],
+      overall2ndPrize: overallPrizes[2],
+      overall3rdPrize: overallPrizes[3],
+      survivor1stPrize: survivorPrizes[1],
+      survivor2ndPrize: survivorPrizes[2],
+      weekly1stPrize: weeklyPrizes[1],
+      weekly2ndPrize: weeklyPrizes[2],
+    },
+    resolver: toArktypeResolver(arktypeResolver(payoutsSchema)),
+  });
+
+  const prizes = useWatch({ control: form.control });
+  const rows = getPrizeRows({ poolCost, prizes, registeredCount, survivorCost, survivorCount });
+  const hasBeenSaved = weeklyPrizes.reduce((acc, prize) => acc + prize) > 0;
+  const toastIdRef = useRef<string | number | undefined>(undefined);
 
   const { execute, isPending } = useAction(updatePayouts, {
     onError: onActionError,

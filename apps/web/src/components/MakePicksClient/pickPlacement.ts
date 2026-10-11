@@ -1,0 +1,52 @@
+import type { parseDragData } from "@/lib/strings";
+import type { getMyWeeklyPicks } from "@/server/loaders/pick";
+
+export type WeeklyPicks = Awaited<ReturnType<typeof getMyWeeklyPicks>>;
+type DropDestination = NonNullable<ReturnType<typeof parseDragData>[2]>;
+type DroppedTeam = WeeklyPicks[number]["pickTeam"];
+
+// The team a point was dropped on, or null when it was dropped back on the bank or on nothing
+export const getDroppedTeam = (
+  pick: WeeklyPicks[number] | undefined,
+  destination: DropDestination | null,
+): DroppedTeam => {
+  if (!pick || !destination) {
+    return null;
+  }
+
+  if (destination.type === "home") {
+    return pick.homeTeam;
+  }
+
+  return destination.type === "visitor" ? pick.visitorTeam : null;
+};
+
+// Puts the points on the dropped game and frees them from whichever other game held them. Started games never change.
+export const placePoints = (
+  picks: WeeklyPicks,
+  gameID: null | number,
+  points: number,
+  pickTeam: DroppedTeam,
+  now: Date,
+): WeeklyPicks =>
+  picks.map((pick) => {
+    if (pick.GameKickoff < now) {
+      return pick;
+    }
+
+    if (gameID === pick.GameID) {
+      return { ...pick, PickPoints: points, pickTeam, TeamID: pickTeam?.TeamID ?? null };
+    }
+
+    return points === pick.PickPoints ? { ...pick, PickPoints: null, pickTeam: null, TeamID: null } : pick;
+  });
+
+const isPointInUse = (pick: WeeklyPicks[number], now: Date): boolean =>
+  !!pick.PickPoints && (!!pick.pickTeam || now > pick.GameKickoff);
+
+// Points not yet placed on a game that can still change; points on a started game stay used even without a team
+export const getAvailablePoints = (picks: WeeklyPicks, now: Date): Array<number> => {
+  const used = new Set(picks.filter((pick) => isPointInUse(pick, now)).map((pick) => pick.PickPoints));
+
+  return Array.from({ length: picks.length }, (_, i) => i + 1).filter((point) => !used.has(point));
+};

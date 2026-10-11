@@ -207,6 +207,44 @@ type PickGameProps = {
   isSelected?: boolean;
 };
 
+const ROW_BACKGROUNDS = {
+  "false-false": "",
+  "false-true": "bg-red-400",
+  "true-false": "bg-blue-500",
+  "true-true": "bg-blue-600 opacity-75",
+} as const;
+
+const getRowClassName = (hasMadePick: boolean, hasStarted: boolean, isBackgrounded: boolean): string =>
+  cn("flex py-3", ROW_BACKGROUNDS[`${hasMadePick}-${hasStarted}`], isBackgrounded && "opacity-65");
+
+const getTeamID = (team: PickTeam): number | undefined => team?.TeamID;
+
+// The points placed on a team, or 0 when the pick is for the other team
+const getPointsForTeam = (pick: PickGameProps["pick"], team: PickTeam): number =>
+  getTeamID(pick.pickTeam) === getTeamID(team) ? (pick.PickPoints ?? 0) : 0;
+
+type PickSlotProps = {
+  dragGameID: null | string;
+  gameCount: number;
+  isDragDisabled: boolean;
+  pick: PickGameProps["pick"];
+  side: "home" | "visitor";
+};
+
+const PickSlot: FC<PickSlotProps> = ({ dragGameID, gameCount, isDragDisabled, pick, side }) => {
+  const hasMadePick = !!pick.pickTeam;
+
+  return (
+    <Point
+      droppableId={`${side}-pick-for-game-${pick.GameID}`}
+      isDragDisabled={isDragDisabled}
+      isDropDisabled={hasMadePick && dragGameID !== `pick-for-game-${pick.GameID}`}
+      maxValue={gameCount}
+      value={getPointsForTeam(pick, side === "home" ? pick.homeTeam : pick.visitorTeam)}
+    />
+  );
+};
+
 const PickGame: FC<PickGameProps> = ({
   dragGameID,
   gameCount,
@@ -219,24 +257,17 @@ const PickGame: FC<PickGameProps> = ({
 }) => {
   const hasStarted = pick.GameKickoff < now;
   const hasMadePick = !!pick.pickTeam;
+  const isDragDisabled = loading !== null || hasStarted;
 
   return (
-    <div
-      className={cn(
-        "flex py-3",
-        hasMadePick && hasStarted && "bg-blue-600 opacity-75",
-        hasMadePick && !hasStarted && "bg-blue-500",
-        !hasMadePick && hasStarted && "bg-red-400",
-        isBackgrounded && "opacity-65",
-      )}
-    >
+    <div className={getRowClassName(hasMadePick, hasStarted, isBackgrounded)}>
       <div className="w-1/4 md:w-1/6 flex items-center justify-center md:justify-end">
-        <Point
-          droppableId={`visitor-pick-for-game-${pick.GameID}`}
-          isDragDisabled={loading !== null || hasStarted}
-          isDropDisabled={hasMadePick && dragGameID !== `pick-for-game-${pick.GameID}`}
-          maxValue={gameCount}
-          value={pick.pickTeam?.TeamID === pick.visitorTeam?.TeamID ? (pick.PickPoints ?? 0) : 0}
+        <PickSlot
+          dragGameID={dragGameID}
+          gameCount={gameCount}
+          isDragDisabled={isDragDisabled}
+          pick={pick}
+          side="visitor"
         />
       </div>
       <div className="w-1/2 md:w-2/3 flex items-center text-center">
@@ -263,12 +294,12 @@ const PickGame: FC<PickGameProps> = ({
         <TeamLogoButton onClick={onClick} spread={pick.GameHomeSpread} team={pick.homeTeam} />
       </div>
       <div className="w-1/4 md:w-1/6 flex items-center justify-center md:justify-start">
-        <Point
-          droppableId={`home-pick-for-game-${pick.GameID}`}
-          isDragDisabled={loading !== null || hasStarted}
-          isDropDisabled={hasMadePick && dragGameID !== `pick-for-game-${pick.GameID}`}
-          maxValue={gameCount}
-          value={pick.pickTeam?.TeamID === pick.homeTeam?.TeamID ? (pick.PickPoints ?? 0) : 0}
+        <PickSlot
+          dragGameID={dragGameID}
+          gameCount={gameCount}
+          isDragDisabled={isDragDisabled}
+          pick={pick}
+          side="home"
         />
       </div>
     </div>

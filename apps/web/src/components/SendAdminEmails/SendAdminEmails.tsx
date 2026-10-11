@@ -16,7 +16,7 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { type FC, useCallback, useEffect, useRef, useState } from "react";
+import { type FC, useCallback, useEffect, useEffectEvent, useState } from "react";
 
 import "quill/dist/quill.bubble.css";
 
@@ -27,7 +27,7 @@ import { Input } from "@nfl-pool-monorepo/ui/components/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nfl-pool-monorepo/ui/components/select";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { useAction } from "next-safe-action/hooks";
-import type { ControllerFieldState, ControllerRenderProps } from "react-hook-form";
+import type { ControllerFieldState, ControllerRenderProps, SubmitHandler } from "react-hook-form";
 import { useForm, useWatch } from "react-hook-form";
 import { PiFootballDuotone } from "react-icons/pi";
 import { useQuill } from "react-quilljs";
@@ -95,6 +95,52 @@ type SendAdminEmailFieldRenderProps<TName extends keyof typeof sendAdminEmailSch
   fieldState: ControllerFieldState;
 };
 
+type BodyFieldProps = {
+  hasError: boolean;
+  onBlur: () => void;
+  onBodyChange: (html: string) => void;
+};
+
+// The editor and its ref live here, not in the form's render callback, so React Compiler can still optimize the form
+const BodyField: FC<BodyFieldProps> = ({ hasError, onBlur, onBodyChange }) => {
+  const { quill, quillRef } = useQuill({
+    bounds: "#quill-container",
+    formats: quillFormats,
+    modules: quillModules,
+    placeholder: "Intriguing email content",
+    theme: "bubble",
+  });
+
+  const handleBodyChange = useEffectEvent((html: string) => onBodyChange(html));
+
+  useEffect(() => {
+    if (quill) {
+      quill.on("text-change", () => {
+        handleBodyChange(quill.root.innerHTML);
+      });
+    }
+
+    return () => {
+      if (quill) {
+        quill.off("text-change");
+      }
+    };
+  }, [quill]);
+
+  return (
+    <FormItem className="mt-3">
+      <FormLabel className="required">Body</FormLabel>
+      <FormControl>
+        <div className={cn("bg-white border rounded-md w-full min-h-10", hasError && "border-red-600")}>
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: This div should be interactive */}
+          <div onBlur={onBlur} ref={quillRef} />
+        </div>
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  );
+};
+
 const SendAdminEmails: FC = () => {
   "use no memo";
 
@@ -115,35 +161,8 @@ const SendAdminEmails: FC = () => {
   const body = useWatch({ control: form.control, name: "body" });
   const userFirstName = useWatch({ control: form.control, name: "userFirstName" });
   const [previewPayload, setPreviewPayload] = useState({ body, preview, subject });
-  const { quill, quillRef } = useQuill({
-    bounds: "#quill-container",
-    formats: quillFormats,
-    modules: quillModules,
-    placeholder: "Intriguing email content",
-    theme: "bubble",
-  });
-
-  useEffect(() => {
-    if (quill) {
-      quill.on("text-change", () => {
-        form.setValue("body", quill.root.innerHTML);
-      });
-    }
-
-    return () => {
-      if (quill) {
-        quill.off("text-change");
-      }
-    };
-  }, [quill, form.setValue]);
-
-  const toastIdRef = useRef<string | number | undefined>(undefined);
-
-  const { execute, isPending } = useAction(sendAdminEmail, {
+  const { executeAsync, isPending } = useAction(sendAdminEmail, {
     onError: onActionError,
-    onSettled: () => {
-      if (toastIdRef.current) toast.dismiss(toastIdRef.current);
-    },
     onSuccess: ({ data }) => {
       const failedCount = data?.metadata?.failedCount;
 
@@ -163,17 +182,15 @@ const SendAdminEmails: FC = () => {
     setPreviewPayload({ body, preview, subject });
   }, [body, preview, subject]);
 
-  const onSubmit = useCallback(
-    (values: typeof sendAdminEmailSchema.infer): void => {
-      toastIdRef.current = toast.loading("Sending email...", {
-        closeButton: false,
-        dismissible: false,
-        duration: Infinity,
-      });
-      execute(values);
-    },
-    [execute],
-  );
+  const onSubmit: SubmitHandler<typeof sendAdminEmailSchema.infer> = (values) => {
+    const toastId = toast.loading("Sending email...", {
+      closeButton: false,
+      dismissible: false,
+      duration: Infinity,
+    });
+
+    return executeAsync(values).finally(() => toast.dismiss(toastId));
+  };
 
   const renderEmailTypeField = useCallback(
     ({ field, fieldState }: SendAdminEmailFieldRenderProps<"emailType">) => (
@@ -309,20 +326,13 @@ const SendAdminEmails: FC = () => {
     [updatePreview],
   );
 
+  const setBody = useCallback((html: string) => form.setValue("body", html), [form.setValue]);
+
   const renderBodyField = useCallback(
     ({ fieldState }: SendAdminEmailFieldRenderProps<"body">) => (
-      <FormItem className="mt-3">
-        <FormLabel className="required">Body</FormLabel>
-        <FormControl>
-          <div className={cn("bg-white border rounded-md w-full min-h-10", fieldState.error && "border-red-600")}>
-            {/* biome-ignore lint/a11y/noStaticElementInteractions: This div should be interactive */}
-            <div onBlur={updatePreview} ref={quillRef} />
-          </div>
-        </FormControl>
-        <FormMessage />
-      </FormItem>
+      <BodyField hasError={!!fieldState.error} onBlur={updatePreview} onBodyChange={setBody} />
     ),
-    [quillRef, updatePreview],
+    [setBody, updatePreview],
   );
 
   return (

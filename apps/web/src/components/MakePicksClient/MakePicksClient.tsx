@@ -23,6 +23,7 @@ import { PiFootballDuotone } from "react-icons/pi";
 
 import { PickActionsBar } from "./PickActionsBar";
 import { PicksBoard } from "./PicksBoard";
+import { getAvailablePoints, getDroppedTeam, placePoints } from "./pickPlacement";
 import { usePickActions } from "./usePickActions";
 
 const ConfirmationModal = dynamic(() => import("../ConfirmationModal/ConfirmationModal"), { ssr: false });
@@ -64,42 +65,13 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
 
     const [points, , destinationData] = parseDragData(draggableId, source.droppableId, destination.droppableId);
     const gameID = destinationData?.gameID ?? null;
-    const pick = optimisticPicks.find((pick) => pick.GameID === gameID);
-    const pickTeam =
-      destinationData?.type === "home"
-        ? (pick?.homeTeam ?? null)
-        : destinationData?.type === "visitor"
-          ? (pick?.visitorTeam ?? null)
-          : null;
+    const pickTeam = getDroppedTeam(
+      optimisticPicks.find((pick) => pick.GameID === gameID),
+      destinationData,
+    );
 
     startPicksUpdating(() => {
-      setOptimisticPicks((picks) =>
-        picks.map((pick) => {
-          if (pick.GameKickoff < new Date()) {
-            return pick;
-          }
-
-          if (gameID === pick.GameID) {
-            return {
-              ...pick,
-              PickPoints: points,
-              pickTeam,
-              TeamID: pickTeam?.TeamID ?? null,
-            };
-          }
-
-          if (points === pick.PickPoints) {
-            return {
-              ...pick,
-              PickPoints: null,
-              pickTeam: null,
-              TeamID: null,
-            };
-          }
-
-          return pick;
-        }),
-      );
+      setOptimisticPicks((picks) => placePoints(picks, gameID, points, pickTeam, new Date()));
 
       executeSetMyPick({
         gameID,
@@ -119,22 +91,8 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
     setDragGameID(droppableId.replace("home-", "").replace("visitor-", ""));
   };
 
-  const allUsedPoints = new Set<number>();
   const now = useNow() ?? new Date(0);
-
-  for (const pick of optimisticPicks) {
-    if (pick.PickPoints && pick.pickTeam) {
-      allUsedPoints.add(pick.PickPoints);
-    } else if (!pick.pickTeam && pick.PickPoints && now.getTime() > pick.GameKickoff.getTime()) {
-      allUsedPoints.add(pick.PickPoints);
-    }
-  }
-
-  const available: Array<number> = [];
-
-  for (let i = 1; i <= optimisticPicks.length; i++) {
-    if (!allUsedPoints.has(i)) available.push(i);
-  }
+  const available = getAvailablePoints(optimisticPicks, now);
 
   const {
     autoPick,

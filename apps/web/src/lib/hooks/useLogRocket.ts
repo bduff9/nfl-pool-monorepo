@@ -17,9 +17,33 @@
  */
 
 import type { User } from "@nfl-pool-monorepo/types";
+import type LogRocketSDK from "logrocket";
 import { useEffect } from "react";
 
 import { env } from "../env.client";
+
+const identifyUser = (LogRocket: typeof LogRocketSDK, user: User): void => {
+  const { name, image: picture, ...rest } = user;
+
+  LogRocket.identify(`${user.id}`, {
+    name: name ?? "",
+    picture: picture ?? "",
+    ...rest,
+  });
+};
+
+// Dynamically imported so the recording SDK stays out of the shared layout bundle and loads after first paint.
+const startLogrocket = async (user?: User | null): Promise<void> => {
+  const { default: LogRocket } = await import("logrocket");
+
+  LogRocket.init(env.NEXT_PUBLIC_LOGROCKET_PROJ ?? "", {
+    ...(env.NEXT_PUBLIC_LOGROCKET_RELEASE ? { release: env.NEXT_PUBLIC_LOGROCKET_RELEASE } : {}),
+  });
+
+  if (user) {
+    identifyUser(LogRocket, user);
+  }
+};
 
 export const useLogrocket = (user?: User | null): void => {
   const isBrowser = typeof window !== "undefined";
@@ -29,24 +53,6 @@ export const useLogrocket = (user?: User | null): void => {
       return;
     }
 
-    // Dynamically imported so the recording SDK stays out of the shared layout bundle and
-    // loads after first paint.
-    void import("logrocket").then((LogRocket) => {
-      const LogRocketModule = LogRocket.default;
-
-      LogRocketModule.init(env.NEXT_PUBLIC_LOGROCKET_PROJ ?? "", {
-        ...(env.NEXT_PUBLIC_LOGROCKET_RELEASE ? { release: env.NEXT_PUBLIC_LOGROCKET_RELEASE } : {}),
-      });
-
-      if (user) {
-        const { name, image: picture, ...rest } = user;
-
-        LogRocketModule.identify(`${user.id}`, {
-          name: name ?? "",
-          picture: picture ?? "",
-          ...rest,
-        });
-      }
-    });
+    startLogrocket(user).catch((error) => console.error("Failed to start LogRocket", error));
   }, [isBrowser, user]);
 };

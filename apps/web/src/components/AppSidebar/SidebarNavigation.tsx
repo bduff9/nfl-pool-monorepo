@@ -10,7 +10,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@nfl-pool-monorepo/ui/components/alert-dialog";
-import { buttonVariants } from "@nfl-pool-monorepo/ui/components/button";
+import { buttonVariants } from "@nfl-pool-monorepo/ui/components/button-variants";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@nfl-pool-monorepo/ui/components/collapsible";
 import {
   SidebarContent,

@@ -36,4 +36,4 @@ function Badge({
   return <Comp className={cn(badgeVariants({ variant }), className)} data-slot="badge" {...props} />;
 }
 
-export { Badge, badgeVariants };
+export { Badge };

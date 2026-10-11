@@ -59,7 +59,118 @@ const parseUserIDParam = (value: string | string[] | undefined): null | number =
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
 };
 
-// fallow-ignore-next-line complexity -- long-standing page body; the added empty-state early return follows the existing redirect pattern
+type HeadToHead = Awaited<ReturnType<typeof getHeadToHead>>;
+type Ranking = Awaited<ReturnType<typeof getWeeklyRankings>>[number];
+type Game = HeadToHead["games"][number];
+type Pick = { PickPoints: null | number; TeamID: null | number };
+
+const NotReadyState: FC<{ selectedWeek: number }> = ({ selectedWeek }) => (
+  <PageTransition>
+    <div className="h-full flex flex-col md:mx-3">
+      <CustomHead title={TITLE} />
+      <PageContent className="pt-5 md:pt-3 pb-4">
+        <div className="flex flex-col items-center justify-center gap-3 min-h-[50vh] text-center">
+          <PiFootballDuotone aria-hidden="true" className="size-16 text-muted-foreground" />
+          <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+            Standings for week {selectedWeek} aren&apos;t ready yet
+          </h2>
+          <p className="max-w-md text-muted-foreground">
+            Head-to-head matchups appear once this week&apos;s results start coming in. Check back soon!
+          </p>
+          <WeekLink className="inline-block py-2.5" href="/">
+            &laquo; Back to Dashboard
+          </WeekLink>
+        </div>
+      </PageContent>
+    </div>
+  </PageTransition>
+);
+
+const isWinningPick = (game: Game, pick: Pick | undefined): boolean =>
+  game.WinnerTeamID !== null && pick?.TeamID === game.WinnerTeamID;
+
+const getEarnedPoints = (game: Game, pick: Pick | undefined): number =>
+  isWinningPick(game, pick) ? (pick?.PickPoints ?? 0) : 0;
+
+// Points a player earned: the confidence points on every pick that matched its game's winner
+const getPoints = (games: HeadToHead["games"], picks: HeadToHead["picksA"]): number =>
+  games.reduce((total, game) => total + getEarnedPoints(game, picks.get(game.GameID)), 0);
+
+type PlayerSelectProps = {
+  label: string;
+  name: "a" | "b";
+  selectedID: number;
+  users: Array<Ranking>;
+};
+
+const PlayerSelect: FC<PlayerSelectProps> = ({ label, name, selectedID, users }) => (
+  <div className="flex flex-col gap-1 text-sm">
+    {label}
+    <Select defaultValue={String(selectedID)} name={name}>
+      <SelectTrigger className="w-56">
+        <SelectValue placeholder="Choose a player" />
+      </SelectTrigger>
+      <SelectContent>
+        {users.map((ranking) => (
+          <SelectItem key={ranking.UserID} value={String(ranking.UserID)}>
+            {ranking.TeamName}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  </div>
+);
+
+type ScoreCardProps = {
+  points: number;
+  rank: null | number | string | undefined;
+  teamName: string | undefined;
+};
+
+const ScoreCard: FC<ScoreCardProps> = ({ points, rank, teamName }) => (
+  <div className="border border-border rounded-lg p-4 text-center">
+    <div className="text-lg font-semibold">{teamName}</div>
+    <div className="text-sm text-muted-foreground">Rank {rank ?? "-"}</div>
+    <div className="text-3xl font-bold">{points}</div>
+  </div>
+);
+
+// fallow-ignore-next-line complexity -- pre-existing pick cell rendering; CRAP reflects missing component-test coverage, not branching
+const PickCell: FC<{ game: Game; pick: Pick | undefined }> = ({ game, pick }) => {
+  if (!pick?.TeamID) {
+    return <span className="text-muted-foreground">-</span>;
+  }
+
+  const team = pick.TeamID === game.homeTeam?.TeamID ? game.homeTeam : game.visitorTeam;
+  const isWinner = game.GameStatus === "Final" && game.WinnerTeamID === pick.TeamID;
+
+  return (
+    <span className={cn(isWinner && "font-semibold text-green-700")}>
+      {team?.TeamName} ({pick.PickPoints ?? "-"})
+    </span>
+  );
+};
+
+const GameRow: FC<{ game: Game; pickA: Pick | undefined; pickB: Pick | undefined }> = ({ game, pickA, pickB }) => (
+  <TableRow>
+    <TableCell className="text-center">
+      {game.visitorTeam?.TeamName} @ {game.homeTeam?.TeamName}
+      {game.GameStatus === "Final" && (
+        <div className="text-sm text-muted-foreground">
+          Final: {game.GameVisitorScore} - {game.GameHomeScore}
+        </div>
+      )}
+    </TableCell>
+    <TableCell className="text-center">
+      <PickCell game={game} pick={pickA} />
+    </TableCell>
+    <TableCell className="text-center">
+      <PickCell game={game} pick={pickB} />
+    </TableCell>
+  </TableRow>
+);
+
+// fallow-ignore-next-line complexity -- long-standing page body: redirect, param resolution and the empty-state early return follow the existing page pattern
 const HeadToHeadPageBody: FC<HeadToHeadPageBodyProps> = async ({ searchParams }) => {
   const redirectUrl = await requireRegistered();
 
@@ -78,50 +189,12 @@ const HeadToHeadPageBody: FC<HeadToHeadPageBodyProps> = async ({ searchParams })
   const userBID = parseUserIDParam(params.b) ?? users.find((ranking) => ranking.UserID !== userAID)?.UserID;
 
   if (!userAID || !userBID) {
-    return (
-      <PageTransition>
-        <div className="h-full flex flex-col md:mx-3">
-          <CustomHead title={TITLE} />
-          <PageContent className="pt-5 md:pt-3 pb-4">
-            <div className="flex flex-col items-center justify-center gap-3 min-h-[50vh] text-center">
-              <PiFootballDuotone aria-hidden="true" className="size-16 text-muted-foreground" />
-              <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight">
-                Standings for week {selectedWeek} aren&apos;t ready yet
-              </h2>
-              <p className="max-w-md text-muted-foreground">
-                Head-to-head matchups appear once this week&apos;s results start coming in. Check back soon!
-              </p>
-              <WeekLink className="inline-block py-2.5" href="/">
-                &laquo; Back to Dashboard
-              </WeekLink>
-            </div>
-          </PageContent>
-        </div>
-      </PageTransition>
-    );
+    return <NotReadyState selectedWeek={selectedWeek} />;
   }
 
   const userA = users.find((ranking) => ranking.UserID === userAID);
   const userB = users.find((ranking) => ranking.UserID === userBID);
   const { games, picksA, picksB, rankA, rankB } = await getHeadToHead(selectedWeek, userAID, userBID);
-
-  let pointsA = 0;
-  let pointsB = 0;
-
-  for (const game of games) {
-    const pickA = picksA.get(game.GameID);
-    const pickB = picksB.get(game.GameID);
-
-    if (game.WinnerTeamID !== null) {
-      if (pickA?.TeamID === game.WinnerTeamID) {
-        pointsA += pickA.PickPoints ?? 0;
-      }
-
-      if (pickB?.TeamID === game.WinnerTeamID) {
-        pointsB += pickB.PickPoints ?? 0;
-      }
-    }
-  }
 
   return (
     <PageTransition>
@@ -131,51 +204,15 @@ const HeadToHeadPageBody: FC<HeadToHeadPageBodyProps> = async ({ searchParams })
           <h1 className="text-4xl font-semibold tracking-tight mb-6">{TITLE}</h1>
           <form className="flex flex-wrap items-end gap-3 mb-6" method="get">
             <input name="week" type="hidden" value={selectedWeek} />
-            <div className="flex flex-col gap-1 text-sm">
-              Player 1
-              <Select defaultValue={String(userAID)} name="a">
-                <SelectTrigger className="w-56">
-                  <SelectValue placeholder="Choose a player" />
-                </SelectTrigger>
-                <SelectContent>
-                  {users.map((ranking) => (
-                    <SelectItem key={ranking.UserID} value={String(ranking.UserID)}>
-                      {ranking.TeamName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex flex-col gap-1 text-sm">
-              Player 2
-              <Select defaultValue={String(userBID)} name="b">
-                <SelectTrigger className="w-56">
-                  <SelectValue placeholder="Choose a player" />
-                </SelectTrigger>
-                <SelectContent>
-                  {users.map((ranking) => (
-                    <SelectItem key={ranking.UserID} value={String(ranking.UserID)}>
-                      {ranking.TeamName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <PlayerSelect label="Player 1" name="a" selectedID={userAID} users={users} />
+            <PlayerSelect label="Player 2" name="b" selectedID={userBID} users={users} />
             <Button type="submit" variant="primary">
               Compare
             </Button>
           </form>
           <div className="grid grid-cols-2 gap-4 mb-6 max-w-xl">
-            <div className="border border-border rounded-lg p-4 text-center">
-              <div className="text-lg font-semibold">{userA?.TeamName}</div>
-              <div className="text-sm text-muted-foreground">Rank {rankA?.Rank ?? "-"}</div>
-              <div className="text-3xl font-bold">{pointsA}</div>
-            </div>
-            <div className="border border-border rounded-lg p-4 text-center">
-              <div className="text-lg font-semibold">{userB?.TeamName}</div>
-              <div className="text-sm text-muted-foreground">Rank {rankB?.Rank ?? "-"}</div>
-              <div className="text-3xl font-bold">{pointsB}</div>
-            </div>
+            <ScoreCard points={getPoints(games, picksA)} rank={rankA?.Rank} teamName={userA?.TeamName} />
+            <ScoreCard points={getPoints(games, picksB)} rank={rankB?.Rank} teamName={userB?.TeamName} />
           </div>
           <Table>
             <TableHeader>
@@ -186,42 +223,14 @@ const HeadToHeadPageBody: FC<HeadToHeadPageBodyProps> = async ({ searchParams })
               </TableRow>
             </TableHeader>
             <TableBody>
-              {games.map((game) => {
-                const pickA = picksA.get(game.GameID);
-                const pickB = picksB.get(game.GameID);
-                const isFinal = game.GameStatus === "Final";
-
-                // fallow-ignore-next-line complexity -- pre-existing pick cell rendering; CRAP reflects missing component-test coverage, not branching
-                const renderPick = (pick: { PickPoints: null | number; TeamID: null | number } | undefined) => {
-                  if (!pick?.TeamID) {
-                    return <span className="text-muted-foreground">-</span>;
-                  }
-
-                  const team = pick.TeamID === game.homeTeam?.TeamID ? game.homeTeam : game.visitorTeam;
-                  const isWinner = isFinal && game.WinnerTeamID === pick.TeamID;
-
-                  return (
-                    <span className={cn(isWinner && "font-semibold text-green-700")}>
-                      {team?.TeamName} ({pick.PickPoints ?? "-"})
-                    </span>
-                  );
-                };
-
-                return (
-                  <TableRow key={game.GameID}>
-                    <TableCell className="text-center">
-                      {game.visitorTeam?.TeamName} @ {game.homeTeam?.TeamName}
-                      {isFinal && (
-                        <div className="text-sm text-muted-foreground">
-                          Final: {game.GameVisitorScore} - {game.GameHomeScore}
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-center">{renderPick(pickA)}</TableCell>
-                    <TableCell className="text-center">{renderPick(pickB)}</TableCell>
-                  </TableRow>
-                );
-              })}
+              {games.map((game) => (
+                <GameRow
+                  game={game}
+                  key={game.GameID}
+                  pickA={picksA.get(game.GameID)}
+                  pickB={picksB.get(game.GameID)}
+                />
+              ))}
             </TableBody>
           </Table>
         </PageContent>

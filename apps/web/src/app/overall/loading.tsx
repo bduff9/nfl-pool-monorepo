@@ -14,88 +14,16 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { Skeleton } from "@nfl-pool-monorepo/ui/components/skeleton";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@nfl-pool-monorepo/ui/components/table";
 import "server-only";
 
 import type { FC } from "react";
 
-import PageContent from "@/components/PageContent/PageContent";
-import ProgressChartLoader from "@/components/ProgressChart/ProgressChartLoader";
-import RankingPieChartLoader from "@/components/RankingPieChart/RankingPieChartLoader";
-import { WeekLink } from "@/components/WeekLink/WeekLink";
+import RankingsLoader from "@/components/RankingsLoader/RankingsLoader";
 
-const OverallRankingsLoader: FC = () => {
-  return (
-    <div className="h-full flex" data-testid="route-loading">
-      <PageContent className="mx-2 pt-0 md:pt-3 pb-4">
-        <div className="flex flex-wrap">
-          <div className="hidden md:inline-block w-1/2 text-center h-[205px]">
-            <h2 className="mb-0">Overall Rank</h2>
-            <div className="mt-4">
-              <RankingPieChartLoader />
-            </div>
-          </div>
-          <div className="mt-4 block md:hidden">
-            <WeekLink className="inline-block py-2.5 underline" href="/">
-              &laquo; Back to Dashboard
-            </WeekLink>
-          </div>
-          <div className="hidden md:inline-block w-1/2 px-3">
-            <h2 className="mb-4 text-center">My Overall Results</h2>
-            <ProgressChartLoader />
-            <ProgressChartLoader />
-          </div>
-          <Table parentClassName="w-full mt-4 text-center">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-center text-foreground font-semibold" scope="col">
-                  Rank
-                </TableHead>
-                <TableHead className="text-center text-foreground font-semibold" scope="col">
-                  Team
-                </TableHead>
-                <TableHead className="text-center text-foreground font-semibold" scope="col">
-                  Owner
-                </TableHead>
-                <TableHead className="text-center text-foreground font-semibold" scope="col">
-                  Points
-                </TableHead>
-                <TableHead className="text-center text-foreground font-semibold" scope="col">
-                  Games Correct
-                </TableHead>
-                <TableHead className="text-center text-foreground font-semibold" scope="col">
-                  Missed Games?
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {Array.from({ length: 20 }).map((_, i) => (
-                // biome-ignore lint/suspicious/noArrayIndexKey: This is a loader and the key is not important
-                <TableRow key={`table-loader-${i}`}>
-                  <TableHead className="text-center text-foreground font-semibold" scope="row">
-                    <Skeleton />
-                  </TableHead>
-                  <TableCell>
-                    <Skeleton />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </PageContent>
-    </div>
-  );
-};
+const COLUMNS = ["Rank", "Team", "Owner", "Points", "Games Correct", "Missed Games?"];
+
+const OverallRankingsLoader: FC = () => (
+  <RankingsLoader columns={COLUMNS} rankTitle="Overall Rank" resultsTitle="My Overall Results" />
+);
 
 export default OverallRankingsLoader;
