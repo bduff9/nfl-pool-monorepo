@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { env } from "@/lib/env.client";
+import { registerServiceWorker as registerWorker } from "@/lib/serviceWorker";
 import { urlBase64ToUint8Array } from "@/lib/strings";
 import { subscribeUser, unsubscribeUser } from "@/server/actions/device";
 
@@ -21,10 +22,7 @@ export const usePushNotifications = (): UsePushNotificationsResult => {
   useEffect(() => {
     const registerServiceWorker = async (): Promise<void> => {
       try {
-        const registration = await navigator.serviceWorker.register("/sw.js", {
-          scope: "/",
-          updateViaCache: "none",
-        });
+        const registration = await registerWorker();
         const sub = await registration.pushManager.getSubscription();
 
         setSubscription(sub);

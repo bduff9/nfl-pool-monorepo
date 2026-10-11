@@ -6,6 +6,7 @@ import { unstable_rethrow } from "next/navigation";
 import { type FC, useEffect, useState } from "react";
 
 import { WeekLink } from "@/components/WeekLink/WeekLink";
+import { clearOfflineCaches } from "@/lib/serviceWorker";
 import { signOut } from "@/server/actions/sessions";
 
 const LogoutClient: FC = () => {
@@ -17,6 +18,7 @@ const LogoutClient: FC = () => {
       window.localStorage.clear();
 
       try {
+        await clearOfflineCaches();
         await signOut();
       } catch (error) {
         unstable_rethrow(error);

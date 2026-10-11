@@ -14,6 +14,8 @@ import { registerForSurvivor, unregisterForSurvivor } from "@/server/actions/sur
 import { setSelectedWeek } from "@/server/actions/week";
 import type { getMyTiebreaker } from "@/server/loaders/tiebreaker";
 
+import AppBadgeSync from "../AppBadge/AppBadgeSync.client";
+import { getAppBadgeCount } from "./navVisibility";
 import { SidebarNavigation } from "./SidebarNavigation";
 import { SidebarUserMenu } from "./SidebarUserMenu";
 import { SidebarWeekHeader } from "./SidebarWeekHeader";
@@ -104,31 +106,42 @@ const AppSidebarClient: FC<Props> = ({
     setOpenMobile(false);
   };
 
+  const badgeCount = getAppBadgeCount(
+    selectedWeek === currentWeek,
+    user,
+    myTiebreaker?.TiebreakerHasSubmitted,
+    isAliveInSurvivor,
+    selectedWeekStatus,
+  );
+
   return (
-    <Sidebar>
-      <SidebarWeekHeader
-        currentWeek={currentWeek}
-        onSelectWeek={changeWeek}
-        pathname={pathname}
-        selectedWeek={selectedWeek}
-        user={user}
-      />
-      <SidebarNavigation
-        currentPage={getCurrentPage(pathname)}
-        hasSeasonStarted={hasSeasonStarted}
-        isAliveInSurvivor={isAliveInSurvivor}
-        myTiebreaker={myTiebreaker}
-        overallMvCount={overallMvCount}
-        registerDialog={registerDialog}
-        selectedWeekStatus={selectedWeekStatus}
-        survivorMvCount={survivorMvCount}
-        unregisterDialog={unregisterDialog}
-        user={user}
-        weeklyMvCount={weeklyMvCount}
-      />
-      <SidebarUserMenu isMobile={isMobile} onNavigate={handleCloseMobileSidebar} user={user} />
-      <SidebarRail />
-    </Sidebar>
+    <>
+      <AppBadgeSync count={badgeCount} />
+      <Sidebar>
+        <SidebarWeekHeader
+          currentWeek={currentWeek}
+          onSelectWeek={changeWeek}
+          pathname={pathname}
+          selectedWeek={selectedWeek}
+          user={user}
+        />
+        <SidebarNavigation
+          currentPage={getCurrentPage(pathname)}
+          hasSeasonStarted={hasSeasonStarted}
+          isAliveInSurvivor={isAliveInSurvivor}
+          myTiebreaker={myTiebreaker}
+          overallMvCount={overallMvCount}
+          registerDialog={registerDialog}
+          selectedWeekStatus={selectedWeekStatus}
+          survivorMvCount={survivorMvCount}
+          unregisterDialog={unregisterDialog}
+          user={user}
+          weeklyMvCount={weeklyMvCount}
+        />
+        <SidebarUserMenu isMobile={isMobile} onNavigate={handleCloseMobileSidebar} user={user} />
+        <SidebarRail />
+      </Sidebar>
+    </>
   );
 };
 

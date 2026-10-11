@@ -131,9 +131,7 @@ const RootLayout: FC<LayoutProps<"/">> = ({ children }) => {
           <Suspense fallback={null}>
             <LogRocketGate />
           </Suspense>
-          <div style={{ viewTransitionName: "offline-banner" }}>
-            <OfflineBanner />
-          </div>
+          <OfflineBanner />
           <SidebarProvider>
             <SidebarOpenSync />
             <AuthenticatedNavPresenceProvider>

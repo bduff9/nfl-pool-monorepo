@@ -18,24 +18,42 @@
 
 import "client-only";
 
-import { Alert, AlertTitle } from "@nfl-pool-monorepo/ui/components/alert";
-import { useOffline } from "next/offline";
 import type { FC } from "react";
 import { LuWifiOff } from "react-icons/lu";
 
+import { useIsOffline, useLastSynced } from "@/lib/hooks/useIsOffline";
+
+const formatSynced = (at: number): string => {
+  const date = new Date(at);
+  const time = date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+
+  return date.toDateString() === new Date().toDateString()
+    ? time
+    : `${date.toLocaleDateString([], { day: "numeric", month: "short" })} ${time}`;
+};
+
+// A small pill pinned to the top of the screen so it is visible from any scroll position
 const OfflineBanner: FC = () => {
-  const isOffline = useOffline();
+  const isOffline = useIsOffline();
+  const lastSynced = useLastSynced();
 
   if (!isOffline) {
     return null;
   }
 
   return (
-    <div className="w-full">
-      <Alert>
-        <LuWifiOff />
-        <AlertTitle>You&apos;re offline. Pending actions will retry once you&apos;re back online.</AlertTitle>
-      </Alert>
+    <div
+      className="pointer-events-none fixed inset-x-0 top-[calc(env(safe-area-inset-top)+0.25rem)] z-[70] flex justify-center px-2"
+      style={{ viewTransitionName: "offline-banner" }}
+    >
+      <div
+        aria-live="polite"
+        className="pointer-events-auto flex items-center gap-2 rounded-full border border-amber-500/60 bg-black/85 px-3 py-1 text-sm text-amber-300 shadow-lg backdrop-blur"
+        role="status"
+      >
+        <LuWifiOff aria-hidden="true" className="size-4 shrink-0" />
+        <span>Offline · {lastSynced ? `saved ${formatSynced(lastSynced)}` : "showing saved data"}</span>
+      </div>
     </div>
   );
 };
