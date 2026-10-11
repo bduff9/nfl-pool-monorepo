@@ -26,7 +26,7 @@ const getHeadToHeadGames = cache(async (week: number) => {
       ).as("visitorTeam"),
     ])
     .where("G.GameWeek", "=", week)
-    .orderBy("G.GameKickoff asc")
+    .orderBy("G.GameKickoff", "asc")
     .execute();
 });
 

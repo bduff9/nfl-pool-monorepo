@@ -36,12 +36,13 @@ export const metadata: Metadata = {
   title: TITLE,
 };
 
-const formatKickoff = (kickoff: Date): string =>
-  new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "America/Chicago",
-  }).format(kickoff);
+const KICKOFF_FORMAT = new Intl.DateTimeFormat("en-US", {
+  dateStyle: "medium",
+  timeStyle: "short",
+  timeZone: "America/Chicago",
+});
+
+const formatKickoff = (kickoff: Date): string => KICKOFF_FORMAT.format(kickoff);
 
 const AdminGamesPageBody: FC<PageProps<"/weekly">> = async ({ searchParams }) => {
   const redirectUrl = await requireAdmin();

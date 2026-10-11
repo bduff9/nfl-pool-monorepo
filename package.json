@@ -11,7 +11,6 @@
     "fallow": "3.33.1",
     "husky": "9.1.7",
     "npm-package-json-lint": "11.0.0",
-    "nuqs": "2.10.2",
     "react-doctor": "^0.9.17",
     "typescript": "7.0.2",
     "typesync": "0.14.3",

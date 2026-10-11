@@ -10,8 +10,9 @@ const DEFAULT_INSTALL_STATE: InstallState = { isIOS: false, isStandalone: false 
 const InstallPrompt: FC = () => {
   const [installState, setInstallState] = useState<InstallState>(DEFAULT_INSTALL_STATE);
 
+  // react-doctor-disable-next-line react-doctor/rendering-hydration-no-flicker -- iOS/standalone-mode detection needs navigator/window, only available after mount
   useEffect(() => {
-    // react-doctor-disable-next-line react-hooks-js/set-state-in-effect, react-doctor/rendering-hydration-no-flicker -- iOS/standalone-mode detection needs navigator/window, only available after mount
+    // react-doctor-disable-next-line react-hooks-js/set-state-in-effect -- same reason
     setInstallState({
       // biome-ignore lint/suspicious/noExplicitAny: window can be any type
       isIOS: /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream,

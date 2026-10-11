@@ -67,9 +67,11 @@ const HeadToHeadPageBody: FC<HeadToHeadPageBodyProps> = async ({ searchParams })
     return redirect(redirectUrl);
   }
 
-  const params = await searchParams;
-  const selectedWeek = await getSelectedWeekFromParams(searchParams);
-  const user = await requireUser();
+  const [params, selectedWeek, user] = await Promise.all([
+    searchParams,
+    getSelectedWeekFromParams(searchParams),
+    requireUser(),
+  ]);
   const users = await getWeeklyRankings(selectedWeek);
 
   const userAID = parseUserIDParam(params.a) ?? user.id;

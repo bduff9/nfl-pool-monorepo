@@ -35,7 +35,6 @@ const ScoreboardGamesList: FC<Props> = ({ games }) => {
   const [headerIndexes, setHeaderIndexes] = useState<Set<number> | null>(null);
 
   useEffect(() => {
-    // react-doctor-disable-next-line react-hooks-js/set-state-in-effect -- day grouping depends on the visitor's timezone, unknown during SSR; same pattern as ScoreboardDate
     const indexes = new Set<number>();
 
     for (const [index, game] of games.entries()) {
@@ -48,6 +47,7 @@ const ScoreboardGamesList: FC<Props> = ({ games }) => {
       }
     }
 
+    // react-doctor-disable-next-line react-hooks-js/set-state-in-effect, react-doctor/no-adjust-state-on-prop-change -- day grouping depends on the visitor's timezone, unknown during SSR, so it can only be computed after mount; same pattern as ScoreboardDate
     setHeaderIndexes(indexes);
   }, [games]);
 

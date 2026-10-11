@@ -9,26 +9,26 @@ export async function up(db: Kysely<any>): Promise<void> {
     .values([
       {
         NotificationType: "GameTimeChanged",
+        NotificationTypeAddedBy: "Admin",
         NotificationTypeDescription: "Game Time Changes",
         NotificationTypeHasEmail: 1,
-        NotificationTypeHasSMS: 1,
-        NotificationTypeHasPushNotification: 1,
         NotificationTypeHasHours: 0,
+        NotificationTypeHasPushNotification: 1,
+        NotificationTypeHasSMS: 1,
         NotificationTypeTooltip:
           "Get notified when the kickoff time changes for a game you have picks for. Sent at most once per changed game.",
-        NotificationTypeAddedBy: "Admin",
         NotificationTypeUpdatedBy: "Admin",
       },
       {
         NotificationType: "SurvivorEliminated",
+        NotificationTypeAddedBy: "Admin",
         NotificationTypeDescription: "Survivor Eliminated",
         NotificationTypeHasEmail: 1,
-        NotificationTypeHasSMS: 1,
-        NotificationTypeHasPushNotification: 1,
         NotificationTypeHasHours: 0,
+        NotificationTypeHasPushNotification: 1,
+        NotificationTypeHasSMS: 1,
         NotificationTypeTooltip:
           "Get notified as soon as you are eliminated from the survivor pool, either by a losing pick or a missed week.",
-        NotificationTypeAddedBy: "Admin",
         NotificationTypeUpdatedBy: "Admin",
       },
     ])
@@ -60,5 +60,7 @@ export async function down(db: Kysely<any>): Promise<void> {
 
   await sql`DELETE FROM Notifications WHERE NotificationType IN ('GameTimeChanged', 'SurvivorEliminated')`.execute(db);
 
-  await sql`DELETE FROM NotificationTypes WHERE NotificationType IN ('GameTimeChanged', 'SurvivorEliminated')`.execute(db);
+  await sql`DELETE FROM NotificationTypes WHERE NotificationType IN ('GameTimeChanged', 'SurvivorEliminated')`.execute(
+    db,
+  );
 }

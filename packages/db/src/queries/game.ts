@@ -47,7 +47,7 @@ export const getCurrentWeekInProgress = async (): Promise<number | null> => {
     .select("GameWeek")
     .where("GameNumber", "=", 1)
     .where("GameKickoff", "<", sql<Date>`CURRENT_TIMESTAMP`)
-    .orderBy("GameKickoff desc")
+    .orderBy("GameKickoff", "desc")
     .executeTakeFirst();
 
   return game?.GameWeek ?? null;

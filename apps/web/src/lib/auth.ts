@@ -102,6 +102,7 @@ export const verifyPasswordStrength = async (password: string): Promise<boolean>
     return false;
   }
 
+  // react-doctor-disable-next-line react-doctor/insecure-crypto-risk -- SHA-1 is what the Have I Been Pwned range API requires (only the first 5 hex characters are ever sent); it is not used to store or protect the password
   const hash = createHash("sha1").update(password).digest("hex");
   const hashPrefix = hash.slice(0, 5);
 

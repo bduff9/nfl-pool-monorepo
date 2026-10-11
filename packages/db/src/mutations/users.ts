@@ -32,7 +32,7 @@ export const populateUserData = async (
   const [publicLeague, week] = await Promise.all([getPublicLeague(), getCurrentWeek()]);
 
   if (week > 1) {
-    const lowest = await trx.selectFrom("OverallMV").select("UserID").orderBy("Rank desc").executeTakeFirstOrThrow();
+    const lowest = await trx.selectFrom("OverallMV").select("UserID").orderBy("Rank", "desc").executeTakeFirstOrThrow();
     const teamName = user.UserTeamName || "No team name";
     const userName = user.UserName || user.UserEmail;
 

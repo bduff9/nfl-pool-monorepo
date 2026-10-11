@@ -29,6 +29,7 @@ const SidebarOpenSync: FC = () => {
     if (stored !== null && stored !== open) {
       setOpen(stored);
     }
+    // react-doctor-disable-next-line react-doctor/exhaustive-deps -- same reason: a one-time sync on mount, not a reaction to later changes
   }, []);
 
   return null;

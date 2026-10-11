@@ -37,8 +37,9 @@ const isPromptable = (environment: InstallEnvironment, hasInstallEvent: boolean)
 const useInstallEnvironment = (): { dismiss: () => void; environment: InstallEnvironment | null } => {
   const [environment, setEnvironment] = useState<InstallEnvironment | null>(null);
 
+  // react-doctor-disable-next-line react-doctor/rendering-hydration-no-flicker -- install/standalone detection needs window and navigator, only available after mount
   useEffect(() => {
-    // react-doctor-disable-next-line react-hooks-js/set-state-in-effect -- install/standalone detection needs window and navigator, only available after mount
+    // react-doctor-disable-next-line react-hooks-js/set-state-in-effect -- same reason
     setEnvironment(readEnvironment());
   }, []);
 

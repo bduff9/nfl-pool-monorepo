@@ -16,11 +16,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addUniqueConstraint("BestPlacementWeekly_Week_UserID_unique", ["Week", "UserID"])
     .execute();
 
-  await db.schema
-    .createIndex("BestPlacementWeekly_Week_idx")
-    .on("BestPlacementWeekly")
-    .column("Week")
-    .execute();
+  await db.schema.createIndex("BestPlacementWeekly_Week_idx").on("BestPlacementWeekly").column("Week").execute();
 
   await db.schema
     .createTable("BestPlacementOverall")

@@ -56,7 +56,7 @@ export const getPaymentDueDate = cache(async (): Promise<Date> => {
     .selectFrom("Games")
     .select("GameKickoff")
     .where("GameWeek", "=", dueWeek)
-    .orderBy("GameKickoff desc")
+    .orderBy("GameKickoff", "desc")
     .executeTakeFirstOrThrow();
 
   return lastGame.GameKickoff;

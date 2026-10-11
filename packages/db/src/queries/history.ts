@@ -26,9 +26,9 @@ export const getHistory = async (): Promise<HistoryEntry[]> => {
       "U.UserName",
     ])
     .where("History.HistoryDeleted", "is", null)
-    .orderBy("History.HistoryYear desc")
+    .orderBy("History.HistoryYear", "desc")
     .orderBy("History.HistoryType")
-    .orderBy("History.HistoryWeek asc")
-    .orderBy("History.HistoryPlace asc")
+    .orderBy("History.HistoryWeek", "asc")
+    .orderBy("History.HistoryPlace", "asc")
     .execute();
 };

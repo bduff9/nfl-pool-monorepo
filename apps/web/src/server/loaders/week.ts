@@ -76,7 +76,7 @@ export const getWeekStart = cache(async (week: number) => {
     .selectFrom("Games")
     .select("GameKickoff")
     .where("GameWeek", "=", week)
-    .orderBy("GameKickoff asc")
+    .orderBy("GameKickoff", "asc")
     .executeTakeFirstOrThrow();
 
   return GameKickoff;

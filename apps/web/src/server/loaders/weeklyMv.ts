@@ -73,5 +73,5 @@ const getWeeklyRankingsCached = async (week: number) => {
   cacheTag(cacheTags.weeklyMv(week));
   weekSchema.assert(week);
 
-  return db.selectFrom("WeeklyMV").selectAll().where("Week", "=", week).orderBy("Rank asc").execute();
+  return db.selectFrom("WeeklyMV").selectAll().where("Week", "=", week).orderBy("Rank", "asc").execute();
 };

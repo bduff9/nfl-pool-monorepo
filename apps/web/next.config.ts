@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
     // empties .next/static during build finalization, so a post-build step runs too late.
     // This is the same hook @sentry/nextjs uses for its Turbopack source map uploads.
     runAfterProductionCompile: async ({ projectDir }) => {
+      // react-doctor-disable-next-line react-doctor/import-metadata-execution-risk -- runs a fixed script from this repo; nothing imported or user-supplied reaches the command
       const result = spawnSync("node", [path.join(projectDir, "scripts/upload-sourcemaps.mjs")], {
         cwd: projectDir,
         stdio: "inherit",

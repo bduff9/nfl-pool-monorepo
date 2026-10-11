@@ -133,7 +133,7 @@ const saveImage = async (url: string): Promise<void> => {
 const savePage = async (url: string): Promise<void> => {
   const response = await fetch(url, { cache: "no-store", credentials: "same-origin", redirect: "manual" });
 
-  if (!isStorableHtml(response)) {
+  if (!response.ok || !isStorableHtml(response)) {
     return;
   }
 

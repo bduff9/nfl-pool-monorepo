@@ -42,8 +42,7 @@ const QuickPickCard: FC<{ children: ReactNode; title: string }> = ({ children, t
 );
 
 const QuickPickPageBody: FC<PageProps<"/quick-pick/[userId]/[teamId]">> = async ({ params }) => {
-  const { userId, teamId } = await params;
-  const { user } = await getCurrentSession();
+  const [{ userId, teamId }, { user }] = await Promise.all([params, getCurrentSession()]);
 
   // The proxy sets a redirect_to cookie for anonymous visitors, so they'll be sent
   // back to this exact link once they authenticate.

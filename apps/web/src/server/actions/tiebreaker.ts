@@ -21,7 +21,7 @@ export const updateMyTiebreakerScore = authActionClient
           .selectFrom("Games")
           .select(["GameKickoff"])
           .where("GameWeek", "=", week)
-          .orderBy("GameKickoff desc")
+          .orderBy("GameKickoff", "desc")
           .executeTakeFirstOrThrow();
 
         if (lastGame.GameKickoff < new Date()) {

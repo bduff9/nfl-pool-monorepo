@@ -59,5 +59,5 @@ const getOverallRankingsCached = async () => {
   cacheLife("minutes");
   cacheTag(cacheTags.overallMv());
 
-  return db.selectFrom("OverallMV").selectAll().orderBy("Rank asc").execute();
+  return db.selectFrom("OverallMV").selectAll().orderBy("Rank", "asc").execute();
 };

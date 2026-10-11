@@ -1,7 +1,15 @@
 {
-  "entry": ["packages/transactional/emails/templates/*.tsx", "apps/web/src/sw.ts"],
+  "entry": [
+    "packages/transactional/emails/templates/*.tsx",
+    // The service worker is bundled and served by src/app/serwist/[path]/route.ts, which names it by path string
+    "apps/web/src/sw.ts",
+    // Spawned by path from next.config.ts (compiler.runAfterProductionCompile) to upload source maps after the build
+    "apps/web/scripts/upload-sourcemaps.mjs"
+  ],
   "ignoreDependencies": ["shadcn", "react-doctor", "jiti", "nypm", "postcss-load-config"],
   "ignoreExports": [
+    // @serwist/turbopack's route handler re-exports generateStaticParams, which Next consumes but fallow's Next plugin
+    // only recognises on pages
     {
       "exports": ["generateStaticParams"],
       "file": "apps/web/src/app/serwist/*/route.ts"

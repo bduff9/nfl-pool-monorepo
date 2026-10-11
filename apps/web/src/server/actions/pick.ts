@@ -344,7 +344,7 @@ export const submitMyPicks = authActionClient
           .select(["G.GameKickoff"])
           .where("G.GameWeek", "=", week)
           .where("P.UserID", "=", ctx.user.id)
-          .orderBy("P.PickPoints asc")
+          .orderBy("P.PickPoints", "asc")
           .execute();
 
         for (let i = 0; i < picks.length; i++) {
@@ -370,7 +370,7 @@ export const submitMyPicks = authActionClient
           .selectFrom("Games")
           .select(["GameKickoff"])
           .where("GameWeek", "=", week)
-          .orderBy("GameKickoff desc")
+          .orderBy("GameKickoff", "desc")
           .executeTakeFirstOrThrow();
         const lastGameHasStarted = lastGame.GameKickoff < new Date();
         const myTiebreaker = await trx
