@@ -36,9 +36,7 @@ await mkdir("public/splash", { recursive: true });
 
 await Promise.all(
   splashScreens.map(({ height, name, width }) =>
-    sharp(render({ height, width }))
-      .png({ compressionLevel: 9, effort: 10, palette: true, quality: 90 })
-      .toFile(`public/splash/${name}.png`),
+    sharp(render({ height, width })).png({ compressionLevel: 9, effort: 10 }).toFile(`public/splash/${name}.png`),
   ),
 );
 

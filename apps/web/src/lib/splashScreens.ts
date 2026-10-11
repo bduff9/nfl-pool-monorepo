@@ -6,6 +6,7 @@ const DEVICES: Array<Device> = [
   { height: 956, pixelRatio: 3, width: 440 },
   { height: 874, pixelRatio: 3, width: 402 },
   { height: 932, pixelRatio: 3, width: 430 },
+  { height: 912, pixelRatio: 3, width: 420 },
   { height: 852, pixelRatio: 3, width: 393 },
   { height: 926, pixelRatio: 3, width: 428 },
   { height: 844, pixelRatio: 3, width: 390 },

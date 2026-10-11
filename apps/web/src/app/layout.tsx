@@ -68,6 +68,7 @@ export const metadata: Metadata = {
     },
     shortcut: "/favicon.ico",
   },
+  // Next only emits the unprefixed mobile-web-app-capable; iOS's launch screens are tied to Apple's own tag
   metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
   openGraph: {
     description: appDescription,
@@ -77,6 +78,7 @@ export const metadata: Metadata = {
     type: "website",
     url: env.NEXT_PUBLIC_SITE_URL,
   },
+  other: { "apple-mobile-web-app-capable": "yes" },
   title: {
     default: appTitle,
     template: `%s | ${appTitle}`,
