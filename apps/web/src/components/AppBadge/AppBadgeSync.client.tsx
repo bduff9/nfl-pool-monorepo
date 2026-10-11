@@ -4,12 +4,11 @@ import "client-only";
 import { type FC, useEffect } from "react";
 
 type Props = {
-  // null leaves the badge as it is, for views that don't reflect the current week
-  count: null | number;
+  count: number;
 };
 
 // Temporary diagnostics for the iOS badge not showing: records what the page saw and what the browser answered
-const logBadgeEnvironment = (count: null | number): void => {
+const logBadgeEnvironment = (count: number): void => {
   console.info("App badge sync", {
     count,
     permission: "Notification" in window ? Notification.permission : "unsupported",
@@ -33,7 +32,7 @@ const AppBadgeSync: FC<Props> = ({ count }) => {
   useEffect(() => {
     logBadgeEnvironment(count);
 
-    if (count === null || !("setAppBadge" in navigator)) {
+    if (!("setAppBadge" in navigator)) {
       return;
     }
 

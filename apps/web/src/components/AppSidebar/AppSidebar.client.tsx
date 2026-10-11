@@ -15,7 +15,6 @@ import { setSelectedWeek } from "@/server/actions/week";
 import type { getMyTiebreaker } from "@/server/loaders/tiebreaker";
 
 import AppBadgeSync from "../AppBadge/AppBadgeSync.client";
-import { getAppBadgeCount } from "./navVisibility";
 import { SidebarNavigation } from "./SidebarNavigation";
 import { SidebarUserMenu } from "./SidebarUserMenu";
 import { SidebarWeekHeader } from "./SidebarWeekHeader";
@@ -38,6 +37,7 @@ const getCurrentPage = (pathname: string): string => {
 };
 
 type Props = {
+  badgeCount: number;
   currentWeek: number;
   hasSeasonStarted: boolean;
   isAliveInSurvivor: boolean;
@@ -51,6 +51,7 @@ type Props = {
 };
 
 const AppSidebarClient: FC<Props> = ({
+  badgeCount,
   currentWeek,
   hasSeasonStarted,
   isAliveInSurvivor,
@@ -105,14 +106,6 @@ const AppSidebarClient: FC<Props> = ({
   const handleCloseMobileSidebar = () => {
     setOpenMobile(false);
   };
-
-  const badgeCount = getAppBadgeCount(
-    selectedWeek === currentWeek,
-    user,
-    myTiebreaker?.TiebreakerHasSubmitted,
-    isAliveInSurvivor,
-    selectedWeekStatus,
-  );
 
   return (
     <>

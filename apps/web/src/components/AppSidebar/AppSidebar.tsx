@@ -25,6 +25,7 @@ import { getCurrentWeekCached, getSeasonStatus, getSelectedWeek, getWeekStatus }
 import { getWeeklyMvCount } from "@/server/loaders/weeklyMv";
 
 import AppSidebarClient from "./AppSidebar.client";
+import { getAppBadgeCount } from "./navVisibility";
 
 type Props = {
   user: User;
@@ -36,6 +37,8 @@ const AppSidebar: FC<Props> = async ({ user }) => {
 
   const isAliveInSurvivorPromise = getIsAliveInSurvivor();
   const tiebreakerPromise = getMyTiebreaker(selectedWeek);
+  const currentTiebreakerPromise = getMyTiebreaker(currentWeek);
+  const currentWeekStatusPromise = getWeekStatus(currentWeek);
   const seasonStatusPromise = getSeasonStatus();
   const selectedWeekStatusPromise = getWeekStatus(selectedWeek);
   const weeklyMvCountPromise = getWeeklyMvCount(selectedWeek);
@@ -43,6 +46,8 @@ const AppSidebar: FC<Props> = async ({ user }) => {
   const survivorMvCountsPromise = getSurvivorOverallCounts();
 
   const [
+    currentTiebreaker,
+    currentWeekStatus,
     isAliveInSurvivor,
     overallMvCount,
     seasonStatus,
@@ -51,6 +56,8 @@ const AppSidebar: FC<Props> = async ({ user }) => {
     myTiebreaker,
     weeklyMvCount,
   ] = await Promise.all([
+    currentTiebreakerPromise,
+    currentWeekStatusPromise,
     isAliveInSurvivorPromise,
     overallMvCountPromise,
     seasonStatusPromise,
@@ -61,9 +68,17 @@ const AppSidebar: FC<Props> = async ({ user }) => {
   ]);
 
   const hasSeasonStarted = seasonStatus !== "Not Started";
+  // The badge always describes the current week, whichever week the user happens to be viewing
+  const badgeCount = getAppBadgeCount(
+    user,
+    currentTiebreaker?.TiebreakerHasSubmitted,
+    isAliveInSurvivor,
+    currentWeekStatus,
+  );
 
   return (
     <AppSidebarClient
+      badgeCount={badgeCount}
       currentWeek={currentWeek}
       hasSeasonStarted={hasSeasonStarted}
       isAliveInSurvivor={isAliveInSurvivor}

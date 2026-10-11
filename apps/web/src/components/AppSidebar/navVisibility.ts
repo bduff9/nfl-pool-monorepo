@@ -23,19 +23,15 @@ export const showMakeSurvivorPick = (user: User, isAliveInSurvivor: boolean, sel
 
 export const showViewSurvivorPicks = (survivorMvCount: number): boolean => survivorMvCount > 0;
 
-// How many things still need the user's attention, shown on the installed app's icon. Null when the view is not
-// the current week, so the badge is left as it was instead of describing the wrong week.
+// How many things still need the user's attention in the current week, shown on the installed app's icon
 export const getAppBadgeCount = (
-  isCurrentWeek: boolean,
   user: User,
   tiebreakerHasSubmitted: number | null | undefined,
   isAliveInSurvivor: boolean,
-  selectedWeekStatus: Status,
-): number | null =>
-  isCurrentWeek
-    ? Number(showMakePicks(tiebreakerHasSubmitted)) +
-      Number(showMakeSurvivorPick(user, isAliveInSurvivor, selectedWeekStatus))
-    : null;
+  currentWeekStatus: Status,
+): number =>
+  Number(showMakePicks(tiebreakerHasSubmitted)) +
+  Number(showMakeSurvivorPick(user, isAliveInSurvivor, currentWeekStatus));
 
 export const showScoreboard = (user: User): boolean => !!user.doneRegistering;
 
