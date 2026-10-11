@@ -11,30 +11,34 @@ import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import type { Construct } from "constructs";
 import { config } from "dotenv";
 
+import { fromEnv } from "./fromEnv";
+
 config();
+
+const getEnvironment = (): { [key: string]: string } => ({
+  API_HOST: fromEnv("API_HOST"),
+  API_NEWS_KEY: fromEnv("API_NEWS_KEY"),
+  AWS_AK_ID: fromEnv("AWS_AK_ID"),
+  AWS_R: fromEnv("AWS_R"),
+  AWS_SAK_ID: fromEnv("AWS_SAK_ID"),
+  BACKUP_BUCKET_NAME: "aswnn-mysql-backup.local",
+  BACKUP_KEEP_COUNT: fromEnv("BACKUP_KEEP_COUNT", "10"),
+  DATABASE_URL: fromEnv("DATABASE_URL_LOCAL"),
+  domain: fromEnv("DOMAIN_LOCAL"),
+  EMAIL_FROM: fromEnv("EMAIL_FROM_LOCAL"),
+  EMAIL_LINK_SECRET: fromEnv("EMAIL_LINK_SECRET"),
+  NEXT_PUBLIC_VAPID_PUBLIC_KEY: fromEnv("NEXT_PUBLIC_VAPID_PUBLIC_KEY"),
+  TWILIO_ACCOUNT_SID: fromEnv("TWILIO_ACCOUNT_SID"),
+  TWILIO_AUTH_TOKEN: fromEnv("TWILIO_AUTH_TOKEN"),
+  TWILIO_PHONE_NUMBER: fromEnv("TWILIO_PHONE_NUMBER"),
+  VAPID_PRIVATE_KEY: fromEnv("VAPID_PRIVATE_KEY"),
+});
 
 export class CdkStackLocal extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const environment: { [key: string]: string } = {
-      API_HOST: process.env.API_HOST ?? "",
-      API_NEWS_KEY: process.env.API_NEWS_KEY ?? "",
-      AWS_AK_ID: process.env.AWS_AK_ID ?? "",
-      AWS_R: process.env.AWS_R ?? "",
-      AWS_SAK_ID: process.env.AWS_SAK_ID ?? "",
-      BACKUP_BUCKET_NAME: "aswnn-mysql-backup.local",
-      BACKUP_KEEP_COUNT: process.env.BACKUP_KEEP_COUNT ?? "10",
-      DATABASE_URL: process.env.DATABASE_URL_LOCAL ?? "",
-      domain: process.env.DOMAIN_LOCAL ?? "",
-      EMAIL_FROM: process.env.EMAIL_FROM_LOCAL ?? "",
-      EMAIL_LINK_SECRET: process.env.EMAIL_LINK_SECRET ?? "",
-      NEXT_PUBLIC_VAPID_PUBLIC_KEY: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "",
-      TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID ?? "",
-      TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN ?? "",
-      TWILIO_PHONE_NUMBER: process.env.TWILIO_PHONE_NUMBER ?? "",
-      VAPID_PRIVATE_KEY: process.env.VAPID_PRIVATE_KEY ?? "",
-    };
+    const environment = getEnvironment();
 
     const currentWeekUpdaterLocal = new NodejsFunction(this, "CurrentWeekUpdaterLocal", {
       bundling: {

@@ -3,63 +3,63 @@ import { NextResponse } from "next/server";
 
 const REDIRECT_TO_SKIP_PREFIXES = ["/_next", "/api", "/auth", "/login"];
 const HAS_FILE_EXTENSION = /\.[a-zA-Z0-9]+$/;
+const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
+const REDIRECT_MAX_AGE_SECONDS = 60 * 10;
 
-export const proxy = (request: NextRequest): NextResponse => {
-  if (request.method === "GET" || request.method === "HEAD") {
-    const response = NextResponse.next();
-    const token = request.cookies.get("session")?.value ?? null;
+const cookieOptions = (maxAge: number) => ({
+  httpOnly: true,
+  maxAge,
+  path: "/",
+  sameSite: "lax" as const,
+  secure: process.env.NODE_ENV === "production",
+});
 
-    if (token !== null) {
-      response.cookies.set("session", token, {
-        httpOnly: true,
-        maxAge: 60 * 60 * 24 * 30,
-        path: "/",
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
-      });
-    } else {
-      const { pathname, search } = request.nextUrl;
-      const isSkippedPath =
-        REDIRECT_TO_SKIP_PREFIXES.some((prefix) => pathname.startsWith(prefix)) || HAS_FILE_EXTENSION.test(pathname);
+const isReadMethod = (method: string): boolean => method === "GET" || method === "HEAD";
 
-      if (!isSkippedPath) {
-        response.cookies.set("redirect_to", `${pathname}${search}`, {
-          httpOnly: true,
-          maxAge: 60 * 10,
-          path: "/",
-          sameSite: "lax",
-          secure: process.env.NODE_ENV === "production",
-        });
-      }
-    }
+// Visitors heading to the app, not to its own plumbing, are sent back there after signing in
+const shouldRememberDestination = (pathname: string): boolean =>
+  !(REDIRECT_TO_SKIP_PREFIXES.some((prefix) => pathname.startsWith(prefix)) || HAS_FILE_EXTENSION.test(pathname));
+
+const proxyRead = (request: NextRequest): NextResponse => {
+  const response = NextResponse.next();
+  const token = request.cookies.get("session")?.value ?? null;
+
+  if (token !== null) {
+    response.cookies.set("session", token, cookieOptions(SESSION_MAX_AGE_SECONDS));
 
     return response;
   }
 
-  const originHeader = request.headers.get("Origin");
-  const hostHeader = request.headers.get("Host");
+  const { pathname, search } = request.nextUrl;
 
-  if (originHeader === null || hostHeader === null) {
-    return new NextResponse(null, {
-      status: 403,
-    });
+  if (shouldRememberDestination(pathname)) {
+    response.cookies.set("redirect_to", `${pathname}${search}`, cookieOptions(REDIRECT_MAX_AGE_SECONDS));
   }
 
-  let origin: URL;
-
-  try {
-    origin = new URL(originHeader);
-  } catch {
-    return new NextResponse(null, {
-      status: 403,
-    });
-  }
-
-  if (origin.host !== hostHeader) {
-    return new NextResponse(null, {
-      status: 403,
-    });
-  }
-
-  return NextResponse.next();
+  return response;
 };
+
+const parseOrigin = (origin: string): URL | null => {
+  try {
+    return new URL(origin);
+  } catch {
+    return null;
+  }
+};
+
+// Changes only count when they come from this site's own pages
+const isSameSite = (originHeader: string | null, hostHeader: string | null): boolean => {
+  if (originHeader === null || hostHeader === null) {
+    return false;
+  }
+
+  return parseOrigin(originHeader)?.host === hostHeader;
+};
+
+const proxyChange = (request: NextRequest): NextResponse =>
+  isSameSite(request.headers.get("Origin"), request.headers.get("Host"))
+    ? NextResponse.next()
+    : new NextResponse(null, { status: 403 });
+
+export const proxy = (request: NextRequest): NextResponse =>
+  isReadMethod(request.method) ? proxyRead(request) : proxyChange(request);
