@@ -25,7 +25,7 @@ npm run format / format:fix # Biome format
 npm run typecheck           # tsc --noEmit per package, native TS 7 compiler (fast, cached)
 
 npm run test                # vitest run, per package
-npm run prepush             # knip + lint + typecheck + test, streamed & parallel — run before pushing
+npm run prepush             # knip + lint + typecheck + test + freerange + production build + fallow audit, streamed & parallel — run before pushing
 ```
 
 Run a single test: `cd packages/<pkg-or-app> && npx vitest run path/to/file.test.ts` (each package/app has its own `vitest.config.ts` with `environment: "node"`, `include: ["src/**/*.test.ts"]`, `passWithNoTests: false`).
@@ -130,7 +130,7 @@ Stop and ask before:
 
 ## Verification gates
 
-- `npm run prepush` (knip + lint + typecheck + test, streamed & parallel) is the full verification command — run it early and often while implementing, not just at the end.
+- `npm run prepush` (knip + lint + typecheck + test + freerange + production build + fallow audit, streamed & parallel) is the full verification command — run it early and often while implementing, not just at the end.
 - If `prepush` fails, fix everything it reports and re-run until green.
 - For UI changes in `apps/web`, `prepush` alone isn't sufficient — verify in a real browser (see below).
 - Never bypass hooks with `--no-verify`, skip signing with `--no-gpg-sign`, or force-push, unless explicitly asked.

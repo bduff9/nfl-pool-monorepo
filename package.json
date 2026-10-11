@@ -42,7 +42,7 @@
     "lint:fix": "turbo lint --continue -- --apply",
     "lint:package": "npmPkgJsonLint .",
     "prepare": "husky",
-    "prepush": "turbo knip lint typecheck test freerange --log-order stream --parallel && fallow audit",
+    "prepush": "turbo knip lint typecheck test freerange build --log-order stream --parallel && fallow audit",
     "setup": "typesync && pnpm install",
     "test": "turbo test --continue",
     "typecheck": "turbo typecheck --continue",
