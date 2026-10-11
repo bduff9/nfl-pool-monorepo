@@ -38,7 +38,7 @@
     "db:migrate:prod": "kysely migrate latest",
     "env": "sync-dotenv",
     "freerange": "fr",
-    "lint": "biome check ./src --write && npmPkgJsonLint .",
+    "lint": "biome check ./src ./migrations --write && npmPkgJsonLint .",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },

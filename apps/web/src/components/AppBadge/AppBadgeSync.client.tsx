@@ -17,8 +17,9 @@ const AppBadgeSync: FC<Props> = ({ count }) => {
 
     const update = count > 0 ? navigator.setAppBadge(count) : navigator.clearAppBadge();
 
-    update.catch(() => {
-      // Some platforms require notification permission before badging; nothing to recover from
+    update.catch((error) => {
+      // iOS only allows badging once notification permission is granted; nothing to recover from, but leave a trace
+      console.warn("Could not update the app badge", error);
     });
   }, [count]);
 

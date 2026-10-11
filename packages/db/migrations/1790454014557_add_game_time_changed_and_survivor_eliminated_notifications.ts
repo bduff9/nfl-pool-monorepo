@@ -1,7 +1,5 @@
 import { type Kysely, sql } from "kysely";
 
-const NEW_NOTIFICATION_TYPES = ["GameTimeChanged", "SurvivorEliminated"];
-
 // biome-ignore lint/suspicious/noExplicitAny: `any` is required here since migrations should be frozen in time. alternatively, keep a "snapshot" db interface.
 export async function up(db: Kysely<any>): Promise<void> {
   await db

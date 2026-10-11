@@ -9,7 +9,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: Kysely migrations require any
-export async function down(db: Kysely<any>): Promise<void> {
+export async function down(_db: Kysely<any>): Promise<void> {
   // down migration code goes here...
   // note: down migrations are optional. you can safely delete this function.
   // For more info, see: https://kysely.dev/docs/migrations
