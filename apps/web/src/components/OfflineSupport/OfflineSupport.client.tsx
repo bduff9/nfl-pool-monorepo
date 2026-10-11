@@ -14,6 +14,7 @@ import {
   writeLastSynced,
   writeWarmState,
 } from "@/lib/serviceWorker";
+import { isUserSwitch } from "@/lib/userSwitch";
 import { weekParser } from "@/lib/weekParser";
 
 const WARM_DELAY_MS = 3000;
@@ -149,6 +150,14 @@ const useOfflineLinkNavigation = (): void => {
   }, []);
 };
 
+const useReloadOnUserSwitch = (userId: number): void => {
+  useEffect(() => {
+    if (isUserSwitch(userId)) {
+      window.location.reload();
+    }
+  }, [userId]);
+};
+
 type Props = {
   userId: number;
 };
@@ -156,6 +165,7 @@ type Props = {
 const OfflineSupport: FC<Props> = ({ userId }) => {
   const [week] = useQueryState("week", weekParser);
 
+  useReloadOnUserSwitch(userId);
   useServiceWorker();
   useWarmOfflineCache(userId, week);
   useOfflineLinkNavigation();
