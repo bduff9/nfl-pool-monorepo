@@ -146,54 +146,65 @@ const PicksSection: FC<PicksSectionProps> = ({ currentPage, myTiebreaker, weekly
   </NavSection>
 );
 
-const RegisterSurvivorDialog: FC<{ dialog: SurvivorDialogState }> = ({ dialog }) => (
+type SurvivorConfirmDialogProps = {
+  actionClassName?: string;
+  actionLabel: string;
+  children: ReactNode;
+  dialog: SurvivorDialogState;
+  title: string;
+  triggerLabel: string;
+};
+
+const SurvivorConfirmDialog: FC<SurvivorConfirmDialogProps> = ({
+  actionClassName,
+  actionLabel,
+  children,
+  dialog,
+  title,
+  triggerLabel,
+}) => (
   <AlertDialog onOpenChange={dialog.setOpen} open={dialog.open}>
     <AlertDialogTrigger asChild>
-      <NavLink isNested>Register for Survivor</NavLink>
+      <NavLink isNested>{triggerLabel}</NavLink>
     </AlertDialogTrigger>
     <AlertDialogContent>
       <AlertDialogHeader>
-        <AlertDialogTitle>Register for Survivor Pool</AlertDialogTitle>
-        <AlertDialogDescription>
-          Are you sure you want to register for the survivor pool? You will be required to pick one team each week to
-          win. If your team loses, you're eliminated from the pool.
-        </AlertDialogDescription>
+        <AlertDialogTitle>{title}</AlertDialogTitle>
+        <AlertDialogDescription>{children}</AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
         <AlertDialogCancel>Cancel</AlertDialogCancel>
-        <AlertDialogAction disabled={dialog.isPending} onClick={dialog.onConfirm}>
-          Register
+        <AlertDialogAction className={actionClassName} disabled={dialog.isPending} onClick={dialog.onConfirm}>
+          {actionLabel}
         </AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>
   </AlertDialog>
 );
 
+const RegisterSurvivorDialog: FC<{ dialog: SurvivorDialogState }> = ({ dialog }) => (
+  <SurvivorConfirmDialog
+    actionLabel="Register"
+    dialog={dialog}
+    title="Register for Survivor Pool"
+    triggerLabel="Register for Survivor"
+  >
+    Are you sure you want to register for the survivor pool? You will be required to pick one team each week to win. If
+    your team loses, you're eliminated from the pool.
+  </SurvivorConfirmDialog>
+);
+
 const DropOutSurvivorDialog: FC<{ dialog: SurvivorDialogState }> = ({ dialog }) => (
-  <AlertDialog onOpenChange={dialog.setOpen} open={dialog.open}>
-    <AlertDialogTrigger asChild>
-      <NavLink isNested>Drop out of Survivor</NavLink>
-    </AlertDialogTrigger>
-    <AlertDialogContent>
-      <AlertDialogHeader>
-        <AlertDialogTitle>Drop out of Survivor Pool</AlertDialogTitle>
-        <AlertDialogDescription>
-          Are you sure you want to drop out of the survivor pool? This action cannot be undone, and you will not be able
-          to rejoin once the season has started.
-        </AlertDialogDescription>
-      </AlertDialogHeader>
-      <AlertDialogFooter>
-        <AlertDialogCancel>Cancel</AlertDialogCancel>
-        <AlertDialogAction
-          className={cn(buttonVariants({ variant: "destructive" }))}
-          disabled={dialog.isPending}
-          onClick={dialog.onConfirm}
-        >
-          Drop Out
-        </AlertDialogAction>
-      </AlertDialogFooter>
-    </AlertDialogContent>
-  </AlertDialog>
+  <SurvivorConfirmDialog
+    actionClassName={cn(buttonVariants({ variant: "destructive" }))}
+    actionLabel="Drop Out"
+    dialog={dialog}
+    title="Drop out of Survivor Pool"
+    triggerLabel="Drop out of Survivor"
+  >
+    Are you sure you want to drop out of the survivor pool? This action cannot be undone, and you will not be able to
+    rejoin once the season has started.
+  </SurvivorConfirmDialog>
 );
 
 type SurvivorSectionProps = Pick<

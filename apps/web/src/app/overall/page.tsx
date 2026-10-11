@@ -14,8 +14,7 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@nfl-pool-monorepo/ui/components/table";
-import { cn } from "@nfl-pool-monorepo/utils/styles";
+import { TableCell } from "@nfl-pool-monorepo/ui/components/table";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { LuBadgeAlert } from "react-icons/lu";
@@ -23,6 +22,7 @@ import "server-only";
 
 import { type FC, Suspense } from "react";
 
+import RankingsTable from "@/app/RankingsTable";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import { OverallDashboardResults, OverallDashboardTitle } from "@/components/OverallDashboard/OverallDashboard.client";
 import PageContent from "@/components/PageContent/PageContent";
@@ -54,54 +54,22 @@ export const metadata: Metadata = {
   title: TITLE,
 };
 
+const renderMissedGamesCell = (row: { GamesMissed: number }) => (
+  <TableCell title={`Missed games: ${row.GamesMissed}`}>
+    {row.GamesMissed > 0 && <LuBadgeAlert className="text-red-700 mx-auto size-5" />}
+  </TableCell>
+);
+
 const OverallRankingsTable: FC = async () => {
   const [overallRankings, user] = await Promise.all([getOverallRankings(), getCurrentUser()]);
 
   return (
-    <Table parentClassName="w-full mt-4 text-center">
-      <TableHeader>
-        <TableRow>
-          <TableHead className="text-center text-foreground font-semibold" scope="col">
-            Rank
-          </TableHead>
-          <TableHead className="text-center text-foreground font-semibold" scope="col">
-            Team
-          </TableHead>
-          <TableHead className="text-center text-foreground font-semibold" scope="col">
-            Owner
-          </TableHead>
-          <TableHead className="text-center text-foreground font-semibold" scope="col">
-            Points
-          </TableHead>
-          <TableHead className="text-center text-foreground font-semibold" scope="col">
-            Games Correct
-          </TableHead>
-          <TableHead className="text-center text-foreground font-semibold" scope="col">
-            Missed Games?
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {overallRankings.map((row) => (
-          <TableRow
-            className={cn(row.UserID === user.UserID && "bg-amber-300 [&_*]:text-black")}
-            key={`user-rank-for-${row.UserID}`}
-          >
-            <TableHead className="text-center text-foreground font-semibold" scope="row">
-              {row.Tied ? "T" : ""}
-              {row.Rank}
-            </TableHead>
-            <TableCell>{row.TeamName}</TableCell>
-            <TableCell>{row.UserName}</TableCell>
-            <TableCell>{row.PointsEarned}</TableCell>
-            <TableCell>{row.GamesCorrect}</TableCell>
-            <TableCell title={`Missed games: ${row.GamesMissed}`}>
-              {row.GamesMissed > 0 && <LuBadgeAlert className="text-red-700 mx-auto size-5" />}
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <RankingsTable
+      currentUserId={user.UserID}
+      extraHeadings={["Missed Games?"]}
+      renderExtraCells={renderMissedGamesCell}
+      rows={overallRankings}
+    />
   );
 };
 

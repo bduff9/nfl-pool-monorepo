@@ -14,14 +14,14 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@nfl-pool-monorepo/ui/components/table";
-import { cn } from "@nfl-pool-monorepo/utils/styles";
+import { TableCell } from "@nfl-pool-monorepo/ui/components/table";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import "server-only";
 
 import { type FC, Suspense } from "react";
 
+import RankingsTable from "@/app/RankingsTable";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
 import ProgressChart from "@/components/ProgressChart/ProgressChart";
@@ -49,6 +49,18 @@ export const metadata: Metadata = {
   title: TITLE,
 };
 
+const renderTiebreakerCells = (row: {
+  IsEliminated: number;
+  LastScore: number | null;
+  TiebreakerScore: number | null;
+}) => (
+  <>
+    <TableCell>{row.TiebreakerScore}</TableCell>
+    <TableCell>{row.LastScore}</TableCell>
+    <TableCell className="text-red-700">{row.IsEliminated === 1 && <b>X</b>}</TableCell>
+  </>
+);
+
 type WeeklyRankingsTableProps = {
   selectedWeek: number;
 };
@@ -57,56 +69,12 @@ const WeeklyRankingsTable: FC<WeeklyRankingsTableProps> = async ({ selectedWeek 
   const [weeklyRankings, user] = await Promise.all([getWeeklyRankings(selectedWeek), getCurrentUser()]);
 
   return (
-    <Table parentClassName="w-full mt-4 text-center">
-      <TableHeader>
-        <TableRow>
-          <TableHead className="text-center text-foreground font-semibold" scope="col">
-            Rank
-          </TableHead>
-          <TableHead className="text-center text-foreground font-semibold" scope="col">
-            Team
-          </TableHead>
-          <TableHead className="text-center text-foreground font-semibold" scope="col">
-            Owner
-          </TableHead>
-          <TableHead className="text-center text-foreground font-semibold" scope="col">
-            Points
-          </TableHead>
-          <TableHead className="text-center text-foreground font-semibold" scope="col">
-            Games Correct
-          </TableHead>
-          <TableHead className="text-center text-foreground font-semibold" scope="col">
-            Tiebreaker
-          </TableHead>
-          <TableHead className="text-center text-foreground font-semibold" scope="col">
-            Last Game
-          </TableHead>
-          <TableHead className="text-center text-foreground font-semibold" scope="col">
-            Eliminated
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {weeklyRankings.map((row) => (
-          <TableRow
-            className={cn(row.UserID === user.UserID && "bg-amber-300 [&_*]:text-black")}
-            key={`user-rank-for-${row.UserID}`}
-          >
-            <TableHead className="text-center text-foreground font-semibold" scope="row">
-              {row.Tied ? "T" : ""}
-              {row.Rank}
-            </TableHead>
-            <TableCell>{row.TeamName}</TableCell>
-            <TableCell>{row.UserName}</TableCell>
-            <TableCell>{row.PointsEarned}</TableCell>
-            <TableCell>{row.GamesCorrect}</TableCell>
-            <TableCell>{row.TiebreakerScore}</TableCell>
-            <TableCell>{row.LastScore}</TableCell>
-            <TableCell className="text-red-700">{row.IsEliminated === 1 && <b>X</b>}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <RankingsTable
+      currentUserId={user.UserID}
+      extraHeadings={["Tiebreaker", "Last Game", "Eliminated"]}
+      renderExtraCells={renderTiebreakerCells}
+      rows={weeklyRankings}
+    />
   );
 };
 

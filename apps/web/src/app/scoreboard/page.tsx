@@ -15,10 +15,10 @@
  */
 
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { type FC, Suspense } from "react";
 import "server-only";
 
+import { requireSelectedWeek } from "@/app/requireSelectedWeek";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
 import RetryableSection from "@/components/RetryableSection/RetryableSection";
@@ -26,9 +26,7 @@ import ScoreboardGamesList from "@/components/ScoreboardGamesList/ScoreboardGame
 import ScoreboardLiveRefresh from "@/components/ScoreboardLiveRefresh/ScoreboardLiveRefresh";
 import Crossfade from "@/components/ViewTransitions/Crossfade";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
-import { requireRegistered } from "@/lib/auth";
 import { getGamesForWeekScoreboardCached } from "@/server/loaders/game";
-import { getSelectedWeekFromParams } from "@/server/loaders/week";
 
 import ScoreboardLoader from "./loading";
 
@@ -57,13 +55,7 @@ const ScoreboardGames: FC<ScoreboardGamesProps> = async ({ selectedWeek }) => {
 };
 
 const ScoreboardPageBody: FC<PageProps<"/scoreboard">> = async ({ searchParams }) => {
-  const redirectUrl = await requireRegistered();
-
-  if (redirectUrl) {
-    return redirect(redirectUrl);
-  }
-
-  const selectedWeek = await getSelectedWeekFromParams(searchParams);
+  const selectedWeek = await requireSelectedWeek(searchParams);
 
   return (
     <PageTransition>

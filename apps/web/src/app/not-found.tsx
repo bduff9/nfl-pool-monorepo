@@ -14,16 +14,13 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { promises as fs } from "node:fs";
-import path from "node:path";
-
-import { getRandomInteger } from "@nfl-pool-monorepo/utils/numbers";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import Image from "next/image";
 import { type FC, Suspense } from "react";
 
 import "server-only";
 
+import { getRandomPublicImage } from "@/app/randomImage";
 import PageSidebarTrigger from "@/components/PageContent/PageSidebarTrigger.client";
 import { WeekLink } from "@/components/WeekLink/WeekLink";
 import Write404Log from "@/components/Write404Log/Write404Log";
@@ -33,10 +30,7 @@ import CustomHead from "../components/CustomHead/CustomHead";
 
 const NotFoundContent: FC = async () => {
   const { user } = await getCurrentSession();
-  const imagesDirectory = path.join(process.cwd(), "public", "404");
-  const imageNames = await fs.readdir(imagesDirectory);
-  const images = imageNames.map((image) => `/404/${image}`);
-  const image = images[getRandomInteger(0, images.length)] ?? "";
+  const image = await getRandomPublicImage("404");
 
   return (
     <div className="flex flex-col md:mx-3">

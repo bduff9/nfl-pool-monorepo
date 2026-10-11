@@ -14,10 +14,10 @@
  * Home: https://asitewithnoname.com/
  */
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { type FC, Suspense } from "react";
 import "server-only";
 
+import { requireSelectedWeek } from "@/app/requireSelectedWeek";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import InstallAppPrompt from "@/components/InstallAppPrompt/InstallAppPrompt.client";
 import OverallDashboard from "@/components/OverallDashboard/OverallDashboard";
@@ -28,8 +28,6 @@ import Crossfade from "@/components/ViewTransitions/Crossfade";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
 import DashboardLoader from "@/components/WeeklyDashboard/DashboardLoader";
 import WeeklyDashboard from "@/components/WeeklyDashboard/WeeklyDashboard";
-import { requireRegistered } from "@/lib/auth";
-import { getSelectedWeekFromParams } from "@/server/loaders/week";
 
 import PageLoading from "./loading";
 
@@ -40,13 +38,7 @@ export const metadata: Metadata = {
 };
 
 const DashboardPageBody: FC<PageProps<"/">> = async ({ searchParams }) => {
-  const redirectUrl = await requireRegistered();
-
-  if (redirectUrl) {
-    return redirect(redirectUrl);
-  }
-
-  const selectedWeek = await getSelectedWeekFromParams(searchParams);
+  const selectedWeek = await requireSelectedWeek(searchParams);
 
   return (
     <PageTransition>

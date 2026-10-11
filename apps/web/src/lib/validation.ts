@@ -42,6 +42,11 @@ type PaymentAccountValidationTarget = {
   UserPaymentType: (typeof PaymentMethod)[number];
 };
 
+const trimmedMinLength2 = (message: string) =>
+  type("string")
+    .pipe((s) => s.trim())
+    .narrow((s, ctx) => s.length >= 2 || ctx.reject(message));
+
 const getPaymentAccountValidationError = (
   data: PaymentAccountValidationTarget,
 ): { expected: string; path: ["UserPaymentAccount"] } | null => {
@@ -74,15 +79,9 @@ export const editProfileSchema = type({
   UserAutoPickStrategy: type.enumerated(...AutoPickStrategy),
   UserAutoPicksLeft: type("0 <= number.integer <= 3"),
   UserEmail: "string.email",
-  UserFirstName: type("string")
-    .pipe((s) => s.trim())
-    .narrow((s, ctx) => s.length >= 2 || ctx.reject("Please enter your first name")),
-  UserLastName: type("string")
-    .pipe((s) => s.trim())
-    .narrow((s, ctx) => s.length >= 2 || ctx.reject("Please enter your surname")),
-  UserPaymentAccount: type("string")
-    .pipe((s) => s.trim())
-    .narrow((s, ctx) => s.length >= 2 || ctx.reject("Payment account is required")),
+  UserFirstName: trimmedMinLength2("Please enter your first name"),
+  UserLastName: trimmedMinLength2("Please enter your surname"),
+  UserPaymentAccount: trimmedMinLength2("Payment account is required"),
   UserPaymentType: type.enumerated(...PaymentMethod),
   UserPhone: type("string")
     .pipe((s) => s.trim())
@@ -104,18 +103,12 @@ export const emailPreviewSchema = type({
 
 export const finishRegistrationSchema = type({
   UserEmail: "string.email",
-  UserFirstName: type("string")
-    .pipe((s) => s.trim())
-    .narrow((s, ctx) => s.length >= 2 || ctx.reject("Please enter your first name")),
-  UserLastName: type("string")
-    .pipe((s) => s.trim())
-    .narrow((s, ctx) => s.length >= 2 || ctx.reject("Please enter your surname")),
+  UserFirstName: trimmedMinLength2("Please enter your first name"),
+  UserLastName: trimmedMinLength2("Please enter your surname"),
   UserName: type("string")
     .pipe((s) => s.trim())
     .narrow((s, ctx) => s.length >= 2 || ctx.mustBe("at least 2 characters")),
-  UserPaymentAccount: type("string")
-    .pipe((s) => s.trim())
-    .narrow((s, ctx) => s.length >= 2 || ctx.reject("Payment account is required")),
+  UserPaymentAccount: trimmedMinLength2("Payment account is required"),
   UserPaymentType: type.enumerated(...PaymentMethod),
   UserPlaysSurvivor: "boolean",
   UserReferredByRaw: type("string")
