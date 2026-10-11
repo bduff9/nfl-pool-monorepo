@@ -24,7 +24,7 @@ import "server-only";
 import { getSystemYear } from "@nfl-pool-monorepo/db/src/queries/systemValue";
 
 import ForgotPasswordForm from "@/components/ForgotPasswordForm/ForgotPasswordForm";
-import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
+import { WeekLink } from "@/components/WeekLink/WeekLink";
 import { requireLoggedOut } from "@/lib/auth";
 
 import AuthLoading from "../loading";
@@ -72,7 +72,7 @@ const ForgotPasswordContent: FC<ForgotPasswordContentProps> = async ({ searchPar
 
       <div className="grid gap-2 mt-4">
         <Button asChild className="h-11" variant="black">
-          <ProgressBarLink href="/auth/login">Back to Login</ProgressBarLink>
+          <WeekLink href="/auth/login">Back to Login</WeekLink>
         </Button>
       </div>
     </div>

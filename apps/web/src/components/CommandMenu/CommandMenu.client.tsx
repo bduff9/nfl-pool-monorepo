@@ -12,6 +12,7 @@ import {
 } from "@nfl-pool-monorepo/ui/components/command";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
+import { useTopLoader } from "nextjs-toploader";
 import { useQueryState } from "nuqs";
 import { type FC, type ReactNode, startTransition, useEffect, useState } from "react";
 import { LuCalendarDays, LuLayoutDashboard, LuLifeBuoy, LuShield, LuTable, LuUserCog } from "react-icons/lu";
@@ -31,7 +32,6 @@ import {
   showViewSurvivorPicks,
   showWeekResults,
 } from "../AppSidebar/navVisibility";
-import { useProgressBar } from "../ProgressBar/ProgressBar";
 
 type CommandMenuClientProps = {
   isAliveInSurvivor: boolean;
@@ -80,7 +80,7 @@ export const CommandMenuClient: FC<CommandMenuClientProps> = ({
   const [open, setOpen] = useState<boolean>(false);
   const [week] = useQueryState("week", weekParser);
   const router = useRouter();
-  const progress = useProgressBar();
+  const topLoader = useTopLoader();
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent): void => {
@@ -101,7 +101,7 @@ export const CommandMenuClient: FC<CommandMenuClientProps> = ({
 
   const navigate = (href: Route) => {
     setOpen(false);
-    progress.start();
+    topLoader.start();
 
     startTransition(() => {
       router.push(withWeek(href, week));

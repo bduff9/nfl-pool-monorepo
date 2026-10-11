@@ -26,8 +26,8 @@ import "server-only";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
-import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import { WeekLink } from "@/components/WeekLink/WeekLink";
 import { requireRegistered } from "@/lib/auth";
 import { getHeadToHead } from "@/server/loaders/headToHead";
 import { requireUser } from "@/server/loaders/sessions";
@@ -89,7 +89,7 @@ const HeadToHeadPageBody: FC<HeadToHeadPageBodyProps> = async ({ searchParams })
               <p className="max-w-md text-muted-foreground">
                 Head-to-head matchups appear once this week&apos;s results start coming in. Check back soon!
               </p>
-              <ProgressBarLink href="/">&laquo; Back to Dashboard</ProgressBarLink>
+              <WeekLink href="/">&laquo; Back to Dashboard</WeekLink>
             </div>
           </PageContent>
         </div>

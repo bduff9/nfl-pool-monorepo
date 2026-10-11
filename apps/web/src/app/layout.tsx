@@ -85,6 +85,9 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  // "cover" lets the app draw into the iOS safe areas (home indicator) so they can be padded explicitly via env(),
+  // and "resizes-content" shrinks the layout when the on-screen keyboard opens instead of covering inputs.
+  interactiveWidget: "resizes-content",
   // Two media-scoped metas are required: iOS 26 standalone web apps fall back to a blue
   // system tint when a single theme-color is paired with the apple status-bar-style meta.
   // The color matches the top of bkgd-pitch.png (near-black) so the status bar blends with
@@ -93,6 +96,7 @@ export const viewport: Viewport = {
     { color: "#0f0f0f", media: "(prefers-color-scheme: light)" },
     { color: "#0f0f0f", media: "(prefers-color-scheme: dark)" },
   ],
+  viewportFit: "cover",
 };
 
 const PageLoadingFallback: FC = () => (
@@ -136,7 +140,7 @@ const RootLayout: FC<LayoutProps<"/">> = ({ children }) => {
               <Suspense fallback={null}>
                 <AuthenticatedNavigation />
               </Suspense>
-              <main className="w-full relative">
+              <main className="w-full relative grid min-h-dvh">
                 <Suspense fallback={<PageLoadingFallback />}>{children}</Suspense>
               </main>
             </AuthenticatedNavPresenceProvider>

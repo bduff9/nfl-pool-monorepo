@@ -31,8 +31,8 @@ import "server-only";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
 import PaymentSelector from "@/components/PaymentSelector/PaymentSelector";
-import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import TextSeparator from "@/components/TextSeparator/TextSeparator";
+import { WeekLink } from "@/components/WeekLink/WeekLink";
 import { requireRegistered } from "@/lib/auth";
 import { getMyPayments } from "@/server/loaders/payment";
 import { getCurrentUser } from "@/server/loaders/user";
@@ -104,9 +104,9 @@ const ViewPaymentsPageBody: FC<PageProps<"/users/payments">> = async () => {
         <div className="mx-3">Payment Type: {currentUser.UserPaymentType}</div>
         <div className="mx-3">Payment Account: {currentUser.UserPaymentAccount}</div>
         <div className="mx-3">
-          <ProgressBarLink className="underline" href="/users/edit">
+          <WeekLink className="underline" href="/users/edit">
             Change the account to be paid out
-          </ProgressBarLink>
+          </WeekLink>
         </div>
       </PageContent>
     </div>

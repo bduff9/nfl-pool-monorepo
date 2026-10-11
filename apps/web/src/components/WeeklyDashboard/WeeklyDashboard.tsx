@@ -22,8 +22,8 @@ import { getMyTiebreaker } from "@/server/loaders/tiebreaker";
 import { getWeekStart, getWeekStatus } from "@/server/loaders/week";
 import { getMyWeeklyRank, getWeeklyMvCount, getWeeklyMvTiedCount } from "@/server/loaders/weeklyMv";
 
-import { ProgressBarLink } from "../ProgressBar/ProgressBar";
 import ProgressChart from "../ProgressChart/ProgressChart";
+import { WeekLink } from "../WeekLink/WeekLink";
 import { WeeklyDashboardCountdown, WeeklyDashboardResults, WeeklyDashboardTitle } from "./WeeklyDashboard.client";
 
 const RankingPieChart = dynamic(() => import("../RankingPieChart/RankingPieChart"));
@@ -60,24 +60,24 @@ const WeeklyDashboard: FC<Props> = async ({ selectedWeek }) => {
         {myTiebreaker?.TiebreakerHasSubmitted === 1 ? (
           <>
             <div className="text-green-600">You have submitted your picks</div>
-            <ProgressBarLink className="underline" href="/picks/view">
+            <WeekLink className="underline" href="/picks/view">
               View my picks
-            </ProgressBarLink>
+            </WeekLink>
           </>
         ) : (
           <>
             <div className="text-red-600">You have not submitted your picks yet!</div>
-            <ProgressBarLink className="underline" href="/picks/set">
+            <WeekLink className="underline" href="/picks/set">
               Make my picks
-            </ProgressBarLink>
+            </WeekLink>
           </>
         )}
         {myWeeklyRank === undefined ? (
           <WeeklyDashboardCountdown weekStart={weekStart} />
         ) : (
-          <ProgressBarLink className="underline" href="/weekly">
+          <WeekLink className="underline" href="/weekly">
             View Details
-          </ProgressBarLink>
+          </WeekLink>
         )}
       </div>
       {!!myWeeklyRank && (

@@ -156,7 +156,7 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
 
   return (
     <>
-      <div className="flex flex-col">
+      <div className="flex flex-col flex-1 min-h-0">
         <h4 className="w-full mb-3 text-center shrink-1">
           Drag points to your chosen winning team or click a team to see the game details
         </h4>

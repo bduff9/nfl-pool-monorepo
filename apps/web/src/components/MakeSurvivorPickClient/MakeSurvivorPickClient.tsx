@@ -171,7 +171,7 @@ const MakeSurvivorPickClient: FC<Props> = ({ games, survivorPicks, teamsOnBye, w
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-dvh">
       <h4 className="scroll-m-20 text-xl font-semibold tracking-tight mb-5 text-center">
         {SURVIVOR_PICK_INSTRUCTIONS}
       </h4>

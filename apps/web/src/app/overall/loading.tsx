@@ -21,9 +21,9 @@ import "server-only";
 import type { FC } from "react";
 
 import PageContent from "@/components/PageContent/PageContent";
-import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import ProgressChartLoader from "@/components/ProgressChart/ProgressChartLoader";
 import RankingPieChartLoader from "@/components/RankingPieChart/RankingPieChartLoader";
+import { WeekLink } from "@/components/WeekLink/WeekLink";
 
 const OverallRankingsLoader: FC = () => {
   return (
@@ -37,9 +37,9 @@ const OverallRankingsLoader: FC = () => {
             </div>
           </div>
           <div className="mt-4 block md:hidden">
-            <ProgressBarLink className="underline" href="/">
+            <WeekLink className="underline" href="/">
               &laquo; Back to Dashboard
-            </ProgressBarLink>
+            </WeekLink>
           </div>
           <div className="hidden md:inline-block w-1/2 px-3">
             <h2 className="mb-4 text-center">My Overall Results</h2>

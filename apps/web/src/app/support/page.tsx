@@ -26,10 +26,10 @@ import "server-only";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
-import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import SlackLink from "@/components/SlackLink/slackLink";
 import SupportSearch from "@/components/SupportSearch/supportSearch";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import { WeekLink } from "@/components/WeekLink/WeekLink";
 import { writeLog } from "@/server/actions/logs";
 import { getCurrentSession } from "@/server/loaders/sessions";
 
@@ -288,7 +288,7 @@ const SupportPageBody: FC<SupportPageBodyProps> = async ({ searchParams }) => {
             <br />
             {!session && (
               <Button asChild variant="primary">
-                <ProgressBarLink href="/auth/login">Back to login</ProgressBarLink>
+                <WeekLink href="/auth/login">Back to login</WeekLink>
               </Button>
             )}
           </div>

@@ -28,10 +28,10 @@ import { PiInfoDuotone } from "react-icons/pi";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
-import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import ProgressChart from "@/components/ProgressChart/ProgressChart";
 import SurvivorDashboardIcon from "@/components/SurvivorDashboardIcon/SurvivorDashboardIcon";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import { WeekLink } from "@/components/WeekLink/WeekLink";
 import { requireRegistered } from "@/lib/auth";
 import { getWeekInProgress } from "@/server/loaders/game";
 import { getIsAliveInSurvivor, getMySurvivorPickForWeek } from "@/server/loaders/survivor";
@@ -154,7 +154,7 @@ const ViewSurvivorPageBody: FC<PageProps<"/survivor/view">> = async ({ searchPar
       <div className="h-full flex flex-col md:mx-3">
         <CustomHead title="View Survivor Picks" />
         <PageContent className="pt-5 md:pt-3 pb-4">
-          <div className="flex flex-col min-h-screen">
+          <div className="flex flex-col min-h-dvh">
             {showEliminatedNotice && !isAliveInSurvivor && user.UserPlaysSurvivor === 1 && (
               <Alert className="mb-4 shrink-0">
                 <PiInfoDuotone />
@@ -175,7 +175,7 @@ const ViewSurvivorPageBody: FC<PageProps<"/survivor/view">> = async ({ searchPar
                 />
               </div>
               <div className="mt-4 block md:hidden">
-                <ProgressBarLink href="/">&laquo; Back to Dashboard</ProgressBarLink>
+                <WeekLink href="/">&laquo; Back to Dashboard</WeekLink>
               </div>
               <div className={cn("hidden md:inline-block w-2/3 pt-8 px-3")}>
                 <ProgressChart

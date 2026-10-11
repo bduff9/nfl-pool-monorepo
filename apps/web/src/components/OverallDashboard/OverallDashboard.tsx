@@ -21,8 +21,8 @@ import type { FC } from "react";
 import { getMyOverallRank, getOverallMvCount, getOverallMvTiedCount } from "@/server/loaders/overallMv";
 import { getSeasonStatus } from "@/server/loaders/week";
 
-import { ProgressBarLink } from "../ProgressBar/ProgressBar";
 import ProgressChart from "../ProgressChart/ProgressChart";
+import { WeekLink } from "../WeekLink/WeekLink";
 import { OverallDashboardResults, OverallDashboardTitle } from "./OverallDashboard.client";
 
 const RankingPieChart = dynamic(() => import("../RankingPieChart/RankingPieChart"));
@@ -53,9 +53,9 @@ const OverallDashboard: FC = async () => {
       ) : (
         <div>
           <div className="mb-12">
-            <ProgressBarLink className="md:inline-block underline" href="/overall">
+            <WeekLink className="md:inline-block underline" href="/overall">
               View Details
-            </ProgressBarLink>
+            </WeekLink>
           </div>
           <RankingPieChart
             data={[

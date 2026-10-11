@@ -27,9 +27,9 @@ import {
 } from "@/server/loaders/survivorMv";
 import { getWeekStatus } from "@/server/loaders/week";
 
-import { ProgressBarLink } from "../ProgressBar/ProgressBar";
 import ProgressChart from "../ProgressChart/ProgressChart";
 import SurvivorDashboardIcon from "../SurvivorDashboardIcon/SurvivorDashboardIcon";
+import { WeekLink } from "../WeekLink/WeekLink";
 
 type Props = {
   selectedWeek: number;
@@ -81,16 +81,16 @@ const SurvivorDashboard: FC<Props> = async ({ selectedWeek }) => {
               <div className="text-red-700">You have not submitted your survivor pick yet!</div>
             ))}
           {mySurvivorMv ? (
-            <ProgressBarLink className={cn("block underline")} href="/survivor/view">
+            <WeekLink className={cn("block underline")} href="/survivor/view">
               View Details
-            </ProgressBarLink>
+            </WeekLink>
           ) : (
             <div className="md:h-6" />
           )}
           {isAliveInSurvivor && !mySurvivorPickForWeek ? (
-            <ProgressBarLink className={cn("block underline md:mb-1")} href="/survivor/set">
+            <WeekLink className={cn("block underline md:mb-1")} href="/survivor/set">
               Click here to make your pick
-            </ProgressBarLink>
+            </WeekLink>
           ) : (
             <div className="md:h-6 md:mb-1" />
           )}

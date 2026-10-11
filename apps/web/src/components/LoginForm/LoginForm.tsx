@@ -22,8 +22,8 @@ import { toast } from "sonner";
 
 import FloatingLabelInput from "../FloatingLabelInput/FloatingLabelInput";
 import PasswordInput from "../PasswordInput/PasswordInput";
-import { ProgressBarLink } from "../ProgressBar/ProgressBar";
 import TextSeparator from "../TextSeparator/TextSeparator";
+import { WeekLink } from "../WeekLink/WeekLink";
 
 type Props = {
   error: string | undefined;
@@ -125,13 +125,13 @@ const LoginForm: FC<Props> = ({ error, isLogin }) => {
           </Button>
           {!!isLogin && (
             <Button asChild variant="outline">
-              <ProgressBarLink href="/auth/forgot-password">Forgot Password?</ProgressBarLink>
+              <WeekLink href="/auth/forgot-password">Forgot Password?</WeekLink>
             </Button>
           )}
           <Button asChild variant="dark">
-            <ProgressBarLink href="/support#loginregistration">
+            <WeekLink href="/support#loginregistration">
               {isLogin ? "Trouble logging in?" : "Trouble registering?"}
-            </ProgressBarLink>
+            </WeekLink>
           </Button>
           <TextSeparator>or</TextSeparator>
         </div>

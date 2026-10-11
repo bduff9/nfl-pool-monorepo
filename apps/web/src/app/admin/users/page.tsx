@@ -46,7 +46,7 @@ const AdminUsersPageBody: FC<PageProps<"/admin/users">> = async ({ searchParams 
     <div className="h-full flex flex-col md:mx-3">
       <CustomHead title="User Admin" />
       <PageContent className="pt-5 md:pt-3 pb-4">
-        <div className="flex flex-col min-h-screen py-4 px-6">
+        <div className="flex flex-col min-h-dvh py-4 px-6">
           <div className="w-full text-center md:text-start">
             {count} {count === 1 ? "User" : "Users"}
           </div>

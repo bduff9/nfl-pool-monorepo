@@ -14,7 +14,7 @@ import type { finishRegistrationSchema } from "@/lib/validation";
 import GoogleAuthButton from "../GoogleAuthButton/GoogleAuthButton";
 import { ProfilePaymentTypeField, ProfileTextField } from "../ProfileFormFields/ProfileFormFields";
 import { paymentAccountLabel, teamNameLabel } from "../ProfileFormFields/profileFieldLabels";
-import { ProgressBarLink } from "../ProgressBar/ProgressBar";
+import { WeekLink } from "../WeekLink/WeekLink";
 
 type FinishRegistrationFormValues = typeof finishRegistrationSchema.infer;
 
@@ -146,9 +146,9 @@ export const RegistrationFields: FC<RegistrationFieldsProps> = ({
           <PopoverContent className="max-w-[300px]">
             You can choose to join or leave the survivor pool up until the start of the first game of the season. For
             more questions, see the{" "}
-            <ProgressBarLink className="underline" href="/support#survivorpool">
+            <WeekLink className="underline" href="/support#survivorpool">
               survivor pool FAQ
-            </ProgressBarLink>
+            </WeekLink>
           </PopoverContent>
         </Popover>
       </FormLabel>

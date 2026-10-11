@@ -51,7 +51,7 @@ const DashboardPageBody: FC<PageProps<"/">> = async ({ searchParams }) => {
       <div className="h-full flex flex-col md:mx-3">
         <CustomHead title={TITLE} />
         <PageContent className="pt-5 md:pt-3 pb-4 w-full">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 min-h-screen">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 min-h-dvh">
             <Suspense fallback={<DashboardLoader title="Weekly Rank" />}>
               <Crossfade>
                 <WeeklyDashboard selectedWeek={selectedWeek} />

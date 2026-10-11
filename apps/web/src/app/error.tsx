@@ -9,7 +9,7 @@ import { type FC, useEffect, useState } from "react";
 
 import CustomHeadClient from "@/components/CustomHead/CustomHead.client";
 import PageSidebarTrigger from "@/components/PageContent/PageSidebarTrigger.client";
-import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
+import { WeekLink } from "@/components/WeekLink/WeekLink";
 
 type Props = {
   error: Error & { digest?: string };
@@ -92,13 +92,13 @@ const ErrorPage: FC<Props> = ({ error, reset, retry }) => {
             <h3 className="scroll-m-20 text-xl font-semibold tracking-tight mb-2 text-center">or</h3>
             <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0 mb-2 text-center">
               {isLoggedIn ? (
-                <ProgressBarLink className="text-sky-600" href="/">
+                <WeekLink className="text-sky-600" href="/">
                   Click here to return to your dashboard
-                </ProgressBarLink>
+                </WeekLink>
               ) : (
-                <ProgressBarLink className="text-sky-600" href="/auth/login">
+                <WeekLink className="text-sky-600" href="/auth/login">
                   Click here to return to the login page
-                </ProgressBarLink>
+                </WeekLink>
               )}
             </h2>
           </>

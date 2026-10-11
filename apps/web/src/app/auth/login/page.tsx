@@ -25,8 +25,8 @@ import { getSystemYear } from "@nfl-pool-monorepo/db/src/queries/systemValue";
 
 import GoogleAuthButton from "@/components/GoogleAuthButton/GoogleAuthButton";
 import LoginForm from "@/components/LoginForm/LoginForm";
-import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import TextSeparator from "@/components/TextSeparator/TextSeparator";
+import { WeekLink } from "@/components/WeekLink/WeekLink";
 import { requireLoggedOut } from "@/lib/auth";
 
 import AuthLoading from "../loading";
@@ -85,9 +85,9 @@ const LoginContent: FC<LoginContentProps> = async ({ searchParams }) => {
           <div className="grid gap-2">
             <TextSeparator>{isLogin ? "Need to sign up?" : "Already registered?"}</TextSeparator>
             <Button asChild variant="black">
-              <ProgressBarLink href={`/auth/login${isLogin ? "?register=Y" : ""}`}>
+              <WeekLink href={`/auth/login${isLogin ? "?register=Y" : ""}`}>
                 {isLogin ? "Register here" : "Login here"}
-              </ProgressBarLink>
+              </WeekLink>
             </Button>
           </div>
         </>

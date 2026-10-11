@@ -57,7 +57,7 @@ const ViewPicksPageBody: FC<PageProps<"/picks/view">> = async ({ searchParams })
       <div className="h-full flex flex-col md:mx-3">
         <CustomHead title={`My Week ${selectedWeek} Picks`} />
         <PageContent className="pb-4">
-          <div className="flex flex-col min-h-screen">
+          <div className="flex flex-col min-h-dvh">
             <Suspense fallback={<Skeleton className="h-32 w-full" />}>
               <MyPicksHead week={selectedWeek} />
             </Suspense>

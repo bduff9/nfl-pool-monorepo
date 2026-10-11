@@ -26,7 +26,6 @@ import { type FC, Suspense } from "react";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import { OverallDashboardResults, OverallDashboardTitle } from "@/components/OverallDashboard/OverallDashboard.client";
 import PageContent from "@/components/PageContent/PageContent";
-import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
 import ProgressChart from "@/components/ProgressChart/ProgressChart";
 import RankingPieChart from "@/components/RankingPieChart/RankingPieChart";
 import RetryableSection from "@/components/RetryableSection/RetryableSection";
@@ -34,6 +33,7 @@ import ScenariosDashboard from "@/components/ScenariosDashboard/ScenariosDashboa
 import ScoreboardLiveRefresh from "@/components/ScoreboardLiveRefresh/ScoreboardLiveRefresh";
 import Crossfade from "@/components/ViewTransitions/Crossfade";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import { WeekLink } from "@/components/WeekLink/WeekLink";
 import { requireRegistered } from "@/lib/auth";
 import { getGamesForWeekScoreboardCached } from "@/server/loaders/game";
 import {
@@ -174,7 +174,7 @@ const OverallRankingsPageBody: FC<PageProps<"/overall">> = async () => {
               />
             </div>
             <div className="mt-4 block md:hidden">
-              <ProgressBarLink href="/">&laquo; Back to Dashboard</ProgressBarLink>
+              <WeekLink href="/">&laquo; Back to Dashboard</WeekLink>
             </div>
             <Suspense fallback={null}>
               <ScenariosDashboard scope="overall" />

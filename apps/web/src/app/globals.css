@@ -43,6 +43,7 @@
   --duration-exit: 150ms;
   --duration-enter: 210ms;
   --duration-move: 400ms;
+  --actions-bar-height: calc(70px + env(safe-area-inset-bottom, 0px));
 }
 
 .dark {
@@ -124,8 +125,46 @@
     @apply border-border outline-ring/50;
   }
 
+  html {
+    -webkit-tap-highlight-color: transparent;
+    text-size-adjust: 100%;
+  }
+
   body {
     @apply bg-background text-foreground;
+  }
+
+  a,
+  button,
+  select,
+  summary,
+  label,
+  [role="button"],
+  [role="menuitem"],
+  [role="tab"] {
+    touch-action: manipulation;
+  }
+
+  /* Installed app only: behave like a native shell, not a document. Kept out of normal browser tabs so text
+     selection, link long-press menus and overscroll behave as users expect on the open web. */
+  @media (display-mode: standalone) {
+    body {
+      overscroll-behavior-y: none;
+    }
+
+    a,
+    img {
+      -webkit-touch-callout: none;
+    }
+
+    a,
+    button,
+    nav,
+    [role="button"],
+    [role="menuitem"],
+    [role="tab"] {
+      user-select: none;
+    }
   }
 }
 

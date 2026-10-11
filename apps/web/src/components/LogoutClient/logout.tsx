@@ -5,7 +5,7 @@ import Image from "next/image";
 import { unstable_rethrow } from "next/navigation";
 import { type FC, useEffect, useState } from "react";
 
-import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
+import { WeekLink } from "@/components/WeekLink/WeekLink";
 import { signOut } from "@/server/actions/sessions";
 
 const LogoutClient: FC = () => {
@@ -40,9 +40,9 @@ const LogoutClient: FC = () => {
       {failed ? (
         <div className="mt-4 flex flex-col items-center gap-2">
           <div className="text-2xl">Something went wrong signing you out.</div>
-          <ProgressBarLink className="text-lg underline" href="/auth/login">
+          <WeekLink className="text-lg underline" href="/auth/login">
             Go to login
-          </ProgressBarLink>
+          </WeekLink>
         </div>
       ) : (
         <div className="mt-4">Logging out...</div>

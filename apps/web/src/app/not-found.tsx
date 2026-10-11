@@ -25,7 +25,7 @@ import { type FC, Suspense } from "react";
 import "server-only";
 
 import PageSidebarTrigger from "@/components/PageContent/PageSidebarTrigger.client";
-import { ProgressBarLink } from "@/components/ProgressBar/ProgressBar";
+import { WeekLink } from "@/components/WeekLink/WeekLink";
 import Write404Log from "@/components/Write404Log/Write404Log";
 import { getCurrentSession } from "@/server/loaders/sessions";
 
@@ -67,9 +67,9 @@ const NotFoundContent: FC = async () => {
           Something has gone wrong. It might be because of you. It might be because of us. Either way, this is awkward.
         </h2>
         <div className="text-center">
-          <ProgressBarLink className="text-sky-600 text-xl" href="/">
+          <WeekLink className="text-sky-600 text-xl" href="/">
             Please click here to get us both out of this situation
-          </ProgressBarLink>
+          </WeekLink>
         </div>
       </div>
     </div>

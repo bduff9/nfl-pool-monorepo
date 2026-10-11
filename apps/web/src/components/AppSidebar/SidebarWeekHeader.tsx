@@ -23,7 +23,7 @@ import { LuChevronDown, LuChevronLeft, LuChevronRight, LuReply } from "react-ico
 
 import { withWeek } from "@/lib/weekSearchParams";
 
-import { ProgressBarLink } from "../ProgressBar/ProgressBar";
+import { WeekLink } from "../WeekLink/WeekLink";
 
 // usePathname() always returns the current, already-valid route, so this is a safe escape hatch
 // for typedRoutes' branded `Route` type.
@@ -39,15 +39,9 @@ type WeekStepButtonProps = {
 
 const WeekStepButton: FC<WeekStepButtonProps> = ({ ariaLabel, href, icon, onClick, transitionType }) => (
   <Button asChild className="p-0 m-0 [&_svg]:size-6" size="icon" variant="ghost">
-    <ProgressBarLink
-      aria-label={ariaLabel}
-      href={href}
-      onClick={onClick}
-      prefetch={true}
-      transitionTypes={[transitionType]}
-    >
+    <WeekLink aria-label={ariaLabel} href={href} onClick={onClick} prefetch={true} transitionTypes={[transitionType]}>
       {icon}
-    </ProgressBarLink>
+    </WeekLink>
   </Button>
 );
 
@@ -71,9 +65,9 @@ const WeekMenuItem: FC<WeekMenuItemProps> = ({ currentWeek, href, onSelectWeek, 
     <Fragment>
       {week === currentWeek && <DropdownMenuSeparator />}
       <DropdownMenuItem asChild>
-        <ProgressBarLink href={href} onClick={handleClick} prefetch={true} transitionTypes={transitionTypes}>
+        <WeekLink href={href} onClick={handleClick} prefetch={true} transitionTypes={transitionTypes}>
           Week {week}
-        </ProgressBarLink>
+        </WeekLink>
       </DropdownMenuItem>
       {week === currentWeek && <DropdownMenuSeparator />}
     </Fragment>
@@ -160,7 +154,7 @@ export const SidebarWeekHeader: FC<SidebarWeekHeaderProps> = ({
         <SidebarMenuItem className={cn("h-9 -m-2 text-center", user.doneRegistering !== 1 && "invisible")}>
           {currentWeek !== selectedWeek && (
             <Button asChild variant="ghost">
-              <ProgressBarLink
+              <WeekLink
                 href={withWeek(asRoute(pathname), currentWeek)}
                 onClick={handleGoToCurrentWeek}
                 prefetch={true}
@@ -168,7 +162,7 @@ export const SidebarWeekHeader: FC<SidebarWeekHeaderProps> = ({
               >
                 <LuReply />
                 &nbsp;Go to current week
-              </ProgressBarLink>
+              </WeekLink>
             </Button>
           )}
         </SidebarMenuItem>

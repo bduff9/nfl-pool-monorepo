@@ -22,7 +22,7 @@ import type { Route } from "next";
 import { usePathname } from "next/navigation";
 import type { FC } from "react";
 
-import { ProgressBarLink } from "../ProgressBar/ProgressBar";
+import { WeekLink } from "../WeekLink/WeekLink";
 
 type NavLinkProps = {
   children: string;
@@ -47,7 +47,7 @@ const NavLink: FC<NavLinkProps> = ({ children, href, isNested = false, onClick, 
 
   if (href) {
     return (
-      <ProgressBarLink
+      <WeekLink
         className={cn(
           "inline-block w-full py-2 rounded text-2xl font-medium",
           isActive && "text-green-700 bg-muted",
@@ -58,7 +58,7 @@ const NavLink: FC<NavLinkProps> = ({ children, href, isNested = false, onClick, 
         prefetch={true}
       >
         {children}
-      </ProgressBarLink>
+      </WeekLink>
     );
   }
 

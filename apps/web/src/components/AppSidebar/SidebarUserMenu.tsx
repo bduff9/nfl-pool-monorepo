@@ -19,7 +19,7 @@ import { useTheme } from "next-themes";
 import { type FC, useState } from "react";
 import { LuEllipsisVertical, LuMoon, LuSun } from "react-icons/lu";
 
-import { ProgressBarLink } from "../ProgressBar/ProgressBar";
+import { WeekLink } from "../WeekLink/WeekLink";
 import { showAccountLinks } from "./navVisibility";
 
 const getInitials = (fullName: string | null): string => {
@@ -75,16 +75,16 @@ export const SidebarUserMenu: FC<SidebarUserMenuProps> = ({ isMobile, onNavigate
             <DropdownMenuContent align="end" side={isMobile ? "bottom" : "right"}>
               {showAccountLinks(user) && (
                 <DropdownMenuItem>
-                  <ProgressBarLink href="/users/edit" onClick={handleLinkClick}>
+                  <WeekLink href="/users/edit" onClick={handleLinkClick}>
                     Edit Account
-                  </ProgressBarLink>
+                  </WeekLink>
                 </DropdownMenuItem>
               )}
               {showAccountLinks(user) && (
                 <DropdownMenuItem>
-                  <ProgressBarLink href="/users/payments" onClick={handleLinkClick}>
+                  <WeekLink href="/users/payments" onClick={handleLinkClick}>
                     View Payments
-                  </ProgressBarLink>
+                  </WeekLink>
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />
@@ -100,9 +100,9 @@ export const SidebarUserMenu: FC<SidebarUserMenuProps> = ({ isMobile, onNavigate
                 )}
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <ProgressBarLink href="/auth/logout" onClick={handleLinkClick}>
+                <WeekLink href="/auth/logout" onClick={handleLinkClick}>
                   Sign out
-                </ProgressBarLink>
+                </WeekLink>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

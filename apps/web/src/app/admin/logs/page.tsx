@@ -43,7 +43,7 @@ const AdminLogsPageBody: FC<PageProps<"/admin/logs">> = async ({ searchParams })
     <div className="h-full flex flex-col md:mx-3">
       <CustomHead title="View All Logs" />
       <PageContent className="pt-3">
-        <div className="flex flex-col min-h-screen px-4">
+        <div className="flex flex-col min-h-dvh px-4">
           <div className="w-full mb-2">
             {count} {count === 1 ? "log" : "logs"}
           </div>

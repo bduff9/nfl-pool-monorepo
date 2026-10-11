@@ -7,7 +7,7 @@ import PageContent from "@/components/PageContent/PageContent";
 
 const MakePicksLoading: FC = () => (
   <div className="h-full flex flex-col md:mx-3" data-testid="route-loading">
-    <PageContent className="pt-3 pb-[70px]">
+    <PageContent className="pt-3 pb-(--actions-bar-height)">
       <Skeleton className="mb-4 h-8 w-64 bg-muted" />
       <Table>
         <TableHeader>
