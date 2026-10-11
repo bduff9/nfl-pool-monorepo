@@ -34,6 +34,7 @@ export const sendPushNotification = async (
   title: string,
   body: string,
   type: (typeof EmailTypes)[number],
+  path: string,
 ): Promise<void> => {
   try {
     const subscriptions = await db
@@ -50,6 +51,7 @@ export const sendPushNotification = async (
             JSON.stringify({
               body,
               title,
+              url: path,
             }),
             { timeout: 10_000 },
           );

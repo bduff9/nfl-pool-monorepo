@@ -29,6 +29,7 @@ const sendSurvivorReminderPushNotification = async (
     `Hurry up, ${user.UserFirstName}!`,
     `Don't fail out of survivor on week ${week}, act now to submit your survivor pick! There are only ${hoursLeft} hours left!`,
     "survivorReminder",
+    `/survivor/set?week=${week}`,
   );
 
 export default sendSurvivorReminderPushNotification;

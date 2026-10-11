@@ -11,7 +11,13 @@ const sendSurvivorEliminatedPushNotification = async (
   const reason = pickedTeamName ? `your ${pickedTeamName} pick lost` : "you didn't make a pick";
   const message = `You're out of the survivor pool after week ${week} (${reason}). The overall confidence pool is still wide open though!`;
 
-  await sendPushNotification(user.UserID, "Survivor Pool", message, "survivorEliminated");
+  await sendPushNotification(
+    user.UserID,
+    "Survivor Pool",
+    message,
+    "survivorEliminated",
+    `/survivor/view?week=${week}`,
+  );
 };
 
 export default sendSurvivorEliminatedPushNotification;

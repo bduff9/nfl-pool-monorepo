@@ -37,7 +37,7 @@ describe("sendPushNotification", () => {
     sendNotification.mockRejectedValueOnce(new WebPushError(410));
 
     const { sendPushNotification } = await import("../pushNotifications");
-    await sendPushNotification(1, "Title", "Body", "weekStarted");
+    await sendPushNotification(1, "Title", "Body", "weekStarted", "/weekly?week=3");
 
     expect(mockDb.deleteFrom).toHaveBeenCalledWith("Devices");
     expect(mockDb.where).toHaveBeenCalledWith("DeviceID", "=", 5);
@@ -49,9 +49,23 @@ describe("sendPushNotification", () => {
     sendNotification.mockRejectedValueOnce(new WebPushError(500));
 
     const { sendPushNotification } = await import("../pushNotifications");
-    await sendPushNotification(1, "Title", "Body", "weekStarted");
+    await sendPushNotification(1, "Title", "Body", "weekStarted", "/weekly?week=3");
 
     expect(mockDb.deleteFrom).not.toHaveBeenCalled();
     expect(console.error).toHaveBeenCalled();
+  });
+
+  it("sends the destination path as url so tapping the notification deep links", async () => {
+    mockDb.execute.mockResolvedValueOnce([{ DeviceID: 5, DeviceSub: '{"endpoint":"https://push.example"}' }]);
+    sendNotification.mockResolvedValueOnce(undefined);
+
+    const { sendPushNotification } = await import("../pushNotifications");
+    await sendPushNotification(1, "Title", "Body", "pickReminder", "/picks/set?week=3");
+
+    expect(JSON.parse(sendNotification.mock.calls[0]?.[1] as string)).toEqual({
+      body: "Body",
+      title: "Title",
+      url: "/picks/set?week=3",
+    });
   });
 });

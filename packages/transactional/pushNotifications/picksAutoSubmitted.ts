@@ -13,7 +13,13 @@ const sendPicksAutoSubmittedPushNotification = async (
     : `we auto-assigned ${info.pickPoints} points to it`;
   const message = `You missed the week ${info.week} ${info.visitorTeamName} @ ${info.homeTeamName} game, so ${detail}.`;
 
-  await sendPushNotification(user.UserID, "Picks Submitted For You", message, "picksAutoSubmitted");
+  await sendPushNotification(
+    user.UserID,
+    "Picks Submitted For You",
+    message,
+    "picksAutoSubmitted",
+    `/picks/view?week=${info.week}`,
+  );
 };
 
 export default sendPicksAutoSubmittedPushNotification;

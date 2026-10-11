@@ -28,6 +28,7 @@ const sendPicksSubmittedPushNotification = async (
     `Week ${week} Picks Submitted`,
     `Hi ${user.UserFirstName}, this is a confirmation that your picks have been submitted for week ${week}. Good luck!`,
     "picksSubmitted",
+    `/picks/view?week=${week}`,
   );
 
 export default sendPicksSubmittedPushNotification;

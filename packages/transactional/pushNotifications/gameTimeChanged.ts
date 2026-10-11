@@ -10,7 +10,13 @@ const sendGameTimeChangedPushNotification = async (
 ): Promise<void> => {
   const message = `${info.visitorTeamName} @ ${info.homeTeamName} (week ${info.week}) now kicks off ${info.newKickoffLabel} instead of ${info.oldKickoffLabel}`;
 
-  await sendPushNotification(user.UserID, "Game Time Changed", message, "gameTimeChanged");
+  await sendPushNotification(
+    user.UserID,
+    "Game Time Changed",
+    message,
+    "gameTimeChanged",
+    `/picks/set?week=${info.week}`,
+  );
 };
 
 export default sendGameTimeChangedPushNotification;

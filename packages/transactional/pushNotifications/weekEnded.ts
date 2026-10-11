@@ -64,7 +64,7 @@ const sendWeekEndedPushNotification = async (
     message += `The ${winnerTeam.TeamName} won with a score of ${winnerScore} - ${loserScore}.`;
   }
 
-  await sendPushNotification(user.UserID, `Week ${week} Just Ended`, message, "weekEnded");
+  await sendPushNotification(user.UserID, `Week ${week} Just Ended`, message, "weekEnded", `/weekly?week=${week}`);
 };
 
 export default sendWeekEndedPushNotification;

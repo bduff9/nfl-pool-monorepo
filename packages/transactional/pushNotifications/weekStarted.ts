@@ -40,7 +40,7 @@ const sendWeekStartedPushNotification = async (
     .executeTakeFirstOrThrow();
   const message = `${user.UserFirstName}, week ${week} has just started with ${visitorTeam.TeamCity} ${visitorTeam.TeamName} @ ${homeTeam.TeamCity} ${homeTeam.TeamName}`;
 
-  await sendPushNotification(user.UserID, `Week ${week} Just Started`, message, "weekStarted");
+  await sendPushNotification(user.UserID, `Week ${week} Just Started`, message, "weekStarted", `/weekly?week=${week}`);
 };
 
 export default sendWeekStartedPushNotification;
