@@ -13,10 +13,11 @@
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
+
 import type { Users } from "@nfl-pool-monorepo/db/src";
 import type { Selectable } from "kysely";
 
-import { sendSMS } from ".";
+import { sendReminderSMS } from "./sendReminderSMS";
 
 const sendSurvivorReminderSMS = async (
   user: Pick<Selectable<Users>, "UserFirstName" | "UserPhone">,
@@ -25,21 +26,7 @@ const sendSurvivorReminderSMS = async (
 ): Promise<void> => {
   const message = `${user.UserFirstName}, this is your reminder to submit your survivor pick for week ${week} as you now have less than ${hoursLeft} hours!`;
 
-  try {
-    if (!user.UserPhone) {
-      throw new Error("Missing phone number for user!");
-    }
-
-    await sendSMS(user.UserPhone, message, "survivorReminder");
-  } catch (error) {
-    console.error("Failed to send survivor reminder sms:", {
-      error,
-      hoursLeft,
-      type: "survivorReminder",
-      user,
-      week,
-    });
-  }
+  await sendReminderSMS({ hoursLeft, label: "survivor", message, type: "survivorReminder", user, week });
 };
 
 export default sendSurvivorReminderSMS;

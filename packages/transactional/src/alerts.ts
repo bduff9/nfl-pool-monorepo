@@ -9,8 +9,10 @@ import sendWeekStartedPushNotification from "../pushNotifications/weekStarted";
 import sendWeekEndedSMS from "../sms/weekEnded";
 import sendWeekStartedSMS from "../sms/weekStarted";
 
-export const sendWeekEndedNotifications = async (week: number): Promise<void> => {
-  const notifications = await db
+type WeekNotificationType = "WeekEnded" | "WeekStarted";
+
+const getWeekNotifications = (type: WeekNotificationType) =>
+  db
     .selectFrom("Notifications as n")
     .innerJoin("Users as u", "n.UserID", "u.UserID")
     .select([
@@ -24,11 +26,29 @@ export const sendWeekEndedNotifications = async (week: number): Promise<void> =>
     ])
     .where("u.UserCommunicationsOptedOut", "=", 0)
     .where("u.UserDoneRegistering", "=", 1)
-    .where("n.NotificationType", "=", "WeekEnded")
+    .where("n.NotificationType", "=", type)
     .where((eb) => eb.or([eb("n.NotificationEmail", "=", 1), eb("n.NotificationSMS", "=", 1)]))
     .execute();
 
-  console.log("Found week ended notifications to send", {
+type WeekNotificationRow = Awaited<ReturnType<typeof getWeekNotifications>>[number];
+type WeekNotificationUser = Omit<
+  WeekNotificationRow,
+  "NotificationEmail" | "NotificationPushNotification" | "NotificationSMS"
+>;
+
+const sendWeekNotifications = async (
+  type: WeekNotificationType,
+  label: string,
+  week: number,
+  send: {
+    email: (user: WeekNotificationUser, week: number) => Promise<void>;
+    pushNotification: (user: WeekNotificationUser, week: number) => Promise<void>;
+    sms: (user: WeekNotificationUser, week: number) => Promise<void>;
+  },
+): Promise<void> => {
+  const notifications = await getWeekNotifications(type);
+
+  console.log(`Found ${label} notifications to send`, {
     count: notifications.length,
     week,
   });
@@ -36,52 +56,29 @@ export const sendWeekEndedNotifications = async (week: number): Promise<void> =>
   for (const { NotificationEmail, NotificationPushNotification, NotificationSMS, ...user } of notifications) {
     try {
       await Promise.all([
-        NotificationEmail === 1 ? sendWeekEndedEmail(user, week) : null,
-        NotificationSMS === 1 ? sendWeekEndedSMS(user, week) : null,
-        NotificationPushNotification === 1 ? sendWeekEndedPushNotification(user, week) : null,
+        NotificationEmail === 1 ? send.email(user, week) : null,
+        NotificationSMS === 1 ? send.sms(user, week) : null,
+        NotificationPushNotification === 1 ? send.pushNotification(user, week) : null,
       ]);
     } catch (error) {
-      console.error(`Error sending week ended notifications to ${user.UserEmail}`, error);
+      console.error(`Error sending ${label} notifications to ${user.UserEmail}`, error);
     }
   }
 };
 
-export const sendWeekStartedNotifications = async (week: number): Promise<void> => {
-  const notifications = await db
-    .selectFrom("Notifications as n")
-    .innerJoin("Users as u", "n.UserID", "u.UserID")
-    .select([
-      "n.NotificationEmail",
-      "n.NotificationSMS",
-      "n.NotificationPushNotification",
-      "u.UserID",
-      "u.UserEmail",
-      "u.UserFirstName",
-      "u.UserPhone",
-    ])
-    .where("u.UserCommunicationsOptedOut", "=", 0)
-    .where("u.UserDoneRegistering", "=", 1)
-    .where("n.NotificationType", "=", "WeekStarted")
-    .where((eb) => eb.or([eb("n.NotificationEmail", "=", 1), eb("n.NotificationSMS", "=", 1)]))
-    .execute();
-
-  console.log("Found week started notifications to send", {
-    count: notifications.length,
-    week,
+export const sendWeekEndedNotifications = (week: number): Promise<void> =>
+  sendWeekNotifications("WeekEnded", "week ended", week, {
+    email: sendWeekEndedEmail,
+    pushNotification: sendWeekEndedPushNotification,
+    sms: sendWeekEndedSMS,
   });
 
-  for (const { NotificationEmail, NotificationPushNotification, NotificationSMS, ...user } of notifications) {
-    try {
-      await Promise.all([
-        NotificationEmail === 1 ? sendWeekStartedEmail(user, week) : null,
-        NotificationSMS === 1 ? sendWeekStartedSMS(user, week) : null,
-        NotificationPushNotification === 1 ? sendWeekStartedPushNotification(user, week) : null,
-      ]);
-    } catch (error) {
-      console.error(`Error sending week started notifications to ${user.UserEmail}`, error);
-    }
-  }
-};
+export const sendWeekStartedNotifications = (week: number): Promise<void> =>
+  sendWeekNotifications("WeekStarted", "week started", week, {
+    email: sendWeekStartedEmail,
+    pushNotification: sendWeekStartedPushNotification,
+    sms: sendWeekStartedSMS,
+  });
 
 export const sendWeeklyEmails = async (week: number, articles: Array<APINewsArticle>): Promise<void> => {
   const emails = await db

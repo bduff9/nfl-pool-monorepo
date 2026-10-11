@@ -17,7 +17,7 @@
 import type { Users } from "@nfl-pool-monorepo/db/src";
 import type { Selectable } from "kysely";
 
-import { sendSMS } from ".";
+import { sendReminderSMS } from "./sendReminderSMS";
 
 const sendPickReminderSMS = async (
   user: Pick<Selectable<Users>, "UserFirstName" | "UserPhone">,
@@ -26,21 +26,7 @@ const sendPickReminderSMS = async (
 ): Promise<void> => {
   const message = `${user.UserFirstName}, this is your reminder to submit your picks for week ${week} as you now have less than ${hoursLeft} hours!`;
 
-  try {
-    if (!user.UserPhone) {
-      throw new Error("Missing phone number for user!");
-    }
-
-    await sendSMS(user.UserPhone, message, "pickReminder");
-  } catch (error) {
-    console.error("Failed to send pick reminder sms:", {
-      error,
-      hoursLeft,
-      type: "pickReminder",
-      user,
-      week,
-    });
-  }
+  await sendReminderSMS({ hoursLeft, label: "pick", message, type: "pickReminder", user, week });
 };
 
 export default sendPickReminderSMS;

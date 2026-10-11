@@ -1,0 +1,461 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`week notification queries and logging > logs a failed week ended send and carries on 1`] = `
+{
+  "consoleError": [
+    [
+      "Error sending week ended notifications to user@example.com",
+      [Error: SES down],
+    ],
+  ],
+  "consoleLog": [
+    [
+      "Found week ended notifications to send",
+      {
+        "count": 2,
+        "week": 5,
+      },
+    ],
+  ],
+  "email": [
+    [
+      [
+        {
+          "UserEmail": "user@example.com",
+          "UserFirstName": "Test",
+          "UserID": 1,
+          "UserPhone": "5551234567",
+        },
+        5,
+      ],
+      [
+        {
+          "UserEmail": "b@example.com",
+          "UserFirstName": "Test",
+          "UserID": 1,
+          "UserPhone": "5551234567",
+        },
+        5,
+      ],
+    ],
+    [],
+  ],
+  "push": [
+    [
+      [
+        {
+          "UserEmail": "user@example.com",
+          "UserFirstName": "Test",
+          "UserID": 1,
+          "UserPhone": "5551234567",
+        },
+        5,
+      ],
+      [
+        {
+          "UserEmail": "b@example.com",
+          "UserFirstName": "Test",
+          "UserID": 1,
+          "UserPhone": "5551234567",
+        },
+        5,
+      ],
+    ],
+    [],
+  ],
+  "select": [
+    [
+      [
+        "n.NotificationEmail",
+        "n.NotificationSMS",
+        "n.NotificationPushNotification",
+        "u.UserID",
+        "u.UserEmail",
+        "u.UserFirstName",
+        "u.UserPhone",
+      ],
+    ],
+  ],
+  "sms": [
+    [
+      [
+        {
+          "UserEmail": "user@example.com",
+          "UserFirstName": "Test",
+          "UserID": 1,
+          "UserPhone": "5551234567",
+        },
+        5,
+      ],
+      [
+        {
+          "UserEmail": "b@example.com",
+          "UserFirstName": "Test",
+          "UserID": 1,
+          "UserPhone": "5551234567",
+        },
+        5,
+      ],
+    ],
+    [],
+  ],
+  "where": [
+    [
+      "u.UserCommunicationsOptedOut",
+      "=",
+      0,
+    ],
+    [
+      "u.UserDoneRegistering",
+      "=",
+      1,
+    ],
+    [
+      "n.NotificationType",
+      "=",
+      "WeekEnded",
+    ],
+    [
+      "<expression callback>",
+    ],
+  ],
+}
+`;
+
+exports[`week notification queries and logging > logs a failed week started send and carries on 1`] = `
+{
+  "consoleError": [
+    [
+      "Error sending week started notifications to user@example.com",
+      [Error: SES down],
+    ],
+  ],
+  "consoleLog": [
+    [
+      "Found week started notifications to send",
+      {
+        "count": 2,
+        "week": 5,
+      },
+    ],
+  ],
+  "email": [
+    [],
+    [
+      [
+        {
+          "UserEmail": "user@example.com",
+          "UserFirstName": "Test",
+          "UserID": 1,
+          "UserPhone": "5551234567",
+        },
+        5,
+      ],
+      [
+        {
+          "UserEmail": "b@example.com",
+          "UserFirstName": "Test",
+          "UserID": 1,
+          "UserPhone": "5551234567",
+        },
+        5,
+      ],
+    ],
+  ],
+  "push": [
+    [],
+    [
+      [
+        {
+          "UserEmail": "user@example.com",
+          "UserFirstName": "Test",
+          "UserID": 1,
+          "UserPhone": "5551234567",
+        },
+        5,
+      ],
+      [
+        {
+          "UserEmail": "b@example.com",
+          "UserFirstName": "Test",
+          "UserID": 1,
+          "UserPhone": "5551234567",
+        },
+        5,
+      ],
+    ],
+  ],
+  "select": [
+    [
+      [
+        "n.NotificationEmail",
+        "n.NotificationSMS",
+        "n.NotificationPushNotification",
+        "u.UserID",
+        "u.UserEmail",
+        "u.UserFirstName",
+        "u.UserPhone",
+      ],
+    ],
+  ],
+  "sms": [
+    [],
+    [
+      [
+        {
+          "UserEmail": "user@example.com",
+          "UserFirstName": "Test",
+          "UserID": 1,
+          "UserPhone": "5551234567",
+        },
+        5,
+      ],
+      [
+        {
+          "UserEmail": "b@example.com",
+          "UserFirstName": "Test",
+          "UserID": 1,
+          "UserPhone": "5551234567",
+        },
+        5,
+      ],
+    ],
+  ],
+  "where": [
+    [
+      "u.UserCommunicationsOptedOut",
+      "=",
+      0,
+    ],
+    [
+      "u.UserDoneRegistering",
+      "=",
+      1,
+    ],
+    [
+      "n.NotificationType",
+      "=",
+      "WeekStarted",
+    ],
+    [
+      "<expression callback>",
+    ],
+  ],
+}
+`;
+
+exports[`week notification queries and logging > queries and dispatches week ended notifications 1`] = `
+{
+  "consoleError": [],
+  "consoleLog": [
+    [
+      "Found week ended notifications to send",
+      {
+        "count": 2,
+        "week": 5,
+      },
+    ],
+  ],
+  "email": [
+    [
+      [
+        {
+          "UserEmail": "user@example.com",
+          "UserFirstName": "Test",
+          "UserID": 1,
+          "UserPhone": "5551234567",
+        },
+        5,
+      ],
+    ],
+    [],
+  ],
+  "push": [
+    [
+      [
+        {
+          "UserEmail": "user@example.com",
+          "UserFirstName": "Test",
+          "UserID": 1,
+          "UserPhone": "5551234567",
+        },
+        5,
+      ],
+      [
+        {
+          "UserEmail": "b@example.com",
+          "UserFirstName": "Test",
+          "UserID": 1,
+          "UserPhone": "5551234567",
+        },
+        5,
+      ],
+    ],
+    [],
+  ],
+  "select": [
+    [
+      [
+        "n.NotificationEmail",
+        "n.NotificationSMS",
+        "n.NotificationPushNotification",
+        "u.UserID",
+        "u.UserEmail",
+        "u.UserFirstName",
+        "u.UserPhone",
+      ],
+    ],
+  ],
+  "sms": [
+    [
+      [
+        {
+          "UserEmail": "user@example.com",
+          "UserFirstName": "Test",
+          "UserID": 1,
+          "UserPhone": "5551234567",
+        },
+        5,
+      ],
+      [
+        {
+          "UserEmail": "b@example.com",
+          "UserFirstName": "Test",
+          "UserID": 1,
+          "UserPhone": "5551234567",
+        },
+        5,
+      ],
+    ],
+    [],
+  ],
+  "where": [
+    [
+      "u.UserCommunicationsOptedOut",
+      "=",
+      0,
+    ],
+    [
+      "u.UserDoneRegistering",
+      "=",
+      1,
+    ],
+    [
+      "n.NotificationType",
+      "=",
+      "WeekEnded",
+    ],
+    [
+      "<expression callback>",
+    ],
+  ],
+}
+`;
+
+exports[`week notification queries and logging > queries and dispatches week started notifications 1`] = `
+{
+  "consoleError": [],
+  "consoleLog": [
+    [
+      "Found week started notifications to send",
+      {
+        "count": 2,
+        "week": 5,
+      },
+    ],
+  ],
+  "email": [
+    [],
+    [
+      [
+        {
+          "UserEmail": "user@example.com",
+          "UserFirstName": "Test",
+          "UserID": 1,
+          "UserPhone": "5551234567",
+        },
+        5,
+      ],
+    ],
+  ],
+  "push": [
+    [],
+    [
+      [
+        {
+          "UserEmail": "user@example.com",
+          "UserFirstName": "Test",
+          "UserID": 1,
+          "UserPhone": "5551234567",
+        },
+        5,
+      ],
+      [
+        {
+          "UserEmail": "b@example.com",
+          "UserFirstName": "Test",
+          "UserID": 1,
+          "UserPhone": "5551234567",
+        },
+        5,
+      ],
+    ],
+  ],
+  "select": [
+    [
+      [
+        "n.NotificationEmail",
+        "n.NotificationSMS",
+        "n.NotificationPushNotification",
+        "u.UserID",
+        "u.UserEmail",
+        "u.UserFirstName",
+        "u.UserPhone",
+      ],
+    ],
+  ],
+  "sms": [
+    [],
+    [
+      [
+        {
+          "UserEmail": "user@example.com",
+          "UserFirstName": "Test",
+          "UserID": 1,
+          "UserPhone": "5551234567",
+        },
+        5,
+      ],
+      [
+        {
+          "UserEmail": "b@example.com",
+          "UserFirstName": "Test",
+          "UserID": 1,
+          "UserPhone": "5551234567",
+        },
+        5,
+      ],
+    ],
+  ],
+  "where": [
+    [
+      "u.UserCommunicationsOptedOut",
+      "=",
+      0,
+    ],
+    [
+      "u.UserDoneRegistering",
+      "=",
+      1,
+    ],
+    [
+      "n.NotificationType",
+      "=",
+      "WeekStarted",
+    ],
+    [
+      "<expression callback>",
+    ],
+  ],
+}
+`;

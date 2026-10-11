@@ -1,0 +1,522 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`email template preview props > keeps the preview props the react-email dev server renders 1`] = `
+{
+  "pickReminder": {
+    "browserLink": "https://example.com",
+    "hoursLeft": 2,
+    "unsubscribeLink": "https://example.com/unsubscribe",
+    "userFirstName": "John",
+    "week": 1,
+  },
+  "survivorReminder": {
+    "browserLink": "https://example.com",
+    "hoursLeft": 2,
+    "unsubscribeLink": "https://example.com/unsubscribe",
+    "userFirstName": "John",
+    "week": 1,
+  },
+  "weekEnded": {
+    "browserLink": "https://example.com",
+    "homeTeam": {
+      "TeamCity": "Chicago",
+      "TeamName": "Bears",
+      "TeamPrimaryColor": "#061E3E",
+      "TeamSecondaryColor": "#DF6108",
+    },
+    "loserScore": 7,
+    "unsubscribeLink": "https://example.com/unsubscribe",
+    "userFirstName": "John",
+    "visitorTeam": {
+      "TeamCity": "New York",
+      "TeamName": "Giants",
+      "TeamPrimaryColor": "#03497F",
+      "TeamSecondaryColor": "#FFFFFF",
+    },
+    "week": 1,
+    "winnerScore": 14,
+    "winnerTeam": {
+      "TeamCity": "Chicago",
+      "TeamName": "Bears",
+      "TeamPrimaryColor": "#061E3E",
+      "TeamSecondaryColor": "#DF6108",
+    },
+  },
+  "weekStarted": {
+    "browserLink": "https://example.com",
+    "homeTeam": {
+      "TeamCity": "Chicago",
+      "TeamName": "Bears",
+      "TeamPrimaryColor": "#061E3E",
+      "TeamSecondaryColor": "#DF6108",
+    },
+    "unsubscribeLink": "https://example.com/unsubscribe",
+    "userFirstName": "John",
+    "visitorTeam": {
+      "TeamCity": "New York",
+      "TeamName": "Giants",
+      "TeamPrimaryColor": "#03497F",
+      "TeamSecondaryColor": "#FFFFFF",
+    },
+    "week": 1,
+  },
+}
+`;
+
+exports[`push notification and sms senders > logs instead of sending the pick reminder sms without a phone number 1`] = `
+{
+  "consoleError": [
+    [
+      "Failed to send pick reminder sms:",
+      {
+        "error": [Error: Missing phone number for user!],
+        "hoursLeft": 3,
+        "type": "pickReminder",
+        "user": {
+          "UserFirstName": "Pat",
+          "UserPhone": null,
+        },
+        "week": 5,
+      },
+    ],
+  ],
+  "sendPushNotification": [],
+  "sendSMS": [],
+}
+`;
+
+exports[`push notification and sms senders > logs instead of sending the survivor reminder sms without a phone number 1`] = `
+{
+  "consoleError": [
+    [
+      "Failed to send survivor reminder sms:",
+      {
+        "error": [Error: Missing phone number for user!],
+        "hoursLeft": 3,
+        "type": "survivorReminder",
+        "user": {
+          "UserFirstName": "Pat",
+          "UserPhone": null,
+        },
+        "week": 5,
+      },
+    ],
+  ],
+  "sendPushNotification": [],
+  "sendSMS": [],
+}
+`;
+
+exports[`push notification and sms senders > logs instead of sending the week ended sms without a phone number 1`] = `
+{
+  "consoleError": [
+    [
+      "Failed to send week ended sms:",
+      {
+        "error": [Error: Missing phone number for user!],
+        "homeTeam": {
+          "GameHomeScore": 21,
+          "GameVisitorScore": 14,
+          "TeamCity": "Chicago",
+          "TeamName": "Bears",
+          "TeamPrimaryColor": "#061E3E",
+          "TeamSecondaryColor": "#DF6108",
+        },
+        "loserScore": 14,
+        "message": "Pat, week 5 has just ended with New York Giants @ Chicago Bears. The Bears won with a score of 21 - 14.",
+        "type": "weekEnded",
+        "user": {
+          "UserFirstName": "Pat",
+          "UserPhone": null,
+        },
+        "visitorTeam": {
+          "TeamCity": "New York",
+          "TeamName": "Giants",
+          "TeamPrimaryColor": "#03497F",
+          "TeamSecondaryColor": "#FFFFFF",
+        },
+        "week": 5,
+        "winnerScore": 21,
+        "winnerTeam": {
+          "GameHomeScore": 21,
+          "GameVisitorScore": 14,
+          "TeamCity": "Chicago",
+          "TeamName": "Bears",
+          "TeamPrimaryColor": "#061E3E",
+          "TeamSecondaryColor": "#DF6108",
+        },
+      },
+    ],
+  ],
+  "sendPushNotification": [],
+  "sendSMS": [],
+}
+`;
+
+exports[`push notification and sms senders > logs instead of sending the week started sms without a phone number 1`] = `
+{
+  "consoleError": [
+    [
+      "Failed to send week started sms: ",
+      {
+        "error": [Error: Missing phone number for user!],
+        "homeTeam": {
+          "GameHomeScore": 21,
+          "GameVisitorScore": 14,
+          "TeamCity": "Chicago",
+          "TeamName": "Bears",
+          "TeamPrimaryColor": "#061E3E",
+          "TeamSecondaryColor": "#DF6108",
+        },
+        "message": "Pat, week 5 has just started with New York Giants @ Chicago Bears",
+        "type": "weekStarted",
+        "user": {
+          "UserFirstName": "Pat",
+          "UserPhone": null,
+        },
+        "visitorTeam": {
+          "TeamCity": "New York",
+          "TeamName": "Giants",
+          "TeamPrimaryColor": "#03497F",
+          "TeamSecondaryColor": "#FFFFFF",
+        },
+        "week": 5,
+      },
+    ],
+  ],
+  "sendPushNotification": [],
+  "sendSMS": [],
+}
+`;
+
+exports[`push notification and sms senders > logs instead of throwing when the pick reminder sms fails 1`] = `
+{
+  "consoleError": [
+    [
+      "Failed to send pick reminder sms:",
+      {
+        "error": [Error: Twilio down],
+        "hoursLeft": 3,
+        "type": "pickReminder",
+        "user": {
+          "UserFirstName": "Pat",
+          "UserPhone": "5551234567",
+        },
+        "week": 5,
+      },
+    ],
+  ],
+  "sendPushNotification": [],
+  "sendSMS": [
+    [
+      "5551234567",
+      "Pat, this is your reminder to submit your picks for week 5 as you now have less than 3 hours!",
+      "pickReminder",
+    ],
+  ],
+}
+`;
+
+exports[`push notification and sms senders > logs instead of throwing when the survivor reminder sms fails 1`] = `
+{
+  "consoleError": [
+    [
+      "Failed to send survivor reminder sms:",
+      {
+        "error": [Error: Twilio down],
+        "hoursLeft": 3,
+        "type": "survivorReminder",
+        "user": {
+          "UserFirstName": "Pat",
+          "UserPhone": "5551234567",
+        },
+        "week": 5,
+      },
+    ],
+  ],
+  "sendPushNotification": [],
+  "sendSMS": [
+    [
+      "5551234567",
+      "Pat, this is your reminder to submit your survivor pick for week 5 as you now have less than 3 hours!",
+      "survivorReminder",
+    ],
+  ],
+}
+`;
+
+exports[`push notification and sms senders > logs instead of throwing when the week ended sms fails 1`] = `
+{
+  "consoleError": [
+    [
+      "Failed to send week ended sms:",
+      {
+        "error": [Error: Twilio down],
+        "homeTeam": {
+          "GameHomeScore": 21,
+          "GameVisitorScore": 14,
+          "TeamCity": "Chicago",
+          "TeamName": "Bears",
+          "TeamPrimaryColor": "#061E3E",
+          "TeamSecondaryColor": "#DF6108",
+        },
+        "loserScore": 14,
+        "message": "Pat, week 5 has just ended with New York Giants @ Chicago Bears. The Bears won with a score of 21 - 14.",
+        "type": "weekEnded",
+        "user": {
+          "UserFirstName": "Pat",
+          "UserPhone": "5551234567",
+        },
+        "visitorTeam": {
+          "TeamCity": "New York",
+          "TeamName": "Giants",
+          "TeamPrimaryColor": "#03497F",
+          "TeamSecondaryColor": "#FFFFFF",
+        },
+        "week": 5,
+        "winnerScore": 21,
+        "winnerTeam": {
+          "GameHomeScore": 21,
+          "GameVisitorScore": 14,
+          "TeamCity": "Chicago",
+          "TeamName": "Bears",
+          "TeamPrimaryColor": "#061E3E",
+          "TeamSecondaryColor": "#DF6108",
+        },
+      },
+    ],
+  ],
+  "sendPushNotification": [],
+  "sendSMS": [
+    [
+      "5551234567",
+      "Pat, week 5 has just ended with New York Giants @ Chicago Bears. The Bears won with a score of 21 - 14.",
+      "weekEnded",
+    ],
+  ],
+}
+`;
+
+exports[`push notification and sms senders > logs instead of throwing when the week started sms fails 1`] = `
+{
+  "consoleError": [
+    [
+      "Failed to send week started sms: ",
+      {
+        "error": [Error: Twilio down],
+        "homeTeam": {
+          "GameHomeScore": 21,
+          "GameVisitorScore": 14,
+          "TeamCity": "Chicago",
+          "TeamName": "Bears",
+          "TeamPrimaryColor": "#061E3E",
+          "TeamSecondaryColor": "#DF6108",
+        },
+        "message": "Pat, week 5 has just started with New York Giants @ Chicago Bears",
+        "type": "weekStarted",
+        "user": {
+          "UserFirstName": "Pat",
+          "UserPhone": "5551234567",
+        },
+        "visitorTeam": {
+          "TeamCity": "New York",
+          "TeamName": "Giants",
+          "TeamPrimaryColor": "#03497F",
+          "TeamSecondaryColor": "#FFFFFF",
+        },
+        "week": 5,
+      },
+    ],
+  ],
+  "sendPushNotification": [],
+  "sendSMS": [
+    [
+      "5551234567",
+      "Pat, week 5 has just started with New York Giants @ Chicago Bears",
+      "weekStarted",
+    ],
+  ],
+}
+`;
+
+exports[`push notification and sms senders > sends the pick reminder push notification 1`] = `
+{
+  "consoleError": [],
+  "sendPushNotification": [
+    [
+      7,
+      "Hurry up, Pat!",
+      "Don't lose out on points for week 5, act now to submit your picks! There are only 3 hours left!",
+      "pickReminder",
+      "/picks/set?week=5",
+      1,
+    ],
+  ],
+  "sendSMS": [],
+}
+`;
+
+exports[`push notification and sms senders > sends the pick reminder sms 1`] = `
+{
+  "consoleError": [],
+  "sendPushNotification": [],
+  "sendSMS": [
+    [
+      "5551234567",
+      "Pat, this is your reminder to submit your picks for week 5 as you now have less than 3 hours!",
+      "pickReminder",
+    ],
+  ],
+}
+`;
+
+exports[`push notification and sms senders > sends the survivor reminder push notification 1`] = `
+{
+  "consoleError": [],
+  "sendPushNotification": [
+    [
+      7,
+      "Hurry up, Pat!",
+      "Don't fail out of survivor on week 5, act now to submit your survivor pick! There are only 3 hours left!",
+      "survivorReminder",
+      "/survivor/set?week=5",
+      1,
+    ],
+  ],
+  "sendSMS": [],
+}
+`;
+
+exports[`push notification and sms senders > sends the survivor reminder sms 1`] = `
+{
+  "consoleError": [],
+  "sendPushNotification": [],
+  "sendSMS": [
+    [
+      "5551234567",
+      "Pat, this is your reminder to submit your survivor pick for week 5 as you now have less than 3 hours!",
+      "survivorReminder",
+    ],
+  ],
+}
+`;
+
+exports[`push notification and sms senders > sends the week ended push notification 1`] = `
+{
+  "consoleError": [],
+  "sendPushNotification": [
+    [
+      7,
+      "Week 5 Just Ended",
+      "Pat, week 5 has just ended with New York Giants @ Chicago Bears. The Bears won with a score of 21 - 14.",
+      "weekEnded",
+      "/weekly?week=5",
+    ],
+  ],
+  "sendSMS": [],
+}
+`;
+
+exports[`push notification and sms senders > sends the week ended push notification for a tie 1`] = `
+{
+  "consoleError": [],
+  "sendPushNotification": [
+    [
+      7,
+      "Week 5 Just Ended",
+      "Pat, week 5 has just ended with New York Giants @ Chicago Bears. The game ended in a tie, 17 - 17.",
+      "weekEnded",
+      "/weekly?week=5",
+    ],
+  ],
+  "sendSMS": [],
+}
+`;
+
+exports[`push notification and sms senders > sends the week ended push notification for a visitor win 1`] = `
+{
+  "consoleError": [],
+  "sendPushNotification": [
+    [
+      7,
+      "Week 5 Just Ended",
+      "Pat, week 5 has just ended with New York Giants @ Chicago Bears. The Bears won with a score of 17 - 10.",
+      "weekEnded",
+      "/weekly?week=5",
+    ],
+  ],
+  "sendSMS": [],
+}
+`;
+
+exports[`push notification and sms senders > sends the week ended sms 1`] = `
+{
+  "consoleError": [],
+  "sendPushNotification": [],
+  "sendSMS": [
+    [
+      "5551234567",
+      "Pat, week 5 has just ended with New York Giants @ Chicago Bears. The Bears won with a score of 21 - 14.",
+      "weekEnded",
+    ],
+  ],
+}
+`;
+
+exports[`push notification and sms senders > sends the week ended sms for a tie 1`] = `
+{
+  "consoleError": [],
+  "sendPushNotification": [],
+  "sendSMS": [
+    [
+      "5551234567",
+      "Pat, week 5 has just ended with New York Giants @ Chicago Bears. The game ended in a tie, 17 - 17.",
+      "weekEnded",
+    ],
+  ],
+}
+`;
+
+exports[`push notification and sms senders > sends the week ended sms for a visitor win 1`] = `
+{
+  "consoleError": [],
+  "sendPushNotification": [],
+  "sendSMS": [
+    [
+      "5551234567",
+      "Pat, week 5 has just ended with New York Giants @ Chicago Bears. The Bears won with a score of 17 - 10.",
+      "weekEnded",
+    ],
+  ],
+}
+`;
+
+exports[`push notification and sms senders > sends the week started push notification 1`] = `
+{
+  "consoleError": [],
+  "sendPushNotification": [
+    [
+      7,
+      "Week 5 Just Started",
+      "Pat, week 5 has just started with New York Giants @ Chicago Bears",
+      "weekStarted",
+      "/weekly?week=5",
+    ],
+  ],
+  "sendSMS": [],
+}
+`;
+
+exports[`push notification and sms senders > sends the week started sms 1`] = `
+{
+  "consoleError": [],
+  "sendPushNotification": [],
+  "sendSMS": [
+    [
+      "5551234567",
+      "Pat, week 5 has just started with New York Giants @ Chicago Bears",
+      "weekStarted",
+    ],
+  ],
+}
+`;

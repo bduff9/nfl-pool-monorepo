@@ -1,8 +1,8 @@
 import type { Users } from "@nfl-pool-monorepo/db/src";
-import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import type { Selectable } from "kysely";
 
-import { getBaseEmailClass, getBrowserLink, getUnsubscribeLink, sendEmail, updateEmailClass } from ".";
+import { getFirstGameTeams } from "../src/weekTeams";
+import { deliverEmail } from "./deliverEmail";
 import { getHtml, getPlainText, getSubject } from "./templates/QuickPickEmail";
 
 export const sendQuickPickEmail = async (
@@ -10,79 +10,23 @@ export const sendQuickPickEmail = async (
   week: number,
   hoursLeft: number,
 ): Promise<void> => {
-  const [homeTeam, visitorTeam] = await Promise.all([
-    db
-      .selectFrom("Teams as t")
-      .select(["t.TeamID", "t.TeamCity", "t.TeamName", "t.TeamPrimaryColor", "t.TeamSecondaryColor"])
-      .innerJoin("Games as g", "g.HomeTeamID", "t.TeamID")
-      .where("g.GameWeek", "=", week)
-      .where("g.GameNumber", "=", 1)
-      .executeTakeFirstOrThrow(),
-    db
-      .selectFrom("Teams as t")
-      .select(["t.TeamID", "t.TeamCity", "t.TeamName", "t.TeamPrimaryColor", "t.TeamSecondaryColor"])
-      .innerJoin("Games as g", "g.VisitorTeamID", "t.TeamID")
-      .where("g.GameWeek", "=", week)
-      .where("g.GameNumber", "=", 1)
-      .executeTakeFirstOrThrow(),
-  ]);
-  const to = [user.UserEmail];
-  const emailId = await getBaseEmailClass({ to, type: "quickPick" });
-  const browserLink = getBrowserLink(emailId);
-  const unsubscribeLink = getUnsubscribeLink(to);
-  const subject = getSubject(user.UserFirstName ?? "player");
-  const [html, text] = await Promise.all([
-    getHtml({
-      browserLink,
+  const { homeTeam, visitorTeam } = await getFirstGameTeams(week);
+
+  await deliverEmail({
+    buildProps: (links) => ({
+      ...links,
       homeTeam,
       hoursLeft,
-      unsubscribeLink,
       userFirstName: user.UserFirstName ?? "player",
       userId: user.UserID,
       visitorTeam,
       week,
     }),
-    getPlainText({
-      browserLink,
-      homeTeam,
-      hoursLeft,
-      unsubscribeLink,
-      userFirstName: user.UserFirstName ?? "player",
-      userId: user.UserID,
-      visitorTeam,
-      week,
-    }),
-  ]);
-
-  try {
-    await sendEmail({
-      html,
-      subject,
-      text,
-      to,
-    });
-  } catch (error) {
-    console.error("Failed to send quick pick email: ", {
-      error,
-      props: {
-        browserLink,
-        homeTeam,
-        hoursLeft,
-        unsubscribeLink,
-        userFirstName: user.UserFirstName ?? "player",
-        userId: user.UserID,
-        visitorTeam,
-        week,
-      },
-      to,
-      type: "quickPick",
-    });
-  }
-
-  await updateEmailClass({
-    emailId,
-    html,
-    subject,
-    text,
+    getHtml,
+    getPlainText,
+    label: "quick pick",
+    subject: getSubject(user.UserFirstName ?? "player"),
+    to: [user.UserEmail],
+    type: "quickPick",
   });
 };

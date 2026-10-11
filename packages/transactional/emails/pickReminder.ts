@@ -1,62 +1,13 @@
 import type { Users } from "@nfl-pool-monorepo/db/src";
 import type { Selectable } from "kysely";
 
-import { getBaseEmailClass, getBrowserLink, getUnsubscribeLink, sendEmail, updateEmailClass } from ".";
-import { getHtml, getPlainText, getSubject } from "./templates/PickReminder";
+import { sendReminderEmail } from "./sendReminderEmail";
+import * as template from "./templates/PickReminder";
 
 export const sendPickReminderEmail = async (
   user: Pick<Selectable<Users>, "UserEmail" | "UserFirstName">,
   week: number,
   hoursLeft: number,
 ): Promise<void> => {
-  const to = [user.UserEmail];
-  const emailId = await getBaseEmailClass({ to, type: "pickReminder" });
-  const browserLink = getBrowserLink(emailId);
-  const unsubscribeLink = getUnsubscribeLink(to);
-  const subject = getSubject(user.UserFirstName ?? "player");
-  const [html, text] = await Promise.all([
-    getHtml({
-      browserLink,
-      hoursLeft,
-      unsubscribeLink,
-      userFirstName: user.UserFirstName ?? "player",
-      week,
-    }),
-    getPlainText({
-      browserLink,
-      hoursLeft,
-      unsubscribeLink,
-      userFirstName: user.UserFirstName ?? "player",
-      week,
-    }),
-  ]);
-
-  try {
-    await sendEmail({
-      html,
-      subject,
-      text,
-      to,
-    });
-  } catch (error) {
-    console.error("Failed to send pick reminder email: ", {
-      error,
-      props: {
-        browserLink,
-        hoursLeft,
-        unsubscribeLink,
-        userFirstName: user.UserFirstName ?? "player",
-        week,
-      },
-      to,
-      type: "pickReminder",
-    });
-  }
-
-  await updateEmailClass({
-    emailId,
-    html,
-    subject,
-    text,
-  });
+  await sendReminderEmail({ hoursLeft, label: "pick reminder", template, type: "pickReminder", user, week });
 };

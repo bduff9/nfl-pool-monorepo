@@ -1,29 +1,21 @@
 import { render } from "@react-email/render";
 // biome-ignore lint/style/useImportType: This is needed for react-email
 import * as React from "react";
-import { Button, Container, Html, Preview, Text } from "react-email";
+import { Button, Container, Html, Preview } from "react-email";
 
 import { env } from "../../src/env";
 import type { Email } from "../../src/types";
 import BodyWrapper from "./_components/BodyWrapper";
 import EmailBodySection from "./_components/EmailBodySection";
 import Footer from "./_components/Footer";
+import type { TeamColors } from "./_components/TeamBadge";
+import WeekMatchupIntro from "./_components/WeekMatchupIntro";
 
 type Props = {
   children?: React.ReactNode;
-  homeTeam: {
-    TeamCity: string;
-    TeamName: string;
-    TeamPrimaryColor: string;
-    TeamSecondaryColor: string;
-  };
+  homeTeam: TeamColors;
   userFirstName: string;
-  visitorTeam: {
-    TeamCity: string;
-    TeamName: string;
-    TeamPrimaryColor: string;
-    TeamSecondaryColor: string;
-  };
+  visitorTeam: TeamColors;
   week: number;
 };
 
@@ -46,25 +38,13 @@ const WeekStartedEmail: Email<Props> = ({
         <Preview>{preview}</Preview>
         <Container className="max-w-[600px] md:max-w-[800px]">
           <EmailBodySection browserLink={browserLink}>
-            <Text className="text-xl">Hello {userFirstName},</Text>
-
-            <Text className="text-lg">
-              Week {week} has just started with:
-              <br />
-              <span
-                className="px-1.5"
-                style={{ backgroundColor: visitorTeam.TeamPrimaryColor, color: visitorTeam.TeamSecondaryColor }}
-              >
-                {visitorTeam.TeamCity} {visitorTeam.TeamName}
-              </span>
-              @
-              <span
-                className="px-1.5"
-                style={{ backgroundColor: homeTeam.TeamPrimaryColor, color: homeTeam.TeamSecondaryColor }}
-              >
-                {homeTeam.TeamCity} {homeTeam.TeamName}
-              </span>
-            </Text>
+            <WeekMatchupIntro
+              homeTeam={homeTeam}
+              status="started"
+              userFirstName={userFirstName}
+              visitorTeam={visitorTeam}
+              week={week}
+            />
 
             <Button className="bg-green-700 text-white w-full text-center py-2.5 rounded-md" href={`${domain}`}>
               Go to the pool

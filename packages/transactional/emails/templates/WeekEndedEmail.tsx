@@ -8,31 +8,18 @@ import type { Email } from "../../src/types";
 import BodyWrapper from "./_components/BodyWrapper";
 import EmailBodySection from "./_components/EmailBodySection";
 import Footer from "./_components/Footer";
+import type { TeamColors } from "./_components/TeamBadge";
+import WeekMatchupIntro from "./_components/WeekMatchupIntro";
 
 type Props = {
   children?: React.ReactNode;
-  homeTeam: {
-    TeamCity: string;
-    TeamName: string;
-    TeamPrimaryColor: string;
-    TeamSecondaryColor: string;
-  };
+  homeTeam: TeamColors;
   loserScore: number;
   userFirstName: string;
-  visitorTeam: {
-    TeamCity: string;
-    TeamName: string;
-    TeamPrimaryColor: string;
-    TeamSecondaryColor: string;
-  };
+  visitorTeam: TeamColors;
   week: number;
   winnerScore: number;
-  winnerTeam: {
-    TeamCity: string;
-    TeamName: string;
-    TeamPrimaryColor: string;
-    TeamSecondaryColor: string;
-  };
+  winnerTeam: TeamColors;
 };
 
 const emptyTeam = { TeamCity: "", TeamName: "", TeamPrimaryColor: "", TeamSecondaryColor: "" };
@@ -57,25 +44,13 @@ const WeekEndedEmail: Email<Props> = ({
         <Preview>{preview}</Preview>
         <Container className="max-w-[600px] md:max-w-[800px]">
           <EmailBodySection browserLink={browserLink}>
-            <Text className="text-xl">Hello {userFirstName},</Text>
-
-            <Text className="text-lg">
-              Week {week} has just ended with:
-              <br />
-              <span
-                className="px-1.5"
-                style={{ backgroundColor: visitorTeam.TeamPrimaryColor, color: visitorTeam.TeamSecondaryColor }}
-              >
-                {visitorTeam.TeamCity} {visitorTeam.TeamName}
-              </span>
-              @
-              <span
-                className="px-1.5"
-                style={{ backgroundColor: homeTeam.TeamPrimaryColor, color: homeTeam.TeamSecondaryColor }}
-              >
-                {homeTeam.TeamCity} {homeTeam.TeamName}
-              </span>
-            </Text>
+            <WeekMatchupIntro
+              homeTeam={homeTeam}
+              status="ended"
+              userFirstName={userFirstName}
+              visitorTeam={visitorTeam}
+              week={week}
+            />
 
             <Text className="text-lg">
               {winnerScore === loserScore ? (

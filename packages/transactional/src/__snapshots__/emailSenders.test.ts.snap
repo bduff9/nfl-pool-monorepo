@@ -1,0 +1,4574 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`email senders > gameTimeChanged > falls back to player when the user has no first name 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "gameTimeChanged",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "8fcf38b1fcceeca526de95ce7b2e19796e1d64b2e39e1e0a206fc7afd0fe3562",
+        "subject": "Game time changed: Giants @ Bears",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello player,
+
+The kickoff time for the week 5 game Giants @ Bears has changed:
+Was: Sun 1:00 PM
+Now: Sun 4:25 PM
+
+Your picks for this game are unaffected, but make sure you're around before the new kickoff!
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "8fcf38b1fcceeca526de95ce7b2e19796e1d64b2e39e1e0a206fc7afd0fe3562",
+        "subject": "Game time changed: Giants @ Bears",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello player,
+
+The kickoff time for the week 5 game Giants @ Bears has changed:
+Was: Sun 1:00 PM
+Now: Sun 4:25 PM
+
+Your picks for this game are unaffected, but make sure you're around before the new kickoff!
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > gameTimeChanged > logs, still records the email and does not throw when sending fails 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "updateEmailClass",
+  ],
+  "consoleError": [
+    [
+      "Failed to send game time changed email: ",
+      {
+        "error": [Error: SES down],
+        "props": {
+          "browserLink": "browser-link:email-1",
+          "homeTeamName": "Bears",
+          "newKickoffLabel": "Sun 4:25 PM",
+          "oldKickoffLabel": "Sun 1:00 PM",
+          "unsubscribeLink": "unsubscribe-link:user@example.com",
+          "userFirstName": "Pat",
+          "visitorTeamName": "Giants",
+          "week": 5,
+        },
+        "to": [
+          "user@example.com",
+        ],
+        "type": "gameTimeChanged",
+      },
+    ],
+  ],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "gameTimeChanged",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "e47f02c54a5e1199969c6d2fc058dfb1381a60d54ab9a57f38cd003fbe518481",
+        "subject": "Game time changed: Giants @ Bears",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+The kickoff time for the week 5 game Giants @ Bears has changed:
+Was: Sun 1:00 PM
+Now: Sun 4:25 PM
+
+Your picks for this game are unaffected, but make sure you're around before the new kickoff!
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "e47f02c54a5e1199969c6d2fc058dfb1381a60d54ab9a57f38cd003fbe518481",
+        "subject": "Game time changed: Giants @ Bears",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+The kickoff time for the week 5 game Giants @ Bears has changed:
+Was: Sun 1:00 PM
+Now: Sun 4:25 PM
+
+Your picks for this game are unaffected, but make sure you're around before the new kickoff!
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > gameTimeChanged > renders with an empty browser link when the email record could not be created 1`] = `
+{
+  "calls": [
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "gameTimeChanged",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "7079dd3c13f6928f48e1f886e60363fcc2a41ee6e6ceb7bb83fa63ff7d3b83f8",
+        "subject": "Game time changed: Giants @ Bears",
+        "text": "Hello Pat,
+
+The kickoff time for the week 5 game Giants @ Bears has changed:
+Was: Sun 1:00 PM
+Now: Sun 4:25 PM
+
+Your picks for this game are unaffected, but make sure you're around before the new kickoff!
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": null,
+        "html": "7079dd3c13f6928f48e1f886e60363fcc2a41ee6e6ceb7bb83fa63ff7d3b83f8",
+        "subject": "Game time changed: Giants @ Bears",
+        "text": "Hello Pat,
+
+The kickoff time for the week 5 game Giants @ Bears has changed:
+Was: Sun 1:00 PM
+Now: Sun 4:25 PM
+
+Your picks for this game are unaffected, but make sure you're around before the new kickoff!
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > gameTimeChanged > sends the email then records it 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "gameTimeChanged",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "e47f02c54a5e1199969c6d2fc058dfb1381a60d54ab9a57f38cd003fbe518481",
+        "subject": "Game time changed: Giants @ Bears",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+The kickoff time for the week 5 game Giants @ Bears has changed:
+Was: Sun 1:00 PM
+Now: Sun 4:25 PM
+
+Your picks for this game are unaffected, but make sure you're around before the new kickoff!
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "e47f02c54a5e1199969c6d2fc058dfb1381a60d54ab9a57f38cd003fbe518481",
+        "subject": "Game time changed: Giants @ Bears",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+The kickoff time for the week 5 game Giants @ Bears has changed:
+Was: Sun 1:00 PM
+Now: Sun 4:25 PM
+
+Your picks for this game are unaffected, but make sure you're around before the new kickoff!
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > newUser > falls back to player when the user has no first name 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "admin@example.com",
+        ],
+        "type": "newUser",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "6ccec590964923676b0b32f088992a08119eb69f8a40607ea92eb79d1c888901",
+        "subject": "New User Registration",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Ada,
+
+This is just a notice that a returning user has just registered with the following information:
+
+ * Name: New User
+ * Team Name: Gridiron Gang
+ * Email: new@example.com
+ * Previous years played: 2024, 2025
+
+You can maintain this user using the button below:
+
+Manage Users https://pool.test/admin/users
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:admin@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "admin@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "6ccec590964923676b0b32f088992a08119eb69f8a40607ea92eb79d1c888901",
+        "subject": "New User Registration",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Ada,
+
+This is just a notice that a returning user has just registered with the following information:
+
+ * Name: New User
+ * Team Name: Gridiron Gang
+ * Email: new@example.com
+ * Previous years played: 2024, 2025
+
+You can maintain this user using the button below:
+
+Manage Users https://pool.test/admin/users
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:admin@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > newUser > logs, still records the email and does not throw when sending fails 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "updateEmailClass",
+  ],
+  "consoleError": [
+    [
+      "Failed to send new user email: ",
+      {
+        "error": [Error: SES down],
+        "props": {
+          "adminUserFirstName": "Ada",
+          "browserLink": "browser-link:email-1",
+          "newUserUserEmail": "new@example.com",
+          "newUserUserName": "New User",
+          "newUserUserReferredByRaw": "A friend",
+          "unsubscribeLink": "unsubscribe-link:admin@example.com",
+        },
+        "to": [
+          "admin@example.com",
+        ],
+        "type": "newUser",
+      },
+    ],
+  ],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "admin@example.com",
+        ],
+        "type": "newUser",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "6ccec590964923676b0b32f088992a08119eb69f8a40607ea92eb79d1c888901",
+        "subject": "New User Registration",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Ada,
+
+This is just a notice that a returning user has just registered with the following information:
+
+ * Name: New User
+ * Team Name: Gridiron Gang
+ * Email: new@example.com
+ * Previous years played: 2024, 2025
+
+You can maintain this user using the button below:
+
+Manage Users https://pool.test/admin/users
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:admin@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "admin@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "6ccec590964923676b0b32f088992a08119eb69f8a40607ea92eb79d1c888901",
+        "subject": "New User Registration",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Ada,
+
+This is just a notice that a returning user has just registered with the following information:
+
+ * Name: New User
+ * Team Name: Gridiron Gang
+ * Email: new@example.com
+ * Previous years played: 2024, 2025
+
+You can maintain this user using the button below:
+
+Manage Users https://pool.test/admin/users
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:admin@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > newUser > renders with an empty browser link when the email record could not be created 1`] = `
+{
+  "calls": [
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "admin@example.com",
+        ],
+        "type": "newUser",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "6e664b4aa43bd2d90afb99d94d9950962d2eb9b359877e84db9a1c3172354a23",
+        "subject": "New User Registration",
+        "text": "Hello Ada,
+
+This is just a notice that a returning user has just registered with the following information:
+
+ * Name: New User
+ * Team Name: Gridiron Gang
+ * Email: new@example.com
+ * Previous years played: 2024, 2025
+
+You can maintain this user using the button below:
+
+Manage Users https://pool.test/admin/users
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:admin@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "admin@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": null,
+        "html": "6e664b4aa43bd2d90afb99d94d9950962d2eb9b359877e84db9a1c3172354a23",
+        "subject": "New User Registration",
+        "text": "Hello Ada,
+
+This is just a notice that a returning user has just registered with the following information:
+
+ * Name: New User
+ * Team Name: Gridiron Gang
+ * Email: new@example.com
+ * Previous years played: 2024, 2025
+
+You can maintain this user using the button below:
+
+Manage Users https://pool.test/admin/users
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:admin@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > newUser > sends the email then records it 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "admin@example.com",
+        ],
+        "type": "newUser",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "6ccec590964923676b0b32f088992a08119eb69f8a40607ea92eb79d1c888901",
+        "subject": "New User Registration",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Ada,
+
+This is just a notice that a returning user has just registered with the following information:
+
+ * Name: New User
+ * Team Name: Gridiron Gang
+ * Email: new@example.com
+ * Previous years played: 2024, 2025
+
+You can maintain this user using the button below:
+
+Manage Users https://pool.test/admin/users
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:admin@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "admin@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "6ccec590964923676b0b32f088992a08119eb69f8a40607ea92eb79d1c888901",
+        "subject": "New User Registration",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Ada,
+
+This is just a notice that a returning user has just registered with the following information:
+
+ * Name: New User
+ * Team Name: Gridiron Gang
+ * Email: new@example.com
+ * Previous years played: 2024, 2025
+
+You can maintain this user using the button below:
+
+Manage Users https://pool.test/admin/users
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:admin@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > pickReminder > falls back to player when the user has no first name 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "pickReminder",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "8d086850f1d58d93480c352423fb371cac6bb194b8d75232002c2d9836a507c5",
+        "subject": "Hurry up, player!",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello forgetful player,
+
+This is your friendly reminder that you have not submitted your picks yet for week 5 of the NFL confidence pool and you now have less than 3 hours.
+
+Click the button below to make your picks.
+
+Good luck!
+
+Make Picks https://pool.test/picks/set
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "8d086850f1d58d93480c352423fb371cac6bb194b8d75232002c2d9836a507c5",
+        "subject": "Hurry up, player!",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello forgetful player,
+
+This is your friendly reminder that you have not submitted your picks yet for week 5 of the NFL confidence pool and you now have less than 3 hours.
+
+Click the button below to make your picks.
+
+Good luck!
+
+Make Picks https://pool.test/picks/set
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > pickReminder > logs, still records the email and does not throw when sending fails 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "updateEmailClass",
+  ],
+  "consoleError": [
+    [
+      "Failed to send pick reminder email: ",
+      {
+        "error": [Error: SES down],
+        "props": {
+          "browserLink": "browser-link:email-1",
+          "hoursLeft": 3,
+          "unsubscribeLink": "unsubscribe-link:user@example.com",
+          "userFirstName": "Pat",
+          "week": 5,
+        },
+        "to": [
+          "user@example.com",
+        ],
+        "type": "pickReminder",
+      },
+    ],
+  ],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "pickReminder",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "e48a3b4b2fb2b8504497cda03d367b0a012ee7a7d141a2669f02dc09b9778cb4",
+        "subject": "Hurry up, Pat!",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello forgetful Pat,
+
+This is your friendly reminder that you have not submitted your picks yet for week 5 of the NFL confidence pool and you now have less than 3 hours.
+
+Click the button below to make your picks.
+
+Good luck!
+
+Make Picks https://pool.test/picks/set
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "e48a3b4b2fb2b8504497cda03d367b0a012ee7a7d141a2669f02dc09b9778cb4",
+        "subject": "Hurry up, Pat!",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello forgetful Pat,
+
+This is your friendly reminder that you have not submitted your picks yet for week 5 of the NFL confidence pool and you now have less than 3 hours.
+
+Click the button below to make your picks.
+
+Good luck!
+
+Make Picks https://pool.test/picks/set
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > pickReminder > renders with an empty browser link when the email record could not be created 1`] = `
+{
+  "calls": [
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "pickReminder",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "9ac4bf6ecfa3d4699769a6ed348632246190939d927cddd1926be1f5648307d0",
+        "subject": "Hurry up, Pat!",
+        "text": "Hello forgetful Pat,
+
+This is your friendly reminder that you have not submitted your picks yet for week 5 of the NFL confidence pool and you now have less than 3 hours.
+
+Click the button below to make your picks.
+
+Good luck!
+
+Make Picks https://pool.test/picks/set
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": null,
+        "html": "9ac4bf6ecfa3d4699769a6ed348632246190939d927cddd1926be1f5648307d0",
+        "subject": "Hurry up, Pat!",
+        "text": "Hello forgetful Pat,
+
+This is your friendly reminder that you have not submitted your picks yet for week 5 of the NFL confidence pool and you now have less than 3 hours.
+
+Click the button below to make your picks.
+
+Good luck!
+
+Make Picks https://pool.test/picks/set
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > pickReminder > sends the email then records it 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "pickReminder",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "e48a3b4b2fb2b8504497cda03d367b0a012ee7a7d141a2669f02dc09b9778cb4",
+        "subject": "Hurry up, Pat!",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello forgetful Pat,
+
+This is your friendly reminder that you have not submitted your picks yet for week 5 of the NFL confidence pool and you now have less than 3 hours.
+
+Click the button below to make your picks.
+
+Good luck!
+
+Make Picks https://pool.test/picks/set
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "e48a3b4b2fb2b8504497cda03d367b0a012ee7a7d141a2669f02dc09b9778cb4",
+        "subject": "Hurry up, Pat!",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello forgetful Pat,
+
+This is your friendly reminder that you have not submitted your picks yet for week 5 of the NFL confidence pool and you now have less than 3 hours.
+
+Click the button below to make your picks.
+
+Good luck!
+
+Make Picks https://pool.test/picks/set
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > picksAutoSubmitted > falls back to player when the user has no first name 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "picksAutoSubmitted",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "9137ad470c8635bf17788bae74b6a9d20230c7e61ca59df0327db161a808bf41",
+        "subject": "Your week 5 picks were submitted for you",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello player,
+
+You hadn't set a pick for the week 5 game Giants @ Bears before it started, so we submitted one for you.
+We auto-assigned 16 points to it. Your pick was left without a team, so it will score as a miss.
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "9137ad470c8635bf17788bae74b6a9d20230c7e61ca59df0327db161a808bf41",
+        "subject": "Your week 5 picks were submitted for you",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello player,
+
+You hadn't set a pick for the week 5 game Giants @ Bears before it started, so we submitted one for you.
+We auto-assigned 16 points to it. Your pick was left without a team, so it will score as a miss.
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > picksAutoSubmitted > logs, still records the email and does not throw when sending fails 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "updateEmailClass",
+  ],
+  "consoleError": [
+    [
+      "Failed to send picks auto submitted email: ",
+      {
+        "error": [Error: SES down],
+        "props": {
+          "browserLink": "browser-link:email-1",
+          "homeTeamName": "Bears",
+          "pickPoints": 16,
+          "unsubscribeLink": "unsubscribe-link:user@example.com",
+          "userFirstName": "Pat",
+          "visitorTeamName": "Giants",
+          "week": 5,
+        },
+        "to": [
+          "user@example.com",
+        ],
+        "type": "picksAutoSubmitted",
+      },
+    ],
+  ],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "picksAutoSubmitted",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "ad7e4bc2d603ad5cd54a0e75d8c87cb31c817866c802d62636d92dd9970f3199",
+        "subject": "Your week 5 picks were submitted for you",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+You hadn't set a pick for the week 5 game Giants @ Bears before it started, so we submitted one for you.
+We auto-assigned 16 points to it. Your pick was left without a team, so it will score as a miss.
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "ad7e4bc2d603ad5cd54a0e75d8c87cb31c817866c802d62636d92dd9970f3199",
+        "subject": "Your week 5 picks were submitted for you",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+You hadn't set a pick for the week 5 game Giants @ Bears before it started, so we submitted one for you.
+We auto-assigned 16 points to it. Your pick was left without a team, so it will score as a miss.
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > picksAutoSubmitted > renders with an empty browser link when the email record could not be created 1`] = `
+{
+  "calls": [
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "picksAutoSubmitted",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "74c494e17712c6b91ff36002eb870dab0a2101a86c8a38b26d87854b0de54ef2",
+        "subject": "Your week 5 picks were submitted for you",
+        "text": "Hello Pat,
+
+You hadn't set a pick for the week 5 game Giants @ Bears before it started, so we submitted one for you.
+We auto-assigned 16 points to it. Your pick was left without a team, so it will score as a miss.
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": null,
+        "html": "74c494e17712c6b91ff36002eb870dab0a2101a86c8a38b26d87854b0de54ef2",
+        "subject": "Your week 5 picks were submitted for you",
+        "text": "Hello Pat,
+
+You hadn't set a pick for the week 5 game Giants @ Bears before it started, so we submitted one for you.
+We auto-assigned 16 points to it. Your pick was left without a team, so it will score as a miss.
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > picksAutoSubmitted > sends the email then records it 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "picksAutoSubmitted",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "ad7e4bc2d603ad5cd54a0e75d8c87cb31c817866c802d62636d92dd9970f3199",
+        "subject": "Your week 5 picks were submitted for you",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+You hadn't set a pick for the week 5 game Giants @ Bears before it started, so we submitted one for you.
+We auto-assigned 16 points to it. Your pick was left without a team, so it will score as a miss.
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "ad7e4bc2d603ad5cd54a0e75d8c87cb31c817866c802d62636d92dd9970f3199",
+        "subject": "Your week 5 picks were submitted for you",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+You hadn't set a pick for the week 5 game Giants @ Bears before it started, so we submitted one for you.
+We auto-assigned 16 points to it. Your pick was left without a team, so it will score as a miss.
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > picksAutoSubmitted with picked team > falls back to player when the user has no first name 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "picksAutoSubmitted",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "c7aa536c66495873dba77937c6d0fe97641f95b14f8ec52f56bcf2d5b14bd6c4",
+        "subject": "Your week 5 picks were submitted for you",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello player,
+
+You hadn't set a pick for the week 5 game Giants @ Bears before it started, so we submitted one for you.
+We auto-picked your Bears with 16 points.
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "c7aa536c66495873dba77937c6d0fe97641f95b14f8ec52f56bcf2d5b14bd6c4",
+        "subject": "Your week 5 picks were submitted for you",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello player,
+
+You hadn't set a pick for the week 5 game Giants @ Bears before it started, so we submitted one for you.
+We auto-picked your Bears with 16 points.
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > picksAutoSubmitted with picked team > logs, still records the email and does not throw when sending fails 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "updateEmailClass",
+  ],
+  "consoleError": [
+    [
+      "Failed to send picks auto submitted email: ",
+      {
+        "error": [Error: SES down],
+        "props": {
+          "browserLink": "browser-link:email-1",
+          "homeTeamName": "Bears",
+          "pickPoints": 16,
+          "pickedTeamName": "Bears",
+          "unsubscribeLink": "unsubscribe-link:user@example.com",
+          "userFirstName": "Pat",
+          "visitorTeamName": "Giants",
+          "week": 5,
+        },
+        "to": [
+          "user@example.com",
+        ],
+        "type": "picksAutoSubmitted",
+      },
+    ],
+  ],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "picksAutoSubmitted",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "1c98984861066faf8d4785ec937a2d221ad185cfd5ac04c942ee08932e4ba0a7",
+        "subject": "Your week 5 picks were submitted for you",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+You hadn't set a pick for the week 5 game Giants @ Bears before it started, so we submitted one for you.
+We auto-picked your Bears with 16 points.
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "1c98984861066faf8d4785ec937a2d221ad185cfd5ac04c942ee08932e4ba0a7",
+        "subject": "Your week 5 picks were submitted for you",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+You hadn't set a pick for the week 5 game Giants @ Bears before it started, so we submitted one for you.
+We auto-picked your Bears with 16 points.
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > picksAutoSubmitted with picked team > renders with an empty browser link when the email record could not be created 1`] = `
+{
+  "calls": [
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "picksAutoSubmitted",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "f6a4d022ebcf6daee716b0b12b2fa0739d15d55dcc00cb1ce065bde1d2e0c14d",
+        "subject": "Your week 5 picks were submitted for you",
+        "text": "Hello Pat,
+
+You hadn't set a pick for the week 5 game Giants @ Bears before it started, so we submitted one for you.
+We auto-picked your Bears with 16 points.
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": null,
+        "html": "f6a4d022ebcf6daee716b0b12b2fa0739d15d55dcc00cb1ce065bde1d2e0c14d",
+        "subject": "Your week 5 picks were submitted for you",
+        "text": "Hello Pat,
+
+You hadn't set a pick for the week 5 game Giants @ Bears before it started, so we submitted one for you.
+We auto-picked your Bears with 16 points.
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > picksAutoSubmitted with picked team > sends the email then records it 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "picksAutoSubmitted",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "1c98984861066faf8d4785ec937a2d221ad185cfd5ac04c942ee08932e4ba0a7",
+        "subject": "Your week 5 picks were submitted for you",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+You hadn't set a pick for the week 5 game Giants @ Bears before it started, so we submitted one for you.
+We auto-picked your Bears with 16 points.
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "1c98984861066faf8d4785ec937a2d221ad185cfd5ac04c942ee08932e4ba0a7",
+        "subject": "Your week 5 picks were submitted for you",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+You hadn't set a pick for the week 5 game Giants @ Bears before it started, so we submitted one for you.
+We auto-picked your Bears with 16 points.
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > quickPick > falls back to player when the user has no first name 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "quickPick",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "6b798b885df6b4817be8d09d35c3311127f964983b5f75bb431a3ac1b83d0b41",
+        "subject": "Time's almost up, player!",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Quick player!
+
+You have not made your pick for game 1 of week 5 yet and you now have less than 3 hours.
+
+You can avoid losing points for this game by simply clicking one of the teams below to set your pick.
+
+Note: This email is only good up until kickoff of this game, so act now to avoid losing points for this week!
+
+New York Giants https://pool.test/quick-pick/7/NYG
+@
+Chicago Bears https://pool.test/quick-pick/7/CHI
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "6b798b885df6b4817be8d09d35c3311127f964983b5f75bb431a3ac1b83d0b41",
+        "subject": "Time's almost up, player!",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Quick player!
+
+You have not made your pick for game 1 of week 5 yet and you now have less than 3 hours.
+
+You can avoid losing points for this game by simply clicking one of the teams below to set your pick.
+
+Note: This email is only good up until kickoff of this game, so act now to avoid losing points for this week!
+
+New York Giants https://pool.test/quick-pick/7/NYG
+@
+Chicago Bears https://pool.test/quick-pick/7/CHI
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > quickPick > logs, still records the email and does not throw when sending fails 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "updateEmailClass",
+  ],
+  "consoleError": [
+    [
+      "Failed to send quick pick email: ",
+      {
+        "error": [Error: SES down],
+        "props": {
+          "browserLink": "browser-link:email-1",
+          "homeTeam": {
+            "GameHomeScore": 21,
+            "GameVisitorScore": 14,
+            "TeamCity": "Chicago",
+            "TeamID": "CHI",
+            "TeamName": "Bears",
+            "TeamPrimaryColor": "#061E3E",
+            "TeamSecondaryColor": "#DF6108",
+          },
+          "hoursLeft": 3,
+          "unsubscribeLink": "unsubscribe-link:user@example.com",
+          "userFirstName": "Pat",
+          "userId": 7,
+          "visitorTeam": {
+            "TeamCity": "New York",
+            "TeamID": "NYG",
+            "TeamName": "Giants",
+            "TeamPrimaryColor": "#03497F",
+            "TeamSecondaryColor": "#FFFFFF",
+          },
+          "week": 5,
+        },
+        "to": [
+          "user@example.com",
+        ],
+        "type": "quickPick",
+      },
+    ],
+  ],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "quickPick",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "4261109b1de49be67b238c585011858c53ad5ecfced7fdcccdec6889456741f6",
+        "subject": "Time's almost up, Pat!",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Quick Pat!
+
+You have not made your pick for game 1 of week 5 yet and you now have less than 3 hours.
+
+You can avoid losing points for this game by simply clicking one of the teams below to set your pick.
+
+Note: This email is only good up until kickoff of this game, so act now to avoid losing points for this week!
+
+New York Giants https://pool.test/quick-pick/7/NYG
+@
+Chicago Bears https://pool.test/quick-pick/7/CHI
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "4261109b1de49be67b238c585011858c53ad5ecfced7fdcccdec6889456741f6",
+        "subject": "Time's almost up, Pat!",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Quick Pat!
+
+You have not made your pick for game 1 of week 5 yet and you now have less than 3 hours.
+
+You can avoid losing points for this game by simply clicking one of the teams below to set your pick.
+
+Note: This email is only good up until kickoff of this game, so act now to avoid losing points for this week!
+
+New York Giants https://pool.test/quick-pick/7/NYG
+@
+Chicago Bears https://pool.test/quick-pick/7/CHI
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > quickPick > renders with an empty browser link when the email record could not be created 1`] = `
+{
+  "calls": [
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "quickPick",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "e8f52eed444aa5c4543933c57a32e87dfe980ab55032a8060109b93544fcd1dd",
+        "subject": "Time's almost up, Pat!",
+        "text": "Quick Pat!
+
+You have not made your pick for game 1 of week 5 yet and you now have less than 3 hours.
+
+You can avoid losing points for this game by simply clicking one of the teams below to set your pick.
+
+Note: This email is only good up until kickoff of this game, so act now to avoid losing points for this week!
+
+New York Giants https://pool.test/quick-pick/7/NYG
+@
+Chicago Bears https://pool.test/quick-pick/7/CHI
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": null,
+        "html": "e8f52eed444aa5c4543933c57a32e87dfe980ab55032a8060109b93544fcd1dd",
+        "subject": "Time's almost up, Pat!",
+        "text": "Quick Pat!
+
+You have not made your pick for game 1 of week 5 yet and you now have less than 3 hours.
+
+You can avoid losing points for this game by simply clicking one of the teams below to set your pick.
+
+Note: This email is only good up until kickoff of this game, so act now to avoid losing points for this week!
+
+New York Giants https://pool.test/quick-pick/7/NYG
+@
+Chicago Bears https://pool.test/quick-pick/7/CHI
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > quickPick > sends the email then records it 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "quickPick",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "4261109b1de49be67b238c585011858c53ad5ecfced7fdcccdec6889456741f6",
+        "subject": "Time's almost up, Pat!",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Quick Pat!
+
+You have not made your pick for game 1 of week 5 yet and you now have less than 3 hours.
+
+You can avoid losing points for this game by simply clicking one of the teams below to set your pick.
+
+Note: This email is only good up until kickoff of this game, so act now to avoid losing points for this week!
+
+New York Giants https://pool.test/quick-pick/7/NYG
+@
+Chicago Bears https://pool.test/quick-pick/7/CHI
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "4261109b1de49be67b238c585011858c53ad5ecfced7fdcccdec6889456741f6",
+        "subject": "Time's almost up, Pat!",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Quick Pat!
+
+You have not made your pick for game 1 of week 5 yet and you now have less than 3 hours.
+
+You can avoid losing points for this game by simply clicking one of the teams below to set your pick.
+
+Note: This email is only good up until kickoff of this game, so act now to avoid losing points for this week!
+
+New York Giants https://pool.test/quick-pick/7/NYG
+@
+Chicago Bears https://pool.test/quick-pick/7/CHI
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > survivorEliminated > falls back to player when the user has no first name 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "survivorEliminated",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "18f5ef05c43573c83a0908ae923d70b25c6c24f3193e28df1bbdf616cc9f4bbd",
+        "subject": "You've been eliminated from the survivor pool (week 5)",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello player,
+
+You didn't make a survivor pick for week 5, which ends your survivor run.
+
+The overall confidence pool is still wide open, though — keep those weekly picks coming!
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "18f5ef05c43573c83a0908ae923d70b25c6c24f3193e28df1bbdf616cc9f4bbd",
+        "subject": "You've been eliminated from the survivor pool (week 5)",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello player,
+
+You didn't make a survivor pick for week 5, which ends your survivor run.
+
+The overall confidence pool is still wide open, though — keep those weekly picks coming!
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > survivorEliminated > logs, still records the email and does not throw when sending fails 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "updateEmailClass",
+  ],
+  "consoleError": [
+    [
+      "Failed to send survivor eliminated email: ",
+      {
+        "error": [Error: SES down],
+        "props": {
+          "browserLink": "browser-link:email-1",
+          "unsubscribeLink": "unsubscribe-link:user@example.com",
+          "userFirstName": "Pat",
+          "week": 5,
+        },
+        "to": [
+          "user@example.com",
+        ],
+        "type": "survivorEliminated",
+      },
+    ],
+  ],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "survivorEliminated",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "ef2b88dfc42f047fffc32ddff66dd9f8a68389fb0f4a8e66637f7f930ef7da15",
+        "subject": "You've been eliminated from the survivor pool (week 5)",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+You didn't make a survivor pick for week 5, which ends your survivor run.
+
+The overall confidence pool is still wide open, though — keep those weekly picks coming!
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "ef2b88dfc42f047fffc32ddff66dd9f8a68389fb0f4a8e66637f7f930ef7da15",
+        "subject": "You've been eliminated from the survivor pool (week 5)",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+You didn't make a survivor pick for week 5, which ends your survivor run.
+
+The overall confidence pool is still wide open, though — keep those weekly picks coming!
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > survivorEliminated > renders with an empty browser link when the email record could not be created 1`] = `
+{
+  "calls": [
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "survivorEliminated",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "b92cbd43984558a4500fbecd3ad400bacaf83f0e20f7c454f74af289cbb8e82a",
+        "subject": "You've been eliminated from the survivor pool (week 5)",
+        "text": "Hello Pat,
+
+You didn't make a survivor pick for week 5, which ends your survivor run.
+
+The overall confidence pool is still wide open, though — keep those weekly picks coming!
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": null,
+        "html": "b92cbd43984558a4500fbecd3ad400bacaf83f0e20f7c454f74af289cbb8e82a",
+        "subject": "You've been eliminated from the survivor pool (week 5)",
+        "text": "Hello Pat,
+
+You didn't make a survivor pick for week 5, which ends your survivor run.
+
+The overall confidence pool is still wide open, though — keep those weekly picks coming!
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > survivorEliminated > sends the email then records it 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "survivorEliminated",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "ef2b88dfc42f047fffc32ddff66dd9f8a68389fb0f4a8e66637f7f930ef7da15",
+        "subject": "You've been eliminated from the survivor pool (week 5)",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+You didn't make a survivor pick for week 5, which ends your survivor run.
+
+The overall confidence pool is still wide open, though — keep those weekly picks coming!
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "ef2b88dfc42f047fffc32ddff66dd9f8a68389fb0f4a8e66637f7f930ef7da15",
+        "subject": "You've been eliminated from the survivor pool (week 5)",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+You didn't make a survivor pick for week 5, which ends your survivor run.
+
+The overall confidence pool is still wide open, though — keep those weekly picks coming!
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > survivorEliminated with picked team > falls back to player when the user has no first name 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "survivorEliminated",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "f05ffa38c0e8224d5ea08222cce6f67eaac5cbdad22d9bdcd012bc2878542f79",
+        "subject": "You've been eliminated from the survivor pool (week 5)",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello player,
+
+Your Bears pick lost in week 5, which ends your survivor run.
+
+The overall confidence pool is still wide open, though — keep those weekly picks coming!
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "f05ffa38c0e8224d5ea08222cce6f67eaac5cbdad22d9bdcd012bc2878542f79",
+        "subject": "You've been eliminated from the survivor pool (week 5)",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello player,
+
+Your Bears pick lost in week 5, which ends your survivor run.
+
+The overall confidence pool is still wide open, though — keep those weekly picks coming!
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > survivorEliminated with picked team > logs, still records the email and does not throw when sending fails 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "updateEmailClass",
+  ],
+  "consoleError": [
+    [
+      "Failed to send survivor eliminated email: ",
+      {
+        "error": [Error: SES down],
+        "props": {
+          "browserLink": "browser-link:email-1",
+          "pickedTeamName": "Bears",
+          "unsubscribeLink": "unsubscribe-link:user@example.com",
+          "userFirstName": "Pat",
+          "week": 5,
+        },
+        "to": [
+          "user@example.com",
+        ],
+        "type": "survivorEliminated",
+      },
+    ],
+  ],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "survivorEliminated",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "aa60292f3ada297c908daf17746eaf6298de01949168999a60b7d5c1203bac9c",
+        "subject": "You've been eliminated from the survivor pool (week 5)",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+Your Bears pick lost in week 5, which ends your survivor run.
+
+The overall confidence pool is still wide open, though — keep those weekly picks coming!
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "aa60292f3ada297c908daf17746eaf6298de01949168999a60b7d5c1203bac9c",
+        "subject": "You've been eliminated from the survivor pool (week 5)",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+Your Bears pick lost in week 5, which ends your survivor run.
+
+The overall confidence pool is still wide open, though — keep those weekly picks coming!
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > survivorEliminated with picked team > renders with an empty browser link when the email record could not be created 1`] = `
+{
+  "calls": [
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "survivorEliminated",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "a377309e5c082ddc00b4a08e78bcb26bd453be4ba4246fa42798ae33d4f45b4b",
+        "subject": "You've been eliminated from the survivor pool (week 5)",
+        "text": "Hello Pat,
+
+Your Bears pick lost in week 5, which ends your survivor run.
+
+The overall confidence pool is still wide open, though — keep those weekly picks coming!
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": null,
+        "html": "a377309e5c082ddc00b4a08e78bcb26bd453be4ba4246fa42798ae33d4f45b4b",
+        "subject": "You've been eliminated from the survivor pool (week 5)",
+        "text": "Hello Pat,
+
+Your Bears pick lost in week 5, which ends your survivor run.
+
+The overall confidence pool is still wide open, though — keep those weekly picks coming!
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > survivorEliminated with picked team > sends the email then records it 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "survivorEliminated",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "aa60292f3ada297c908daf17746eaf6298de01949168999a60b7d5c1203bac9c",
+        "subject": "You've been eliminated from the survivor pool (week 5)",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+Your Bears pick lost in week 5, which ends your survivor run.
+
+The overall confidence pool is still wide open, though — keep those weekly picks coming!
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "aa60292f3ada297c908daf17746eaf6298de01949168999a60b7d5c1203bac9c",
+        "subject": "You've been eliminated from the survivor pool (week 5)",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+Your Bears pick lost in week 5, which ends your survivor run.
+
+The overall confidence pool is still wide open, though — keep those weekly picks coming!
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > survivorReminder > falls back to player when the user has no first name 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "survivorReminder",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "7e2808ed283a77aac245341a385a75c95f2bc8e98430c4336c26344ee70ffe83",
+        "subject": "Hurry up, player!",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello forgetful player,
+
+This is your friendly reminder that you have not submitted your survivor pick yet for week 5 and you now have less than 3 hours.
+
+Click the button below to make your pick.
+
+Good luck!
+
+Make Survivor Pick https://pool.test/survivor/set
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "7e2808ed283a77aac245341a385a75c95f2bc8e98430c4336c26344ee70ffe83",
+        "subject": "Hurry up, player!",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello forgetful player,
+
+This is your friendly reminder that you have not submitted your survivor pick yet for week 5 and you now have less than 3 hours.
+
+Click the button below to make your pick.
+
+Good luck!
+
+Make Survivor Pick https://pool.test/survivor/set
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > survivorReminder > logs, still records the email and does not throw when sending fails 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "updateEmailClass",
+  ],
+  "consoleError": [
+    [
+      "Failed to send survivor reminder email: ",
+      {
+        "error": [Error: SES down],
+        "props": {
+          "browserLink": "browser-link:email-1",
+          "hoursLeft": 3,
+          "unsubscribeLink": "unsubscribe-link:user@example.com",
+          "userFirstName": "Pat",
+          "week": 5,
+        },
+        "to": [
+          "user@example.com",
+        ],
+        "type": "survivorReminder",
+      },
+    ],
+  ],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "survivorReminder",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "93e0a3cf3d3414092f2b1b76f448ab4de0e43f418e9a6826fb9e7de61eef5e1e",
+        "subject": "Hurry up, Pat!",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello forgetful Pat,
+
+This is your friendly reminder that you have not submitted your survivor pick yet for week 5 and you now have less than 3 hours.
+
+Click the button below to make your pick.
+
+Good luck!
+
+Make Survivor Pick https://pool.test/survivor/set
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "93e0a3cf3d3414092f2b1b76f448ab4de0e43f418e9a6826fb9e7de61eef5e1e",
+        "subject": "Hurry up, Pat!",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello forgetful Pat,
+
+This is your friendly reminder that you have not submitted your survivor pick yet for week 5 and you now have less than 3 hours.
+
+Click the button below to make your pick.
+
+Good luck!
+
+Make Survivor Pick https://pool.test/survivor/set
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > survivorReminder > renders with an empty browser link when the email record could not be created 1`] = `
+{
+  "calls": [
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "survivorReminder",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "409278b84ab194760e3b1c6be6516c5fa5b1f09ac172bf228b980ff9c43f3e87",
+        "subject": "Hurry up, Pat!",
+        "text": "Hello forgetful Pat,
+
+This is your friendly reminder that you have not submitted your survivor pick yet for week 5 and you now have less than 3 hours.
+
+Click the button below to make your pick.
+
+Good luck!
+
+Make Survivor Pick https://pool.test/survivor/set
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": null,
+        "html": "409278b84ab194760e3b1c6be6516c5fa5b1f09ac172bf228b980ff9c43f3e87",
+        "subject": "Hurry up, Pat!",
+        "text": "Hello forgetful Pat,
+
+This is your friendly reminder that you have not submitted your survivor pick yet for week 5 and you now have less than 3 hours.
+
+Click the button below to make your pick.
+
+Good luck!
+
+Make Survivor Pick https://pool.test/survivor/set
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > survivorReminder > sends the email then records it 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "survivorReminder",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "93e0a3cf3d3414092f2b1b76f448ab4de0e43f418e9a6826fb9e7de61eef5e1e",
+        "subject": "Hurry up, Pat!",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello forgetful Pat,
+
+This is your friendly reminder that you have not submitted your survivor pick yet for week 5 and you now have less than 3 hours.
+
+Click the button below to make your pick.
+
+Good luck!
+
+Make Survivor Pick https://pool.test/survivor/set
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "93e0a3cf3d3414092f2b1b76f448ab4de0e43f418e9a6826fb9e7de61eef5e1e",
+        "subject": "Hurry up, Pat!",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello forgetful Pat,
+
+This is your friendly reminder that you have not submitted your survivor pick yet for week 5 and you now have less than 3 hours.
+
+Click the button below to make your pick.
+
+Good luck!
+
+Make Survivor Pick https://pool.test/survivor/set
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > untrusted > falls back to player when the user has no first name 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "admin@example.com",
+        ],
+        "type": "untrusted",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "28c9f33c01c6c853d0a504dfad2d74c742077631dd440a1d4ec18247b5f5f8c6",
+        "subject": "New User Requires Admin Approval",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Ada,
+
+A new user needs your approval:
+
+New User just registered with the email new@example.com.
+They claim to be referred by A friend.
+
+You can approve/remove them using the button below:
+
+Manage Users https://pool.test/admin/users
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:admin@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "admin@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "28c9f33c01c6c853d0a504dfad2d74c742077631dd440a1d4ec18247b5f5f8c6",
+        "subject": "New User Requires Admin Approval",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Ada,
+
+A new user needs your approval:
+
+New User just registered with the email new@example.com.
+They claim to be referred by A friend.
+
+You can approve/remove them using the button below:
+
+Manage Users https://pool.test/admin/users
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:admin@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > untrusted > logs, still records the email and does not throw when sending fails 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "updateEmailClass",
+  ],
+  "consoleError": [
+    [
+      "Failed to send untrusted email: ",
+      {
+        "error": [Error: SES down],
+        "props": {
+          "adminUserFirstName": "Ada",
+          "browserLink": "browser-link:email-1",
+          "newUserUserEmail": "new@example.com",
+          "newUserUserName": "New User",
+          "newUserUserReferredByRaw": "A friend",
+          "unsubscribeLink": "unsubscribe-link:admin@example.com",
+        },
+        "to": [
+          "admin@example.com",
+        ],
+        "type": "untrusted",
+      },
+    ],
+  ],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "admin@example.com",
+        ],
+        "type": "untrusted",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "28c9f33c01c6c853d0a504dfad2d74c742077631dd440a1d4ec18247b5f5f8c6",
+        "subject": "New User Requires Admin Approval",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Ada,
+
+A new user needs your approval:
+
+New User just registered with the email new@example.com.
+They claim to be referred by A friend.
+
+You can approve/remove them using the button below:
+
+Manage Users https://pool.test/admin/users
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:admin@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "admin@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "28c9f33c01c6c853d0a504dfad2d74c742077631dd440a1d4ec18247b5f5f8c6",
+        "subject": "New User Requires Admin Approval",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Ada,
+
+A new user needs your approval:
+
+New User just registered with the email new@example.com.
+They claim to be referred by A friend.
+
+You can approve/remove them using the button below:
+
+Manage Users https://pool.test/admin/users
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:admin@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > untrusted > renders with an empty browser link when the email record could not be created 1`] = `
+{
+  "calls": [
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "admin@example.com",
+        ],
+        "type": "untrusted",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "09e4627e23812e29df9603ffd823f6a373d856fe052ece820094230363893f3b",
+        "subject": "New User Requires Admin Approval",
+        "text": "Hello Ada,
+
+A new user needs your approval:
+
+New User just registered with the email new@example.com.
+They claim to be referred by A friend.
+
+You can approve/remove them using the button below:
+
+Manage Users https://pool.test/admin/users
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:admin@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "admin@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": null,
+        "html": "09e4627e23812e29df9603ffd823f6a373d856fe052ece820094230363893f3b",
+        "subject": "New User Requires Admin Approval",
+        "text": "Hello Ada,
+
+A new user needs your approval:
+
+New User just registered with the email new@example.com.
+They claim to be referred by A friend.
+
+You can approve/remove them using the button below:
+
+Manage Users https://pool.test/admin/users
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:admin@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > untrusted > sends the email then records it 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "admin@example.com",
+        ],
+        "type": "untrusted",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "28c9f33c01c6c853d0a504dfad2d74c742077631dd440a1d4ec18247b5f5f8c6",
+        "subject": "New User Requires Admin Approval",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Ada,
+
+A new user needs your approval:
+
+New User just registered with the email new@example.com.
+They claim to be referred by A friend.
+
+You can approve/remove them using the button below:
+
+Manage Users https://pool.test/admin/users
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:admin@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "admin@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "28c9f33c01c6c853d0a504dfad2d74c742077631dd440a1d4ec18247b5f5f8c6",
+        "subject": "New User Requires Admin Approval",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Ada,
+
+A new user needs your approval:
+
+New User just registered with the email new@example.com.
+They claim to be referred by A friend.
+
+You can approve/remove them using the button below:
+
+Manage Users https://pool.test/admin/users
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:admin@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > weekEnded > falls back to player when the user has no first name 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "weekEnded",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "b117d5af0450e4a82a94780dcff38cbce351715a6eaef484c25ebfbd7d2579c4",
+        "subject": "Week 5 has just finished",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello player,
+
+Week 5 has just ended with:
+New York Giants@Chicago Bears
+
+The Chicago Bears won with a score of 21 - 14
+
+View week results https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "b117d5af0450e4a82a94780dcff38cbce351715a6eaef484c25ebfbd7d2579c4",
+        "subject": "Week 5 has just finished",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello player,
+
+Week 5 has just ended with:
+New York Giants@Chicago Bears
+
+The Chicago Bears won with a score of 21 - 14
+
+View week results https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > weekEnded > logs, still records the email and does not throw when sending fails 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "updateEmailClass",
+  ],
+  "consoleError": [
+    [
+      "Failed to send week ended email: ",
+      {
+        "error": [Error: SES down],
+        "props": {
+          "browserLink": "browser-link:email-1",
+          "homeTeam": {
+            "GameHomeScore": 21,
+            "GameVisitorScore": 14,
+            "TeamCity": "Chicago",
+            "TeamID": "CHI",
+            "TeamName": "Bears",
+            "TeamPrimaryColor": "#061E3E",
+            "TeamSecondaryColor": "#DF6108",
+          },
+          "loserScore": 14,
+          "unsubscribeLink": "unsubscribe-link:user@example.com",
+          "userFirstName": "Pat",
+          "visitorTeam": {
+            "TeamCity": "New York",
+            "TeamID": "NYG",
+            "TeamName": "Giants",
+            "TeamPrimaryColor": "#03497F",
+            "TeamSecondaryColor": "#FFFFFF",
+          },
+          "week": 5,
+          "winnerScore": 21,
+          "winnerTeam": {
+            "GameHomeScore": 21,
+            "GameVisitorScore": 14,
+            "TeamCity": "Chicago",
+            "TeamID": "CHI",
+            "TeamName": "Bears",
+            "TeamPrimaryColor": "#061E3E",
+            "TeamSecondaryColor": "#DF6108",
+          },
+        },
+        "to": [
+          "user@example.com",
+        ],
+        "type": "weekEnded",
+      },
+    ],
+  ],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "weekEnded",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "a06e8e8c4000180c6ca521976609fafc143dbe0f24eea9527de407742b460a50",
+        "subject": "Week 5 has just finished",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+Week 5 has just ended with:
+New York Giants@Chicago Bears
+
+The Chicago Bears won with a score of 21 - 14
+
+View week results https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "a06e8e8c4000180c6ca521976609fafc143dbe0f24eea9527de407742b460a50",
+        "subject": "Week 5 has just finished",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+Week 5 has just ended with:
+New York Giants@Chicago Bears
+
+The Chicago Bears won with a score of 21 - 14
+
+View week results https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > weekEnded > renders with an empty browser link when the email record could not be created 1`] = `
+{
+  "calls": [
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "weekEnded",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "972065fe3fe4fbe843c98cd68e925fb5010a5d57509f306e0a1da2a16f3ec810",
+        "subject": "Week 5 has just finished",
+        "text": "Hello Pat,
+
+Week 5 has just ended with:
+New York Giants@Chicago Bears
+
+The Chicago Bears won with a score of 21 - 14
+
+View week results https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": null,
+        "html": "972065fe3fe4fbe843c98cd68e925fb5010a5d57509f306e0a1da2a16f3ec810",
+        "subject": "Week 5 has just finished",
+        "text": "Hello Pat,
+
+Week 5 has just ended with:
+New York Giants@Chicago Bears
+
+The Chicago Bears won with a score of 21 - 14
+
+View week results https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > weekEnded > sends the email then records it 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "weekEnded",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "a06e8e8c4000180c6ca521976609fafc143dbe0f24eea9527de407742b460a50",
+        "subject": "Week 5 has just finished",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+Week 5 has just ended with:
+New York Giants@Chicago Bears
+
+The Chicago Bears won with a score of 21 - 14
+
+View week results https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "a06e8e8c4000180c6ca521976609fafc143dbe0f24eea9527de407742b460a50",
+        "subject": "Week 5 has just finished",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+Week 5 has just ended with:
+New York Giants@Chicago Bears
+
+The Chicago Bears won with a score of 21 - 14
+
+View week results https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > weekEnded tie > falls back to player when the user has no first name 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "weekEnded",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "51d20a9c0d82a73033b7b73dc20be1be0d3d9ec159052d4a9b4fd3038f16960e",
+        "subject": "Week 5 has just finished",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello player,
+
+Week 5 has just ended with:
+New York Giants@Chicago Bears
+
+The game ended in a tie, 17 - 17
+
+View week results https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "51d20a9c0d82a73033b7b73dc20be1be0d3d9ec159052d4a9b4fd3038f16960e",
+        "subject": "Week 5 has just finished",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello player,
+
+Week 5 has just ended with:
+New York Giants@Chicago Bears
+
+The game ended in a tie, 17 - 17
+
+View week results https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > weekEnded tie > logs, still records the email and does not throw when sending fails 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "updateEmailClass",
+  ],
+  "consoleError": [
+    [
+      "Failed to send week ended email: ",
+      {
+        "error": [Error: SES down],
+        "props": {
+          "browserLink": "browser-link:email-1",
+          "homeTeam": {
+            "GameHomeScore": 17,
+            "GameVisitorScore": 17,
+            "TeamCity": "Chicago",
+            "TeamID": "CHI",
+            "TeamName": "Bears",
+            "TeamPrimaryColor": "#061E3E",
+            "TeamSecondaryColor": "#DF6108",
+          },
+          "loserScore": 17,
+          "unsubscribeLink": "unsubscribe-link:user@example.com",
+          "userFirstName": "Pat",
+          "visitorTeam": {
+            "TeamCity": "New York",
+            "TeamID": "NYG",
+            "TeamName": "Giants",
+            "TeamPrimaryColor": "#03497F",
+            "TeamSecondaryColor": "#FFFFFF",
+          },
+          "week": 5,
+          "winnerScore": 17,
+          "winnerTeam": {
+            "GameHomeScore": 21,
+            "GameVisitorScore": 14,
+            "TeamCity": "Chicago",
+            "TeamID": "CHI",
+            "TeamName": "Bears",
+            "TeamPrimaryColor": "#061E3E",
+            "TeamSecondaryColor": "#DF6108",
+          },
+        },
+        "to": [
+          "user@example.com",
+        ],
+        "type": "weekEnded",
+      },
+    ],
+  ],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "weekEnded",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "fefcbddd3107a6a9d33b169ea2077ac28a544bfd7bb0ada1b7faa41f756bfb13",
+        "subject": "Week 5 has just finished",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+Week 5 has just ended with:
+New York Giants@Chicago Bears
+
+The game ended in a tie, 17 - 17
+
+View week results https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "fefcbddd3107a6a9d33b169ea2077ac28a544bfd7bb0ada1b7faa41f756bfb13",
+        "subject": "Week 5 has just finished",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+Week 5 has just ended with:
+New York Giants@Chicago Bears
+
+The game ended in a tie, 17 - 17
+
+View week results https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > weekEnded tie > renders with an empty browser link when the email record could not be created 1`] = `
+{
+  "calls": [
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "weekEnded",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "c3a278f83ab4ae41b88d0018e61479e78f39e1321329362bce1ca8523abcc835",
+        "subject": "Week 5 has just finished",
+        "text": "Hello Pat,
+
+Week 5 has just ended with:
+New York Giants@Chicago Bears
+
+The game ended in a tie, 17 - 17
+
+View week results https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": null,
+        "html": "c3a278f83ab4ae41b88d0018e61479e78f39e1321329362bce1ca8523abcc835",
+        "subject": "Week 5 has just finished",
+        "text": "Hello Pat,
+
+Week 5 has just ended with:
+New York Giants@Chicago Bears
+
+The game ended in a tie, 17 - 17
+
+View week results https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > weekEnded tie > sends the email then records it 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "weekEnded",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "fefcbddd3107a6a9d33b169ea2077ac28a544bfd7bb0ada1b7faa41f756bfb13",
+        "subject": "Week 5 has just finished",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+Week 5 has just ended with:
+New York Giants@Chicago Bears
+
+The game ended in a tie, 17 - 17
+
+View week results https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "fefcbddd3107a6a9d33b169ea2077ac28a544bfd7bb0ada1b7faa41f756bfb13",
+        "subject": "Week 5 has just finished",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+Week 5 has just ended with:
+New York Giants@Chicago Bears
+
+The game ended in a tie, 17 - 17
+
+View week results https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > weekEnded visitor winner > falls back to player when the user has no first name 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "weekEnded",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "cfff11c1fa1a4c94c6c5e4fd5caaf7caf689a1718e72f70505418d9bd7c73b70",
+        "subject": "Week 5 has just finished",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello player,
+
+Week 5 has just ended with:
+New York Giants@Chicago Bears
+
+The New York Giants won with a score of 17 - 10
+
+View week results https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "cfff11c1fa1a4c94c6c5e4fd5caaf7caf689a1718e72f70505418d9bd7c73b70",
+        "subject": "Week 5 has just finished",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello player,
+
+Week 5 has just ended with:
+New York Giants@Chicago Bears
+
+The New York Giants won with a score of 17 - 10
+
+View week results https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > weekEnded visitor winner > logs, still records the email and does not throw when sending fails 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "updateEmailClass",
+  ],
+  "consoleError": [
+    [
+      "Failed to send week ended email: ",
+      {
+        "error": [Error: SES down],
+        "props": {
+          "browserLink": "browser-link:email-1",
+          "homeTeam": {
+            "GameHomeScore": 10,
+            "GameVisitorScore": 17,
+            "TeamCity": "Chicago",
+            "TeamID": "CHI",
+            "TeamName": "Bears",
+            "TeamPrimaryColor": "#061E3E",
+            "TeamSecondaryColor": "#DF6108",
+          },
+          "loserScore": 10,
+          "unsubscribeLink": "unsubscribe-link:user@example.com",
+          "userFirstName": "Pat",
+          "visitorTeam": {
+            "TeamCity": "New York",
+            "TeamID": "NYG",
+            "TeamName": "Giants",
+            "TeamPrimaryColor": "#03497F",
+            "TeamSecondaryColor": "#FFFFFF",
+          },
+          "week": 5,
+          "winnerScore": 17,
+          "winnerTeam": {
+            "TeamCity": "New York",
+            "TeamID": "NYG",
+            "TeamName": "Giants",
+            "TeamPrimaryColor": "#03497F",
+            "TeamSecondaryColor": "#FFFFFF",
+          },
+        },
+        "to": [
+          "user@example.com",
+        ],
+        "type": "weekEnded",
+      },
+    ],
+  ],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "weekEnded",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "f0642cb908f4b9fd990d3f8eab7c9c9a0b599d9b71f7b9d164405980a5c1b0f3",
+        "subject": "Week 5 has just finished",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+Week 5 has just ended with:
+New York Giants@Chicago Bears
+
+The New York Giants won with a score of 17 - 10
+
+View week results https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "f0642cb908f4b9fd990d3f8eab7c9c9a0b599d9b71f7b9d164405980a5c1b0f3",
+        "subject": "Week 5 has just finished",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+Week 5 has just ended with:
+New York Giants@Chicago Bears
+
+The New York Giants won with a score of 17 - 10
+
+View week results https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > weekEnded visitor winner > renders with an empty browser link when the email record could not be created 1`] = `
+{
+  "calls": [
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "weekEnded",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "edf5c3ba1d2fc790bf2643720c3ffc3e00a04fb234f51f411fb92296156eaa90",
+        "subject": "Week 5 has just finished",
+        "text": "Hello Pat,
+
+Week 5 has just ended with:
+New York Giants@Chicago Bears
+
+The New York Giants won with a score of 17 - 10
+
+View week results https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": null,
+        "html": "edf5c3ba1d2fc790bf2643720c3ffc3e00a04fb234f51f411fb92296156eaa90",
+        "subject": "Week 5 has just finished",
+        "text": "Hello Pat,
+
+Week 5 has just ended with:
+New York Giants@Chicago Bears
+
+The New York Giants won with a score of 17 - 10
+
+View week results https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > weekEnded visitor winner > sends the email then records it 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "weekEnded",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "f0642cb908f4b9fd990d3f8eab7c9c9a0b599d9b71f7b9d164405980a5c1b0f3",
+        "subject": "Week 5 has just finished",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+Week 5 has just ended with:
+New York Giants@Chicago Bears
+
+The New York Giants won with a score of 17 - 10
+
+View week results https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "f0642cb908f4b9fd990d3f8eab7c9c9a0b599d9b71f7b9d164405980a5c1b0f3",
+        "subject": "Week 5 has just finished",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+Week 5 has just ended with:
+New York Giants@Chicago Bears
+
+The New York Giants won with a score of 17 - 10
+
+View week results https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > weekStarted > falls back to player when the user has no first name 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "weekStarted",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "9803e9494650108a8e977b6e62adfdb6ecb0c0273e2b6f6451f1bbd7c4ab1cfc",
+        "subject": "Week 5 has just begun",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello player,
+
+Week 5 has just started with:
+New York Giants@Chicago Bears
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "9803e9494650108a8e977b6e62adfdb6ecb0c0273e2b6f6451f1bbd7c4ab1cfc",
+        "subject": "Week 5 has just begun",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello player,
+
+Week 5 has just started with:
+New York Giants@Chicago Bears
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > weekStarted > logs, still records the email and does not throw when sending fails 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "updateEmailClass",
+  ],
+  "consoleError": [
+    [
+      "Failed to send week started email: ",
+      {
+        "error": [Error: SES down],
+        "props": {
+          "browserLink": "browser-link:email-1",
+          "homeTeam": {
+            "GameHomeScore": 21,
+            "GameVisitorScore": 14,
+            "TeamCity": "Chicago",
+            "TeamID": "CHI",
+            "TeamName": "Bears",
+            "TeamPrimaryColor": "#061E3E",
+            "TeamSecondaryColor": "#DF6108",
+          },
+          "unsubscribeLink": "unsubscribe-link:user@example.com",
+          "userFirstName": "Pat",
+          "visitorTeam": {
+            "TeamCity": "New York",
+            "TeamID": "NYG",
+            "TeamName": "Giants",
+            "TeamPrimaryColor": "#03497F",
+            "TeamSecondaryColor": "#FFFFFF",
+          },
+          "week": 5,
+        },
+        "to": [
+          "user@example.com",
+        ],
+        "type": "weekStarted",
+      },
+    ],
+  ],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "weekStarted",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "8d9f3c561f1582199b5cc33705467e0ffe3dc8c09eefc5a4503cca8c6dfda1c0",
+        "subject": "Week 5 has just begun",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+Week 5 has just started with:
+New York Giants@Chicago Bears
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "8d9f3c561f1582199b5cc33705467e0ffe3dc8c09eefc5a4503cca8c6dfda1c0",
+        "subject": "Week 5 has just begun",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+Week 5 has just started with:
+New York Giants@Chicago Bears
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > weekStarted > renders with an empty browser link when the email record could not be created 1`] = `
+{
+  "calls": [
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "weekStarted",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "f7f1a74586e4e02b586bdcfffcc910fed01c7e1a402b693d262e96101b90d193",
+        "subject": "Week 5 has just begun",
+        "text": "Hello Pat,
+
+Week 5 has just started with:
+New York Giants@Chicago Bears
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": null,
+        "html": "f7f1a74586e4e02b586bdcfffcc910fed01c7e1a402b693d262e96101b90d193",
+        "subject": "Week 5 has just begun",
+        "text": "Hello Pat,
+
+Week 5 has just started with:
+New York Giants@Chicago Bears
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;
+
+exports[`email senders > weekStarted > sends the email then records it 1`] = `
+{
+  "calls": [
+    "getBaseEmailClass",
+    "sendEmail",
+    "updateEmailClass",
+  ],
+  "consoleError": [],
+  "getBaseEmailClass": [
+    [
+      {
+        "to": [
+          "user@example.com",
+        ],
+        "type": "weekStarted",
+      },
+    ],
+  ],
+  "sendEmail": [
+    [
+      {
+        "html": "8d9f3c561f1582199b5cc33705467e0ffe3dc8c09eefc5a4503cca8c6dfda1c0",
+        "subject": "Week 5 has just begun",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+Week 5 has just started with:
+New York Giants@Chicago Bears
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+        "to": [
+          "user@example.com",
+        ],
+      },
+    ],
+  ],
+  "updateEmailClass": [
+    [
+      {
+        "emailId": "email-1",
+        "html": "8d9f3c561f1582199b5cc33705467e0ffe3dc8c09eefc5a4503cca8c6dfda1c0",
+        "subject": "Week 5 has just begun",
+        "text": "Email not displaying correctly? View it in your browser browser-link:email-1
+
+
+
+Hello Pat,
+
+Week 5 has just started with:
+New York Giants@Chicago Bears
+
+Go to the pool https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe unsubscribe-link:user@example.com | Update Preferences https://pool.test/users/edit",
+      },
+    ],
+  ],
+}
+`;

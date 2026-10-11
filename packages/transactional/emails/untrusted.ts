@@ -3,7 +3,7 @@ import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import type { Selectable } from "kysely";
 
 import { getAdminNewUserEmailProps } from "../src/adminNewUserEmailProps";
-import { getBaseEmailClass, getBrowserLink, getUnsubscribeLink, sendEmail, updateEmailClass } from ".";
+import { deliverEmail } from "./deliverEmail";
 import { getHtml, getPlainText, getSubject } from "./templates/UntrustedEmail";
 
 export const sendUntrustedEmail = async (
@@ -16,37 +16,16 @@ export const sendUntrustedEmail = async (
     .execute();
 
   await Promise.allSettled(
-    admins.map(async (admin) => {
-      const to = [admin.UserEmail];
-      const emailId = await getBaseEmailClass({ to, type: "untrusted" });
-      const browserLink = getBrowserLink(emailId);
-      const unsubscribeLink = getUnsubscribeLink(to);
-      const subject = getSubject();
-      const props = getAdminNewUserEmailProps(admin, newUser, { browserLink, unsubscribeLink });
-      const [html, text] = await Promise.all([getHtml(props), getPlainText(props)]);
-
-      try {
-        await sendEmail({
-          html,
-          subject,
-          text,
-          to,
-        });
-      } catch (error) {
-        console.error("Failed to send untrusted email: ", {
-          error,
-          props,
-          to,
-          type: "untrusted",
-        });
-      }
-
-      await updateEmailClass({
-        emailId,
-        html,
-        subject,
-        text,
-      });
-    }),
+    admins.map((admin) =>
+      deliverEmail({
+        buildProps: (links) => getAdminNewUserEmailProps(admin, newUser, links),
+        getHtml,
+        getPlainText,
+        label: "untrusted",
+        subject: getSubject(),
+        to: [admin.UserEmail],
+        type: "untrusted",
+      }),
+    ),
   );
 };

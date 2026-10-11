@@ -15,56 +15,17 @@
  */
 
 import type { Users } from "@nfl-pool-monorepo/db/src";
-import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import type { Selectable } from "kysely";
 
+import { getWeekEndedMessage, getWeekEndedResult } from "../src/weekTeams";
 import { sendPushNotification } from ".";
 
 const sendWeekEndedPushNotification = async (
   user: Pick<Selectable<Users>, "UserID" | "UserFirstName">,
   week: number,
 ): Promise<void> => {
-  const [homeTeam, visitorTeam, winnerTeam] = await Promise.all([
-    db
-      .selectFrom("Teams as t")
-      .innerJoin("Games as g", "g.HomeTeamID", "t.TeamID")
-      .select([
-        "g.GameHomeScore",
-        "g.GameVisitorScore",
-        "t.TeamCity",
-        "t.TeamName",
-        "t.TeamPrimaryColor",
-        "t.TeamSecondaryColor",
-      ])
-      .where("g.GameWeek", "=", week)
-      .orderBy("GameKickoff", "desc")
-      .executeTakeFirstOrThrow(),
-    db
-      .selectFrom("Teams as t")
-      .select(["t.TeamCity", "t.TeamName", "t.TeamPrimaryColor", "t.TeamSecondaryColor"])
-      .innerJoin("Games as g", "g.VisitorTeamID", "t.TeamID")
-      .where("g.GameWeek", "=", week)
-      .orderBy("GameKickoff", "desc")
-      .executeTakeFirstOrThrow(),
-    db
-      .selectFrom("Teams as t")
-      .select(["t.TeamCity", "t.TeamName", "t.TeamPrimaryColor", "t.TeamSecondaryColor"])
-      .innerJoin("Games as g", "g.WinnerTeamID", "t.TeamID")
-      .where("g.GameWeek", "=", week)
-      .orderBy("GameKickoff", "desc")
-      .executeTakeFirstOrThrow(),
-  ]);
-  const [winnerScore, loserScore] =
-    homeTeam.GameHomeScore > homeTeam.GameVisitorScore
-      ? [homeTeam.GameHomeScore, homeTeam.GameVisitorScore]
-      : [homeTeam.GameVisitorScore, homeTeam.GameHomeScore];
-  let message = `${user.UserFirstName}, week ${week} has just ended with ${visitorTeam.TeamCity} ${visitorTeam.TeamName} @ ${homeTeam.TeamCity} ${homeTeam.TeamName}. `;
-
-  if (winnerScore === loserScore) {
-    message += `The game ended in a tie, ${winnerScore} - ${loserScore}.`;
-  } else {
-    message += `The ${winnerTeam.TeamName} won with a score of ${winnerScore} - ${loserScore}.`;
-  }
+  const result = await getWeekEndedResult(week);
+  const message = getWeekEndedMessage(user.UserFirstName, week, result);
 
   await sendPushNotification(user.UserID, `Week ${week} Just Ended`, message, "weekEnded", `/weekly?week=${week}`);
 };

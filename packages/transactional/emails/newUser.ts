@@ -4,7 +4,8 @@ import { getSystemYear } from "@nfl-pool-monorepo/db/src/queries/systemValue";
 import type { Selectable } from "kysely";
 
 import { getAdminNewUserEmailProps, getNewUserEmailProps } from "../src/adminNewUserEmailProps";
-import { getBaseEmailClass, getBrowserLink, getUnsubscribeLink, sendEmail, updateEmailClass } from ".";
+import { getBaseEmailClass, getBrowserLink, getUnsubscribeLink } from ".";
+import { sendAndRecordEmail } from "./deliverEmail";
 import { getHtml, getPlainText, getSubject } from "./templates/NewUserEmail";
 
 export const sendNewUserEmail = async (
@@ -40,27 +41,15 @@ export const sendNewUserEmail = async (
       const props = getNewUserEmailProps(baseProps, newUser, { isReturning, yearsPlayed });
       const [html, text] = await Promise.all([getHtml(props), getPlainText(props)]);
 
-      try {
-        await sendEmail({
-          html,
-          subject,
-          text,
-          to,
-        });
-      } catch (error) {
-        console.error("Failed to send new user email: ", {
-          error,
-          props: baseProps,
-          to,
-          type: "newUser",
-        });
-      }
-
-      await updateEmailClass({
+      await sendAndRecordEmail({
         emailId,
         html,
+        label: "new user",
+        logProps: baseProps,
         subject,
         text,
+        to,
+        type: "newUser",
       });
     }),
   );
