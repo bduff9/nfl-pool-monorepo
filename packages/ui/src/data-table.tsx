@@ -24,6 +24,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 
 const WEEKS_IN_SEASON = 18;
 
+// Filtering is resolved server-side (manualFiltering), so this is never called. It only stops TanStack from warning
+// that the auto-detected filter function is not registered when a column filter is set.
+const manualFilterFn = () => true;
+
 const paginationParsers = {
   pageIndex: parseAsIndex.withDefault(0),
   pageSize: parseAsInteger.withDefault(10),
@@ -123,6 +127,7 @@ export function DataTable<TData extends RowData, TValue>({
   const table = useTable({
     columns: columns as ColumnDef<DataTableFeatures, TData, unknown>[],
     data,
+    defaultColumn: { filterFn: manualFilterFn },
     enableColumnResizing: true,
     features: dataTableFeatures,
     manualFiltering: true,
