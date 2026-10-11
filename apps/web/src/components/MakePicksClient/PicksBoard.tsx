@@ -2,8 +2,9 @@ import type { DragStart, DropResult } from "@hello-pangea/dnd";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { Dispatch, FC, ReactNode, SetStateAction } from "react";
-import { Fragment } from "react";
+import { Fragment, useRef } from "react";
 
+import { useDragAutoScroll } from "@/lib/hooks/useDragAutoScroll";
 import type { getMyWeeklyPicks } from "@/server/loaders/pick";
 
 import PickGame, { Point } from "../PickGame/PickGame";
@@ -81,6 +82,10 @@ export const PicksBoard: FC<PicksBoardProps> = ({
   selectedGame,
   setSelectedGame,
 }) => {
+  const scrollerRef = useRef<HTMLDivElement>(null);
+
+  useDragAutoScroll(scrollerRef, dragGameID !== null);
+
   // The point bank must not be sticky: dnd measures droppables in page coordinates and assumes they scroll with the
   // window, so a sticky bank's drop zone drifts away from where it is drawn. Instead the bank stays in normal flow and
   // only the game list scrolls, filling the rest of the viewport-height page (see the picks page wrapper).
@@ -108,7 +113,7 @@ export const PicksBoard: FC<PicksBoardProps> = ({
           </div>
         )}
       </Droppable>
-      <div className="w-full flex-1 min-h-0 overflow-y-auto overscroll-contain">
+      <div className="w-full flex-1 min-h-0 overflow-y-auto overscroll-contain" ref={scrollerRef}>
         {optimisticPicks.map((pick) => (
           <PickGameRow
             dragGameID={dragGameID}
