@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "incremental": false,
+    "lib": ["esnext", "webworker"],
+    "plugins": [],
+    "types": ["node"]
+  },
+  "exclude": ["node_modules", "src/lib/**/*.test.ts"],
+  "extends": "@nfl-pool-monorepo/tsconfig/next.json",
+  "include": ["src/sw.ts", "src/sw.test.ts", "src/lib/offline/**/*.ts"]
+}

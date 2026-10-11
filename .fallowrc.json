@@ -1,4 +1,10 @@
 {
-  "entry": ["packages/transactional/emails/templates/*.tsx", "apps/web/public/sw.js"],
-  "ignoreDependencies": ["shadcn", "react-doctor", "jiti", "nypm", "postcss-load-config"]
+  "entry": ["packages/transactional/emails/templates/*.tsx", "apps/web/src/sw.ts"],
+  "ignoreDependencies": ["shadcn", "react-doctor", "jiti", "nypm", "postcss-load-config"],
+  "ignoreExports": [
+    {
+      "exports": ["generateStaticParams"],
+      "file": "apps/web/src/app/serwist/*/route.ts"
+    }
+  ]
 }

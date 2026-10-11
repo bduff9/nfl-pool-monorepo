@@ -13,8 +13,9 @@ export type WarmState = {
   week: null | number;
 };
 
+// The worker is bundled and served by src/app/serwist/[path]/route.ts
 export const registerServiceWorker = (): Promise<ServiceWorkerRegistration> =>
-  navigator.serviceWorker.register(OFFLINE_CACHE_ENABLED ? "/sw.js?offline=1" : "/sw.js", {
+  navigator.serviceWorker.register(OFFLINE_CACHE_ENABLED ? "/serwist/sw.js?offline=1" : "/serwist/sw.js", {
     scope: "/",
     updateViaCache: "none",
   });

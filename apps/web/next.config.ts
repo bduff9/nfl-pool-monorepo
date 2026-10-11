@@ -1,5 +1,6 @@
 import { spawnSync } from "node:child_process";
 import path from "node:path";
+import { withSerwist } from "@serwist/turbopack";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -54,7 +55,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: '/sw.js',
+        source: '/serwist/:path*',
         headers: [
           {
             key: 'Content-Type',
@@ -75,4 +76,4 @@ const nextConfig: NextConfig = {
   typedRoutes: true,
 };
 
-export default nextConfig;
+export default withSerwist(nextConfig);

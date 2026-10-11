@@ -2,7 +2,7 @@ import { defineConfig } from "vitest/config";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
-  plugins: [tsconfigPaths()],
+  plugins: [tsconfigPaths({ projects: ["./tsconfig.json", "./tsconfig.sw.json"] })],
   test: {
     clearMocks: false,
     environment: "node",

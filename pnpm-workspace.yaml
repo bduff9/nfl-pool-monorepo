@@ -5,6 +5,8 @@ packages:
 allowBuilds:
   # react-doctor (root devDependency) uses @sentry/cli internally.
   '@sentry/cli': true
+  # Serwist (@serwist/turbopack) only needs @swc/core's prebuilt platform binary, not its install script.
+  '@swc/core': false
   aws-sdk: false
   core-js: false
   esbuild: true

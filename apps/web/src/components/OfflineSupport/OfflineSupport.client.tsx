@@ -10,7 +10,6 @@ import {
   isWarmDue,
   OFFLINE_CACHE_ENABLED,
   readWarmState,
-  registerServiceWorker,
   type WarmState,
   writeLastSynced,
   writeWarmState,
@@ -83,7 +82,6 @@ const useServiceWorker = (): void => {
       }
     };
 
-    registerServiceWorker().catch((error) => console.error("Failed to register service worker", error));
     navigator.serviceWorker.addEventListener("message", onMessage);
 
     return () => navigator.serviceWorker.removeEventListener("message", onMessage);
