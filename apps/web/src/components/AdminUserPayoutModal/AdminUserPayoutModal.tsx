@@ -33,6 +33,8 @@ import { PiFootballDuotone } from "react-icons/pi";
 
 import type { getUserPayoutsForAdmin } from "@/server/loaders/payment";
 
+import { clampPayout, getFullName, getPayoutLabel, getRemainingToPay, getWon } from "./adminUserPayout";
+
 type Props = {
   handleClose: () => void;
   show?: boolean;
@@ -40,23 +42,32 @@ type Props = {
   winner: null | Awaited<ReturnType<typeof getUserPayoutsForAdmin>>[number];
 };
 
-const AdminUserPayoutModal: FC<Props> = ({ handleClose, show = false, updateAmount, winner }) => {
-  const fullName = winner?.UserName ?? "Missing Name";
-  const remainingToPay = Number(winner?.UserWon ?? 0) + Number(winner?.UserPaidOut ?? 0);
+const usePayoutEdit = (show: boolean, winner: Props["winner"], remainingToPay: number) => {
   const [toPay, setToPay] = useState<number>(remainingToPay);
-  const [loading, setLoading] = useState<boolean>(false);
   const wasShowingRef = useRef(show);
 
   // Only reset the in-progress edit when the modal transitions from closed to open, not on every
   // remainingToPay change - otherwise a background data refresh while the modal is open would
   // silently clobber whatever the admin is currently typing.
+  // react-doctor-disable-next-line react-doctor/no-derived-state-effect -- intentional reset on the closed-to-open transition only
   useEffect(() => {
     if (show && !wasShowingRef.current) {
+      // react-doctor-disable-next-line react-doctor/no-derived-state -- intentional reset on the closed-to-open transition only
       setToPay(remainingToPay);
     }
 
     wasShowingRef.current = show;
   }, [show, remainingToPay]);
+
+  const handleToPayChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    setToPay(clampPayout(+event.target.value, getWon(winner)));
+  };
+
+  return { handleToPayChange, toPay };
+};
+
+const usePayoutSave = (winner: Props["winner"], toPay: number, updateAmount: Props["updateAmount"]) => {
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleSave = async (): Promise<void> => {
     if (!winner) {
@@ -66,7 +77,7 @@ const AdminUserPayoutModal: FC<Props> = ({ handleClose, show = false, updateAmou
     setLoading(true);
 
     try {
-      await updateAmount(winner.UserID, toPay ?? 0);
+      await updateAmount(winner.UserID, toPay);
     } catch (error) {
       setLoading(false);
       throw error;
@@ -75,17 +86,24 @@ const AdminUserPayoutModal: FC<Props> = ({ handleClose, show = false, updateAmou
     setLoading(false);
   };
 
-  const handleToPayChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    let value = +event.target.value;
+  return { handleSave, loading };
+};
 
-    if (value < 0) value = 0;
+const SaveButtonContent: FC<{ loading: boolean }> = ({ loading }) =>
+  loading ? (
+    <>
+      <PiFootballDuotone aria-hidden="true" className="animate-spin hidden md:inline-block" />
+      Saving...
+    </>
+  ) : (
+    "Save"
+  );
 
-    if (value > (winner?.UserWon ?? 0)) {
-      value = winner?.UserWon ?? 0;
-    }
-
-    setToPay(value);
-  };
+const AdminUserPayoutModal: FC<Props> = ({ handleClose, show = false, updateAmount, winner }) => {
+  const fullName = getFullName(winner);
+  const remainingToPay = getRemainingToPay(winner);
+  const { handleToPayChange, toPay } = usePayoutEdit(show, winner, remainingToPay);
+  const { handleSave, loading } = usePayoutSave(winner, toPay, updateAmount);
 
   const handleCopyPaymentAccount = (): void => {
     if (winner?.UserPaymentAccount) {
@@ -101,11 +119,7 @@ const AdminUserPayoutModal: FC<Props> = ({ handleClose, show = false, updateAmou
           <DialogDescription />
         </DialogHeader>
         <div className="mb-3">
-          <Label htmlFor="UserPayoutAmount">
-            {remainingToPay > 0
-              ? `${fullName} is still owed $${remainingToPay} / $${Number(winner?.UserWon ?? 0)}`
-              : `${fullName} has been paid $${Number(winner?.UserWon ?? 0)}`}
-          </Label>
+          <Label htmlFor="UserPayoutAmount">{getPayoutLabel(fullName, remainingToPay, getWon(winner))}</Label>
           <Input
             id="UserPayoutAmount"
             max={remainingToPay}
@@ -132,14 +146,7 @@ const AdminUserPayoutModal: FC<Props> = ({ handleClose, show = false, updateAmou
             </Button>
           </DialogClose>
           <Button disabled={loading} onClick={handleSave} type="button" variant="primary">
-            {loading ? (
-              <>
-                <PiFootballDuotone aria-hidden="true" className="animate-spin hidden md:inline-block" />
-                Saving...
-              </>
-            ) : (
-              "Save"
-            )}
+            <SaveButtonContent loading={loading} />
           </Button>
         </DialogFooter>
       </DialogContent>

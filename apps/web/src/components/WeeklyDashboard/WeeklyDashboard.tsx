@@ -25,12 +25,72 @@ import { getMyWeeklyRank, getWeeklyMvCount, getWeeklyMvTiedCount } from "@/serve
 import ProgressChart from "../ProgressChart/ProgressChart";
 import { WeekLink } from "../WeekLink/WeekLink";
 import { WeeklyDashboardCountdown, WeeklyDashboardResults, WeeklyDashboardTitle } from "./WeeklyDashboard.client";
+import { buildRankingData } from "./weeklyRanking";
 
 const RankingPieChart = dynamic(() => import("../RankingPieChart/RankingPieChart"));
 
 type Props = {
   selectedWeek: number;
 };
+
+type MyWeeklyRank = NonNullable<Awaited<ReturnType<typeof getMyWeeklyRank>>>;
+
+const SubmissionStatus: FC<{ hasSubmitted: boolean }> = ({ hasSubmitted }) =>
+  hasSubmitted ? (
+    <>
+      <div className="text-green-600">You have submitted your picks</div>
+      <WeekLink className="inline-block py-2.5 underline" href="/picks/view">
+        View my picks
+      </WeekLink>
+    </>
+  ) : (
+    <>
+      <div className="text-red-600">You have not submitted your picks yet!</div>
+      <WeekLink className="inline-block py-2.5 underline" href="/picks/set">
+        Make my picks
+      </WeekLink>
+    </>
+  );
+
+const RankDetails: FC<{ hasRank: boolean; weekStart: Date }> = ({ hasRank, weekStart }) =>
+  hasRank ? (
+    <WeekLink className="inline-block py-2.5 underline" href="/weekly">
+      View Details
+    </WeekLink>
+  ) : (
+    <WeeklyDashboardCountdown weekStart={weekStart} />
+  );
+
+type WeeklyRankChartsProps = {
+  isOver: boolean;
+  rank: MyWeeklyRank;
+  selectedWeek: number;
+  tiedCount: number;
+  totalCount: number;
+};
+
+const WeeklyRankCharts: FC<WeeklyRankChartsProps> = ({ isOver, rank, selectedWeek, tiedCount, totalCount }) => (
+  <div>
+    <RankingPieChart data={buildRankingData(rank, totalCount, tiedCount)} layoutId="weeklyRankingPieChart" />
+    <WeeklyDashboardResults className={cn("mt-5")} selectedWeek={selectedWeek} />
+    <ProgressChart
+      correct={rank.PointsEarned}
+      incorrect={rank.PointsWrong}
+      isOver={isOver}
+      layoutId="weeklyPointsEarned"
+      max={rank.PointsTotal}
+      type="Points"
+    />
+    <ProgressChart
+      correct={rank.GamesCorrect}
+      incorrect={rank.GamesWrong}
+      isOver={isOver}
+      layoutId="weeklyGamesCorrect"
+      max={rank.GamesTotal}
+      type="Games"
+    />
+  </div>
+);
 
 const WeeklyDashboard: FC<Props> = async ({ selectedWeek }) => {
   const myWeeklyRankPromise = getMyWeeklyRank(selectedWeek);
@@ -48,84 +108,21 @@ const WeeklyDashboard: FC<Props> = async ({ selectedWeek }) => {
     weeklyTiedCountPromise,
   ]);
 
-  const myPlace = `${myWeeklyRank?.Tied ? "T" : ""}${myWeeklyRank?.Rank}`;
-  const me = myWeeklyRank?.Rank ?? 0;
-  const aheadOfMe = me - 1;
-  const behindMe = weeklyTotalCount - me - weeklyTiedCount;
-
   return (
     <div className={cn("text-center mb-3 md:mb-0 border-b border-border md:border-none px-3")}>
       <WeeklyDashboardTitle selectedWeek={selectedWeek} />
       <div className="flex flex-col">
-        {myTiebreaker?.TiebreakerHasSubmitted === 1 ? (
-          <>
-            <div className="text-green-600">You have submitted your picks</div>
-            <WeekLink className="inline-block py-2.5 underline" href="/picks/view">
-              View my picks
-            </WeekLink>
-          </>
-        ) : (
-          <>
-            <div className="text-red-600">You have not submitted your picks yet!</div>
-            <WeekLink className="inline-block py-2.5 underline" href="/picks/set">
-              Make my picks
-            </WeekLink>
-          </>
-        )}
-        {myWeeklyRank === undefined ? (
-          <WeeklyDashboardCountdown weekStart={weekStart} />
-        ) : (
-          <WeekLink className="inline-block py-2.5 underline" href="/weekly">
-            View Details
-          </WeekLink>
-        )}
+        <SubmissionStatus hasSubmitted={myTiebreaker?.TiebreakerHasSubmitted === 1} />
+        <RankDetails hasRank={myWeeklyRank !== undefined} weekStart={weekStart} />
       </div>
       {!!myWeeklyRank && (
-        <div>
-          <RankingPieChart
-            data={[
-              {
-                fill: "var(--color-red-700)",
-                myPlace,
-                name: "ahead of me",
-                total: weeklyTotalCount,
-                value: aheadOfMe,
-              },
-              {
-                fill: "var(--color-green-700)",
-                myPlace,
-                name: "behind me",
-                total: weeklyTotalCount,
-                value: behindMe,
-              },
-              {
-                fill: "var(--color-amber-600)",
-                myPlace,
-                name: "tied with me",
-                total: weeklyTotalCount,
-                value: weeklyTiedCount,
-              },
-            ]}
-            layoutId="weeklyRankingPieChart"
-          />
-          <WeeklyDashboardResults className={cn("mt-5")} selectedWeek={selectedWeek} />
-          <ProgressChart
-            correct={myWeeklyRank.PointsEarned}
-            incorrect={myWeeklyRank.PointsWrong}
-            isOver={weekStatus === "Complete"}
-            layoutId="weeklyPointsEarned"
-            max={myWeeklyRank.PointsTotal}
-            type="Points"
-          />
-          <ProgressChart
-            correct={myWeeklyRank.GamesCorrect}
-            incorrect={myWeeklyRank.GamesWrong}
-            isOver={weekStatus === "Complete"}
-            layoutId="weeklyGamesCorrect"
-            max={myWeeklyRank.GamesTotal}
-            type="Games"
-          />
-        </div>
+        <WeeklyRankCharts
+          isOver={weekStatus === "Complete"}
+          rank={myWeeklyRank}
+          selectedWeek={selectedWeek}
+          tiedCount={weeklyTiedCount}
+          totalCount={weeklyTotalCount}
+        />
       )}
     </div>
   );

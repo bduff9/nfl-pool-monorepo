@@ -32,7 +32,7 @@ import type { getCurrentUser } from "@/server/loaders/user";
 import "client-only";
 
 import { useAction } from "next-safe-action/hooks";
-import { type FC, type ReactNode, useRef } from "react";
+import { type FC, useRef } from "react";
 import { type SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { PiFootballDuotone } from "react-icons/pi";
 import { toast } from "sonner";
@@ -40,6 +40,7 @@ import { toast } from "sonner";
 import GoogleAuthButton from "../GoogleAuthButton/GoogleAuthButton";
 import InstallPrompt from "../InstallPrompt/InstallPrompt";
 import TextSeparator from "../TextSeparator/TextSeparator";
+import { buildDefaultValues, hasValidPhone, smsOffUnlessPhone } from "./editProfileValues";
 import { NotificationRow } from "./NotificationRow";
 import { ProfileFields } from "./ProfileFields";
 
@@ -49,27 +50,6 @@ type Props = {
   hasGoogle: boolean;
   myNotifications: Awaited<ReturnType<typeof getUserNotifications>>;
 };
-
-const correctPhoneNumber = (phoneNumber: string | null): string | null => {
-  if (!phoneNumber) {
-    return null;
-  }
-
-  if (phoneNumber.startsWith("+1")) {
-    return phoneNumber;
-  }
-
-  return `+1${phoneNumber}`;
-};
-
-const withSmsOff = <T extends { NotificationSMS: number; NotificationSMSHoursBefore: number | null }>(
-  notification: T,
-): T => ({ ...notification, NotificationSMS: 0, NotificationSMSHoursBefore: null });
-
-const smsOffUnlessPhone = <T extends { NotificationSMS: number; NotificationSMSHoursBefore: number | null }>(
-  hasValidPhone: boolean,
-  notifications: Array<T>,
-): Array<T> => (hasValidPhone ? notifications : notifications.map(withSmsOff));
 
 const ChannelHeader: FC<{ className?: string }> = ({ className }) => (
   <div className={cn("flex justify-end gap-x-4", className)}>
@@ -85,23 +65,65 @@ const ChannelHeader: FC<{ className?: string }> = ({ className }) => (
   </div>
 );
 
+const dismissToast = (toastId: string | number | undefined): void => {
+  if (toastId) toast.dismiss(toastId);
+};
+
+const PushNotificationSection: FC<{ push: ReturnType<typeof usePushNotifications> }> = ({ push }) => {
+  const { isSubscribing, isSupported, subscribeToPush, subscription, unsubscribeFromPush } = push;
+
+  if (!isSupported) {
+    return <InstallPrompt />;
+  }
+
+  if (subscription) {
+    return (
+      <div>
+        <p>
+          <Button onClick={unsubscribeFromPush} type="button" variant="danger">
+            Click here to disable push notifications in the current browser.
+          </Button>
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <p>
+      <Button disabled={isSubscribing} onClick={subscribeToPush} type="button" variant="primary">
+        {isSubscribing ? "Enabling..." : "Click here to enable push notifications in the current browser."}
+      </Button>
+    </p>
+  );
+};
+
+const SubmitSection: FC<{ errorCount: number; isPending: boolean }> = ({ errorCount, isPending }) => (
+  <div className="grid border-t border-border pt-3 mt-3 col-span-full">
+    <Button disabled={isPending} type="submit" variant="primary">
+      {isPending ? (
+        <>
+          <PiFootballDuotone className="animate-spin" />
+          Saving...
+        </>
+      ) : (
+        "Save Changes"
+      )}
+    </Button>
+    {errorCount > 0 && (
+      <div className="text-red-600" role="alert">
+        Please fix {errorCount} {errorCount === 1 ? "error" : "errors"} above
+      </div>
+    )}
+  </div>
+);
+
 const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasGoogle }) => {
-  const { isSubscribing, isSupported, subscribeToPush, subscription, unsubscribeFromPush } = usePushNotifications();
+  const pushNotifications = usePushNotifications();
+  const { isSupported, subscription } = pushNotifications;
 
   const form = useForm<typeof editProfileSchema.infer>({
     context: { myNotifications },
-    defaultValues: {
-      notifications: myNotifications,
-      UserAutoPickStrategy: currentUser.UserAutoPickStrategy,
-      UserAutoPicksLeft: currentUser.UserAutoPicksLeft,
-      UserEmail: currentUser.UserEmail,
-      UserFirstName: currentUser.UserFirstName ?? "",
-      UserLastName: currentUser.UserLastName ?? "",
-      UserPaymentAccount: currentUser.UserPaymentAccount ?? "",
-      UserPaymentType: currentUser.UserPaymentType ?? "Paypal",
-      UserPhone: correctPhoneNumber(currentUser.UserPhone) ?? "",
-      UserTeamName: currentUser.UserTeamName ?? "",
-    },
+    defaultValues: buildDefaultValues(currentUser, myNotifications),
     resolver: toArktypeResolver(arktypeResolver(editProfileSchema)),
   });
 
@@ -116,7 +138,7 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
   const { execute, isPending } = useAction(action, {
     onError: onActionError,
     onSettled: () => {
-      if (toastIdRef.current) toast.dismiss(toastIdRef.current);
+      dismissToast(toastIdRef.current);
     },
     onSuccess: () => {
       toast.success("Your profile changes have been successfully saved");
@@ -127,32 +149,6 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
 
   useBeforeUnload(form.formState.isDirty);
 
-  const renderPushNotificationSection = (): ReactNode => {
-    if (!isSupported) {
-      return <InstallPrompt />;
-    }
-
-    if (subscription) {
-      return (
-        <div>
-          <p>
-            <Button onClick={unsubscribeFromPush} type="button" variant="danger">
-              Click here to disable push notifications in the current browser.
-            </Button>
-          </p>
-        </div>
-      );
-    }
-
-    return (
-      <p>
-        <Button disabled={isSubscribing} onClick={subscribeToPush} type="button" variant="primary">
-          {isSubscribing ? "Enabling..." : "Click here to enable push notifications in the current browser."}
-        </Button>
-      </p>
-    );
-  };
-
   const onSubmit: SubmitHandler<typeof editProfileSchema.infer> = (data) => {
     toastIdRef.current = toast.loading("Saving...", {
       closeButton: false,
@@ -162,8 +158,8 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
 
     // A phone number is required for SMS notifications - if it's missing or invalid, don't submit
     // SMS as enabled even if the toggle was left on before the phone field became invalid.
-    const hasValidPhone = data.UserPhone.length >= 10 && !form.formState.errors.UserPhone?.message;
-    const notifications = smsOffUnlessPhone(hasValidPhone, data.notifications);
+    const hasPhone = hasValidPhone(data.UserPhone, form.formState.errors.UserPhone?.message);
+    const notifications = smsOffUnlessPhone(hasPhone, data.notifications);
 
     // Mirror what is saved so the toggles show SMS off and the post-save form reset doesn't restore them.
     form.setValue("notifications", notifications);
@@ -194,7 +190,9 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
           ))}
 
           {isSupported !== null && (
-            <div className="col-span-full my-4 text-center">{renderPushNotificationSection()}</div>
+            <div className="col-span-full my-4 text-center">
+              <PushNotificationSection push={pushNotifications} />
+            </div>
           )}
 
           <TextSeparator className="col-span-full">Quick Login</TextSeparator>
@@ -204,23 +202,7 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
             <GoogleAuthButton isLinked={hasGoogle} />
           </div>
           <div />
-          <div className="grid border-t border-border pt-3 mt-3 col-span-full">
-            <Button disabled={isPending} type="submit" variant="primary">
-              {isPending ? (
-                <>
-                  <PiFootballDuotone className="animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                "Save Changes"
-              )}
-            </Button>
-            {errorCount > 0 && (
-              <div className="text-red-600" role="alert">
-                Please fix {errorCount} {errorCount === 1 ? "error" : "errors"} above
-              </div>
-            )}
-          </div>
+          <SubmitSection errorCount={errorCount} isPending={isPending} />
         </div>
       </form>
     </Form>

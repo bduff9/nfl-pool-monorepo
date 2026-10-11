@@ -35,6 +35,80 @@ type Props = {
   selectedWeek: number;
 };
 
+type SurvivorStatus = Awaited<ReturnType<typeof getSurvivorStatus>>;
+type WeeklyCounts = Awaited<ReturnType<typeof getSurvivorWeeklyCounts>>;
+type OverallCounts = Awaited<ReturnType<typeof getSurvivorOverallCounts>>;
+
+const PickStatusMessage: FC<{ hasPick: boolean; isAlive: boolean }> = ({ hasPick, isAlive }) => {
+  if (!isAlive) {
+    return null;
+  }
+
+  return hasPick ? (
+    <div className="text-green-700">You have submitted your survivor pick</div>
+  ) : (
+    <div className="text-red-700">You have not submitted your survivor pick yet!</div>
+  );
+};
+
+const ViewDetailsLink: FC<{ hasSurvivorMv: boolean }> = ({ hasSurvivorMv }) =>
+  hasSurvivorMv ? (
+    <WeekLink className={cn("block py-2.5 underline")} href="/survivor/view">
+      View Details
+    </WeekLink>
+  ) : (
+    <div className="md:h-6" />
+  );
+
+const MakePickLink: FC<{ hasPick: boolean; isAlive: boolean }> = ({ hasPick, isAlive }) =>
+  isAlive && !hasPick ? (
+    <WeekLink className={cn("block py-2.5 underline md:mb-1")} href="/survivor/set">
+      Click here to make your pick
+    </WeekLink>
+  ) : (
+    <div className="md:h-6 md:mb-1" />
+  );
+
+type SurvivorResultsProps = {
+  overallCounts: OverallCounts;
+  survivorStatus: SurvivorStatus;
+  weekStatus: Awaited<ReturnType<typeof getWeekStatus>>;
+  weeklyCounts: WeeklyCounts;
+};
+
+const SurvivorResults: FC<SurvivorResultsProps> = ({ overallCounts, survivorStatus, weekStatus, weeklyCounts }) => {
+  const hasStarted = survivorStatus !== "Not Started";
+
+  return (
+    <>
+      {hasStarted && (
+        <h2 className="scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0">Survivor Pool Results</h2>
+      )}
+      {weeklyCounts.overallCount > 0 && (
+        <ProgressChart
+          correct={weeklyCounts.aliveCount}
+          incorrect={weeklyCounts.deadCount}
+          inProgress={weeklyCounts.waitingCount}
+          isOver={weekStatus === "Complete"}
+          layoutId="survivorWeekStatus"
+          max={weeklyCounts.overallCount}
+          type="Current Week Remaining"
+        />
+      )}
+      {hasStarted && (
+        <ProgressChart
+          correct={overallCounts.aliveCount}
+          incorrect={overallCounts.deadCount}
+          isOver={survivorStatus === "Complete"}
+          layoutId="survivorOverallStatus"
+          max={overallCounts.overallCount}
+          type="Overall Remaining"
+        />
+      )}
+    </>
+  );
+};
+
 const SurvivorDashboard: FC<Props> = async ({ selectedWeek }) => {
   const { user } = await getCurrentSession();
 
@@ -74,26 +148,9 @@ const SurvivorDashboard: FC<Props> = async ({ selectedWeek }) => {
 
       <div>
         <div>
-          {!!isAliveInSurvivor &&
-            (mySurvivorPickForWeek ? (
-              <div className="text-green-700">You have submitted your survivor pick</div>
-            ) : (
-              <div className="text-red-700">You have not submitted your survivor pick yet!</div>
-            ))}
-          {mySurvivorMv ? (
-            <WeekLink className={cn("block py-2.5 underline")} href="/survivor/view">
-              View Details
-            </WeekLink>
-          ) : (
-            <div className="md:h-6" />
-          )}
-          {isAliveInSurvivor && !mySurvivorPickForWeek ? (
-            <WeekLink className={cn("block py-2.5 underline md:mb-1")} href="/survivor/set">
-              Click here to make your pick
-            </WeekLink>
-          ) : (
-            <div className="md:h-6 md:mb-1" />
-          )}
+          <PickStatusMessage hasPick={!!mySurvivorPickForWeek} isAlive={!!isAliveInSurvivor} />
+          <ViewDetailsLink hasSurvivorMv={!!mySurvivorMv} />
+          <MakePickLink hasPick={!!mySurvivorPickForWeek} isAlive={!!isAliveInSurvivor} />
           {!isAliveInSurvivor && <div className="md:h-6" />}
         </div>
         <SurvivorDashboardIcon
@@ -103,30 +160,12 @@ const SurvivorDashboard: FC<Props> = async ({ selectedWeek }) => {
           pickForWeek={mySurvivorPickForWeek}
         />
 
-        {survivorStatus !== "Not Started" && (
-          <h2 className="scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0">Survivor Pool Results</h2>
-        )}
-        {survivorWeeklyCounts.overallCount > 0 && (
-          <ProgressChart
-            correct={survivorWeeklyCounts.aliveCount}
-            incorrect={survivorWeeklyCounts.deadCount}
-            inProgress={survivorWeeklyCounts.waitingCount}
-            isOver={weekStatus === "Complete"}
-            layoutId="survivorWeekStatus"
-            max={survivorWeeklyCounts.overallCount}
-            type="Current Week Remaining"
-          />
-        )}
-        {survivorStatus !== "Not Started" && (
-          <ProgressChart
-            correct={survivorOverallCounts.aliveCount}
-            incorrect={survivorOverallCounts.deadCount}
-            isOver={survivorStatus === "Complete"}
-            layoutId="survivorOverallStatus"
-            max={survivorOverallCounts.overallCount}
-            type="Overall Remaining"
-          />
-        )}
+        <SurvivorResults
+          overallCounts={survivorOverallCounts}
+          survivorStatus={survivorStatus}
+          weeklyCounts={survivorWeeklyCounts}
+          weekStatus={weekStatus}
+        />
       </div>
     </div>
   );
