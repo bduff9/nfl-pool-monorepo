@@ -1,7 +1,7 @@
 import { useRouter } from "next/navigation";
 import { useOffline } from "next/offline";
 import { useAction } from "next-safe-action/hooks";
-import { type FocusEventHandler, type ReactNode, useRef, useState } from "react";
+import { type FocusEventHandler, type ReactNode, useLayoutEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { onActionError } from "@/lib/actionErrorToast";
@@ -67,6 +67,10 @@ export const usePickActions = ({
   const [callback, setCallback] = useState<ConfirmCallback | null>(null);
   const toastIdRef = useRef<string | number | undefined>(undefined);
   const previousPicksRef = useRef<Awaited<ReturnType<typeof getMyWeeklyPicks>>>(optimisticPicks);
+
+  // Next keeps this page mounted but hidden when navigating away, so close any open confirmation on the way out
+  // instead of showing it again when the user comes back
+  useLayoutEffect(() => () => setCallback(null), []);
 
   const { execute: executeUpdateTiebreaker } = useAction(updateMyTiebreakerScore, {
     onError: onActionError,

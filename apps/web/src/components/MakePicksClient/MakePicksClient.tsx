@@ -7,6 +7,7 @@ import { useSidebar } from "@nfl-pool-monorepo/ui/components/sidebar";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 
 import { onActionError } from "@/lib/actionErrorToast";
+import { hapticTap } from "@/lib/haptics";
 import { useNow } from "@/lib/hooks/useNow";
 import { parseDragData } from "@/lib/strings";
 import { setMyPick } from "@/server/actions/pick";
@@ -58,6 +59,8 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
     if (source.droppableId === destination.droppableId) {
       return;
     }
+
+    hapticTap();
 
     const [points, , destinationData] = parseDragData(draggableId, source.droppableId, destination.droppableId);
     const gameID = destinationData?.gameID ?? null;
@@ -112,6 +115,7 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
       source: { droppableId },
     } = initial;
 
+    hapticTap();
     setDragGameID(droppableId.replace("home-", "").replace("visitor-", ""));
   };
 
