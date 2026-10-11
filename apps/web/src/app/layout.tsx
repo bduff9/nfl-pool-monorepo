@@ -18,8 +18,10 @@ import { AuthenticatedNavPresenceProvider } from "@/components/AuthenticatedNavi
 import LogRocketGate from "@/components/LogRocketBoot/LogRocketGate";
 import OfflineBanner from "@/components/OfflineBanner/OfflineBanner";
 import Providers from "@/components/Providers/providers";
+import PullToRefresh from "@/components/PullToRefresh/PullToRefresh.client";
 import ServiceWorkerManager from "@/components/ServiceWorkerManager/ServiceWorkerManager.client";
 import { env } from "@/lib/env";
+import { splashScreens } from "@/lib/splashScreens";
 
 const roboto = Roboto({
   display: "swap",
@@ -36,6 +38,8 @@ const twitterAccount = "@Duffmaster33";
 export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
+    // Shown while the installed app starts, instead of a blank white screen
+    startupImage: splashScreens.map(({ media, url }) => ({ media, url })),
     // The app draws under a transparent status bar (padded by --safe-top), instead of iOS adding its own opaque bar
     // over the top of the page, which also dimmed whatever sat in the first 44pt under it
     statusBarStyle: "black-translucent",
@@ -135,6 +139,7 @@ const RootLayout: FC<LayoutProps<"/">> = ({ children }) => {
             <LogRocketGate />
           </Suspense>
           <OfflineBanner />
+          <PullToRefresh />
           <ServiceWorkerManager />
           <SidebarProvider>
             <SidebarOpenSync />
