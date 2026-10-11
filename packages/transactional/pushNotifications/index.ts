@@ -35,6 +35,7 @@ export const sendPushNotification = async (
   body: string,
   type: (typeof EmailTypes)[number],
   path: string,
+  badge?: number,
 ): Promise<void> => {
   try {
     const subscriptions = await db
@@ -52,6 +53,7 @@ export const sendPushNotification = async (
               body,
               title,
               url: path,
+              ...(badge === undefined ? {} : { badge }),
             }),
             { timeout: 10_000 },
           );

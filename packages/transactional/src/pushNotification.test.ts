@@ -68,4 +68,18 @@ describe("sendPushNotification", () => {
       url: "/picks/set?week=3",
     });
   });
+
+  it("includes a badge count only when one is given", async () => {
+    mockDb.execute
+      .mockResolvedValueOnce([{ DeviceID: 5, DeviceSub: "{}" }])
+      .mockResolvedValueOnce([{ DeviceID: 5, DeviceSub: "{}" }]);
+    sendNotification.mockResolvedValue(undefined);
+
+    const { sendPushNotification } = await import("../pushNotifications");
+    await sendPushNotification(1, "Title", "Body", "pickReminder", "/picks/set?week=3", 1);
+    await sendPushNotification(1, "Title", "Body", "weekStarted", "/weekly?week=3");
+
+    expect(JSON.parse(sendNotification.mock.calls[0]?.[1] as string)).toMatchObject({ badge: 1 });
+    expect(JSON.parse(sendNotification.mock.calls[1]?.[1] as string)).not.toHaveProperty("badge");
+  });
 });

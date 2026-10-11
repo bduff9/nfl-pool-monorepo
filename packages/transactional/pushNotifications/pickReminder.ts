@@ -29,6 +29,7 @@ const sendPickReminderPushNotification = async (
     `Don't lose out on points for week ${week}, act now to submit your picks! There are only ${hoursLeft} hours left!`,
     "pickReminder",
     `/picks/set?week=${week}`,
+    1,
   );
 
 export default sendPickReminderPushNotification;
