@@ -11,43 +11,36 @@ import {
   getSurvivorPrizeAmounts,
   getWeeklyPrizeAmounts,
 } from "../queries/systemValue";
+import { getPrizeAmounts } from "./payoutMath";
 
-const getPrizeAmounts = <T extends Array<number>>(winners: Array<{ Rank: number }>, prizes: T): T => {
-  const adjustedPrizes = [...prizes];
-  const places = winners.reduce(
-    (acc, winner) => {
-      acc[winner.Rank] = (acc[winner.Rank] ?? 0) + 1;
+type Winner = { Rank: number; UserID: number };
 
-      return acc;
-    },
-    prizes.map(() => 0),
-  );
-
-  for (let i = places.length; i--; ) {
-    if (i === 0) continue;
-
-    const place = places[i] as number;
-
-    if (place === 0) {
-      adjustedPrizes[i - 1] = (adjustedPrizes[i - 1] ?? 0) + (adjustedPrizes[i] ?? 0);
-      adjustedPrizes[i] = 0;
-    } else {
-      adjustedPrizes[i] = Math.round(((adjustedPrizes[i] ?? 0) / place + Number.EPSILON) * 100) / 100;
-    }
+const insertPrizePayments = async (
+  db: Transaction<DB>,
+  winners: Array<Winner>,
+  adjustedPrizes: Array<number>,
+  describe: (rank: number) => string,
+  week: number | null,
+): Promise<void> => {
+  for (const winner of winners) {
+    // react-doctor-disable-next-line async-await-in-loop -- these inserts share one transaction connection (trx); mysql2 processes queries on a connection sequentially, so Promise.all here would not run them concurrently
+    await db
+      .insertInto("Payments")
+      .values({
+        PaymentAddedBy: ADMIN_USER,
+        PaymentAmount: adjustedPrizes[winner.Rank] ?? 0,
+        PaymentDescription: describe(winner.Rank),
+        PaymentType: "Prize",
+        PaymentUpdatedBy: ADMIN_USER,
+        PaymentWeek: week,
+        UserID: winner.UserID,
+      })
+      .executeTakeFirstOrThrow();
   }
-
-  return adjustedPrizes as T;
 };
 
-export const updateAllPayouts = async (week: number, trx?: Transaction<DB>): Promise<void> => {
-  if (!trx) {
-    await database.transaction().execute((newTrx) => updateAllPayouts(week, newTrx));
-
-    return;
-  }
-
-  const db = trx;
-  const weeklyPrizes = await getWeeklyPrizeAmounts(trx);
+const payWeeklyPrizes = async (db: Transaction<DB>, week: number): Promise<void> => {
+  const weeklyPrizes = await getWeeklyPrizeAmounts(db);
 
   await db.deleteFrom("Payments").where("PaymentWeek", "is not", null).executeTakeFirstOrThrow();
 
@@ -58,118 +51,103 @@ export const updateAllPayouts = async (week: number, trx?: Transaction<DB>): Pro
       .where("Rank", "<", weeklyPrizes.length)
       .where("Week", "=", i)
       .execute();
-    const adjustedPrizes = getPrizeAmounts(winners, weeklyPrizes);
 
-    for (const winner of winners) {
-      // react-doctor-disable-next-line async-await-in-loop -- these inserts share one transaction connection (trx); mysql2 processes queries on a connection sequentially, so Promise.all here would not run them concurrently
-      await db
-        .insertInto("Payments")
-        .values({
-          PaymentAddedBy: ADMIN_USER,
-          PaymentAmount: adjustedPrizes[winner.Rank] ?? 0,
-          PaymentDescription: `${addOrdinal(winner.Rank)} Place`,
-          PaymentType: "Prize",
-          PaymentUpdatedBy: ADMIN_USER,
-          PaymentWeek: i,
-          UserID: winner.UserID,
-        })
-        .executeTakeFirstOrThrow();
-    }
+    await insertPrizePayments(
+      db,
+      winners,
+      getPrizeAmounts(winners, weeklyPrizes),
+      (rank) => `${addOrdinal(rank)} Place`,
+      i,
+    );
+  }
+};
+
+const payLastPlacePrize = async (db: Transaction<DB>): Promise<void> => {
+  const lastPlacePrize = await getOverallPrizeForLastPlace();
+  const lastPlacePrizes = [0];
+  const lastPlace = await db
+    .selectFrom("OverallMV")
+    .select(({ ref }) => [sql<number>`max(${ref("Rank")})`.as("Lowest")])
+    .where("GamesMissed", "=", 0)
+    .executeTakeFirstOrThrow();
+
+  if (!lastPlace) return;
+
+  lastPlacePrizes[lastPlace.Lowest] = lastPlacePrize;
+
+  const lastPlaceWinners = await db
+    .selectFrom("OverallMV")
+    .select(["Rank", "UserID"])
+    .where("Rank", "=", lastPlace.Lowest)
+    .execute();
+
+  await insertPrizePayments(
+    db,
+    lastPlaceWinners,
+    getPrizeAmounts(lastPlaceWinners, lastPlacePrizes),
+    () => `Last Place Overall`,
+    null,
+  );
+};
+
+const payOverallPrizes = async (db: Transaction<DB>): Promise<void> => {
+  await db.deleteFrom("Payments").where("PaymentDescription", "like", "% Overall").executeTakeFirstOrThrow();
+
+  const overallPrizes = await getOverallPrizeAmounts();
+  const winners = await db
+    .selectFrom("OverallMV")
+    .select(["Rank", "UserID"])
+    .where("Rank", "<", overallPrizes.length)
+    .execute();
+
+  await insertPrizePayments(
+    db,
+    winners,
+    getPrizeAmounts(winners, overallPrizes),
+    (rank) => `${addOrdinal(rank)} Place Overall`,
+    null,
+  );
+  await payLastPlacePrize(db);
+};
+
+const paySurvivorPrizes = async (db: Transaction<DB>): Promise<void> => {
+  await db.deleteFrom("Payments").where("PaymentDescription", "like", "% Survivor Pool").executeTakeFirstOrThrow();
+
+  const survivorPrizes = await getSurvivorPrizeAmounts();
+  const winners = await db
+    .selectFrom("SurvivorMV")
+    .select(["Rank", "UserID"])
+    .where("Rank", "<", survivorPrizes.length)
+    .execute();
+
+  await insertPrizePayments(
+    db,
+    winners,
+    getPrizeAmounts(winners, survivorPrizes),
+    (rank) => `${addOrdinal(rank)} Place Survivor Pool`,
+    null,
+  );
+};
+
+export const updateAllPayouts = async (week: number, trx?: Transaction<DB>): Promise<void> => {
+  if (!trx) {
+    await database.transaction().execute((newTrx) => updateAllPayouts(week, newTrx));
+
+    return;
   }
 
-  const gamesLeft = await db.selectFrom("Games").select("GameID").where("GameStatus", "!=", "Final").execute();
+  await payWeeklyPrizes(trx, week);
+
+  const gamesLeft = await trx.selectFrom("Games").select("GameID").where("GameStatus", "!=", "Final").execute();
   const seasonIsOver = gamesLeft.length === 0;
 
   if (seasonIsOver) {
-    await db.deleteFrom("Payments").where("PaymentDescription", "like", "% Overall").executeTakeFirstOrThrow();
-
-    const overallPrizes = await getOverallPrizeAmounts();
-    const winners = await db
-      .selectFrom("OverallMV")
-      .select(["Rank", "UserID"])
-      .where("Rank", "<", overallPrizes.length)
-      .execute();
-    const adjustedPrizes = getPrizeAmounts(winners, overallPrizes);
-
-    for (const winner of winners) {
-      // react-doctor-disable-next-line async-await-in-loop -- these inserts share one transaction connection (trx); mysql2 processes queries on a connection sequentially, so Promise.all here would not run them concurrently
-      await db
-        .insertInto("Payments")
-        .values({
-          PaymentAddedBy: ADMIN_USER,
-          PaymentAmount: adjustedPrizes[winner.Rank] ?? 0,
-          PaymentDescription: `${addOrdinal(winner.Rank)} Place Overall`,
-          PaymentType: "Prize",
-          PaymentUpdatedBy: ADMIN_USER,
-          PaymentWeek: null,
-          UserID: winner.UserID,
-        })
-        .executeTakeFirstOrThrow();
-    }
-
-    const lastPlacePrize = await getOverallPrizeForLastPlace();
-    const lastPlacePrizes = [0];
-    const lastPlace = await db
-      .selectFrom("OverallMV")
-      .select(({ ref }) => [sql<number>`max(${ref("Rank")})`.as("Lowest")])
-      .where("GamesMissed", "=", 0)
-      .executeTakeFirstOrThrow();
-
-    if (lastPlace) {
-      lastPlacePrizes[lastPlace.Lowest] = lastPlacePrize;
-
-      const lastPlaceWinners = await db
-        .selectFrom("OverallMV")
-        .select(["Rank", "UserID"])
-        .where("Rank", "=", lastPlace.Lowest)
-        .execute();
-      const adjustedPrizes = getPrizeAmounts(lastPlaceWinners, lastPlacePrizes);
-
-      for (const winner of lastPlaceWinners) {
-        // react-doctor-disable-next-line async-await-in-loop -- these inserts share one transaction connection (trx); mysql2 processes queries on a connection sequentially, so Promise.all here would not run them concurrently
-        await db
-          .insertInto("Payments")
-          .values({
-            PaymentAddedBy: ADMIN_USER,
-            PaymentAmount: adjustedPrizes[winner.Rank] ?? 0,
-            PaymentDescription: `Last Place Overall`,
-            PaymentType: "Prize",
-            PaymentUpdatedBy: ADMIN_USER,
-            PaymentWeek: null,
-            UserID: winner.UserID,
-          })
-          .executeTakeFirstOrThrow();
-      }
-    }
+    await payOverallPrizes(trx);
   }
 
   const { justEnded } = await getSurvivorPoolStatus(week);
 
   if (justEnded) {
-    await db.deleteFrom("Payments").where("PaymentDescription", "like", "% Survivor Pool").executeTakeFirstOrThrow();
-
-    const survivorPrizes = await getSurvivorPrizeAmounts();
-    const winners = await db
-      .selectFrom("SurvivorMV")
-      .select(["Rank", "UserID"])
-      .where("Rank", "<", survivorPrizes.length)
-      .execute();
-    const adjustedPrizes = getPrizeAmounts(winners, survivorPrizes);
-
-    for (const winner of winners) {
-      // react-doctor-disable-next-line async-await-in-loop -- these inserts share one transaction connection (trx); mysql2 processes queries on a connection sequentially, so Promise.all here would not run them concurrently
-      await db
-        .insertInto("Payments")
-        .values({
-          PaymentAddedBy: ADMIN_USER,
-          PaymentAmount: adjustedPrizes[winner.Rank] ?? 0,
-          PaymentDescription: `${addOrdinal(winner.Rank)} Place Survivor Pool`,
-          PaymentType: "Prize",
-          PaymentUpdatedBy: ADMIN_USER,
-          PaymentWeek: null,
-          UserID: winner.UserID,
-        })
-        .executeTakeFirstOrThrow();
-    }
+    await paySurvivorPrizes(trx);
   }
 };
