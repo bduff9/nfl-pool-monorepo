@@ -3,19 +3,19 @@
   "config": {},
   "contributors": [],
   "dependencies": {
-    "turbo": "2.11.0"
+    "turbo": "2.11.7"
   },
   "description": "NFL Pool Monorepo.",
   "devDependencies": {
-    "@biomejs/biome": "2.5.14",
-    "fallow": "3.27.0",
+    "@biomejs/biome": "2.5.15",
+    "fallow": "3.33.1",
     "husky": "9.1.7",
     "npm-package-json-lint": "11.0.0",
-    "nuqs": "2.10.1",
-    "react-doctor": "^0.9.14",
+    "nuqs": "2.10.2",
+    "react-doctor": "^0.9.17",
     "typescript": "7.0.2",
     "typesync": "0.14.3",
-    "vitest": "5.0.1"
+    "vitest": "5.0.3"
   },
   "engines": {
     "node": ">=24"

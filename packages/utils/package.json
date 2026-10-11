@@ -3,9 +3,9 @@
   "config": {},
   "contributors": [],
   "dependencies": {
-    "arktype": "2.2.3",
-    "cn": "0.3.0",
-    "mysql2": "3.24.4",
+    "arktype": "2.2.8",
+    "cn": "0.4.0",
+    "mysql2": "3.24.5",
     "mysqldump": "3.2.0"
   },
   "description": "Utility functions for the NFL Pool.",

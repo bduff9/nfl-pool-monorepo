@@ -5,14 +5,14 @@
   "dependencies": {
     "@nfl-pool-monorepo/db": "workspace:*",
     "@nfl-pool-monorepo/utils": "workspace:*",
-    "arktype": "2.2.3",
+    "arktype": "2.2.8",
     "kysely": "0.29.6"
   },
   "description": "API package for the NFL Pool.",
   "devDependencies": {
     "@chenglou/freerange": "0.0.5",
     "@nfl-pool-monorepo/tsconfig": "workspace:*",
-    "@types/node": "26.6.1"
+    "@types/node": "26.6.5"
   },
   "engines": {
     "node": ">=24"
