@@ -7,6 +7,7 @@ import sendPicksSubmittedPushNotification from "@nfl-pool-monorepo/transactional
 import sendPicksSubmittedSMS from "@nfl-pool-monorepo/transactional/sms/picksSubmitted";
 import { sql } from "kysely";
 import { revalidatePath, updateTag } from "next/cache";
+import { after } from "next/server";
 import "server-only";
 
 import { getLowestUnusedPoint } from "@nfl-pool-monorepo/db/src/queries/pick";
@@ -172,11 +173,14 @@ export const quickPick = authActionClient
       .where("PickID", "=", pick.PickID)
       .executeTakeFirstOrThrow();
 
-    try {
-      await sendQuickPickConfirmationEmail(user.id, teamId, lowestPoint, game.GameWeek);
-    } catch (error) {
-      console.error("Failed to send quick pick confirmation email", { error, teamId, userId: user.id });
-    }
+    // The confirmation goes out after the response, so tapping a team in the email isn't held up by sending another
+    after(async () => {
+      try {
+        await sendQuickPickConfirmationEmail(user.id, teamId, lowestPoint, game.GameWeek);
+      } catch (error) {
+        console.error("Failed to send quick pick confirmation email", { error, teamId, userId: user.id });
+      }
+    });
 
     return {
       metadata: {},
@@ -328,6 +332,45 @@ export const setMyPick = authActionClient
     };
   });
 
+type SubmittingUser = Parameters<typeof sendPicksSubmittedEmail>[0];
+
+const sendPicksSubmittedNotifications = async (
+  user: SubmittingUser,
+  week: number,
+  tiebreakerLastScore: number,
+): Promise<void> => {
+  try {
+    const notification = await db
+      .selectFrom("Notifications as N")
+      .select(["N.NotificationEmail", "N.NotificationSMS", "N.NotificationPushNotification"])
+      .innerJoin("Users as U", "U.UserID", "N.UserID")
+      .where("U.UserCommunicationsOptedOut", "=", 0)
+      .where("N.NotificationType", "=", "PicksSubmitted")
+      .where("N.UserID", "=", user.id)
+      .executeTakeFirst();
+
+    if (notification?.NotificationEmail === 1) {
+      await sendPicksSubmittedEmail(user, week, tiebreakerLastScore);
+    }
+
+    if (notification?.NotificationSMS === 1) {
+      await sendPicksSubmittedSMS(user, week, tiebreakerLastScore);
+    }
+
+    if (notification?.NotificationPushNotification === 1) {
+      const pushUser = await db
+        .selectFrom("Users")
+        .select(["UserID", "UserFirstName"])
+        .where("UserID", "=", user.id)
+        .executeTakeFirstOrThrow();
+
+      await sendPicksSubmittedPushNotification(pushUser, week);
+    }
+  } catch (error) {
+    console.error("Failed to send picks submitted notifications", { error, week });
+  }
+};
+
 export const submitMyPicks = authActionClient
   .inputSchema(type({ week: weekSchema }))
   .outputSchema(serverActionResultSchema)
@@ -419,38 +462,9 @@ export const submitMyPicks = authActionClient
 
     expirePickCaches(week, "/picks/view");
 
-    // Notifications fire after the transaction commits so the pooled connection is never
-    // held across external HTTP calls; a notification failure must not fail the submit.
-    try {
-      const notification = await db
-        .selectFrom("Notifications as N")
-        .select(["N.NotificationEmail", "N.NotificationSMS", "N.NotificationPushNotification"])
-        .innerJoin("Users as U", "U.UserID", "N.UserID")
-        .where("U.UserCommunicationsOptedOut", "=", 0)
-        .where("N.NotificationType", "=", "PicksSubmitted")
-        .where("N.UserID", "=", ctx.user.id)
-        .executeTakeFirst();
-
-      if (notification?.NotificationEmail === 1) {
-        await sendPicksSubmittedEmail(ctx.user, week, tiebreakerLastScore);
-      }
-
-      if (notification?.NotificationSMS === 1) {
-        await sendPicksSubmittedSMS(ctx.user, week, tiebreakerLastScore);
-      }
-
-      if (notification?.NotificationPushNotification === 1) {
-        const user = await db
-          .selectFrom("Users")
-          .select(["UserID", "UserFirstName"])
-          .where("UserID", "=", ctx.user.id)
-          .executeTakeFirstOrThrow();
-
-        await sendPicksSubmittedPushNotification(user, week);
-      }
-    } catch (error) {
-      console.error("Failed to send picks submitted notifications", { error, week });
-    }
+    // Notifications go out after the response, once the transaction has committed, so submitting doesn't wait on
+    // email, SMS and push; a notification failure must not fail the submit.
+    after(() => sendPicksSubmittedNotifications(ctx.user, week, tiebreakerLastScore));
 
     return {
       metadata: {},

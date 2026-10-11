@@ -3,6 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 let mockDb: MockDb;
 
+// Work scheduled with next/server's after() runs once the response is sent; tests run it by hand
+const afterCallbacks = vi.hoisted(() => [] as Array<() => unknown>);
+const runAfterCallbacks = async (): Promise<void> => {
+  for (const callback of afterCallbacks.splice(0)) {
+    await callback();
+  }
+};
+
 const getCurrentSession = vi.fn();
 const sendPicksSubmittedEmail = vi.fn();
 const sendPicksSubmittedSMS = vi.fn();
@@ -26,6 +34,7 @@ vi.mock("@nfl-pool-monorepo/transactional/pushNotifications/picksSubmitted", () 
 }));
 vi.mock("@nfl-pool-monorepo/transactional/sms/picksSubmitted", () => ({ default: sendPicksSubmittedSMS }));
 vi.mock("next/cache", () => ({ revalidatePath, updateTag }));
+vi.mock("next/server", () => ({ after: (callback: () => unknown) => afterCallbacks.push(callback) }));
 
 const AUTHED_USER = {
   doneRegistering: 1,
@@ -50,6 +59,7 @@ describe("submitMyPicks", () => {
     sendPicksSubmittedEmail.mockReset();
     sendPicksSubmittedSMS.mockReset();
     sendPicksSubmittedPushNotification.mockReset();
+    afterCallbacks.length = 0;
     revalidatePath.mockReset();
     updateTag.mockReset();
     vi.resetModules();
@@ -100,6 +110,9 @@ describe("submitMyPicks", () => {
     expect(result?.serverError).toBeUndefined();
     expect(result?.data?.status).toBe("Success");
     expect(mockDb.insertInto).toHaveBeenCalledWith("Logs");
+
+    await runAfterCallbacks();
+
     expect(sendPicksSubmittedEmail).not.toHaveBeenCalled();
     expect(revalidatePath).toHaveBeenCalledWith("/picks/view");
     expectPickTagsExpired();
@@ -120,6 +133,10 @@ describe("submitMyPicks", () => {
     const { submitMyPicks } = await import("./pick");
     await submitMyPicks({ week: 1 });
 
+    expect(sendPicksSubmittedEmail).not.toHaveBeenCalled();
+
+    await runAfterCallbacks();
+
     expect(sendPicksSubmittedEmail).toHaveBeenCalledWith(AUTHED_USER, 1, 45);
     expect(sendPicksSubmittedSMS).not.toHaveBeenCalled();
   });
@@ -131,6 +148,7 @@ describe("quickPick", () => {
     getCurrentSession.mockReset().mockResolvedValue({ session: { id: "s1" }, user: AUTHED_USER });
     getLowestUnusedPoint.mockReset();
     sendQuickPickConfirmationEmail.mockReset();
+    afterCallbacks.length = 0;
     vi.resetModules();
   });
 
@@ -186,6 +204,10 @@ describe("quickPick", () => {
 
     expect(result?.data?.status).toBe("Success");
     expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({ PickPoints: 4, TeamID: 5 }));
+    expect(sendQuickPickConfirmationEmail).not.toHaveBeenCalled();
+
+    await runAfterCallbacks();
+
     expect(sendQuickPickConfirmationEmail).toHaveBeenCalledWith(1, 5, 4, 1);
   });
 
@@ -202,6 +224,7 @@ describe("quickPick", () => {
 
     expect(result?.serverError).toBeUndefined();
     expect(result?.data?.status).toBe("Success");
+    await expect(runAfterCallbacks()).resolves.toBeUndefined();
   });
 });
 

@@ -22,6 +22,7 @@ import CustomHead from "@/components/CustomHead/CustomHead";
 import InstallAppPrompt from "@/components/InstallAppPrompt/InstallAppPrompt.client";
 import OverallDashboard from "@/components/OverallDashboard/OverallDashboard";
 import PageContent from "@/components/PageContent/PageContent";
+import SectionError from "@/components/SectionError/SectionError.client";
 import SurvivorDashboard from "@/components/SurvivorDashboard/SurvivorDashboard";
 import Crossfade from "@/components/ViewTransitions/Crossfade";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
@@ -54,21 +55,27 @@ const DashboardPageBody: FC<PageProps<"/">> = async ({ searchParams }) => {
         <PageContent className="pt-5 md:pt-3 pb-4 w-full">
           <InstallAppPrompt />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-0 min-h-dvh">
-            <Suspense fallback={<DashboardLoader title="Weekly Rank" />}>
-              <Crossfade>
-                <WeeklyDashboard selectedWeek={selectedWeek} />
-              </Crossfade>
-            </Suspense>
-            <Suspense fallback={<DashboardLoader title="Overall Rank" />}>
-              <Crossfade>
-                <OverallDashboard />
-              </Crossfade>
-            </Suspense>
-            <Suspense fallback={<DashboardLoader title="Survivor Pool" />}>
-              <Crossfade>
-                <SurvivorDashboard selectedWeek={selectedWeek} />
-              </Crossfade>
-            </Suspense>
+            <SectionError title="Weekly Rank">
+              <Suspense fallback={<DashboardLoader title="Weekly Rank" />}>
+                <Crossfade>
+                  <WeeklyDashboard selectedWeek={selectedWeek} />
+                </Crossfade>
+              </Suspense>
+            </SectionError>
+            <SectionError title="Overall Rank">
+              <Suspense fallback={<DashboardLoader title="Overall Rank" />}>
+                <Crossfade>
+                  <OverallDashboard />
+                </Crossfade>
+              </Suspense>
+            </SectionError>
+            <SectionError title="Survivor Pool">
+              <Suspense fallback={<DashboardLoader title="Survivor Pool" />}>
+                <Crossfade>
+                  <SurvivorDashboard selectedWeek={selectedWeek} />
+                </Crossfade>
+              </Suspense>
+            </SectionError>
           </div>
         </PageContent>
       </div>

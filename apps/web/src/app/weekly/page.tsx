@@ -29,6 +29,7 @@ import RankingPieChart from "@/components/RankingPieChart/RankingPieChart";
 import RetryableSection from "@/components/RetryableSection/RetryableSection";
 import ScenariosDashboard from "@/components/ScenariosDashboard/ScenariosDashboard";
 import ScoreboardLiveRefresh from "@/components/ScoreboardLiveRefresh/ScoreboardLiveRefresh";
+import SectionError from "@/components/SectionError/SectionError.client";
 import Crossfade from "@/components/ViewTransitions/Crossfade";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { WeekLink } from "@/components/WeekLink/WeekLink";
@@ -185,9 +186,11 @@ const WeeklyRankingsPageBody: FC<PageProps<"/weekly">> = async ({ searchParams }
                 &laquo; Back to Dashboard
               </WeekLink>
             </div>
-            <Suspense fallback={null}>
-              <ScenariosDashboard scope="weekly" />
-            </Suspense>
+            <SectionError title="Scenarios">
+              <Suspense fallback={null}>
+                <ScenariosDashboard scope="weekly" />
+              </Suspense>
+            </SectionError>
             <div className="hidden md:inline-block flex-1 px-3">
               <WeeklyDashboardResults className="mb-4 text-center" selectedWeek={selectedWeek} />
               <ProgressChart
