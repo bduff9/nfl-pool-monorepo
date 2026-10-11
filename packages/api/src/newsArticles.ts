@@ -16,10 +16,10 @@
 
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { getRandomInteger } from "@nfl-pool-monorepo/utils/numbers";
+import { type APINewsArticle, newsArticlesSchema } from "@nfl-pool-monorepo/utils/validation";
 import { type } from "arktype";
 
 import { fetchWithRetry } from "./fetchWithRetry";
-import { type APINewsArticle, newsArticlesSchema } from "./validation";
 
 const getAPINewsURL = (week: number, from: string): string =>
   `https://newsapi.org/v2/everything?q=+nfl week ${week} -fantasy -college -roundup&excludeDomains=engadget.com,androidcentral.com&from=${from}&apiKey=${process.env.API_NEWS_KEY}`;

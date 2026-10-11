@@ -6,6 +6,7 @@
     "@aws-sdk/client-s3": "3.1149.0",
     "@hello-pangea/dnd": "18.0.1",
     "@hookform/resolvers": "5.9.1",
+    "@nfl-pool-monorepo/api": "workspace:*",
     "@nfl-pool-monorepo/db": "workspace:*",
     "@nfl-pool-monorepo/transactional": "workspace:*",
     "@nfl-pool-monorepo/types": "workspace:*",

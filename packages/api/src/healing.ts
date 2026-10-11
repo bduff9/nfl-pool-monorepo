@@ -21,10 +21,11 @@ import { findFutureGame, getGamesForWeek } from "@nfl-pool-monorepo/db/src/queri
 import { getUserPicksForWeek } from "@nfl-pool-monorepo/db/src/queries/pick";
 import { getTeamsFromDB } from "@nfl-pool-monorepo/db/src/queries/team";
 import { getAllRegisteredUsers } from "@nfl-pool-monorepo/db/src/queries/user";
-import { sendInvalidGamesEmail } from "@nfl-pool-monorepo/transactional/emails/invalidGames";
+import type { KickoffChange } from "@nfl-pool-monorepo/types";
 import { ADMIN_USER, WEEKS_IN_SEASON } from "@nfl-pool-monorepo/utils/constants";
 import type { Selectable } from "kysely";
 
+import { sendInvalidGamesEmail } from "./invalidGamesEmail";
 import { parseTeamsFromApi } from "./utils";
 import type { ApiMatchup, NFLWeekArray } from "./validation";
 
@@ -271,14 +272,6 @@ const findFutureAPIGame = (allAPIWeeks: NFLWeekArray, gameToFind: Game): [number
   }
 
   return [WEEKS_IN_SEASON, null];
-};
-
-export type KickoffChange = {
-  gameID: number;
-  newKickoff: Date;
-  oldKickoff: Date;
-  // The week the game sat in when users made picks on it, not necessarily the new week.
-  week: number;
 };
 
 // fallow-ignore-next-line complexity -- healing is inherently branchy; kickoff-change collection added three bookkeeping pushes, no new reconciliation logic

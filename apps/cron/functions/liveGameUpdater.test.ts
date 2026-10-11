@@ -27,16 +27,22 @@ const sendPicksAutoSubmittedNotifications = vi.fn();
 const sendSurvivorEliminatedNotifications = vi.fn();
 const sendWeekEndedNotifications = vi.fn();
 const sendWeeklyEmails = vi.fn();
+const getArticlesForWeek = vi.fn();
 
 vi.mock("@nfl-pool-monorepo/db/src/queries/week", () => ({ getCurrentWeek }));
-vi.mock("@nfl-pool-monorepo/db/src/queries/game", () => ({ checkDBIfUpdatesNeeded, hasUnfinishedGames }));
+vi.mock("@nfl-pool-monorepo/db/src/queries/game", () => ({
+  checkDBIfUpdatesNeeded,
+  getDbGameFromApi,
+  hasUnfinishedGames,
+}));
 vi.mock("@nfl-pool-monorepo/db/src/queries/systemValue", () => ({ getSystemYear, hasSystemValue }));
 vi.mock("@nfl-pool-monorepo/db/src/mutations/systemValue", () => ({ setSystemValue }));
 vi.mock("@nfl-pool-monorepo/db/src/queries/team", () => ({ getTeamsFromDB }));
 vi.mock("@nfl-pool-monorepo/api/src", () => ({ getSingleWeekFromApi }));
-vi.mock("@nfl-pool-monorepo/api/src/utils", () => ({ getDbGameFromApi, parseTeamsFromApi }));
+vi.mock("@nfl-pool-monorepo/api/src/utils", () => ({ parseTeamsFromApi }));
 vi.mock("@nfl-pool-monorepo/db/src/mutations/team", () => ({ updateTeamData }));
-vi.mock("@nfl-pool-monorepo/db/src/mutations/game", () => ({ updateDBGame, updateSpreads }));
+vi.mock("@nfl-pool-monorepo/api/src/newsArticles", () => ({ getArticlesForWeek }));
+vi.mock("@nfl-pool-monorepo/api/src/mutations/game", () => ({ updateDBGame, updateSpreads }));
 vi.mock("@nfl-pool-monorepo/db/src/mutations/pick", () => ({ updateMissedPicks }));
 vi.mock("@nfl-pool-monorepo/db/src/mutations/survivorPick", () => ({ markEmptySurvivorPicksAsDead }));
 vi.mock("@nfl-pool-monorepo/db/src/mutations/survivorMv", () => ({ updateSurvivorMV }));
@@ -46,7 +52,8 @@ vi.mock("@nfl-pool-monorepo/db/src/mutations/bestPlacement", () => ({
   updateBestPlacementOverall,
   updateBestPlacementWeekly,
 }));
-vi.mock("@nfl-pool-monorepo/db/src/mutations/payment", () => ({ lockLatePaymentUsers, updateAllPayouts }));
+vi.mock("@nfl-pool-monorepo/api/src/payment", () => ({ lockLatePaymentUsers }));
+vi.mock("@nfl-pool-monorepo/db/src/mutations/payment", () => ({ updateAllPayouts }));
 vi.mock("@nfl-pool-monorepo/transactional/src/picksAutoSubmitted", () => ({ sendPicksAutoSubmittedNotifications }));
 vi.mock("@nfl-pool-monorepo/transactional/src/survivorEliminated", () => ({ sendSurvivorEliminatedNotifications }));
 vi.mock("@nfl-pool-monorepo/transactional/src/alerts", () => ({
@@ -96,6 +103,7 @@ const resetAllMocks = () => {
   sendWeekStartedNotifications.mockReset().mockResolvedValue(undefined);
   sendWeekEndedNotifications.mockReset().mockResolvedValue(undefined);
   sendWeeklyEmails.mockReset().mockResolvedValue(undefined);
+  getArticlesForWeek.mockReset().mockResolvedValue([]);
   vi.resetModules();
 };
 
@@ -166,7 +174,7 @@ describe("liveGameUpdater handler", () => {
 
     expect(updateAllPayouts).toHaveBeenCalledWith(5);
     expect(sendWeekEndedNotifications).toHaveBeenCalledWith(5);
-    expect(sendWeeklyEmails).toHaveBeenCalledWith(5);
+    expect(sendWeeklyEmails).toHaveBeenCalledWith(5, []);
     expect(lockLatePaymentUsers).toHaveBeenCalledWith(5);
   });
 

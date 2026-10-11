@@ -1,5 +1,5 @@
-import type { KickoffChange } from "@nfl-pool-monorepo/api/src/healing";
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
+import type { KickoffChange } from "@nfl-pool-monorepo/types";
 import { MILLISECONDS_IN_SECOND, SECONDS_IN_MINUTE } from "@nfl-pool-monorepo/utils/constants";
 
 import { sendGameTimeChangedEmail } from "../emails/gameTimeChanged";

@@ -1,10 +1,16 @@
-import { parseTeamsFromApi } from "@nfl-pool-monorepo/api/src/utils";
-import type { ApiMatchup } from "@nfl-pool-monorepo/api/src/validation";
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import type { getGamesForWeek } from "@nfl-pool-monorepo/db/src/queries/game";
+import {
+  getBaseEmailClass,
+  getBrowserLink,
+  getUnsubscribeLink,
+  sendEmail,
+  updateEmailClass,
+} from "@nfl-pool-monorepo/transactional/emails";
+import { getHtml, getPlainText, getSubject } from "@nfl-pool-monorepo/transactional/emails/templates/InvalidGamesEmail";
 
-import { getBaseEmailClass, getBrowserLink, getUnsubscribeLink, sendEmail, updateEmailClass } from ".";
-import { getHtml, getPlainText, getSubject } from "./templates/InvalidGamesEmail";
+import { parseTeamsFromApi } from "./utils";
+import type { ApiMatchup } from "./validation";
 
 type InvalidGameMessage = {
   game: string;

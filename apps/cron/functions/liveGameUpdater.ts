@@ -1,19 +1,21 @@
 import { getSingleWeekFromApi } from "@nfl-pool-monorepo/api/src";
-import { getDbGameFromApi, parseTeamsFromApi } from "@nfl-pool-monorepo/api/src/utils";
+import { updateDBGame, updateSpreads } from "@nfl-pool-monorepo/api/src/mutations/game";
+import { getArticlesForWeek } from "@nfl-pool-monorepo/api/src/newsArticles";
+import { lockLatePaymentUsers } from "@nfl-pool-monorepo/api/src/payment";
+import { parseTeamsFromApi } from "@nfl-pool-monorepo/api/src/utils";
 import {
   updateBestPlacementOverall,
   updateBestPlacementWeekly,
 } from "@nfl-pool-monorepo/db/src/mutations/bestPlacement";
-import { updateDBGame, updateSpreads } from "@nfl-pool-monorepo/db/src/mutations/game";
 import { updateOverallMV } from "@nfl-pool-monorepo/db/src/mutations/overallMv";
-import { lockLatePaymentUsers, updateAllPayouts } from "@nfl-pool-monorepo/db/src/mutations/payment";
+import { updateAllPayouts } from "@nfl-pool-monorepo/db/src/mutations/payment";
 import { updateMissedPicks } from "@nfl-pool-monorepo/db/src/mutations/pick";
 import { updateSurvivorMV } from "@nfl-pool-monorepo/db/src/mutations/survivorMv";
 import { markEmptySurvivorPicksAsDead } from "@nfl-pool-monorepo/db/src/mutations/survivorPick";
 import { setSystemValue } from "@nfl-pool-monorepo/db/src/mutations/systemValue";
 import { updateTeamData } from "@nfl-pool-monorepo/db/src/mutations/team";
 import { updateWeeklyMV } from "@nfl-pool-monorepo/db/src/mutations/weeklyMv";
-import { checkDBIfUpdatesNeeded, hasUnfinishedGames } from "@nfl-pool-monorepo/db/src/queries/game";
+import { checkDBIfUpdatesNeeded, getDbGameFromApi, hasUnfinishedGames } from "@nfl-pool-monorepo/db/src/queries/game";
 import { getSystemYear, hasSystemValue } from "@nfl-pool-monorepo/db/src/queries/systemValue";
 import { getTeamsFromDB } from "@nfl-pool-monorepo/db/src/queries/team";
 import { getCurrentWeek } from "@nfl-pool-monorepo/db/src/queries/week";
@@ -47,7 +49,8 @@ const finalizeWeekIfNeeded = async (week: number): Promise<void> => {
 
   await updateAllPayouts(week);
   await sendWeekEndedNotifications(week);
-  await sendWeeklyEmails(week);
+  // Articles are the same for every recipient, so fetch them once instead of per user
+  await sendWeeklyEmails(week, await getArticlesForWeek(week));
   await lockLatePaymentUsers(week);
   await setSystemValue(finalizedFlag, "1");
 

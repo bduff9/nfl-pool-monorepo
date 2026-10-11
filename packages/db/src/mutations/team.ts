@@ -1,4 +1,3 @@
-import type { ApiTeam } from "@nfl-pool-monorepo/api/src/validation";
 import { ADMIN_USER } from "@nfl-pool-monorepo/utils/constants";
 
 import { db } from "../kysely";
@@ -25,7 +24,15 @@ export const updateTeamByeWeeks = async (week: number): Promise<void> => {
     .executeTakeFirstOrThrow();
 };
 
-export const updateTeamData = async (teamID: number, data: ApiTeam, week: number): Promise<void> => {
+// The rankings as the NFL API reports them
+type TeamRankingsFromApi = {
+  passDefenseRank: number;
+  passOffenseRank: number;
+  rushDefenseRank: number;
+  rushOffenseRank: number;
+};
+
+export const updateTeamData = async (teamID: number, data: TeamRankingsFromApi, week: number): Promise<void> => {
   const team = await db
     .selectFrom("Teams")
     .select(["TeamByeWeek"])

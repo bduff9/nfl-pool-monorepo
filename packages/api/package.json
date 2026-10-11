@@ -4,8 +4,11 @@
   "contributors": [],
   "dependencies": {
     "@nfl-pool-monorepo/db": "workspace:*",
+    "@nfl-pool-monorepo/transactional": "workspace:*",
+    "@nfl-pool-monorepo/types": "workspace:*",
     "@nfl-pool-monorepo/utils": "workspace:*",
     "arktype": "2.2.8",
+    "date-fns": "4.4.0",
     "kysely": "0.29.6"
   },
   "description": "API package for the NFL Pool.",

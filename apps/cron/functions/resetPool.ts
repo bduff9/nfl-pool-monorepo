@@ -1,6 +1,6 @@
 import { getEntireSeasonFromApi } from "@nfl-pool-monorepo/api/src";
+import { populateGames } from "@nfl-pool-monorepo/api/src/mutations/game";
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
-import { populateGames } from "@nfl-pool-monorepo/db/src/mutations/game";
 import { populateWinnerHistory } from "@nfl-pool-monorepo/db/src/mutations/history";
 import { clearOldUserData } from "@nfl-pool-monorepo/db/src/mutations/users";
 import { verifySeasonYearForReset } from "@nfl-pool-monorepo/db/src/queries/systemValue";

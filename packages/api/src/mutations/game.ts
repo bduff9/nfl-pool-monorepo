@@ -1,18 +1,13 @@
-import {
-  getDbGameFromApi,
-  getGameStatusFromAPI,
-  parseTeamsFromApi,
-  updateTeamDataByShortName,
-} from "@nfl-pool-monorepo/api/src/utils";
-import type { ApiMatchup, NFLWeekArray } from "@nfl-pool-monorepo/api/src/validation";
+import type { DB, Games } from "@nfl-pool-monorepo/db/src";
+import { db } from "@nfl-pool-monorepo/db/src/kysely";
+import { markWrongSurvivorPicksAsDead } from "@nfl-pool-monorepo/db/src/mutations/survivorPick";
+import { getDbGameFromApi } from "@nfl-pool-monorepo/db/src/queries/game";
+import { getTeamFromDB, getTeamsFromDB } from "@nfl-pool-monorepo/db/src/queries/team";
 import { ADMIN_USER } from "@nfl-pool-monorepo/utils/constants";
 import type { Selectable, Transaction, UpdateObject } from "kysely";
 
-import type { DB, Games } from "..";
-import { db } from "../kysely";
-import { validateAPIData } from "../queries/game";
-import { getTeamFromDB, getTeamsFromDB } from "../queries/team";
-import { markWrongSurvivorPicksAsDead } from "./survivorPick";
+import { getGameStatusFromAPI, parseTeamsFromApi, updateTeamDataByShortName, validateAPIData } from "../utils";
+import type { ApiMatchup, NFLWeekArray } from "../validation";
 
 export const populateGames = async (trx: Transaction<DB>, newSeason: NFLWeekArray): Promise<void> => {
   const teams = await getTeamsFromDB();

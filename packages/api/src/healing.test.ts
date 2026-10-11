@@ -21,7 +21,7 @@ vi.mock("@nfl-pool-monorepo/db/src/queries/user", () => ({ getAllRegisteredUsers
 vi.mock("@nfl-pool-monorepo/db/src/queries/pick", () => ({ getUserPicksForWeek }));
 vi.mock("@nfl-pool-monorepo/db/src/queries/team", () => ({ getTeamsFromDB }));
 vi.mock("@nfl-pool-monorepo/db/src/mutations/team", () => ({ updateTeamByeWeeks }));
-vi.mock("@nfl-pool-monorepo/transactional/emails/invalidGames", () => ({ sendInvalidGamesEmail }));
+vi.mock("./invalidGamesEmail", () => ({ sendInvalidGamesEmail }));
 
 describe("healPicks", () => {
   beforeEach(() => {

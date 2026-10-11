@@ -4,7 +4,6 @@
   "contributors": [],
   "dependencies": {
     "@aws-sdk/client-ses": "3.1149.0",
-    "@nfl-pool-monorepo/api": "workspace:*",
     "@nfl-pool-monorepo/db": "workspace:*",
     "@nfl-pool-monorepo/types": "workspace:*",
     "@nfl-pool-monorepo/utils": "workspace:*",

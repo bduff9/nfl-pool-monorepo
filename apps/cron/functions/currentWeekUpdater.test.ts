@@ -12,7 +12,7 @@ const sendReminderPushNotifications = vi.fn();
 vi.mock("@nfl-pool-monorepo/db/src/queries/week", () => ({ getCurrentWeek }));
 vi.mock("@nfl-pool-monorepo/api/src", () => ({ getSingleWeekFromApi }));
 vi.mock("@nfl-pool-monorepo/api/src/utils", () => ({ updateTeamDataByShortName }));
-vi.mock("@nfl-pool-monorepo/db/src/mutations/game", () => ({ updateSpreads }));
+vi.mock("@nfl-pool-monorepo/api/src/mutations/game", () => ({ updateSpreads }));
 vi.mock("@nfl-pool-monorepo/db/src/queries/game", () => ({ getHoursToWeekStart }));
 vi.mock("@nfl-pool-monorepo/transactional/src/reminders", () => ({
   sendReminderEmails,

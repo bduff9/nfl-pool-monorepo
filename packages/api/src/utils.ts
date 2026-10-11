@@ -15,32 +15,12 @@
  */
 import type { DB, Games } from "@nfl-pool-monorepo/db/src";
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
+import type { getDbGameFromApi } from "@nfl-pool-monorepo/db/src/queries/game";
 import { ADMIN_USER } from "@nfl-pool-monorepo/utils/constants";
+import { differenceInHours } from "date-fns";
 import type { Selectable, Transaction } from "kysely";
 
 import type { ApiMatchup, ApiTeam } from "./validation";
-
-export const getDbGameFromApi = (week: number, homeTeamId: string, visitingTeamId: string) => {
-  return db
-    .selectFrom("Games as g")
-    .innerJoin("Teams as ht", "g.HomeTeamID", "ht.TeamID")
-    .innerJoin("Teams as vt", "g.VisitorTeamID", "vt.TeamID")
-    .select([
-      "g.GameID",
-      "g.GameWeek",
-      "g.GameNumber",
-      "g.GameStatus",
-      "g.HomeTeamID",
-      "g.VisitorTeamID",
-      "g.GameHomeScore",
-      "g.GameVisitorScore",
-      "g.GameTimeLeftInSeconds",
-    ])
-    .where("g.GameWeek", "=", week)
-    .where("ht.TeamShortName", "=", homeTeamId)
-    .where("vt.TeamShortName", "=", visitingTeamId)
-    .executeTakeFirstOrThrow();
-};
 
 export const getGameStatusFromAPI = (game: Pick<ApiMatchup, "quarter" | "status">): Selectable<Games>["GameStatus"] => {
   if (game.status === "SCHED") return "Pregame";
@@ -101,4 +81,134 @@ export const updateTeamDataByShortName = async (
     })
     .where("TeamShortName", "=", teamShortName)
     .executeTakeFirstOrThrow();
+};
+
+export const validateAPIData = (game: ApiMatchup, dbGame: Awaited<ReturnType<typeof getDbGameFromApi>>): boolean => {
+  const QUARTER_ORDER = [
+    "Pregame",
+    "1st Quarter",
+    "2nd Quarter",
+    "Half Time",
+    "3rd Quarter",
+    "4th Quarter",
+    "Overtime",
+    "Final",
+    "Invalid",
+  ] as const;
+  const HOURS_TO_WAIT = 10;
+  const kickoff = game.kickoff;
+  const hoursSinceKickoff = differenceInHours(new Date(), kickoff);
+  const [homeTeam, visitingTeam] = parseTeamsFromApi(game.team);
+
+  if (hoursSinceKickoff >= HOURS_TO_WAIT) {
+    console.log("Game is outside of waiting period, skip validation...", {
+      HOURS_TO_WAIT,
+      homeTeam,
+      hoursSinceKickoff,
+      kickoff,
+      visitingTeam,
+    });
+
+    return true;
+  }
+
+  const homeScoreDB = dbGame.GameHomeScore;
+  const homeScoreAPI = +homeTeam.score;
+
+  if (homeScoreAPI < homeScoreDB) {
+    console.error("Home score is less than what we had previously: ", {
+      homeScoreAPI,
+      homeScoreDB,
+      homeTeam,
+    });
+
+    return false;
+  }
+
+  console.log("Home score from API seems valid: ", {
+    homeScoreAPI,
+    homeScoreDB,
+    homeTeam,
+  });
+
+  const visitorScoreDB = dbGame.GameVisitorScore;
+  const visitorScoreAPI = +visitingTeam.score;
+
+  if (visitorScoreAPI < visitorScoreDB) {
+    console.error("Visitor score is less than what we had previously: ", {
+      visitingTeam,
+      visitorScoreAPI,
+      visitorScoreDB,
+    });
+
+    return false;
+  }
+
+  console.log("Visitor score from API seems valid: ", {
+    visitingTeam,
+    visitorScoreAPI,
+    visitorScoreDB,
+  });
+
+  const quarterDB = dbGame.GameStatus;
+  const quarterAPI = getGameStatusFromAPI(game);
+
+  if (quarterAPI === "Final" && homeScoreAPI === visitorScoreAPI) {
+    console.error(`End score is tied at ${homeScoreAPI}-${visitorScoreAPI}, mistake? `, {
+      HOURS_TO_WAIT,
+      homeScoreAPI,
+      hoursSinceKickoff,
+      kickoff,
+      quarterAPI,
+      visitorScoreAPI,
+    });
+
+    return false;
+  }
+
+  const quarterIndexDB = QUARTER_ORDER.indexOf(quarterDB);
+  const quarterIndexAPI = QUARTER_ORDER.indexOf(quarterAPI);
+
+  if (quarterIndexAPI === quarterIndexDB) {
+    const timeLeftDB = dbGame.GameTimeLeftInSeconds;
+    const timeLeftAPI = +game.gameSecondsRemaining;
+
+    if (timeLeftAPI > timeLeftDB) {
+      console.error("Time left is greater in API than what we had in DB: ", {
+        quarterAPI,
+        quarterDB,
+        timeLeftAPI,
+        timeLeftDB,
+      });
+
+      return false;
+    }
+
+    console.log("Time left from API seems valid: ", {
+      quarterAPI,
+      quarterDB,
+      timeLeftAPI,
+      timeLeftDB,
+    });
+  } else if (quarterIndexAPI < quarterIndexDB) {
+    console.error("Quarter from API is earlier than what we have in DB: ", {
+      QUARTER_ORDER,
+      quarterAPI,
+      quarterDB,
+      quarterIndexAPI,
+      quarterIndexDB,
+    });
+
+    return false;
+  }
+
+  console.log("Quarter from API seems valid: ", {
+    QUARTER_ORDER,
+    quarterAPI,
+    quarterDB,
+    quarterIndexAPI,
+    quarterIndexDB,
+  });
+
+  return true;
 };

@@ -17,7 +17,7 @@ vi.mock("@nfl-pool-monorepo/db/src/kysely", () => ({
   },
 }));
 vi.mock("@/server/loaders/sessions", () => ({ getCurrentSession }));
-vi.mock("@nfl-pool-monorepo/db/src/mutations/game", () => ({ manuallyUpdateGame }));
+vi.mock("@nfl-pool-monorepo/api/src/mutations/game", () => ({ manuallyUpdateGame }));
 vi.mock("@nfl-pool-monorepo/db/src/mutations/overallMv", () => ({ updateOverallMV }));
 vi.mock("@nfl-pool-monorepo/db/src/mutations/survivorMv", () => ({ updateSurvivorMV }));
 vi.mock("@nfl-pool-monorepo/db/src/mutations/weeklyMv", () => ({ updateWeeklyMV }));

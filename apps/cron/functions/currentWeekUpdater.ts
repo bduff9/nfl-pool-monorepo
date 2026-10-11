@@ -1,6 +1,6 @@
 import { getSingleWeekFromApi } from "@nfl-pool-monorepo/api/src/index";
+import { updateSpreads } from "@nfl-pool-monorepo/api/src/mutations/game";
 import { updateTeamDataByShortName } from "@nfl-pool-monorepo/api/src/utils";
-import { updateSpreads } from "@nfl-pool-monorepo/db/src/mutations/game";
 import { getHoursToWeekStart } from "@nfl-pool-monorepo/db/src/queries/game";
 import { getCurrentWeek } from "@nfl-pool-monorepo/db/src/queries/week";
 import {

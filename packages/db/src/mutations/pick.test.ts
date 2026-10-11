@@ -1,6 +1,6 @@
-import type { getDbGameFromApi } from "@nfl-pool-monorepo/api/src/utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { getDbGameFromApi } from "../queries/game";
 import { createMockDb, type MockDb } from "../test-utils/mockDb";
 
 let mockDb: MockDb;

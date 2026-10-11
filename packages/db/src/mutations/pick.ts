@@ -1,11 +1,11 @@
 import { randomInt } from "node:crypto";
 
-import type { getDbGameFromApi } from "@nfl-pool-monorepo/api/src/utils";
 import { ADMIN_USER } from "@nfl-pool-monorepo/utils/constants";
 import type { Selectable } from "kysely";
 
 import type { Users } from "..";
 import { db } from "../kysely";
+import type { getDbGameFromApi } from "../queries/game";
 import { getLowestUnusedPoint } from "../queries/pick";
 
 const shouldAutoPickHome = (type: Selectable<Users>["UserAutoPickStrategy"]): boolean => {

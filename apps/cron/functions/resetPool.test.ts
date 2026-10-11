@@ -17,7 +17,7 @@ vi.mock("@nfl-pool-monorepo/db/src/kysely", () => ({
 }));
 vi.mock("@nfl-pool-monorepo/api/src", () => ({ getEntireSeasonFromApi }));
 vi.mock("@nfl-pool-monorepo/db/src/queries/systemValue", () => ({ verifySeasonYearForReset }));
-vi.mock("@nfl-pool-monorepo/db/src/mutations/game", () => ({ populateGames }));
+vi.mock("@nfl-pool-monorepo/api/src/mutations/game", () => ({ populateGames }));
 vi.mock("@nfl-pool-monorepo/db/src/mutations/history", () => ({ populateWinnerHistory }));
 vi.mock("@nfl-pool-monorepo/db/src/mutations/users", () => ({ clearOldUserData }));
 vi.mock("kysely", async (importOriginal) => {

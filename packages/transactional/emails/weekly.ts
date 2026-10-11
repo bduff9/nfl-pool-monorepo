@@ -1,10 +1,9 @@
-import { getArticlesForWeek } from "@nfl-pool-monorepo/api/src/newsArticles";
-import type { APINewsArticle } from "@nfl-pool-monorepo/api/src/validation";
 import type { Users } from "@nfl-pool-monorepo/db/src";
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { getSurvivorPoolStatus } from "@nfl-pool-monorepo/db/src/queries/survivor";
 import { getUserAlerts } from "@nfl-pool-monorepo/db/src/queries/user";
 import { addOrdinal } from "@nfl-pool-monorepo/utils/numbers";
+import type { APINewsArticle } from "@nfl-pool-monorepo/utils/validation";
 import type { Selectable } from "kysely";
 
 import { getBaseEmailClass, getBrowserLink, getUnsubscribeLink, sendEmail, updateEmailClass } from ".";
@@ -13,11 +12,8 @@ import { getHtml, getPlainText, getSubject } from "./templates/WeeklyEmail";
 export const sendWeeklyEmail = async (
   user: Pick<Selectable<Users>, "UserID" | "UserEmail" | "UserFirstName">,
   week: number,
-  articles?: APINewsArticle[],
+  weekArticles: APINewsArticle[],
 ): Promise<void> => {
-  // Articles are week-wide, so callers sending to many users should fetch once and pass
-  // them in rather than hitting the news API per recipient.
-  const weekArticles = articles ?? (await getArticlesForWeek(week));
   const userMessages: string[] = [];
   const poolUpdates: string[] = [];
   const survivorUpdates: string[] = [];

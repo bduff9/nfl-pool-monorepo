@@ -10,7 +10,6 @@ const sendWeekStartedEmail = vi.fn();
 const sendWeekStartedPushNotification = vi.fn();
 const sendWeekStartedSMS = vi.fn();
 
-vi.mock("@nfl-pool-monorepo/api/src/newsArticles", () => ({ getArticlesForWeek: vi.fn().mockResolvedValue([]) }));
 vi.mock("@nfl-pool-monorepo/db/src/kysely", () => ({
   get db() {
     return mockDb;

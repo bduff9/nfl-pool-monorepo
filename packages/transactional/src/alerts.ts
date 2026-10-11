@@ -1,5 +1,5 @@
-import { getArticlesForWeek } from "@nfl-pool-monorepo/api/src/newsArticles";
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
+import type { APINewsArticle } from "@nfl-pool-monorepo/utils/validation";
 
 import { sendWeekEndedEmail } from "../emails/weekEnded";
 import { sendWeeklyEmail } from "../emails/weekly";
@@ -83,7 +83,7 @@ export const sendWeekStartedNotifications = async (week: number): Promise<void> 
   }
 };
 
-export const sendWeeklyEmails = async (week: number): Promise<void> => {
+export const sendWeeklyEmails = async (week: number, articles: Array<APINewsArticle>): Promise<void> => {
   const emails = await db
     .selectFrom("Notifications as n")
     .innerJoin("Users as u", "n.UserID", "u.UserID")
@@ -92,9 +92,6 @@ export const sendWeeklyEmails = async (week: number): Promise<void> => {
     .where("u.UserDoneRegistering", "=", 1)
     .where("n.NotificationType", "=", "Essentials")
     .execute();
-
-  // Articles are the same for every recipient, so fetch them once instead of per user.
-  const articles = await getArticlesForWeek(week);
 
   for (const user of emails) {
     try {
