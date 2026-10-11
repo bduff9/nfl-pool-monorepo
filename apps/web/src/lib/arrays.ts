@@ -3,38 +3,93 @@ import type { getGamesForWeek } from "@nfl-pool-monorepo/db/src/queries/game";
 import type { getAllPicksForWeek } from "@/server/loaders/pick";
 import type { getWeeklyRankings } from "@/server/loaders/weeklyMv";
 
-const weekPlacer = (
-  user1: Awaited<ReturnType<typeof getWeeklyRankings>>[number],
-  user2: Awaited<ReturnType<typeof getWeeklyRankings>>[number],
-): -1 | 0 | 1 => {
-  // First, sort by points
-  if (user1.PointsEarned > user2.PointsEarned) return -1;
+type Ranking = Awaited<ReturnType<typeof getWeeklyRankings>>[number];
+type Game = Awaited<ReturnType<typeof getGamesForWeek>>[number];
 
-  if (user1.PointsEarned < user2.PointsEarned) return 1;
+// Higher values sort first
+const compareDescending = (a: number, b: number): -1 | 0 | 1 => {
+  if (a === b) return 0;
 
-  // Then, sort by games correct
-  if (user1.GamesCorrect > user2.GamesCorrect) return -1;
+  return a > b ? -1 : 1;
+};
 
-  if (user1.GamesCorrect < user2.GamesCorrect) return 1;
+// The final game's score minus the user's guess, or null while the last game hasn't been played
+const getLastScoreDiff = (user: Ranking): null | number =>
+  typeof user.LastScore === "number" ? user.LastScore - (user.TiebreakerScore ?? 0) : null;
+
+// Whoever didn't go over the last game's score wins, then whoever was closer
+const compareLastScoreDiffs = (diff1: number, diff2: number): -1 | 0 | 1 => {
+  const over1 = diff1 < 0;
+  const over2 = diff2 < 0;
+
+  if (over1 !== over2) return over1 ? 1 : -1;
+
+  return compareDescending(Math.abs(diff2), Math.abs(diff1));
+};
+
+const compareTiebreaker = (user1: Ranking, user2: Ranking): -1 | 0 | 1 => {
+  const diff1 = getLastScoreDiff(user1);
+  const diff2 = getLastScoreDiff(user2);
 
   // Stop here if last game hasn't been played
-  if (typeof user1.LastScore !== "number" || typeof user2.LastScore !== "number") return 0;
+  if (diff1 === null || diff2 === null) return 0;
 
-  // Otherwise, sort by whomever didn't go over the last game's score
-  const lastScoreDiff1 = user1.LastScore - (user1.TiebreakerScore ?? 0);
-  const lastScoreDiff2 = user2.LastScore - (user2.TiebreakerScore ?? 0);
+  return compareLastScoreDiffs(diff1, diff2);
+};
 
-  if (lastScoreDiff1 >= 0 && lastScoreDiff2 < 0) return -1;
+const weekPlacer = (user1: Ranking, user2: Ranking): -1 | 0 | 1 => {
+  // First, sort by points
+  const byPoints = compareDescending(user1.PointsEarned, user2.PointsEarned);
 
-  if (lastScoreDiff1 < 0 && lastScoreDiff2 >= 0) return 1;
+  if (byPoints !== 0) return byPoints;
 
-  // Next, sort by the closer to the last games score
-  if (Math.abs(lastScoreDiff1) < Math.abs(lastScoreDiff2)) return -1;
+  // Then, sort by games correct
+  const byGames = compareDescending(user1.GamesCorrect, user2.GamesCorrect);
 
-  if (Math.abs(lastScoreDiff1) > Math.abs(lastScoreDiff2)) return 1;
+  if (byGames !== 0) return byGames;
 
-  // Finally, if we get here, then they are identical
-  return 0;
+  // Finally, fall back to the last game's score
+  return compareTiebreaker(user1, user2);
+};
+
+const isWinningPick = (pick: Awaited<ReturnType<typeof getAllPicksForWeek>>[number], game: Game | undefined): boolean =>
+  !!game && !!pick.TeamID && !!game.WinnerTeamID && pick.TeamID === game.WinnerTeamID;
+
+const tallyUserPicks = (
+  picks: Awaited<ReturnType<typeof getAllPicksForWeek>>,
+  games: Record<number, Game>,
+  userID: number,
+): [pointsEarned: number, gamesCorrect: number] => {
+  const winners = picks.filter((pick) => pick.UserID === userID && isWinningPick(pick, games[pick.GameID]));
+
+  return [winners.reduce((sum, pick) => sum + (pick.PickPoints ?? 0), 0), winners.length];
+};
+
+// Sets the user's rank (a tied user keeps the rank their predecessor handed them) and returns the place
+const assignRank = (user: Ranking, i: number): number => {
+  if (user.Tied !== 1 || i === 0) {
+    user.Rank = i + 1;
+
+    return i + 1;
+  }
+
+  return user.Rank ?? 0;
+};
+
+const markTiesWithNext = (user: Ranking, nextUser: Ranking, i: number, currPlace: number): void => {
+  if (weekPlacer(user, nextUser) === 0) {
+    user.Tied = 1;
+    nextUser.Rank = currPlace;
+    nextUser.Tied = 1;
+
+    return;
+  }
+
+  if (i === 0) {
+    user.Tied = 0;
+  }
+
+  nextUser.Tied = 0;
 };
 
 export const sortPicks = (
@@ -56,31 +111,7 @@ export const sortPicks = (
 
   console.log(customRanks);
   for (const user of customRanks) {
-    const [pointsEarned, gamesCorrect] = picks.reduce(
-      (acc, pick) => {
-        if (pick.UserID !== user.UserID) {
-          return acc;
-        }
-
-        const game = games[pick.GameID];
-
-        if (!game) {
-          return acc;
-        }
-
-        if (!pick.TeamID || !game.WinnerTeamID) {
-          return acc;
-        }
-
-        if (pick.TeamID === game.WinnerTeamID) {
-          acc[0] += pick.PickPoints ?? 0;
-          acc[1]++;
-        }
-
-        return acc;
-      },
-      [0, 0],
-    );
+    const [pointsEarned, gamesCorrect] = tallyUserPicks(picks, games, user.UserID);
 
     user.PointsEarned = pointsEarned;
     user.GamesCorrect = gamesCorrect;
@@ -89,31 +120,11 @@ export const sortPicks = (
   customRanks.sort(weekPlacer);
 
   customRanks.forEach((user, i, allUsers) => {
-    let currPlace = i + 1;
-    let result: number;
-
-    if (user.Tied !== 1 || i === 0) {
-      user.Rank = currPlace;
-    } else {
-      currPlace = user.Rank ?? 0;
-    }
-
+    const currPlace = assignRank(user, i);
     const nextUser = allUsers[i + 1];
 
     if (nextUser) {
-      result = weekPlacer(user, nextUser);
-
-      if (result === 0) {
-        user.Tied = 1;
-        nextUser.Rank = currPlace;
-        nextUser.Tied = 1;
-      } else {
-        if (i === 0) {
-          user.Tied = 0;
-        }
-
-        nextUser.Tied = 0;
-      }
+      markTiesWithNext(user, nextUser, i, currPlace);
     }
   });
 

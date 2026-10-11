@@ -33,11 +33,48 @@ import { getMyWeeklyPicks } from "@/server/loaders/pick";
 import { getSelectedWeekFromParams } from "@/server/loaders/week";
 
 import ViewPicksLoading from "./loading";
+import { getPickResultClasses } from "./pickResult";
 
 const TITLE = "My Weekly Picks";
 
 export const metadata: Metadata = {
   title: TITLE,
+};
+
+type PickRowData = Awaited<ReturnType<typeof getMyWeeklyPicks>>[number];
+type RowTeam = PickRowData["pickTeam"];
+
+const TeamLogoImage: FC<{ team: RowTeam }> = ({ team }) => {
+  const name = `${team?.TeamCity} ${team?.TeamName}`;
+
+  return <Image alt={name} height={40} src={`/NFLLogos/${team?.TeamLogo}`} title={name} width={40} />;
+};
+
+const TeamWithName: FC<{ team: RowTeam }> = ({ team }) => (
+  <>
+    <TeamLogoImage team={team} />
+    <div className="ps-1 hidden md:block">
+      {team?.TeamCity} {team?.TeamName}
+    </div>
+  </>
+);
+
+const PickRow: FC<{ row: PickRowData }> = ({ row }) => {
+  const result = getPickResultClasses(row.WinnerTeamID, row.TeamID);
+
+  return (
+    <TableRow className={result.row}>
+      <TableHead className="text-foreground font-bold p-2" scope="row">
+        <div className="flex justify-start items-center">
+          <TeamWithName team={row.visitorTeam} />
+          <PiAtDuotone className="mx-2" />
+          <TeamWithName team={row.homeTeam} />
+        </div>
+      </TableHead>
+      <TableCell className="text-center">{!!row.pickTeam && <TeamLogoImage team={row.pickTeam} />}</TableCell>
+      <TableCell className={cn("text-center", result.points)}>{row.PickPoints}</TableCell>
+    </TableRow>
+  );
 };
 
 const ViewPicksPageBody: FC<PageProps<"/picks/view">> = async ({ searchParams }) => {
@@ -79,59 +116,7 @@ const ViewPicksPageBody: FC<PageProps<"/picks/view">> = async ({ searchParams })
                   </TableHeader>
                   <TableBody>
                     {myWeeklyPicks.map((row) => (
-                      <TableRow
-                        className={cn(
-                          row.WinnerTeamID && row.WinnerTeamID === row.TeamID && "bg-green-200",
-                          row.WinnerTeamID && row.WinnerTeamID !== row.TeamID && "bg-red-300",
-                        )}
-                        key={`pick-for-game-${row.GameID}`}
-                      >
-                        <TableHead className="text-foreground font-bold p-2" scope="row">
-                          <div className="flex justify-start items-center">
-                            <Image
-                              alt={`${row.visitorTeam?.TeamCity} ${row.visitorTeam?.TeamName}`}
-                              height={40}
-                              src={`/NFLLogos/${row.visitorTeam?.TeamLogo}`}
-                              title={`${row.visitorTeam?.TeamCity} ${row.visitorTeam?.TeamName}`}
-                              width={40}
-                            />
-                            <div className="ps-1 hidden md:block">
-                              {row.visitorTeam?.TeamCity} {row.visitorTeam?.TeamName}
-                            </div>
-                            <PiAtDuotone className="mx-2" />
-                            <Image
-                              alt={`${row.homeTeam?.TeamCity} ${row.homeTeam?.TeamName}`}
-                              height={40}
-                              src={`/NFLLogos/${row.homeTeam?.TeamLogo}`}
-                              title={`${row.homeTeam?.TeamCity} ${row.homeTeam?.TeamName}`}
-                              width={40}
-                            />
-                            <div className="ps-1 hidden md:block">
-                              {row.homeTeam?.TeamCity} {row.homeTeam?.TeamName}
-                            </div>
-                          </div>
-                        </TableHead>
-                        <TableCell className="text-center">
-                          {!!row.pickTeam && (
-                            <Image
-                              alt={`${row.pickTeam.TeamCity} ${row.pickTeam.TeamName}`}
-                              height={40}
-                              src={`/NFLLogos/${row.pickTeam.TeamLogo}`}
-                              title={`${row.pickTeam.TeamCity} ${row.pickTeam.TeamName}`}
-                              width={40}
-                            />
-                          )}
-                        </TableCell>
-                        <TableCell
-                          className={cn(
-                            "text-center",
-                            row.WinnerTeamID && row.WinnerTeamID === row.TeamID && "text-emerald-900",
-                            row.WinnerTeamID && row.WinnerTeamID !== row.TeamID && "text-red-900 line-through",
-                          )}
-                        >
-                          {row.PickPoints}
-                        </TableCell>
-                      </TableRow>
+                      <PickRow key={`pick-for-game-${row.GameID}`} row={row} />
                     ))}
                   </TableBody>
                 </Table>

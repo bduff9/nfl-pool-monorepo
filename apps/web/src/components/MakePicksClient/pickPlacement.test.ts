@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { getAvailablePoints, getDroppedTeam, placePoints, type WeeklyPicks } from "./pickPlacement";
+import {
+  getAvailablePoints,
+  getLastGameMatchup,
+  getTiebreakerPlaceholder,
+  isDropMove,
+  placePoints,
+  resolveDrop,
+  type WeeklyPicks,
+} from "./pickPlacement";
 
 const HOME = { TeamID: 1, TeamName: "Home" };
 const VISITOR = { TeamID: 2, TeamName: "Visitor" };
@@ -19,19 +27,6 @@ const makePick = (overrides: Partial<WeeklyPicks[number]> = {}) =>
     visitorTeam: VISITOR,
     ...overrides,
   }) as unknown as WeeklyPicks[number];
-
-describe("getDroppedTeam", () => {
-  it("is the home or visitor team for a drop on that side of the game", () => {
-    expect(getDroppedTeam(makePick(), { gameID: 1, type: "home" })).toBe(HOME);
-    expect(getDroppedTeam(makePick(), { gameID: 1, type: "visitor" })).toBe(VISITOR);
-  });
-
-  it("is null for a drop on the bank, on nothing, or on an unknown game", () => {
-    expect(getDroppedTeam(makePick(), { gameID: null, type: "pointBank" })).toBeNull();
-    expect(getDroppedTeam(makePick(), null)).toBeNull();
-    expect(getDroppedTeam(undefined, { gameID: 1, type: "home" })).toBeNull();
-  });
-});
 
 describe("placePoints", () => {
   it("puts the points and team on the dropped game", () => {
@@ -82,5 +77,68 @@ describe("getAvailablePoints", () => {
     const picks = [makePick({ PickPoints: 1 }), makePick({ GameID: 2 })];
 
     expect(getAvailablePoints(picks, NOW)).toEqual([1, 2]);
+  });
+});
+
+describe("isDropMove", () => {
+  it("is false without a destination or when dropped where it started", () => {
+    expect(isDropMove({ droppableId: "pointBank" }, null)).toBe(false);
+    expect(isDropMove({ droppableId: "pointBank" }, undefined)).toBe(false);
+    expect(isDropMove({ droppableId: "pointBank" }, { droppableId: "pointBank" })).toBe(false);
+  });
+
+  it("is true when dropped somewhere else", () => {
+    expect(isDropMove({ droppableId: "pointBank" }, { droppableId: "home-pick-for-game-1" })).toBe(true);
+  });
+});
+
+describe("resolveDrop", () => {
+  const picks = [
+    makePick({ GameID: 1 }),
+    makePick({ GameID: 2, homeTeam: VISITOR as never, visitorTeam: HOME as never }),
+  ];
+
+  it("resolves the points, game and team of a drop on a side of a game", () => {
+    expect(resolveDrop(picks, "point-5", "pointBank", "home-pick-for-game-1")).toEqual({
+      gameID: 1,
+      pickTeam: HOME,
+      points: 5,
+      teamID: 1,
+    });
+    expect(resolveDrop(picks, "point-5", "pointBank", "visitor-pick-for-game-2")).toEqual({
+      gameID: 2,
+      pickTeam: HOME,
+      points: 5,
+      teamID: 1,
+    });
+  });
+
+  it("resolves no game or team for a drop back on the bank", () => {
+    expect(resolveDrop(picks, "point-3", "home-pick-for-game-1", "pointBank")).toEqual({
+      gameID: null,
+      pickTeam: null,
+      points: 3,
+      teamID: null,
+    });
+  });
+
+  it("resolves no team for a drop on an unknown game", () => {
+    expect(resolveDrop(picks, "point-3", "pointBank", "home-pick-for-game-99")).toMatchObject({
+      gameID: 99,
+      pickTeam: null,
+      teamID: null,
+    });
+  });
+});
+
+describe("tiebreaker text", () => {
+  it("names the last game's matchup", () => {
+    expect(getLastGameMatchup(makePick())).toBe("Visitor @ Home");
+    expect(getLastGameMatchup(undefined)).toBeNull();
+  });
+
+  it("mentions the matchup in the placeholder only when there is one", () => {
+    expect(getTiebreakerPlaceholder("Visitor @ Home")).toBe("Guess the total final score of the Visitor @ Home game");
+    expect(getTiebreakerPlaceholder(null)).toBe("Guess the total final score");
   });
 });

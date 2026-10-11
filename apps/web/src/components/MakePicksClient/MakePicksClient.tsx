@@ -9,7 +9,6 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { onActionError } from "@/lib/actionErrorToast";
 import { hapticTap } from "@/lib/haptics";
 import { useNow } from "@/lib/hooks/useNow";
-import { parseDragData } from "@/lib/strings";
 import { setMyPick } from "@/server/actions/pick";
 import type { getMyWeeklyPicks } from "@/server/loaders/pick";
 import type { getMyTiebreaker } from "@/server/loaders/tiebreaker";
@@ -23,7 +22,14 @@ import { PiFootballDuotone } from "react-icons/pi";
 
 import { PickActionsBar } from "./PickActionsBar";
 import { PicksBoard } from "./PicksBoard";
-import { getAvailablePoints, getDroppedTeam, placePoints } from "./pickPlacement";
+import {
+  getAvailablePoints,
+  getLastGameMatchup,
+  getTiebreakerPlaceholder,
+  isDropMove,
+  placePoints,
+  resolveDrop,
+} from "./pickPlacement";
 import { usePickActions } from "./usePickActions";
 
 const ConfirmationModal = dynamic(() => import("../ConfirmationModal/ConfirmationModal"), { ssr: false });
@@ -35,6 +41,50 @@ type Props = {
   tiebreaker: NonNullable<Awaited<ReturnType<typeof getMyTiebreaker>>>;
   weeklyPicks: Awaited<ReturnType<typeof getMyWeeklyPicks>>;
 };
+
+type TiebreakerFieldProps = {
+  error: ReturnType<typeof usePickActions>["tiebreakerLastScoreError"];
+  lastGame: Awaited<ReturnType<typeof getMyWeeklyPicks>>[number] | undefined;
+  lastScore: null | number;
+  onBlur: ReturnType<typeof usePickActions>["updateTiebreakerScore"];
+};
+
+const TiebreakerField: FC<TiebreakerFieldProps> = ({ error, lastGame, lastScore, onBlur }) => {
+  const matchup = getLastGameMatchup(lastGame);
+
+  return (
+    <div className="w-full my-3 md:px-5">
+      <Label className="required" htmlFor="tiebreakerScore">
+        Tiebreaker Score
+        {!!matchup && ` for ${matchup} game`}
+      </Label>
+      <Input
+        aria-label="Last score of week for tiebreaker"
+        className="bg-card"
+        defaultValue={lastScore ?? 0}
+        id="tiebreakerScore"
+        min="1"
+        name="tiebreakerLastScore"
+        onBlur={onBlur}
+        pattern="[0-9]*"
+        placeholder={getTiebreakerPlaceholder(matchup)}
+        required
+        type="text"
+      />
+      {!!error && <div className="text-danger fs-6">{error}</div>}
+    </div>
+  );
+};
+
+const LoadingSpinner: FC<{ loading: LoadingType | null }> = ({ loading }) =>
+  loading === null ? null : (
+    <div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
+      <div className={cn("size-40")} role="alert">
+        <PiFootballDuotone aria-hidden="true" className="animate-spin size-40 text-orange-950" />
+        <span className="sr-only">Loading...</span>
+      </div>
+    </div>
+  );
 
 const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) => {
   const { open } = useSidebar();
@@ -53,32 +103,23 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
 
     setDragGameID(null);
 
-    if (!destination) {
-      return;
-    }
-
-    if (source.droppableId === destination.droppableId) {
+    if (!isDropMove(source, destination)) {
       return;
     }
 
     hapticTap();
 
-    const [points, , destinationData] = parseDragData(draggableId, source.droppableId, destination.droppableId);
-    const gameID = destinationData?.gameID ?? null;
-    const pickTeam = getDroppedTeam(
-      optimisticPicks.find((pick) => pick.GameID === gameID),
-      destinationData,
+    const { gameID, points, pickTeam, teamID } = resolveDrop(
+      optimisticPicks,
+      draggableId,
+      source.droppableId,
+      destination.droppableId,
     );
 
     startPicksUpdating(() => {
       setOptimisticPicks((picks) => placePoints(picks, gameID, points, pickTeam, new Date()));
 
-      executeSetMyPick({
-        gameID,
-        points,
-        teamID: pickTeam?.TeamID ?? null,
-        week: selectedWeek,
-      });
+      executeSetMyPick({ gameID, points, teamID, week: selectedWeek });
     });
   };
 
@@ -133,28 +174,12 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
           selectedGame={selectedGame}
           setSelectedGame={setSelectedGame}
         >
-          <div className="w-full my-3 md:px-5">
-            <Label className="required" htmlFor="tiebreakerScore">
-              Tiebreaker Score
-              {!!lastGame && ` for ${lastGame.visitorTeam?.TeamName} @ ${lastGame.homeTeam?.TeamName} game`}
-            </Label>
-            <Input
-              aria-label="Last score of week for tiebreaker"
-              className="bg-card"
-              defaultValue={tiebreaker.TiebreakerLastScore ?? 0}
-              id="tiebreakerScore"
-              min="1"
-              name="tiebreakerLastScore"
-              onBlur={updateTiebreakerScore}
-              pattern="[0-9]*"
-              placeholder={`Guess the total final score${
-                lastGame ? ` of the ${lastGame.visitorTeam?.TeamName} @ ${lastGame.homeTeam?.TeamName} game` : ""
-              }`}
-              required
-              type="text"
-            />
-            {!!tiebreakerLastScoreError && <div className="text-danger fs-6">{tiebreakerLastScoreError}</div>}
-          </div>
+          <TiebreakerField
+            error={tiebreakerLastScoreError}
+            lastGame={lastGame}
+            lastScore={tiebreaker.TiebreakerLastScore}
+            onBlur={updateTiebreakerScore}
+          />
         </PicksBoard>
       </div>
       {!!callback && <ConfirmationModal {...callback} onCancel={onCancelCallback} />}
@@ -167,14 +192,7 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
         picksUpdating={picksUpdating}
         sidebarOpen={open}
       />
-      {loading !== null && (
-        <div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-          <div className={cn("size-40")} role="alert">
-            <PiFootballDuotone aria-hidden="true" className="animate-spin size-40 text-orange-950" />
-            <span className="sr-only">Loading...</span>
-          </div>
-        </div>
-      )}
+      <LoadingSpinner loading={loading} />
     </>
   );
 };

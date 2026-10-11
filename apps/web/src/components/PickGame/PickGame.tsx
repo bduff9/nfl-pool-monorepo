@@ -25,6 +25,7 @@ import { getBackgroundColor, getForegroundColor } from "@/lib/strings";
 
 import type { LoadingType } from "../MakePicksClient/MakePicksClient";
 import TeamLogo from "../TeamLogo/TeamLogo";
+import { formatSpread, type SpreadValue } from "./formatSpread";
 
 type DraggablePointProps = {
   index?: number | undefined;
@@ -103,21 +104,26 @@ export const Point: FC<PointProps> = ({
 
 type PickTeam = Pick<Selectable<Teams>, "TeamID" | "TeamCity" | "TeamLogo" | "TeamName"> | null;
 
-type SpreadValue = null | number | string | undefined;
+const getTeamLabel = (team: PickTeam): string => `${team?.TeamCity} ${team?.TeamName}`;
 
-const formatSpread = (spread: SpreadValue): string | null => {
-  if (spread === null || spread === undefined || spread === "") {
-    return null;
-  }
+const Spread: FC<{ className: string; spread: SpreadValue }> = ({ className, spread }) => {
+  const formattedSpread = formatSpread(spread);
 
-  const value = Number(spread);
-
-  if (Number.isNaN(value)) {
-    return null;
-  }
-
-  return value > 0 ? `+${value}` : `${value}`;
+  return formattedSpread === null ? null : <div className={className}>{formattedSpread}</div>;
 };
+
+const SIDE_CLASSES = { end: "end-0", start: "start-0" } as const;
+
+const TeamIcon: FC<Pick<TeamTextButtonProps, "isSelected" | "selectedIconSide" | "unselectedIconSide">> = ({
+  isSelected,
+  selectedIconSide,
+  unselectedIconSide,
+}) =>
+  isSelected ? (
+    <FaTimesCircle className={cn("absolute top-1/2 -translate-y-1/2 text-red-600", SIDE_CLASSES[selectedIconSide])} />
+  ) : (
+    <FaInfoCircle className={cn("absolute top-1/2 -translate-y-1/2", SIDE_CLASSES[unselectedIconSide])} />
+  );
 
 type TeamLogoButtonProps = {
   onClick: () => void;
@@ -126,21 +132,16 @@ type TeamLogoButtonProps = {
 };
 
 const TeamLogoButton: FC<TeamLogoButtonProps> = ({ onClick, spread, team }) => {
-  const label = `${team?.TeamCity} ${team?.TeamName}`;
-  const formattedSpread = formatSpread(spread);
-
   return (
     <button
-      aria-label={label}
+      aria-label={getTeamLabel(team)}
       className={cn("cursor-pointer w-2/5 md:w-1/5 flex flex-col items-center bg-transparent border-0 p-0")}
       onClick={onClick}
       type="button"
     >
       <TeamLogo size={60} team={team} />
       <div className={cn("block md:hidden decoration-dotted underline underline-offset-2")}>{team?.TeamName}</div>
-      {formattedSpread !== null && (
-        <div className={cn("block md:hidden text-xs text-muted-foreground")}>{formattedSpread}</div>
-      )}
+      <Spread className={cn("block md:hidden text-xs text-muted-foreground")} spread={spread} />
     </button>
   );
 };
@@ -162,11 +163,9 @@ const TeamTextButton: FC<TeamTextButtonProps> = ({
   team,
   unselectedIconSide,
 }) => {
-  const formattedSpread = formatSpread(spread);
-
   return (
     <button
-      aria-label={`${team?.TeamCity} ${team?.TeamName}`}
+      aria-label={getTeamLabel(team)}
       className={cn("hidden md:block relative cursor-pointer w-2/5 md:w-1/5 bg-transparent border-0 p-0 text-center")}
       onClick={onClick}
       type="button"
@@ -174,19 +173,8 @@ const TeamTextButton: FC<TeamTextButtonProps> = ({
       {team?.TeamCity}
       <br />
       {team?.TeamName}
-      {formattedSpread !== null && <div className="text-xs text-muted-foreground">{formattedSpread}</div>}
-      {isSelected ? (
-        <FaTimesCircle
-          className={cn(
-            "absolute top-1/2 -translate-y-1/2 text-red-600",
-            selectedIconSide === "start" ? "start-0" : "end-0",
-          )}
-        />
-      ) : (
-        <FaInfoCircle
-          className={cn("absolute top-1/2 -translate-y-1/2", unselectedIconSide === "start" ? "start-0" : "end-0")}
-        />
-      )}
+      <Spread className="text-xs text-muted-foreground" spread={spread} />
+      <TeamIcon isSelected={isSelected} selectedIconSide={selectedIconSide} unselectedIconSide={unselectedIconSide} />
     </button>
   );
 };
