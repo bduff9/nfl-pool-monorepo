@@ -22,6 +22,7 @@ import AdminEmailsDataTable from "@/components/AdminEmailsTable/AdminEmailsDataT
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
 import SendAdminEmails from "@/components/SendAdminEmails/SendAdminEmails";
+import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { requireAdmin } from "@/lib/auth";
 import { getAdminEmails } from "@/server/loaders/email";
 
@@ -41,23 +42,25 @@ const AdminEmailPageBody: FC<PageProps<"/admin/email">> = async ({ searchParams 
   const { count, results } = await getAdminEmails(await searchParams);
 
   return (
-    <div className="h-full flex flex-col md:mx-3">
-      <CustomHead title="Email Users" />
-      <PageContent>
-        <SendAdminEmails />
+    <PageTransition>
+      <div className="h-full flex flex-col md:mx-3">
+        <CustomHead title="Email Users" />
+        <PageContent>
+          <SendAdminEmails />
 
-        <div className="flex flex-col">
-          <div className="w-full mt-4 p-4 pt-2 border rounded">
-            <div className="w-full text-center md:text-start">
-              {count} {count === 1 ? "email" : "emails"}
-            </div>
-            <div className="w-full">
-              <AdminEmailsDataTable count={count} results={results} />
+          <div className="flex flex-col">
+            <div className="w-full mt-4 p-4 pt-2 border rounded">
+              <div className="w-full text-center md:text-start">
+                {count} {count === 1 ? "email" : "emails"}
+              </div>
+              <div className="w-full">
+                <AdminEmailsDataTable count={count} results={results} />
+              </div>
             </div>
           </div>
-        </div>
-      </PageContent>
-    </div>
+        </PageContent>
+      </div>
+    </PageTransition>
   );
 };
 

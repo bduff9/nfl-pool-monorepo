@@ -21,6 +21,7 @@ import { type FC, Suspense } from "react";
 import ApiCallsDataTable from "@/components/ApiCallsTable/ApiCallsDataTable";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
+import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { requireAdmin } from "@/lib/auth";
 import { loadAPICalls } from "@/server/loaders/apiCall";
 
@@ -40,21 +41,23 @@ const AdminAPICallsPageBody: FC<PageProps<"/admin/api">> = async ({ searchParams
   const { count, results } = await loadAPICalls(await searchParams);
 
   return (
-    <div className="h-full flex flex-col md:mx-3">
-      <CustomHead title="API History" />
-      <PageContent className="pt-3">
-        <div className="flex flex-col min-h-dvh py-4 px-6">
-          <div className="w-full text-center md:text-start">
-            {count} {count === 1 ? "API Call" : "API Calls"}
-          </div>
-          <div className="w-full mt-3">
-            <div className="bg-muted/80 rounded">
-              <ApiCallsDataTable count={count} results={results} />
+    <PageTransition>
+      <div className="h-full flex flex-col md:mx-3">
+        <CustomHead title="API History" />
+        <PageContent className="pt-3">
+          <div className="flex flex-col min-h-dvh py-4 px-6">
+            <div className="w-full text-center md:text-start">
+              {count} {count === 1 ? "API Call" : "API Calls"}
+            </div>
+            <div className="w-full mt-3">
+              <div className="bg-muted/80 rounded">
+                <ApiCallsDataTable count={count} results={results} />
+              </div>
             </div>
           </div>
-        </div>
-      </PageContent>
-    </div>
+        </PageContent>
+      </div>
+    </PageTransition>
   );
 };
 

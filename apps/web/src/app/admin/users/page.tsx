@@ -21,6 +21,7 @@ import { type FC, Suspense } from "react";
 import AdminUsersDataTable from "@/components/AdminUserTable/AdminUsersDataTable";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
+import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { requireAdmin } from "@/lib/auth";
 import { getAdminUsers, getTrustedUsersDropdown } from "@/server/loaders/user";
 
@@ -43,21 +44,23 @@ const AdminUsersPageBody: FC<PageProps<"/admin/users">> = async ({ searchParams 
   ]);
 
   return (
-    <div className="h-full flex flex-col md:mx-3">
-      <CustomHead title="User Admin" />
-      <PageContent className="pt-5 md:pt-3 pb-4">
-        <div className="flex flex-col min-h-dvh py-4 px-6">
-          <div className="w-full text-center md:text-start">
-            {count} {count === 1 ? "User" : "Users"}
-          </div>
-          <div className="w-full mt-3">
-            <div className="bg-muted/80 rounded p-4">
-              <AdminUsersDataTable count={count} trustedUsers={trustedUsers} users={users} />
+    <PageTransition>
+      <div className="h-full flex flex-col md:mx-3">
+        <CustomHead title="User Admin" />
+        <PageContent className="pt-5 md:pt-3 pb-4">
+          <div className="flex flex-col min-h-dvh py-4 px-6">
+            <div className="w-full text-center md:text-start">
+              {count} {count === 1 ? "User" : "Users"}
+            </div>
+            <div className="w-full mt-3">
+              <div className="bg-muted/80 rounded p-4">
+                <AdminUsersDataTable count={count} trustedUsers={trustedUsers} users={users} />
+              </div>
             </div>
           </div>
-        </div>
-      </PageContent>
-    </div>
+        </PageContent>
+      </div>
+    </PageTransition>
   );
 };
 

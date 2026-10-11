@@ -21,6 +21,7 @@ import { type FC, Suspense } from "react";
 import BackupsTable from "@/components/BackupsTable/BackupsTable";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
+import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { requireAdmin } from "@/lib/auth";
 import { getAdminBackups } from "@/server/loaders/backup";
 
@@ -40,12 +41,14 @@ const AdminBackupsPageBody: FC<PageProps<"/admin/backups">> = async () => {
   const { count, results } = await getAdminBackups();
 
   return (
-    <div className="h-full flex flex-col md:mx-3">
-      <CustomHead title="Backups Admin" />
-      <PageContent className="pt-3">
-        <BackupsTable count={count} results={results} />
-      </PageContent>
-    </div>
+    <PageTransition>
+      <div className="h-full flex flex-col md:mx-3">
+        <CustomHead title="Backups Admin" />
+        <PageContent className="pt-3">
+          <BackupsTable count={count} results={results} />
+        </PageContent>
+      </div>
+    </PageTransition>
   );
 };
 

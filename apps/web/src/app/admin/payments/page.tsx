@@ -29,6 +29,7 @@ import AdminPrizeDataTable from "@/components/AdminUserPayoutTable/AdminPrizeDat
 import CustomHead from "@/components/CustomHead/CustomHead";
 import ManageAdminPayments from "@/components/ManageAdminPayments/ManageAdminPayments";
 import PageContent from "@/components/PageContent/PageContent";
+import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { requireAdmin } from "@/lib/auth";
 import { getUserPayoutsForAdmin } from "@/server/loaders/payment";
 import { getRegisteredCount, getSurvivorCount } from "@/server/loaders/user";
@@ -59,24 +60,26 @@ const AdminPaymentsPageBody: FC<PageProps<"/admin/payments">> = async ({ searchP
     ]);
 
   return (
-    <div className="h-full flex flex-col md:mx-3">
-      <CustomHead title="Manage Payments" />
-      <PageContent>
-        <ManageAdminPayments
-          overallPrizes={overallPrizes}
-          poolCost={poolCost}
-          registeredCount={registeredCount}
-          survivorCost={survivorCost}
-          survivorCount={survivorCount}
-          survivorPrizes={survivorPrizes}
-          weeklyPrizes={weeklyPrizes}
-        />
+    <PageTransition>
+      <div className="h-full flex flex-col md:mx-3">
+        <CustomHead title="Manage Payments" />
+        <PageContent>
+          <ManageAdminPayments
+            overallPrizes={overallPrizes}
+            poolCost={poolCost}
+            registeredCount={registeredCount}
+            survivorCost={survivorCost}
+            survivorCount={survivorCount}
+            survivorPrizes={survivorPrizes}
+            weeklyPrizes={weeklyPrizes}
+          />
 
-        <div className="flex flex-col rounded-md mt-6">
-          <AdminPrizeDataTable winners={winners} />
-        </div>
-      </PageContent>
-    </div>
+          <div className="flex flex-col rounded-md mt-6">
+            <AdminPrizeDataTable winners={winners} />
+          </div>
+        </PageContent>
+      </div>
+    </PageTransition>
   );
 };
 
