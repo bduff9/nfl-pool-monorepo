@@ -19,7 +19,7 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { m } from "framer-motion";
 import type { FC } from "react";
 
-type ProgressChartType = "Current Week Remaining" | "Games" | "Overall Remaining" | "Points";
+import { getPercent, isPositive, type ProgressChartType, showsMaxPossible } from "./progressChartHelpers";
 
 type ProgressChartProps = {
   correct: number;
@@ -54,6 +54,54 @@ const LABELS_BY_TYPE: Record<ProgressChartType, { correct: string; inProgress: s
   },
 };
 
+type ProgressSegmentProps = {
+  colorClass: string;
+  isOver: boolean;
+  label: string;
+  max: number;
+  value: number | undefined;
+};
+
+const ProgressSegment: FC<ProgressSegmentProps> = ({ colorClass, isOver, label, max, value }) => {
+  if (!isPositive(value)) return null;
+
+  return (
+    <div
+      aria-label={`${value} ${label}`}
+      aria-valuemax={max}
+      aria-valuemin={0}
+      aria-valuenow={value}
+      className={cn(
+        "flex flex-col justify-center items-center text-white text-center whitespace-nowrap transition-all",
+        colorClass,
+        !isOver && "in-progress",
+      )}
+      role="progressbar"
+      style={{ width: `${getPercent(value, max)}%` }}
+      title={`${value} ${label}`}
+    >
+      {value}
+    </div>
+  );
+};
+
+const ProgressFooter: FC<{ max: number; type: ProgressChartType }> = ({ max, type }) => {
+  if (!showsMaxPossible(type)) {
+    return (
+      <div className="text-sm flex justify-between mb-2">
+        <div>&nbsp;</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="text-sm flex justify-between mb-2">
+      <div>Max possible {type.toLowerCase()}</div>
+      <div>{max}</div>
+    </div>
+  );
+};
+
 const ProgressChart: FC<ProgressChartProps> = ({
   correct,
   incorrect,
@@ -63,77 +111,23 @@ const ProgressChart: FC<ProgressChartProps> = ({
   max,
   type,
 }) => {
-  const correctPercent = max > 0 ? (correct / max) * 100 : 0;
-  const incorrectPercent = max > 0 ? (incorrect / max) * 100 : 0;
-  const inProgressPercent = max > 0 ? ((inProgress ?? 0) / max) * 100 : 0;
-  const { correct: correctLabel, incorrect: incorrectLabel, inProgress: inProgressLabel } = LABELS_BY_TYPE[type];
+  const labels = LABELS_BY_TYPE[type];
 
   return (
     <m.div layoutId={layoutId}>
       <div className="text-start">{type}</div>
       <div className={cn("flex overflow-hidden h-8 text-xs bg-muted rounded-sm")}>
-        {correct > 0 && (
-          <div
-            aria-label={`${correct} ${correctLabel}`}
-            aria-valuemax={max}
-            aria-valuemin={0}
-            aria-valuenow={correct}
-            className={cn(
-              "flex flex-col justify-center items-center text-white text-center whitespace-nowrap transition-all bg-green-700",
-              !isOver && "in-progress",
-            )}
-            role="progressbar"
-            style={{ width: `${correctPercent}%` }}
-            title={`${correct} ${correctLabel}`}
-          >
-            {correct}
-          </div>
-        )}
-        {incorrect > 0 && (
-          <div
-            aria-label={`${incorrect} ${incorrectLabel}`}
-            aria-valuemax={max}
-            aria-valuemin={0}
-            aria-valuenow={incorrect}
-            className={cn(
-              "flex flex-col justify-center items-center text-white text-center whitespace-nowrap transition-all bg-red-700",
-              !isOver && "in-progress",
-            )}
-            role="progressbar"
-            style={{ width: `${incorrectPercent}%` }}
-            title={`${incorrect} ${incorrectLabel}`}
-          >
-            {incorrect}
-          </div>
-        )}
-        {typeof inProgress === "number" && inProgress > 0 && (
-          <div
-            aria-label={`${inProgress} ${inProgressLabel}`}
-            aria-valuemax={max}
-            aria-valuemin={0}
-            aria-valuenow={inProgress}
-            className={cn(
-              "flex flex-col justify-center items-center text-white text-center whitespace-nowrap transition-all bg-gray-700",
-              !isOver && "in-progress",
-            )}
-            role="progressbar"
-            style={{ width: `${inProgressPercent}%` }}
-            title={`${inProgress} ${inProgressLabel}`}
-          >
-            {inProgress}
-          </div>
-        )}
+        <ProgressSegment colorClass="bg-green-700" isOver={isOver} label={labels.correct} max={max} value={correct} />
+        <ProgressSegment colorClass="bg-red-700" isOver={isOver} label={labels.incorrect} max={max} value={incorrect} />
+        <ProgressSegment
+          colorClass="bg-gray-700"
+          isOver={isOver}
+          label={labels.inProgress}
+          max={max}
+          value={inProgress}
+        />
       </div>
-      {["Games", "Points"].includes(type) ? (
-        <div className="text-sm flex justify-between mb-2">
-          <div>Max possible {type.toLowerCase()}</div>
-          <div>{max}</div>
-        </div>
-      ) : (
-        <div className="text-sm flex justify-between mb-2">
-          <div>&nbsp;</div>
-        </div>
-      )}
+      <ProgressFooter max={max} type={type} />
     </m.div>
   );
 };

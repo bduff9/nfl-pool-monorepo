@@ -34,7 +34,7 @@ import Image from "next/image";
 import { type FC, useEffect, useState } from "react";
 import { PiAtDuotone } from "react-icons/pi";
 
-import { getAbbreviation } from "@/lib/strings";
+import { getWinnerButtonClasses, getWinnerTeamDisplay, type WinnerTeam } from "./viewAllModalHelpers";
 
 type Props = {
   closeModal: (open: boolean) => void;
@@ -47,36 +47,21 @@ type TeamWinnerButtonProps = {
   gameID: number;
   isSelected: boolean;
   onSelectWinner: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, gameID: number, teamID: number) => void;
-  team: Awaited<ReturnType<typeof getGamesForWeek>>[number]["visitorTeam"];
+  team: WinnerTeam;
   teamID: number;
 };
 
 const TeamWinnerButton: FC<TeamWinnerButtonProps> = ({ gameID, isSelected, onSelectWinner, team, teamID }) => {
+  const { fullName, label, logoSrc } = getWinnerTeamDisplay(team);
+
   const handleClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     onSelectWinner(event, gameID, teamID);
   };
 
   return (
-    <button
-      aria-label={`${team?.TeamCity} ${team?.TeamName}`}
-      className={cn(
-        "rounded-full size-[90px] mx-auto border-0 p-0",
-        isSelected
-          ? "cursor-default bg-blue-300 border-blue-500 border-4"
-          : "cursor-pointer hover:bg-blue-100 hover:border-blue-300 hover:border-4 hover:text-blue-900",
-      )}
-      onClick={handleClick}
-      type="button"
-    >
-      <Image
-        alt={`${team?.TeamCity} ${team?.TeamName}`}
-        className="mx-auto"
-        height={50}
-        src={`/NFLLogos/${team?.TeamLogo}`}
-        title={`${team?.TeamCity} ${team?.TeamName}`}
-        width={50}
-      />
-      {team?.TeamName.includes(" ") ? <div>{getAbbreviation(team?.TeamName)}</div> : <div>{team?.TeamName}</div>}
+    <button aria-label={fullName} className={getWinnerButtonClasses(isSelected)} onClick={handleClick} type="button">
+      <Image alt={fullName} className="mx-auto" height={50} src={logoSrc} title={fullName} width={50} />
+      <div>{label}</div>
     </button>
   );
 };

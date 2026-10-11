@@ -1,7 +1,6 @@
 "use client";
 
 import { Badge } from "@nfl-pool-monorepo/ui/components/badge";
-import { cn } from "@nfl-pool-monorepo/utils/styles";
 
 /*******************************************************************************
  * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
@@ -26,6 +25,13 @@ import type { FC } from "react";
 import { PiFootballDuotone } from "react-icons/pi";
 
 import TeamLogo from "../TeamLogo/TeamLogo";
+import {
+  getPickBadgeVariant,
+  getSurvivorTeamClasses,
+  getSurvivorTeamStateClasses,
+  isSurvivorTeamDisabled,
+  isTeamLoading,
+} from "./survivorTeamHelpers";
 
 type Props = {
   isHome?: boolean;
@@ -37,72 +43,44 @@ type Props = {
   weekInProgress: number | null;
 };
 
-const getSurvivorTeamStateClasses = (
-  pick: Props["pick"],
-  weekInProgress: number | null,
-  isOnBye: boolean,
-  loading: Props["loading"],
-  isHome: boolean,
-): string => {
-  if (pick) {
-    if (pick.SurvivorPickWeek < (weekInProgress ?? 0)) {
-      return "cursor-default border-4 text-green-800 border-green-400 bg-green-200";
-    }
+const SurvivorPickBadge: FC<Pick<Props, "pick" | "weekInProgress">> = ({ pick, weekInProgress }) => {
+  if (!pick) return null;
 
-    if (pick.SurvivorPickWeek === (weekInProgress ?? 0)) {
-      return "cursor-default border-4 text-blue-800 border-blue-400 bg-blue-200";
-    }
-
-    return "cursor-default border-4 text-yellow-800 border-yellow-400 bg-yellow-200";
-  }
-
-  if (isOnBye) {
-    return "border border-border bg-muted";
-  }
-
-  return cn(
-    "border-b border-e border-border bg-muted hover:bg-blue-200 hover:border-blue-400 hover:border-4",
-    loading ? "bg-muted grayscale" : "cursor-pointer",
-    !isHome && "border-s",
+  return (
+    <Badge
+      className="rounded-full absolute top-0 start-0"
+      variant={getPickBadgeVariant(pick.SurvivorPickWeek, weekInProgress)}
+    >
+      {pick.SurvivorPickWeek}
+    </Badge>
   );
 };
 
-const SurvivorTeam: FC<Props> = ({ isHome = false, isOnBye = false, loading, onClick, pick, team, weekInProgress }) => {
-  const isDisabled = !onClick || !!pick || !!loading;
+const SurvivorTeamName: FC<Pick<Props, "team">> = ({ team }) => (
+  <>
+    <span className="hidden md:inline">
+      {team?.TeamCity}
+      <br />
+    </span>
+    {team?.TeamName}
+  </>
+);
+
+const SurvivorTeam: FC<Props> = ({ isHome, isOnBye, loading, onClick, pick, team, weekInProgress }) => {
+  const stateClasses = getSurvivorTeamStateClasses(pick?.SurvivorPickWeek, weekInProgress, isOnBye, loading, isHome);
 
   return (
     <button
-      className={cn(
-        getSurvivorTeamStateClasses(pick, weekInProgress, isOnBye, loading, isHome),
-        "relative p-2 text-center h-[152px] flex flex-col items-center justify-center",
-        isOnBye ? "w-1/2 md:w-1/4 lg:w-1/6" : "w-1/2",
-      )}
-      disabled={isDisabled}
+      className={getSurvivorTeamClasses(stateClasses, isOnBye)}
+      disabled={isSurvivorTeamDisabled(!!onClick, !!pick, loading)}
       onClick={onClick}
       type="button"
     >
-      {!!pick && (
-        <Badge
-          className={cn("rounded-full absolute top-0 start-0")}
-          variant={
-            pick.SurvivorPickWeek < (weekInProgress ?? 0)
-              ? "success"
-              : pick.SurvivorPickWeek === (weekInProgress ?? 0)
-                ? "blue"
-                : "warning"
-          }
-        >
-          {pick.SurvivorPickWeek}
-        </Badge>
-      )}
+      <SurvivorPickBadge pick={pick} weekInProgress={weekInProgress} />
       <TeamLogo team={team} />
       <br />
-      {loading === team?.TeamID && <PiFootballDuotone aria-hidden="true" className="animate-spin" />}
-      <span className="hidden md:inline">
-        {team?.TeamCity}
-        <br />
-      </span>
-      {team?.TeamName}
+      {isTeamLoading(loading, team?.TeamID) && <PiFootballDuotone aria-hidden="true" className="animate-spin" />}
+      <SurvivorTeamName team={team} />
     </button>
   );
 };

@@ -21,6 +21,7 @@ import { PiFootballDuotone } from "react-icons/pi";
 import type { getGamesForWeekCached } from "@/server/loaders/game";
 
 import TeamLogo from "../TeamLogo/TeamLogo";
+import { getLogoClasses, getPossessionClasses, getScoreboardTextClasses, isLoserOf } from "./scoreboardTeamHelpers";
 
 type ScoreboardTeamProps = {
   gameStatus: Awaited<ReturnType<typeof getGamesForWeekCached>>[number]["GameStatus"];
@@ -34,6 +35,30 @@ type ScoreboardTeamProps = {
     | Awaited<ReturnType<typeof getGamesForWeekCached>>[number]["visitorTeam"];
 };
 
+const TeamNameCell: FC<{ classes: string; team: NonNullable<ScoreboardTeamProps["team"]> }> = ({ classes, team }) => (
+  <div className={cn("flex-grow flex items-center ps-3", classes)}>
+    <span className="hidden md:inline">
+      {team.TeamCity} {team.TeamName}
+    </span>
+    <span className="md:hidden">{team.TeamShortName}</span>
+  </div>
+);
+
+type ScoreCellProps = Pick<ScoreboardTeamProps, "gameStatus" | "hasPossession" | "isInRedzone" | "score"> & {
+  classes: string;
+};
+
+const ScoreCell: FC<ScoreCellProps> = ({ classes, gameStatus, hasPossession, isInRedzone, score }) => (
+  <div className={cn("flex items-center pe-3", classes)}>
+    {gameStatus !== "Pregame" && (
+      <>
+        {!!hasPossession && <PiFootballDuotone className={getPossessionClasses(isInRedzone)} />}
+        {score}
+      </>
+    )}
+  </div>
+);
+
 const ScoreboardTeam: FC<ScoreboardTeamProps> = ({
   gameStatus,
   hasPossession,
@@ -43,45 +68,24 @@ const ScoreboardTeam: FC<ScoreboardTeamProps> = ({
   score,
   team,
 }) => {
-  const isLoser = !isWinner && gameStatus === "Final";
+  const isLoser = isLoserOf(isWinner, gameStatus);
+  const textClasses = getScoreboardTextClasses(isWinner, isLoser, isInRedzone);
 
   if (!team) return null;
 
   return (
     <>
       <div>
-        <TeamLogo className={cn("h-auto m-w-full", isLoser && "grayscale")} priority={priority} team={team} />
+        <TeamLogo className={getLogoClasses(isLoser)} priority={priority} team={team} />
       </div>
-      <div
-        className={cn(
-          "flex-grow flex items-center ps-3",
-          isWinner && "text-green-600",
-          isWinner && "font-bold",
-          isLoser && "text-muted-foreground",
-          isInRedzone && "text-red-600",
-        )}
-      >
-        <span className="hidden md:inline">
-          {team.TeamCity} {team.TeamName}
-        </span>
-        <span className="md:hidden">{team.TeamShortName}</span>
-      </div>
-      <div
-        className={cn(
-          "flex items-center pe-3",
-          isWinner && "text-green-600",
-          isWinner && "font-bold",
-          isLoser && "text-muted-foreground",
-          isInRedzone && "text-red-600",
-        )}
-      >
-        {gameStatus !== "Pregame" && (
-          <>
-            {!!hasPossession && <PiFootballDuotone className={cn("me-2", !isInRedzone && "text-amber-800")} />}
-            {score}
-          </>
-        )}
-      </div>
+      <TeamNameCell classes={textClasses} team={team} />
+      <ScoreCell
+        classes={textClasses}
+        gameStatus={gameStatus}
+        hasPossession={hasPossession}
+        isInRedzone={isInRedzone}
+        score={score}
+      />
       <div className="w-full"></div>
     </>
   );

@@ -15,97 +15,130 @@
  */
 
 import { cn } from "@nfl-pool-monorepo/utils/styles";
-import type { FC } from "react";
+import type { FC, ReactNode } from "react";
 import { FaTimesCircle } from "react-icons/fa";
 
 import type { getGamesForWeekCached } from "@/server/loaders/game";
-import type { getMyWeeklyPicks } from "@/server/loaders/pick";
+
+import {
+  getHistoryEntry,
+  getRecordLabel,
+  getTeamFields,
+  type HistoryGame,
+  type TeamBlockTeam,
+} from "./teamDetailHelpers";
 
 type TeamBlockProps = {
   onClose?: (() => void) | undefined;
   spread?: null | number;
-  team:
-    | Awaited<ReturnType<typeof getMyWeeklyPicks>>[number]["homeTeam"]
-    | Awaited<ReturnType<typeof getMyWeeklyPicks>>[number]["visitorTeam"];
+  team: TeamBlockTeam;
+};
+
+const StatRow: FC<{ label: string; value: ReactNode }> = ({ label, value }) => (
+  <div className="flex">
+    <div className="w-full md:w-1/2 text-start">{label}:</div>
+    <div className="w-full md:w-1/2 text-start md:text-end">{value}</div>
+  </div>
+);
+
+const CloseButton: FC<{ onClose?: (() => void) | undefined }> = ({ onClose }) => {
+  if (!onClose) return null;
+
+  return (
+    <button
+      aria-label="Close team details"
+      className="absolute top-0 end-0 mt-1 me-1 inline-block md:hidden"
+      onClick={onClose}
+      type="button"
+    >
+      <FaTimesCircle className="text-red-600" />
+    </button>
+  );
+};
+
+const TeamHeading: FC<{ team: TeamBlockTeam }> = ({ team }) => {
+  const { TeamCity, TeamName, TeamPrimaryColor, TeamSecondaryColor } = getTeamFields(team);
+
+  return (
+    <h4 className="text-center">
+      <span
+        className="underline decoration-1 decoration-solid"
+        style={{
+          color: TeamPrimaryColor,
+          textDecorationColor: TeamSecondaryColor,
+        }}
+      >
+        {TeamCity} {TeamName}
+      </span>
+    </h4>
+  );
+};
+
+const TeamOverview: FC<{ spread?: null | number | undefined; team: TeamBlockTeam }> = ({ spread, team }) => {
+  const { record, TeamConference, TeamDivision } = getTeamFields(team);
+
+  return (
+    <>
+      <StatRow label="Record" value={getRecordLabel(record)} />
+      <StatRow label="Division" value={`${TeamConference} ${TeamDivision}`} />
+      <div className="flex">
+        <div className="w-full md:w-1/2 text-start">Spread:</div>
+        <div className="w-full md:w-1/2 text-start md:text-end">{spread}</div>
+      </div>
+    </>
+  );
+};
+
+const TeamRankings: FC<{ team: TeamBlockTeam }> = ({ team }) => {
+  const { TeamPassDefenseRank, TeamPassOffenseRank, TeamRushDefenseRank, TeamRushOffenseRank } = getTeamFields(team);
+
+  return (
+    <>
+      <h5 className="mt-2 text-center">Rankings</h5>
+      <StatRow label="Rushing Offense" value={TeamRushOffenseRank} />
+      <StatRow label="Passing Offense" value={TeamPassOffenseRank} />
+      <StatRow label="Rushing Defense" value={TeamRushDefenseRank} />
+      <StatRow label="Passing Defense" value={TeamPassDefenseRank} />
+    </>
+  );
+};
+
+const HistoryRow: FC<{ game: HistoryGame; teamID: number }> = ({ game, teamID }) => {
+  const entry = getHistoryEntry(game, teamID);
+
+  return (
+    <div className="flex">
+      <div className="w-full md:w-1/2 text-start">
+        Wk {game.GameWeek} {entry.prefix} {entry.opponentShortName}
+      </div>
+      <div className={cn("w-full md:w-1/2 text-start md:text-end", entry.resultClassName)}>
+        {entry.resultText} ({entry.ownScore}-{entry.opponentScore})
+      </div>
+    </div>
+  );
+};
+
+const TeamHistory: FC<{ team: TeamBlockTeam }> = ({ team }) => {
+  const { teamHistory = [], TeamID } = getTeamFields(team);
+
+  return (
+    <>
+      {teamHistory.length > 0 && <h5 className="mt-2 text-center">History</h5>}
+      {teamHistory.map((game) => (
+        <HistoryRow game={game} key={`history-for-game-${game.GameID}`} teamID={Number(TeamID)} />
+      ))}
+    </>
+  );
 };
 
 const TeamBlock: FC<TeamBlockProps> = ({ onClose, spread, team }) => (
   <div className={cn("w-1/2")}>
     <div className={cn("relative border border-border rounded p-3 bg-muted")}>
-      {!!onClose && (
-        <button
-          aria-label="Close team details"
-          className="absolute top-0 end-0 mt-1 me-1 inline-block md:hidden"
-          onClick={onClose}
-          type="button"
-        >
-          <FaTimesCircle className="text-red-600" />
-        </button>
-      )}
-      <h4 className="text-center">
-        <span
-          className="underline decoration-1 decoration-solid"
-          style={{
-            color: team?.TeamPrimaryColor,
-            textDecorationColor: team?.TeamSecondaryColor,
-          }}
-        >
-          {team?.TeamCity} {team?.TeamName}
-        </span>
-      </h4>
-      <div className="flex">
-        <div className="w-full md:w-1/2 text-start">Record:</div>
-        <div className="w-full md:w-1/2 text-start md:text-end">
-          {team?.record?.wins ?? 0}-{team?.record?.losses ?? 0}-{team?.record?.ties ?? 0}
-        </div>
-      </div>
-      <div className="flex">
-        <div className="w-full md:w-1/2 text-start">Division:</div>
-        <div className="w-full md:w-1/2 text-start md:text-end">{`${team?.TeamConference} ${team?.TeamDivision}`}</div>
-      </div>
-
-      <div className="flex">
-        <div className="w-full md:w-1/2 text-start">Spread:</div>
-        <div className="w-full md:w-1/2 text-start md:text-end">{spread}</div>
-      </div>
-
-      <h5 className="mt-2 text-center">Rankings</h5>
-      <div className="flex">
-        <div className="w-full md:w-1/2 text-start">Rushing Offense:</div>
-        <div className="w-full md:w-1/2 text-start md:text-end">{team?.TeamRushOffenseRank}</div>
-      </div>
-      <div className="flex">
-        <div className="w-full md:w-1/2 text-start">Passing Offense:</div>
-        <div className="w-full md:w-1/2 text-start md:text-end">{team?.TeamPassOffenseRank}</div>
-      </div>
-      <div className="flex">
-        <div className="w-full md:w-1/2 text-start">Rushing Defense:</div>
-        <div className="w-full md:w-1/2 text-start md:text-end">{team?.TeamRushDefenseRank}</div>
-      </div>
-      <div className="flex">
-        <div className="w-full md:w-1/2 text-start">Passing Defense:</div>
-        <div className="w-full md:w-1/2 text-start md:text-end">{team?.TeamPassDefenseRank}</div>
-      </div>
-      {(team?.teamHistory?.length ?? 0) > 0 && <h5 className="mt-2 text-center">History</h5>}
-      {team?.teamHistory.map((game) => {
-        const won = game.WinnerTeamID === team.TeamID;
-        const isHome = game.HomeTeamID === team.TeamID;
-        const lost = isHome ? game.WinnerTeamID === game.VisitorTeamID : game.WinnerTeamID === game.HomeTeamID;
-
-        return (
-          <div className="flex" key={`history-for-game-${game.GameID}`}>
-            <div className="w-full md:w-1/2 text-start">
-              Wk {game.GameWeek} {isHome ? "vs" : "@"} {isHome ? game.visitorTeamShortName : game.homeTeamShortName}
-            </div>
-            <div
-              className={cn("w-full md:w-1/2 text-start md:text-end", won && "text-green-500", lost && "text-red-600")}
-            >
-              {won ? "W" : lost ? "L" : "T"} ({isHome ? game.GameHomeScore : game.GameVisitorScore}-
-              {isHome ? game.GameVisitorScore : game.GameHomeScore})
-            </div>
-          </div>
-        );
-      })}
+      <CloseButton onClose={onClose} />
+      <TeamHeading team={team} />
+      <TeamOverview spread={spread} team={team} />
+      <TeamRankings team={team} />
+      <TeamHistory team={team} />
     </div>
   </div>
 );
