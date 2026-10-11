@@ -62,6 +62,15 @@ export const hasUserSubmittedSurvivorPickForWeek = async (
   return !!survivorPick.GameID && !!survivorPick.TeamID;
 };
 
+export const getSurvivorMvCount = async (): Promise<number> => {
+  const { count } = await db
+    .selectFrom("SurvivorMV")
+    .select(({ fn }) => [fn.countAll<number>().as("count")])
+    .executeTakeFirstOrThrow();
+
+  return count;
+};
+
 export const isAliveInSurvivor = async (userId: number): Promise<boolean> => {
   const user = await db
     .selectFrom("Users")
@@ -73,10 +82,7 @@ export const isAliveInSurvivor = async (userId: number): Promise<boolean> => {
     return false;
   }
 
-  const { count } = await db
-    .selectFrom("SurvivorMV")
-    .select(({ fn }) => [fn.countAll<number>().as("count")])
-    .executeTakeFirstOrThrow();
+  const count = await getSurvivorMvCount();
 
   if (count === 0) {
     return true;

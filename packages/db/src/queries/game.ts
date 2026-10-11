@@ -4,6 +4,7 @@ import { sql } from "kysely";
 import { jsonArrayFrom, jsonObjectFrom } from "kysely/helpers/mysql";
 
 import { db } from "../kysely";
+import { unfinishedGamesQuery } from "./gameHelpers";
 
 export const getDbGameFromApi = (week: number, homeTeamId: string, visitingTeamId: string) => {
   return db
@@ -28,11 +29,7 @@ export const getDbGameFromApi = (week: number, homeTeamId: string, visitingTeamI
 };
 
 export const checkDBIfUpdatesNeeded = async (week: number): Promise<boolean> => {
-  const result = await db
-    .selectFrom("Games")
-    .select("GameID")
-    .where("GameWeek", "=", week)
-    .where("GameStatus", "<>", "Final")
+  const result = await unfinishedGamesQuery(db, week)
     .where("GameKickoff", "<=", sql<Date>`CURRENT_TIMESTAMP`)
     .execute();
 
@@ -40,12 +37,7 @@ export const checkDBIfUpdatesNeeded = async (week: number): Promise<boolean> => 
 };
 
 export const hasUnfinishedGames = async (week: number): Promise<boolean> => {
-  const result = await db
-    .selectFrom("Games")
-    .select("GameID")
-    .where("GameWeek", "=", week)
-    .where("GameStatus", "<>", "Final")
-    .execute();
+  const result = await unfinishedGamesQuery(db, week).execute();
 
   return result.length > 0;
 };

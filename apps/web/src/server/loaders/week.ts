@@ -1,6 +1,5 @@
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { getCurrentWeek } from "@nfl-pool-monorepo/db/src/queries/week";
-import { sql } from "kysely";
 import { cookies } from "next/headers";
 import { cache } from "react";
 import "server-only";
@@ -11,30 +10,14 @@ import { parseWeekParam } from "@/lib/weekSearchParams";
 
 import { requireUser } from "./sessions";
 import { weekFromCookie } from "./weekCookie";
+import { gameStatusCountsQuery, toSeasonStatus } from "./weekStatus";
 
 export const getCurrentWeekCached = cache(() => getCurrentWeek());
 
 export const getSeasonStatus = cache(async () => {
   await requireUser();
 
-  const { Completed, InProgress, NotStarted } = await db
-    .selectFrom("Games")
-    .select([
-      sql<number>`sum(case when GameStatus = 'Pregame' then 1 else 0 end)`.as("NotStarted"),
-      sql<number>`sum(case when GameStatus = 'Final' then 1 else 0 end)`.as("Completed"),
-      sql<number>`sum(case when GameStatus not in ('Pregame', 'Final') then 1 else 0 end)`.as("InProgress"),
-    ])
-    .executeTakeFirstOrThrow();
-
-  if (Number(Completed) + Number(InProgress) === 0) {
-    return "Not Started";
-  }
-
-  if (Number(NotStarted) + Number(InProgress) === 0) {
-    return "Complete";
-  }
-
-  return "In Progress";
+  return toSeasonStatus(await gameStatusCountsQuery(db).executeTakeFirstOrThrow());
 });
 
 export const getSelectedWeek = cache(async (currentWeek?: number) => {
@@ -78,23 +61,5 @@ export const getWeekStatus = cache(async (week: number) => {
 
   weekSchema.assert(week);
 
-  const { Completed, InProgress, NotStarted } = await db
-    .selectFrom("Games")
-    .select([
-      sql<number>`sum(case when GameStatus = 'Pregame' then 1 else 0 end)`.as("NotStarted"),
-      sql<number>`sum(case when GameStatus = 'Final' then 1 else 0 end)`.as("Completed"),
-      sql<number>`sum(case when GameStatus not in ('Pregame', 'Final') then 1 else 0 end)`.as("InProgress"),
-    ])
-    .where("GameWeek", "=", week)
-    .executeTakeFirstOrThrow();
-
-  if (Number(Completed) + Number(InProgress) === 0) {
-    return "Not Started";
-  }
-
-  if (Number(NotStarted) + Number(InProgress) === 0) {
-    return "Complete";
-  }
-
-  return "In Progress";
+  return toSeasonStatus(await gameStatusCountsQuery(db).where("GameWeek", "=", week).executeTakeFirstOrThrow());
 });

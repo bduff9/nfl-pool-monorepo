@@ -1,11 +1,12 @@
 import { ADMIN_USER, DEFAULT_AUTO_PICKS } from "@nfl-pool-monorepo/utils/constants";
-import { type Selectable, sql, type Transaction } from "kysely";
+import type { Selectable, Transaction } from "kysely";
 
 import type { DB, Users } from "../index";
 import { db } from "../kysely";
 import { getPublicLeague } from "../queries/league";
 import { getSurvivorCost } from "../queries/systemValue";
 import { getCurrentWeek } from "../queries/week";
+import { upcomingSeasonOpenerQuery } from "./userHelpers";
 
 export const clearOldUserData = async (trx: Transaction<DB>): Promise<void> => {
   await trx
@@ -248,13 +249,7 @@ export const populateUserData = async (
 };
 
 export const registerUserForSurvivor = async (trx: Transaction<DB>, userId: number, updatedBy?: string) => {
-  const result = await trx
-    .selectFrom("Games")
-    .select("GameID")
-    .where("GameNumber", "=", 1)
-    .where("GameWeek", "=", 1)
-    .where("GameKickoff", ">", sql<Date>`CURRENT_TIMESTAMP`)
-    .execute();
+  const result = await upcomingSeasonOpenerQuery(trx).execute();
 
   if (result.length === 0) throw new Error("Season has already started!");
 
@@ -324,13 +319,7 @@ export const unregisterUserForSurvivor = async (
   updatedBy?: string,
   override = false,
 ) => {
-  const result = await trx
-    .selectFrom("Games")
-    .select("GameID")
-    .where("GameNumber", "=", 1)
-    .where("GameWeek", "=", 1)
-    .where("GameKickoff", ">", sql<Date>`CURRENT_TIMESTAMP`)
-    .execute();
+  const result = await upcomingSeasonOpenerQuery(trx).execute();
 
   if (result.length === 0 && !override) throw new Error("Season has already started!");
 

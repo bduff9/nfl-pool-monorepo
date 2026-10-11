@@ -7,7 +7,7 @@ import { sql } from "kysely";
 import { jsonArrayFrom } from "kysely/helpers/mysql";
 import { cache } from "react";
 
-import { paginate, parseAdminTableParams } from "./admin-table-params";
+import { fetchTablePage, paginate, parseAdminTableParams } from "./admin-table-params";
 import { getCurrentSession, requireUser } from "./sessions";
 import { userFilterPredicate } from "./userFilters";
 
@@ -97,9 +97,7 @@ export const getAdminUsers = cache(async (params: Awaited<PageProps<"/admin/user
   // for the entire user table.
   queryResult = paginate(queryResult, page, pageSize, 200);
 
-  const [count, results] = await Promise.all([countResult.executeTakeFirstOrThrow(), queryResult.execute()]);
-
-  return { count: count.count ?? 0, results };
+  return fetchTablePage(countResult, queryResult);
 });
 
 export const getCurrentUser = cache(async () => {
@@ -147,23 +145,20 @@ export const getMyAlerts = cache(async (): Promise<string[]> => {
   return alerts;
 });
 
-export const getRegisteredCount = cache(async () => {
-  const result = await db
+const registeredUsersCountQuery = () =>
+  db
     .selectFrom("Users")
     .select(({ fn }) => [fn.countAll<number>().as("count")])
-    .where("UserDoneRegistering", "=", 1)
-    .executeTakeFirst();
+    .where("UserDoneRegistering", "=", 1);
+
+export const getRegisteredCount = cache(async () => {
+  const result = await registeredUsersCountQuery().executeTakeFirst();
 
   return result?.count ?? 0;
 });
 
 export const getSurvivorCount = cache(async () => {
-  const result = await db
-    .selectFrom("Users")
-    .select(({ fn }) => [fn.countAll<number>().as("count")])
-    .where("UserDoneRegistering", "=", 1)
-    .where("UserPlaysSurvivor", "=", 1)
-    .executeTakeFirst();
+  const result = await registeredUsersCountQuery().where("UserPlaysSurvivor", "=", 1).executeTakeFirst();
 
   return result?.count ?? 0;
 });

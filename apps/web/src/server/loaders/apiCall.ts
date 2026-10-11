@@ -3,7 +3,7 @@ import { type } from "arktype";
 import { sql } from "kysely";
 import { cache } from "react";
 
-import { paginate, parseAdminTableParams } from "./admin-table-params";
+import { fetchTablePage, paginate, parseAdminTableParams } from "./admin-table-params";
 
 export const loadAPICalls = cache(async (params: Awaited<PageProps<"/admin/api">["searchParams"]>) => {
   const sortSchema = type({
@@ -28,7 +28,5 @@ export const loadAPICalls = cache(async (params: Awaited<PageProps<"/admin/api">
   queryResult = filter.reduce((q, f) => q.where(f.id, "=", Number(f.value)), queryResult);
   queryResult = paginate(queryResult, page, pageSize, 200);
 
-  const [count, results] = await Promise.all([countResult.executeTakeFirstOrThrow(), queryResult.execute()]);
-
-  return { count: count.count ?? 0, results };
+  return fetchTablePage(countResult, queryResult);
 });

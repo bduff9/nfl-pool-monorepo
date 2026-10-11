@@ -5,50 +5,25 @@ import { cache } from "react";
 
 import type { DB } from "..";
 import { db } from "../kysely";
+import { loadPrizes, systemValueQuery } from "./systemValueHelpers";
 
-export const getOverallPrizeAmounts = cache(async (): Promise<[number, number, number, number]> => {
-  const defaultPrizes: [number, number, number, number] = [0, 0, 0, 0];
-  const systemValue = await db
-    .selectFrom("SystemValues")
-    .select("SystemValueValue")
-    .where("SystemValueName", "=", "OverallPrizes")
-    .executeTakeFirst();
+const parseOverallPrizes = type("string.json.parse").to(["number", "number", "number", "number"]);
+const parseThreePrizes = type("string.json.parse").to(["number", "number", "number"]);
 
-  if (!systemValue?.SystemValueValue) {
-    return defaultPrizes;
-  }
-
-  const parsePrizes = type("string.json.parse").to(["number", "number", "number", "number"]);
-  const prizes = parsePrizes(systemValue.SystemValueValue);
-
-  if (prizes instanceof type.errors) {
-    console.error("Failed to parse overall prize amounts", prizes, systemValue.SystemValueValue);
-
-    throw new Error(`Malformed OverallPrizes value in SystemValues: ${systemValue.SystemValueValue}`);
-  }
-
-  return prizes;
-});
-
-export const getOverallPrizeForLastPlace = cache(async (): Promise<number> => {
-  const systemValue = await db
-    .selectFrom("SystemValues")
-    .select("SystemValueValue")
-    .where("SystemValueName", "=", "PoolCost")
-    .executeTakeFirst();
+const getNumericSystemValue = async (name: string): Promise<number> => {
+  const systemValue = await systemValueQuery(db, name).executeTakeFirst();
 
   return Number(systemValue?.SystemValueValue ?? "0");
-});
+};
 
-export const getPaymentDueWeek = cache(async (): Promise<number> => {
-  const systemValue = await db
-    .selectFrom("SystemValues")
-    .select("SystemValueValue")
-    .where("SystemValueName", "=", "PaymentDueWeek")
-    .executeTakeFirst();
+export const getOverallPrizeAmounts = cache(
+  (): Promise<[number, number, number, number]> =>
+    loadPrizes(db, "OverallPrizes", "overall", parseOverallPrizes, [0, 0, 0, 0]),
+);
 
-  return Number(systemValue?.SystemValueValue ?? "0");
-});
+export const getOverallPrizeForLastPlace = cache(() => getNumericSystemValue("PoolCost"));
+
+export const getPaymentDueWeek = cache(() => getNumericSystemValue("PaymentDueWeek"));
 
 export const getPaymentDueDate = cache(async (): Promise<Date> => {
   const dueWeek = await getPaymentDueWeek();
@@ -62,83 +37,20 @@ export const getPaymentDueDate = cache(async (): Promise<Date> => {
   return lastGame.GameKickoff;
 });
 
-export const getPoolCost = cache(async (): Promise<number> => {
-  const systemValue = await db
-    .selectFrom("SystemValues")
-    .select("SystemValueValue")
-    .where("SystemValueName", "=", "PoolCost")
-    .executeTakeFirst();
+export const getPoolCost = cache(() => getNumericSystemValue("PoolCost"));
 
-  return Number(systemValue?.SystemValueValue ?? "0");
-});
+export const getSurvivorCost = cache(() => getNumericSystemValue("SurvivorCost"));
 
-export const getSurvivorCost = cache(async (): Promise<number> => {
-  const systemValue = await db
-    .selectFrom("SystemValues")
-    .select("SystemValueValue")
-    .where("SystemValueName", "=", "SurvivorCost")
-    .executeTakeFirst();
+export const getSurvivorPrizeAmounts = cache(
+  (): Promise<[number, number, number]> => loadPrizes(db, "SurvivorPrizes", "survivor", parseThreePrizes, [0, 0, 0]),
+);
 
-  return Number(systemValue?.SystemValueValue ?? "0");
-});
+export const getSystemYear = cache(() => getNumericSystemValue("YearUpdated"));
 
-export const getSurvivorPrizeAmounts = cache(async (): Promise<[number, number, number]> => {
-  const defaultPrizes: [number, number, number] = [0, 0, 0];
-  const systemValue = await db
-    .selectFrom("SystemValues")
-    .select("SystemValueValue")
-    .where("SystemValueName", "=", "SurvivorPrizes")
-    .executeTakeFirst();
-
-  if (!systemValue?.SystemValueValue) {
-    return defaultPrizes;
-  }
-
-  const parsePrizes = type("string.json.parse").to(["number", "number", "number"]);
-  const prizes = parsePrizes(systemValue.SystemValueValue);
-
-  if (prizes instanceof type.errors) {
-    console.error("Failed to parse survivor prize amounts", prizes, systemValue.SystemValueValue);
-
-    throw new Error(`Malformed SurvivorPrizes value in SystemValues: ${systemValue.SystemValueValue}`);
-  }
-
-  return prizes;
-});
-
-export const getSystemYear = cache(async (): Promise<number> => {
-  const systemValue = await db
-    .selectFrom("SystemValues")
-    .select("SystemValueValue")
-    .where("SystemValueName", "=", "YearUpdated")
-    .executeTakeFirst();
-
-  return Number(systemValue?.SystemValueValue ?? "0");
-});
-
-export const getWeeklyPrizeAmounts = cache(async (trx?: Transaction<DB>): Promise<[number, number, number]> => {
-  const defaultPrizes: [number, number, number] = [0, 0, 0];
-  const systemValue = await (trx ?? db)
-    .selectFrom("SystemValues")
-    .select("SystemValueValue")
-    .where("SystemValueName", "=", "WeeklyPrizes")
-    .executeTakeFirst();
-
-  if (!systemValue?.SystemValueValue) {
-    return defaultPrizes;
-  }
-
-  const parsePrizes = type("string.json.parse").to(["number", "number", "number"]);
-  const prizes = parsePrizes(systemValue.SystemValueValue);
-
-  if (prizes instanceof type.errors) {
-    console.error("Failed to parse weekly prize amounts", prizes, systemValue.SystemValueValue);
-
-    throw new Error(`Malformed WeeklyPrizes value in SystemValues: ${systemValue.SystemValueValue}`);
-  }
-
-  return prizes;
-});
+export const getWeeklyPrizeAmounts = cache(
+  (trx?: Transaction<DB>): Promise<[number, number, number]> =>
+    loadPrizes(trx ?? db, "WeeklyPrizes", "weekly", parseThreePrizes, [0, 0, 0]),
+);
 
 export const verifySeasonYearForReset = async (): Promise<null | number> => {
   const nextSeasonYear = getCurrentSeasonYear();
@@ -152,11 +64,7 @@ export const verifySeasonYearForReset = async (): Promise<null | number> => {
 };
 
 export const hasSystemValue = async (name: string): Promise<boolean> => {
-  const systemValue = await db
-    .selectFrom("SystemValues")
-    .select("SystemValueValue")
-    .where("SystemValueName", "=", name)
-    .executeTakeFirst();
+  const systemValue = await systemValueQuery(db, name).executeTakeFirst();
 
   return systemValue?.SystemValueValue === "1";
 };

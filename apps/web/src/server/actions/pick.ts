@@ -19,6 +19,8 @@ import type { AutoPickStrategy } from "@/lib/constants";
 import { ActionError, authActionClient } from "@/lib/safe-action";
 import { autoPickSchema, serverActionResultSchema, setMyPickSchema, validateMyPicksSchema } from "@/lib/validation";
 
+import { unusedPicksCountQuery } from "./unusedPicksQuery";
+
 const expirePickCaches = (week: number, path: "/picks/set" | "/picks/view"): void => {
   revalidatePath(path);
   updateTag(cacheTags.weeklyMv(week));
@@ -480,24 +482,7 @@ export const validateMyPicks = authActionClient
 
     try {
       await db.transaction().execute(async (trx) => {
-        const unusedCount =
-          !unused || unused.length === 0
-            ? await trx
-                .selectFrom("Picks as P")
-                .select([sql<number>`COUNT(*)`.as("count")])
-                .innerJoin("Games as G", "G.GameID", "P.GameID")
-                .where("G.GameWeek", "=", week)
-                .where("P.UserID", "=", ctx.user.id)
-                .where("P.PickPoints", "is", null)
-                .executeTakeFirst()
-            : await trx
-                .selectFrom("Picks as P")
-                .select([sql<number>`COUNT(*)`.as("count")])
-                .innerJoin("Games as G", "G.GameID", "P.GameID")
-                .where("G.GameWeek", "=", week)
-                .where("P.UserID", "=", ctx.user.id)
-                .where("P.PickPoints", "in", unused)
-                .executeTakeFirst();
+        const unusedCount = await unusedPicksCountQuery(trx, ctx.user.id, week, unused).executeTakeFirst();
 
         if (!unusedCount || unusedCount.count > 0) {
           throw new ActionError("Points are not in sync");

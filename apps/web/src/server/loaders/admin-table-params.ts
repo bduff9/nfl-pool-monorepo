@@ -45,3 +45,13 @@ export const paginate = <Q extends Pageable<Q>>(query: Q, page: number, pageSize
 
   return window ? query.limit(window.limit).offset(window.offset) : query;
 };
+
+/** Runs the count and page queries together and returns the shape every admin table loader exposes. */
+export const fetchTablePage = async <Row>(
+  countQuery: { executeTakeFirstOrThrow: () => Promise<{ count: null | number | undefined }> },
+  rowsQuery: { execute: () => Promise<Row[]> },
+) => {
+  const [count, results] = await Promise.all([countQuery.executeTakeFirstOrThrow(), rowsQuery.execute()]);
+
+  return { count: count.count ?? 0, results };
+};

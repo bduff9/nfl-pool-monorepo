@@ -1,4 +1,5 @@
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
+import { getSurvivorMvCount } from "@nfl-pool-monorepo/db/src/queries/survivor";
 import { sql } from "kysely";
 import { cache } from "react";
 import "server-only";
@@ -80,10 +81,7 @@ export const getSurvivorRankings = cache(async () => {
 export const getSurvivorStatus = cache(async () => {
   await requireUser();
 
-  const { count } = await db
-    .selectFrom("SurvivorMV")
-    .select(({ fn }) => [fn.countAll<number>().as("count")])
-    .executeTakeFirstOrThrow();
+  const count = await getSurvivorMvCount();
 
   if (count === 0) {
     return "Not Started";

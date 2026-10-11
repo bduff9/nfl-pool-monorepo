@@ -3,7 +3,7 @@ import { type } from "arktype";
 import { sql } from "kysely";
 import { cache } from "react";
 
-import { paginate, parseAdminTableParams } from "./admin-table-params";
+import { fetchTablePage, paginate, parseAdminTableParams } from "./admin-table-params";
 import { buildEmailViewLog } from "./emailView";
 import { getCurrentSession } from "./sessions";
 
@@ -43,9 +43,7 @@ export const getAdminEmails = cache(async (params: Awaited<PageProps<"/admin/ema
   queryResult = filter.reduce((q, f) => q.where(f.id, "=", f.value), queryResult);
   queryResult = paginate(queryResult, page, pageSize);
 
-  const [count, results] = await Promise.all([countResult.executeTakeFirstOrThrow(), queryResult.execute()]);
-
-  return { count: count.count ?? 0, results };
+  return fetchTablePage(countResult, queryResult);
 });
 
 export const getEmail = cache(async (emailID: string) => {

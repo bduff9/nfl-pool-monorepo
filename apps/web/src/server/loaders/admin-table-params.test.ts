@@ -1,7 +1,7 @@
 import { type } from "arktype";
 import { describe, expect, it } from "vitest";
 
-import { paginate, parseAdminTableParams } from "./admin-table-params";
+import { fetchTablePage, paginate, parseAdminTableParams } from "./admin-table-params";
 
 const config = {
   defaultSort: [{ desc: true, id: "a" as const }],
@@ -92,5 +92,25 @@ describe("paginate", () => {
     paginate(query, 2, "all", 200);
 
     expect(calls).toEqual(["limit:200", "offset:0"]);
+  });
+});
+
+describe("fetchTablePage", () => {
+  it("combines the count and rows", async () => {
+    const result = await fetchTablePage(
+      { executeTakeFirstOrThrow: () => Promise.resolve({ count: 12 }) },
+      { execute: () => Promise.resolve([{ id: 1 }]) },
+    );
+
+    expect(result).toEqual({ count: 12, results: [{ id: 1 }] });
+  });
+
+  it("falls back to 0 when the count is null", async () => {
+    const result = await fetchTablePage(
+      { executeTakeFirstOrThrow: () => Promise.resolve({ count: null }) },
+      { execute: () => Promise.resolve([]) },
+    );
+
+    expect(result).toEqual({ count: 0, results: [] });
   });
 });
