@@ -29,20 +29,13 @@ import { getGamesForWeekCached } from "@/server/loaders/game";
 import { getSelectedWeekFromParams } from "@/server/loaders/week";
 
 import AdminLoading from "../loading";
+import { toAdminGameRowProps } from "./gameRowProps";
 
 const TITLE = "Manage Games";
 
 export const metadata: Metadata = {
   title: TITLE,
 };
-
-const KICKOFF_FORMAT = new Intl.DateTimeFormat("en-US", {
-  dateStyle: "medium",
-  timeStyle: "short",
-  timeZone: "America/Chicago",
-});
-
-const formatKickoff = (kickoff: Date): string => KICKOFF_FORMAT.format(kickoff);
 
 const AdminGamesPageBody: FC<PageProps<"/weekly">> = async ({ searchParams }) => {
   const redirectUrl = await requireAdmin();
@@ -75,16 +68,7 @@ const AdminGamesPageBody: FC<PageProps<"/weekly">> = async ({ searchParams }) =>
             </TableHeader>
             <TableBody>
               {games.map((game) => (
-                <AdminGameRow
-                  away={game.visitorTeam?.TeamName ?? "Unknown"}
-                  gameID={game.GameID}
-                  home={game.homeTeam?.TeamName ?? "Unknown"}
-                  homeScore={game.GameHomeScore ?? 0}
-                  key={game.GameID}
-                  kickoffLabel={formatKickoff(game.GameKickoff)}
-                  status={game.GameStatus}
-                  visitorScore={game.GameVisitorScore ?? 0}
-                />
+                <AdminGameRow {...toAdminGameRowProps(game)} key={game.GameID} />
               ))}
             </TableBody>
           </Table>

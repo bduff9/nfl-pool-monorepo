@@ -17,12 +17,12 @@
  */
 
 import { useSidebar } from "@nfl-pool-monorepo/ui/components/sidebar";
-import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { Route } from "next";
 import { usePathname } from "next/navigation";
 import type { FC } from "react";
 
 import { WeekLink } from "../WeekLink/WeekLink";
+import { getNavLinkClassName } from "./navLinkClassName";
 
 type NavLinkProps = {
   children: string;
@@ -48,11 +48,7 @@ const NavLink: FC<NavLinkProps> = ({ children, href, isNested = false, onClick, 
   if (href) {
     return (
       <WeekLink
-        className={cn(
-          "inline-block w-full py-2 rounded text-2xl font-medium",
-          isActive && "text-green-700 bg-muted",
-          isNested ? "ps-8 text-lg font-normal" : "ps-4",
-        )}
+        className={getNavLinkClassName("inline-block w-full py-2 rounded text-2xl font-medium", isActive, isNested)}
         href={href}
         onClick={handleLinkClick}
         prefetch={true}
@@ -64,11 +60,7 @@ const NavLink: FC<NavLinkProps> = ({ children, href, isNested = false, onClick, 
 
   return (
     <button
-      className={cn(
-        "text-left w-full py-2 rounded cursor-pointer",
-        isActive && "text-green-700 bg-muted",
-        isNested ? "ps-8 text-lg font-normal" : "ps-4",
-      )}
+      className={getNavLinkClassName("text-left w-full py-2 rounded cursor-pointer", isActive, isNested)}
       onClick={onClick}
       type="button"
     >

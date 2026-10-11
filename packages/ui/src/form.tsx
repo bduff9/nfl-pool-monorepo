@@ -124,9 +124,12 @@ function FormDescription({ className, ...props }: React.ComponentProps<"p">) {
   );
 }
 
+const getFormMessageBody = (error: { message?: string } | undefined, children: React.ReactNode) =>
+  error ? String(error?.message ?? "") : children;
+
 function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
   const { error, formMessageId } = useFormField();
-  const body = error ? String(error?.message ?? "") : props.children;
+  const body = getFormMessageBody(error, props.children);
 
   if (!body) {
     return null;

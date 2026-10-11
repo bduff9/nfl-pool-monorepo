@@ -14,8 +14,9 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { FC } from "react";
+
+import { getBarClassName, toPercent } from "./progressBar";
 
 type MyProgressChartProps = {
   correct: number;
@@ -36,8 +37,8 @@ const MyProgressChart: FC<MyProgressChartProps> = ({
   possible,
   possibleLabel,
 }) => {
-  const correctPercent = max > 0 ? (correct / max) * 100 : 0;
-  const possiblePercent = max > 0 ? ((possible - correct) / max) * 100 : 0;
+  const correctPercent = toPercent(correct, max);
+  const possiblePercent = toPercent(possible - correct, max);
 
   return (
     <div>
@@ -47,9 +48,9 @@ const MyProgressChart: FC<MyProgressChartProps> = ({
           aria-valuemax={max}
           aria-valuemin={0}
           aria-valuenow={correct}
-          className={cn(
+          className={getBarClassName(
             "flex flex-col justify-center items-center text-green-100 text-center whitespace-nowrap transition-all  bg-green-700",
-            !isOver && "in-progress",
+            isOver,
           )}
           role="progressbar"
           style={{ width: `${correctPercent}%` }}
@@ -61,9 +62,9 @@ const MyProgressChart: FC<MyProgressChartProps> = ({
             aria-valuemax={max}
             aria-valuemin={0}
             aria-valuenow={possible}
-            className={cn(
+            className={getBarClassName(
               "flex flex-col justify-center items-center text-green-900 text-center whitespace-nowrap transition-all bg-green-300",
-              !isOver && "in-progress",
+              isOver,
             )}
             role="progressbar"
             style={{ width: `${possiblePercent}%` }}

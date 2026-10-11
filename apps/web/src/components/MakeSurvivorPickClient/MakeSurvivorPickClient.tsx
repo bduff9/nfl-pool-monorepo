@@ -26,6 +26,7 @@ import type { getTeamsOnBye } from "@/server/loaders/team";
 
 import SurvivorTeam from "../SurvivorTeam/SurvivorTeam";
 import TeamDetail from "../TeamDetail/TeamDetail";
+import { getPreviousTeamId, getSavingToastMessage } from "./survivorPickHelpers";
 
 type Props = {
   games: Awaited<ReturnType<typeof getGamesForWeekCached>>;
@@ -152,17 +153,14 @@ const MakeSurvivorPickClient: FC<Props> = ({ games, survivorPicks, teamsOnBye, w
   const setSurvivorPick = (gameID: number, teamID: number | null): void => {
     if (loading) return;
 
-    previousTeamIdRef.current = survivorPicks.find((pick) => pick.SurvivorPickWeek === week)?.TeamID ?? null;
+    previousTeamIdRef.current = getPreviousTeamId(survivorPicks, week);
     setLoading(teamID);
 
-    toastIdRef.current = toast.loading(
-      isOffline ? "You're offline - this will save once you're back online" : "Saving survivor pick...",
-      {
-        closeButton: false,
-        dismissible: false,
-        duration: Infinity,
-      },
-    );
+    toastIdRef.current = toast.loading(getSavingToastMessage(isOffline), {
+      closeButton: false,
+      dismissible: false,
+      duration: Infinity,
+    });
 
     startSurvivorPickUpdating(() => {
       setOptimisticPick(teamID);

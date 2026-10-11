@@ -15,42 +15,20 @@
  */
 import "client-only";
 
-const LOGIN_ERRORS = [
-  "EmailSignin",
-  "InvalidEmail",
-  "LatePayment",
-  "MissingSystemProperty",
-  "NotAllowed",
-  "OAuthAccountNotLinked",
-  "RegistrationOver",
-] as const;
+const LOGIN_ERROR_MESSAGES = {
+  EmailSignin: "Something went wrong with the email login attempt, please try again later or contact an admin",
+  InvalidEmail: "It looks like your email is not valid, please double check it and try again",
+  LatePayment: "Your entry fee is past due, please pay immediately to regain access and avoid losing any points",
+  MissingSystemProperty: "System error, please contact an administrator",
+  NotAllowed: "Your account has been blocked.  Please reach out to an administrator to resolve.",
+  OAuthAccountNotLinked:
+    "It looks like you haven't linked your account yet, please sign in using the previous method and then link this account to be able to use it to sign in",
+  RegistrationOver: "Sorry, registration is over for this year, please try again next season!",
+} as const;
 
-type TLoginError = (typeof LOGIN_ERRORS)[number];
+type TLoginError = keyof typeof LOGIN_ERROR_MESSAGES;
 
 const isLoginError = (arg: unknown): arg is TLoginError =>
-  typeof arg === "string" && (LOGIN_ERRORS as readonly string[]).includes(arg);
+  typeof arg === "string" && Object.hasOwn(LOGIN_ERROR_MESSAGES, arg);
 
-export const formatError = (error: unknown): string => {
-  if (isLoginError(error)) {
-    switch (error) {
-      case "EmailSignin":
-        return "Something went wrong with the email login attempt, please try again later or contact an admin";
-      case "InvalidEmail":
-        return "It looks like your email is not valid, please double check it and try again";
-      case "LatePayment":
-        return "Your entry fee is past due, please pay immediately to regain access and avoid losing any points";
-      case "MissingSystemProperty":
-        return "System error, please contact an administrator";
-      case "NotAllowed":
-        return "Your account has been blocked.  Please reach out to an administrator to resolve.";
-      case "OAuthAccountNotLinked":
-        return "It looks like you haven't linked your account yet, please sign in using the previous method and then link this account to be able to use it to sign in";
-      case "RegistrationOver":
-        return "Sorry, registration is over for this year, please try again next season!";
-      default:
-        return "Something went wrong, please try again";
-    }
-  }
-
-  return "";
-};
+export const formatError = (error: unknown): string => (isLoginError(error) ? LOGIN_ERROR_MESSAGES[error] : "");

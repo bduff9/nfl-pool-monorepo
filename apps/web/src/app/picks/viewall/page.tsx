@@ -25,7 +25,6 @@ import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { requireRegistered } from "@/lib/auth";
-import { withWeek } from "@/lib/weekSearchParams";
 import { getAllPicksForWeek } from "@/server/loaders/pick";
 import { getMyTiebreaker } from "@/server/loaders/tiebreaker";
 import { getCurrentUser } from "@/server/loaders/user";
@@ -33,6 +32,7 @@ import { getSelectedWeekFromParams } from "@/server/loaders/week";
 import { getWeeklyRankings } from "@/server/loaders/weeklyMv";
 
 import ViewAllPicksLoading from "./loading";
+import { getViewAllRedirect } from "./viewAllRedirect";
 import ViewAllPicksClient from "./viewall.client";
 
 const TITLE = "View All Week Picks";
@@ -58,12 +58,14 @@ const ViewAllPicksPageBody: FC<PageProps<"/picks/viewall">> = async ({ searchPar
     getAllPicksForWeek(selectedWeek),
   ]);
 
-  if (tiebreaker?.TiebreakerHasSubmitted !== 1) {
-    return redirect(withWeek("/picks/set", selectedWeek));
-  }
+  const pageRedirect = getViewAllRedirect(
+    tiebreaker?.TiebreakerHasSubmitted === 1,
+    weeklyRankings.length,
+    selectedWeek,
+  );
 
-  if (weeklyRankings.length === 0) {
-    return redirect(withWeek("/picks/view", selectedWeek));
+  if (pageRedirect) {
+    return redirect(pageRedirect);
   }
 
   return (

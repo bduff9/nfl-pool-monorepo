@@ -10,6 +10,7 @@ import { weekSchema } from "@nfl-pool-monorepo/utils/validation";
 import { parseWeekParam } from "@/lib/weekSearchParams";
 
 import { requireUser } from "./sessions";
+import { weekFromCookie } from "./weekCookie";
 
 export const getCurrentWeekCached = cache(() => getCurrentWeek());
 
@@ -40,18 +41,8 @@ export const getSelectedWeek = cache(async (currentWeek?: number) => {
   await requireUser();
 
   const cookieStore = await cookies();
-  const selectedWeekCookie = cookieStore.get("selectedWeek");
-  const selectedWeek = selectedWeekCookie?.value ? Number(selectedWeekCookie.value) : 0;
 
-  if (selectedWeek) {
-    return selectedWeek;
-  }
-
-  if (currentWeek) {
-    return currentWeek;
-  }
-
-  return getCurrentWeekCached();
+  return weekFromCookie(cookieStore.get("selectedWeek")?.value) || currentWeek || getCurrentWeekCached();
 });
 
 export const getSelectedWeekFromParams = cache(

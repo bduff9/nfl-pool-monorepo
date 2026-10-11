@@ -17,6 +17,7 @@
 import { verifyEmailLink } from "@nfl-pool-monorepo/transactional/src/emailToken";
 import type { NextRequest } from "next/server";
 
+import { htmlResponse, parseUnsubscribeForm } from "@/lib/unsubscribe";
 import { unsubscribe } from "@/server/actions/email";
 
 const escapeHtml = (value: string): string =>
@@ -58,57 +59,26 @@ export const GET = async (req: NextRequest, _ctx: RouteContext<"/api/email/unsub
   });
 };
 
-export const POST = async (req: NextRequest, _ctx: RouteContext<"/api/email/unsubscribe">): Promise<Response> => {
-  const formData = await req.formData();
-  const email = formData.get("email");
-  const token = formData.get("t");
-
-  if (typeof email !== "string" || !email) {
-    return new Response("<h1>Please provide a valid email address</h1>", {
-      headers: {
-        "Content-Type": "text/html",
-      },
-      status: 400,
-    });
-  }
-
-  // Only links signed by the email pipeline may unsubscribe an address, so a third party
-  // can't opt someone else out by email alone.
-  if (typeof token !== "string" || !verifyEmailLink(email, token)) {
-    return new Response("<h1>Please use the unsubscribe link from your email</h1>", {
-      headers: {
-        "Content-Type": "text/html",
-      },
-      status: 403,
-    });
-  }
-
+const runUnsubscribe = async (email: string): Promise<Response> => {
   try {
     const result = await unsubscribe({ email });
 
-    if (result?.data) {
-      return new Response("<h1>You have been successfully unsubscribed</h1>", {
-        headers: {
-          "Content-Type": "text/html",
-        },
-        status: 200,
-      });
-    } else {
-      return new Response("<h1>Please contact an admin to finish unsubscribing</h1>", {
-        headers: {
-          "Content-Type": "text/html",
-        },
-        status: 500,
-      });
-    }
+    return result?.data
+      ? htmlResponse("<h1>You have been successfully unsubscribed</h1>", 200)
+      : htmlResponse("<h1>Please contact an admin to finish unsubscribing</h1>", 500);
   } catch (error) {
     console.error({ email, error, text: "Error unsubscribing:" });
 
-    return new Response("<h1>Error unsubscribing, please try again later</h1>", {
-      headers: {
-        "Content-Type": "text/html",
-      },
-      status: 500,
-    });
+    return htmlResponse("<h1>Error unsubscribing, please try again later</h1>", 500);
   }
+};
+
+export const POST = async (req: NextRequest, _ctx: RouteContext<"/api/email/unsubscribe">): Promise<Response> => {
+  const emailOrRejection = parseUnsubscribeForm(await req.formData(), verifyEmailLink);
+
+  if (emailOrRejection instanceof Response) {
+    return emailOrRejection;
+  }
+
+  return runUnsubscribe(emailOrRejection);
 };

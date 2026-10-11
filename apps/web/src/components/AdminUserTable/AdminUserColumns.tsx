@@ -1,7 +1,6 @@
 "use client";
 
 import { type DataTableFeatures, SortableColumnHeader } from "@nfl-pool-monorepo/ui/components/data-table";
-import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { ColumnDef } from "@tanstack/react-table";
 import { FaEnvelope } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
@@ -9,6 +8,7 @@ import { FcGoogle } from "react-icons/fc";
 import type { getAdminUsers, getTrustedUsersDropdown } from "@/server/loaders/user";
 
 import { UserRowActions } from "./UserRowActions";
+import { formatNotificationChannel, getUserStatusClass } from "./userColumnFormat";
 
 export type User = Awaited<ReturnType<typeof getAdminUsers>>["results"][number];
 
@@ -58,12 +58,7 @@ export const getUserColumns = (
     cell: ({ row }) => {
       return (
         <div
-          className={cn(
-            row.original.UserStatus === "Registered" && "text-green-600",
-            row.original.UserStatus === "Unverified" && "text-red-600",
-            row.original.UserStatus === "Untrusted" && "text-amber-600",
-            row.original.UserStatus === "Verified" && "text-muted-foreground",
-          )}
+          className={getUserStatusClass(row.original.UserStatus)}
           title={`Years played: ${row.original.YearsPlayed}`}
         >
           {row.original.UserStatus}
@@ -78,8 +73,8 @@ export const getUserColumns = (
       return row.original.UserNotifications.map((notification) => (
         <div className="flex-1 text-nowrap" key={`notification-${notification.NotificationID}`}>
           {notification.NotificationTypeDescription}:{" "}
-          {notification.NotificationEmail ? `E${notification.NotificationEmailHoursBefore ?? ""}` : ""}{" "}
-          {notification.NotificationSMS ? `S${notification.NotificationSMSHoursBefore ?? ""}` : ""}
+          {formatNotificationChannel("E", notification.NotificationEmail, notification.NotificationEmailHoursBefore)}{" "}
+          {formatNotificationChannel("S", notification.NotificationSMS, notification.NotificationSMSHoursBefore)}
         </div>
       ));
     },

@@ -28,6 +28,79 @@ type SurvivorDashboardIconProps = {
   pickForWeek?: Awaited<ReturnType<typeof getMySurvivorPickForWeek>>;
 };
 
+type SurvivorLastPick = NonNullable<SurvivorDashboardIconProps["lastPick"]>;
+
+const HELMET_CLASS = "h-full w-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2";
+const QUESTION_CLASS = "h-full w-full text-red-600 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2";
+
+const QuestionHelmet: FC<{ className: string }> = ({ className }) => (
+  <div className={className}>
+    <PiFootballHelmetDuotone className={HELMET_CLASS} />
+    <PiQuestionMark className={QUESTION_CLASS} />
+  </div>
+);
+
+const ObserverIcon: FC = () => (
+  <>
+    <div className={cn("mx-auto size-[206px]")}>
+      <PiUserDuotone className="h-full w-full" />
+    </div>
+    <h3 className="-mt-4 relative scroll-m-20 text-2xl font-semibold tracking-tight">Observer</h3>
+  </>
+);
+
+const EliminatedHeading: FC = () => (
+  <h3 className="-mt-4 text-red-600 relative scroll-m-20 text-2xl font-semibold tracking-tight">You&lsquo;re Out</h3>
+);
+
+const EliminatedIcon: FC<{ lastPick: SurvivorLastPick | undefined }> = ({ lastPick }) => {
+  if (lastPick) {
+    return (
+      <>
+        <Image
+          alt={`${lastPick.TeamCity} ${lastPick.TeamName}`}
+          className="grayscale mx-auto"
+          height={206}
+          loading="eager"
+          src={`/NFLLogos/${lastPick.TeamLogo}`}
+          title={`${lastPick.TeamCity} ${lastPick.TeamName}`}
+          width={206}
+        />
+        <EliminatedHeading />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <QuestionHelmet className={cn("mx-auto size-[206px] grayscale relative")} />
+      <EliminatedHeading />
+    </>
+  );
+};
+
+const NoPickIcon: FC = () => (
+  <>
+    <QuestionHelmet className={cn("mx-auto size-[206px] relative")} />
+    <h3 className="-mt-4 text-red-600 relative scroll-m-20 text-2xl font-semibold tracking-tight">No Pick Made</h3>
+  </>
+);
+
+const AliveIcon: FC<{ pick: NonNullable<SurvivorDashboardIconProps["pickForWeek"]> }> = ({ pick }) => (
+  <>
+    <Image
+      alt={`${pick.TeamCity} ${pick.TeamName}`}
+      className="mx-auto"
+      height={206}
+      loading="eager"
+      src={`/NFLLogos/${pick.TeamLogo}`}
+      title={`${pick.TeamCity} ${pick.TeamName}`}
+      width={206}
+    />
+    <h3 className="-mt-4 text-green-600 relative scroll-m-20 text-2xl font-semibold tracking-tight">Still Alive</h3>
+  </>
+);
+
 const SurvivorDashboardIcon: FC<SurvivorDashboardIconProps> = ({
   isAlive = false,
   isPlaying,
@@ -35,75 +108,18 @@ const SurvivorDashboardIcon: FC<SurvivorDashboardIconProps> = ({
   pickForWeek,
 }) => {
   if (!isPlaying) {
-    return (
-      <>
-        <div className={cn("mx-auto size-[206px]")}>
-          <PiUserDuotone className="h-full w-full" />
-        </div>
-        <h3 className="-mt-4 relative scroll-m-20 text-2xl font-semibold tracking-tight">Observer</h3>
-      </>
-    );
+    return <ObserverIcon />;
   }
 
   if (!isAlive) {
-    if (lastPick) {
-      return (
-        <>
-          <Image
-            alt={`${lastPick.TeamCity} ${lastPick.TeamName}`}
-            className="grayscale mx-auto"
-            height={206}
-            loading="eager"
-            src={`/NFLLogos/${lastPick.TeamLogo}`}
-            title={`${lastPick.TeamCity} ${lastPick.TeamName}`}
-            width={206}
-          />
-          <h3 className="-mt-4 text-red-600 relative scroll-m-20 text-2xl font-semibold tracking-tight">
-            You&lsquo;re Out
-          </h3>
-        </>
-      );
-    }
-
-    return (
-      <>
-        <div className={cn("mx-auto size-[206px] grayscale relative")}>
-          <PiFootballHelmetDuotone className="h-full w-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-          <PiQuestionMark className="h-full w-full text-red-600 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-        </div>
-        <h3 className="-mt-4 text-red-600 relative scroll-m-20 text-2xl font-semibold tracking-tight">
-          You&lsquo;re Out
-        </h3>
-      </>
-    );
+    return <EliminatedIcon lastPick={lastPick} />;
   }
 
   if (!pickForWeek) {
-    return (
-      <>
-        <div className={cn("mx-auto size-[206px] relative")}>
-          <PiFootballHelmetDuotone className="h-full w-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-          <PiQuestionMark className="h-full w-full text-red-600 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-        </div>
-        <h3 className="-mt-4 text-red-600 relative scroll-m-20 text-2xl font-semibold tracking-tight">No Pick Made</h3>
-      </>
-    );
+    return <NoPickIcon />;
   }
 
-  return (
-    <>
-      <Image
-        alt={`${pickForWeek.TeamCity} ${pickForWeek.TeamName}`}
-        className="mx-auto"
-        height={206}
-        loading="eager"
-        src={`/NFLLogos/${pickForWeek.TeamLogo}`}
-        title={`${pickForWeek.TeamCity} ${pickForWeek.TeamName}`}
-        width={206}
-      />
-      <h3 className="-mt-4 text-green-600 relative scroll-m-20 text-2xl font-semibold tracking-tight">Still Alive</h3>
-    </>
-  );
+  return <AliveIcon pick={pickForWeek} />;
 };
 
 export default SurvivorDashboardIcon;

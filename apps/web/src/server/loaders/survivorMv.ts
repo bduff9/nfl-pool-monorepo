@@ -3,11 +3,11 @@ import { sql } from "kysely";
 import { cache } from "react";
 import "server-only";
 
-import { WEEKS_IN_SEASON } from "@nfl-pool-monorepo/utils/constants";
 import { jsonArrayFrom } from "kysely/helpers/mysql";
 
 import { getWeekInProgress } from "./game";
 import { requireUser } from "./sessions";
+import { deadCountSql, isSurvivorComplete, toLastPickTeam, toMaxWeek } from "./survivorMvHelpers";
 
 export const getMySurvivorMv = cache(async () => {
   const user = await requireUser();
@@ -25,23 +25,10 @@ export const getMySurvivorMv = cache(async () => {
 
   const { TeamName, TeamCity, TeamLogo, ...rest } = result;
 
-  const mySurvivorMV = {
+  return {
     ...rest,
-    lastPickTeam: undefined,
+    lastPickTeam: toLastPickTeam({ TeamCity, TeamLogo, TeamName }),
   };
-
-  if (TeamName && TeamCity && TeamLogo) {
-    return {
-      ...mySurvivorMV,
-      lastPickTeam: {
-        TeamCity,
-        TeamLogo,
-        TeamName,
-      },
-    };
-  }
-
-  return mySurvivorMV;
 });
 
 export const getSurvivorOverallCounts = cache(async () => {
@@ -104,11 +91,7 @@ export const getSurvivorStatus = cache(async () => {
 
   const alive = await db.selectFrom("SurvivorMV").select("WeeksAlive").where("IsAliveOverall", "=", 1).execute();
 
-  if (alive.length < 2 || alive[0]?.WeeksAlive === WEEKS_IN_SEASON) {
-    return "Complete";
-  }
-
-  return "In Progress";
+  return isSurvivorComplete(alive) ? "Complete" : "In Progress";
 });
 
 export const getSurvivorWeeklyCounts = cache(async (week: number) => {
@@ -118,11 +101,7 @@ export const getSurvivorWeeklyCounts = cache(async (week: number) => {
     .selectFrom("SurvivorMV")
     .select(({ fn }) => [fn.max("WeeksAlive").as("max")])
     .executeTakeFirst();
-  const maxWeek = maxResult?.max ?? 0;
-  const deadSql =
-    week < maxWeek
-      ? sql`CASE WHEN WeeksAlive = ${week} THEN 1 ELSE 0 END`
-      : sql`CASE WHEN CurrentStatus = 'Dead' THEN 1 ELSE 0 END`;
+  const deadSql = deadCountSql(week, toMaxWeek(maxResult));
   const result = await db
     .selectFrom("SurvivorMV")
     .select(({ fn }) => [

@@ -30,12 +30,35 @@ import { WeekLink } from "@/components/WeekLink/WeekLink";
 import { requireLoggedOut } from "@/lib/auth";
 
 import AuthLoading from "../loading";
+import { parseLoginSearchParams } from "./loginSearchParams";
 
 const TITLE = "Login";
 
 export const metadata: Metadata = {
   title: TITLE,
 };
+
+type LoginChoicesProps = {
+  errorMessage: string | undefined;
+  isLogin: boolean;
+};
+
+const LoginChoices: FC<LoginChoicesProps> = ({ errorMessage, isLogin }) => (
+  <>
+    <LoginForm error={errorMessage} isLogin={isLogin} />
+    <div className="flex justify-center mb-2">
+      <GoogleAuthButton isRegister={!isLogin} isSignIn />
+    </div>
+    <div className="grid gap-2">
+      <TextSeparator>{isLogin ? "Need to sign up?" : "Already registered?"}</TextSeparator>
+      <Button asChild variant="black">
+        <WeekLink href={`/auth/login${isLogin ? "?register=Y" : ""}`}>
+          {isLogin ? "Register here" : "Login here"}
+        </WeekLink>
+      </Button>
+    </div>
+  </>
+);
 
 type LoginContentProps = {
   searchParams: PageProps<"/auth/login">["searchParams"];
@@ -50,9 +73,7 @@ const LoginContent: FC<LoginContentProps> = async ({ searchParams }) => {
 
   const [{ error, register, submitted }, year] = await Promise.all([searchParams, getSystemYear()]);
 
-  const isLogin = (Array.isArray(register) ? register[0] : register) !== "Y";
-  const errorMessage = Array.isArray(error) ? error[0] : error;
-  const hasSubmitted = (Array.isArray(submitted) ? submitted[0] : submitted) === "Y";
+  const { errorMessage, hasSubmitted, isLogin } = parseLoginSearchParams({ error, register, submitted });
 
   return (
     <div className="bg-muted text-foreground absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-border rounded-lg p-4 shrink-0 grow w-full h-full lg:h-auto lg:w-[50%] xl:w-[33%]">
@@ -77,20 +98,7 @@ const LoginContent: FC<LoginContentProps> = async ({ searchParams }) => {
           <h3 className="text-center text-foreground mb-4">You may close this window</h3>
         </>
       ) : (
-        <>
-          <LoginForm error={errorMessage} isLogin={isLogin} />
-          <div className="flex justify-center mb-2">
-            <GoogleAuthButton isRegister={!isLogin} isSignIn />
-          </div>
-          <div className="grid gap-2">
-            <TextSeparator>{isLogin ? "Need to sign up?" : "Already registered?"}</TextSeparator>
-            <Button asChild variant="black">
-              <WeekLink href={`/auth/login${isLogin ? "?register=Y" : ""}`}>
-                {isLogin ? "Register here" : "Login here"}
-              </WeekLink>
-            </Button>
-          </div>
-        </>
+        <LoginChoices errorMessage={errorMessage} isLogin={isLogin} />
       )}
     </div>
   );

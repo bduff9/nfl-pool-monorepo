@@ -30,6 +30,34 @@ type RegistrationFieldsProps = {
 const createSurvivorChangeHandler = (onChange: (...event: unknown[]) => void) => (value: string) =>
   onChange(value === "Yes");
 
+type RegistrationSubmitProps = {
+  errorCount: number;
+  isPending: boolean;
+};
+
+const ErrorSummary: FC<{ errorCount: number }> = ({ errorCount }) =>
+  errorCount > 0 && (
+    <div className="text-destructive text-sm" role="alert">
+      Please fix {errorCount} {errorCount === 1 ? "error" : "errors"} above
+    </div>
+  );
+
+const RegistrationSubmit: FC<RegistrationSubmitProps> = ({ errorCount, isPending }) => (
+  <div className="grid md:col-span-2 text-center">
+    <Button disabled={isPending} type="submit" variant="primary">
+      {isPending ? (
+        <>
+          <PiFootballDuotone className="animate-spin" />
+          Submitting...
+        </>
+      ) : (
+        "Register"
+      )}
+    </Button>
+    <ErrorSummary errorCount={errorCount} />
+  </div>
+);
+
 export const RegistrationFields: FC<RegistrationFieldsProps> = ({
   control,
   errorCount,
@@ -211,23 +239,7 @@ export const RegistrationFields: FC<RegistrationFieldsProps> = ({
       <div className="mt-6">
         <GoogleAuthButton isLinked={hasGoogle} />
       </div>
-      <div className="grid md:col-span-2 text-center">
-        <Button disabled={isPending} type="submit" variant="primary">
-          {isPending ? (
-            <>
-              <PiFootballDuotone className="animate-spin" />
-              Submitting...
-            </>
-          ) : (
-            "Register"
-          )}
-        </Button>
-        {errorCount > 0 && (
-          <div className="text-destructive text-sm" role="alert">
-            Please fix {errorCount} {errorCount === 1 ? "error" : "errors"} above
-          </div>
-        )}
-      </div>
+      <RegistrationSubmit errorCount={errorCount} isPending={isPending} />
     </>
   );
 };

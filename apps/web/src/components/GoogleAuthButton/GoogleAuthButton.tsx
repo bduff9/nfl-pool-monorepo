@@ -23,21 +23,18 @@ import { toast } from "sonner";
 
 import { getGoogleAuthorizationUrl } from "@/server/actions/googleAuth";
 
+import { getGoogleButtonTitle } from "./googleButtonTitle";
+
 type GoogleAuthButtonProps = {
   isLinked?: boolean;
   isRegister?: boolean;
   isSignIn?: boolean;
 };
 
-const GoogleAuthButton: FC<GoogleAuthButtonProps> = ({ isLinked = false, isRegister = false, isSignIn = false }) => {
+const GoogleAuthButton: FC<GoogleAuthButtonProps> = ({ isLinked, isRegister, isSignIn }) => {
   const [isLoading, startTransition] = useTransition();
-  let title = "Link Google account";
-
-  if (isSignIn) {
-    title = isRegister ? "Register with Google" : "Sign in with Google";
-  } else if (isLinked) {
-    title = "Google linked";
-  }
+  const title = getGoogleButtonTitle({ isLinked, isRegister, isSignIn });
+  const label = isLoading ? "Redirecting..." : title;
 
   const handleClick = (): void => {
     startTransition(async () => {
@@ -66,7 +63,7 @@ const GoogleAuthButton: FC<GoogleAuthButtonProps> = ({ isLinked = false, isRegis
       <div className="flex items-center justify-center bg-white w-9 h-9 rounded-full">
         <FcGoogle className="size-5" />
       </div>
-      <span className="text-sm text-white tracking-wider">{isLoading ? "Redirecting..." : title || ""}</span>
+      <span className="text-sm text-white tracking-wider">{label}</span>
     </button>
   );
 };

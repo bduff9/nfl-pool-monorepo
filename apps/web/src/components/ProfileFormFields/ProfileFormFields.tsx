@@ -7,6 +7,8 @@ import type { ControllerFieldState } from "react-hook-form";
 
 import { PaymentMethod } from "@/lib/constants";
 
+import { getProfileInputClassName, getProfileLabelClassName } from "./profileTextFieldClasses";
+
 type TextField = {
   name: string;
   onBlur: () => void;
@@ -46,12 +48,12 @@ export const ProfileTextField: FC<ProfileTextFieldProps> = ({
   type = "text",
 }) => (
   <FormItem>
-    <FormLabel className={cn("h-5", required && "required")}>{label}</FormLabel>
+    <FormLabel className={getProfileLabelClassName(required)}>{label}</FormLabel>
     <FormControl>
       <Input
         {...field}
         autoComplete={autoComplete}
-        className={cn(readOnly && "border-0 shadow-none", !readOnly && fieldState.error && "border-red-600")}
+        className={getProfileInputClassName(readOnly, !!fieldState.error)}
         id={id}
         placeholder={placeholder}
         readOnly={readOnly}

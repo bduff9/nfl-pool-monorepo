@@ -33,6 +33,7 @@ import { WeekLink } from "@/components/WeekLink/WeekLink";
 import { writeLog } from "@/server/actions/logs";
 import { getCurrentSession } from "@/server/loaders/sessions";
 
+import { getHighlightSource } from "./fuseHighlight";
 import SupportLoader from "./loading";
 
 const TITLE = "Support/FAQs";
@@ -40,15 +41,6 @@ const TITLE = "Support/FAQs";
 export const metadata: Metadata = {
   title: TITLE,
 };
-
-const resolveAttribute = (item: Selectable<SupportContent>, key: string): unknown =>
-  key.split(".").reduce<unknown>((prev, curr) => {
-    if (prev && typeof prev === "object" && curr in prev) {
-      return (prev as Record<string, unknown>)[curr];
-    }
-
-    return undefined;
-  }, item);
 
 const highlight = (value: string, indices: [number, number][] = []): ReactNode => {
   const pair = indices.pop();
@@ -72,13 +64,27 @@ type FuseHighlightProps = {
 };
 
 const FuseHighlight: FC<FuseHighlightProps> = ({ attribute, hit }) => {
-  const matches = typeof hit.item === "string" ? hit.matches?.[0] : hit.matches?.find((m) => m.key === attribute);
-  const fallback = typeof hit.item === "string" ? hit.item : String(resolveAttribute(hit.item, attribute) ?? "");
+  const { indices, value } = getHighlightSource(hit, attribute);
 
-  return highlight(matches?.value || fallback, matches?.indices ? [...matches.indices] : undefined);
+  return highlight(value, indices);
 };
 
 const convertTextToAnchor = (text: string): string => text.toLowerCase().replace(/\W/g, "");
+
+const FAQCategoryHeading: FC<{ category: null | string }> = ({ category }) => (
+  <h3 className="text-3xl mb-2" id={convertTextToAnchor(category || "")}>
+    {category}
+  </h3>
+);
+
+const FAQEntry: FC<{ faq: FuseResult<Selectable<SupportContent>> }> = ({ faq }) => (
+  <details className="text-emerald-600 ml-20 mb-3">
+    <summary className="text-foreground -ml-12 py-3 md:py-0">
+      <FuseHighlight attribute="SupportContentDescription" hit={faq} />
+    </summary>
+    <FuseHighlight attribute="SupportContentDescription2" hit={faq} />
+  </details>
+);
 
 const createFAQList = (faqs: FuseResult<Selectable<SupportContent>>[]): ReactNode => {
   if (faqs.length === 0) {
@@ -91,21 +97,10 @@ const createFAQList = (faqs: FuseResult<Selectable<SupportContent>>[]): ReactNod
   for (const faq of faqs) {
     if (faq.item.SupportContentCategory !== category) {
       category = faq.item.SupportContentCategory;
-      faqList.push(
-        <h3 className="text-3xl mb-2" id={convertTextToAnchor(category || "")} key={`category-${category}`}>
-          {category}
-        </h3>,
-      );
+      faqList.push(<FAQCategoryHeading category={category} key={`category-${category}`} />);
     }
 
-    faqList.push(
-      <details className="text-emerald-600 ml-20 mb-3" key={`faq-${faq.item.SupportContentID}`}>
-        <summary className="text-foreground -ml-12 py-3 md:py-0">
-          <FuseHighlight attribute="SupportContentDescription" hit={faq} />
-        </summary>
-        <FuseHighlight attribute="SupportContentDescription2" hit={faq} />
-      </details>,
-    );
+    faqList.push(<FAQEntry faq={faq} key={`faq-${faq.item.SupportContentID}`} />);
   }
 
   return <>{faqList}</>;

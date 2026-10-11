@@ -22,6 +22,17 @@ import { addCustomStyling } from "@/lib/strings";
 import { getEmail, getEmailRecipient } from "@/server/loaders/email";
 import { getCurrentSession } from "@/server/loaders/sessions";
 
+// Only the signed link from the email itself or the email's own recipient may view it.
+const canViewEmail = async (emailID: string, token: string | null): Promise<boolean> => {
+  if (verifyEmailLink(emailID, token)) {
+    return true;
+  }
+
+  const [{ user }, emailTo] = await Promise.all([getCurrentSession(), getEmailRecipient(emailID)]);
+
+  return Boolean(user && emailTo?.includes(user.email));
+};
+
 export const GET = async (req: NextRequest, ctx: RouteContext<"/api/email/[emailID]">): Promise<Response> => {
   const { emailID } = await ctx.params;
   const cacheMaxAge = 6 * DAYS_IN_MONTH * HOURS_IN_DAY * MINUTES_IN_HOUR * SECONDS_IN_MINUTE; // 6 months
@@ -30,21 +41,14 @@ export const GET = async (req: NextRequest, ctx: RouteContext<"/api/email/[email
   response.headers.set("Cache-Control", `max-age=${cacheMaxAge}, s-maxage=${cacheMaxAge}`);
 
   try {
-    // Only the signed link from the email itself or the email's own recipient may view it.
-    const isTokenValid = verifyEmailLink(emailID, req.nextUrl.searchParams.get("t"));
-
-    if (!isTokenValid) {
-      const [{ user }, emailTo] = await Promise.all([getCurrentSession(), getEmailRecipient(emailID)]);
-
-      if (!user || !emailTo?.includes(user.email)) {
-        return new Response("<h1>You are not authorized to view this email</h1>", {
-          headers: {
-            "Cache-Control": "no-store",
-            "Content-Type": "text/html",
-          },
-          status: 403,
-        });
-      }
+    if (!(await canViewEmail(emailID, req.nextUrl.searchParams.get("t")))) {
+      return new Response("<h1>You are not authorized to view this email</h1>", {
+        headers: {
+          "Cache-Control": "no-store",
+          "Content-Type": "text/html",
+        },
+        status: 403,
+      });
     }
 
     const html = await getEmail(emailID);

@@ -28,6 +28,7 @@ import { markUserAsTrusted, removeUserFromAdmin } from "@/server/actions/user";
 import type { getTrustedUsersDropdown } from "@/server/loaders/user";
 
 import type { User } from "./AdminUserColumns";
+import { getRowActionVisibility } from "./rowActionVisibility";
 
 type UserRowActionsProps = {
   trustedUsers: Awaited<ReturnType<typeof getTrustedUsersDropdown>>;
@@ -254,18 +255,18 @@ const SurvivorToggleButton: FC<{ user: User }> = ({ user }) => {
 };
 
 export const UserRowActions: FC<UserRowActionsProps> = ({ trustedUsers, user }) => {
-  const canTakePayment = (user.UserOwes ?? 0) > 0 || user.UserDoneRegistering === 1;
+  const { canManageSurvivor, canTakePayment, canTrust } = getRowActionVisibility(user);
 
   return (
     <div className="flex">
       {!!canTakePayment && <PaidDialog user={user} />}
-      {user.UserTrusted !== 1 && (
+      {!!canTrust && (
         <>
           <TrustUserDialog trustedUsers={trustedUsers} user={user} />
           <DeleteUserDialog user={user} />
         </>
       )}
-      {user.UserDoneRegistering === 1 && <SurvivorToggleButton user={user} />}
+      {!!canManageSurvivor && <SurvivorToggleButton user={user} />}
     </div>
   );
 };

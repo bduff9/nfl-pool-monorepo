@@ -35,6 +35,28 @@ const paginationParsers = {
 
 export type { DataTableFeatures };
 
+const sortingSchema = type({
+  desc: "boolean",
+  id: "string",
+}).array();
+
+const parseSorting = (value: unknown) => {
+  const result = sortingSchema(value);
+  if (result instanceof type.errors) throw new Error(result.summary);
+  return result;
+};
+
+const filterSchema = type({
+  id: "string",
+  value: "unknown",
+}).array();
+
+const parseFilters = (value: unknown): ColumnFiltersState => {
+  const result = filterSchema(value);
+  if (result instanceof type.errors) throw new Error(result.summary);
+  return result;
+};
+
 interface DataTableProps<TData extends RowData, TValue> {
   columns: ColumnDef<DataTableFeatures, TData, TValue>[];
   columnVisibility?: ColumnVisibilityState;
@@ -91,15 +113,6 @@ export function DataTable<TData extends RowData, TValue>({
     shallow: false,
     urlKeys: paginationUrlKeys,
   });
-  const sortingSchema = type({
-    desc: "boolean",
-    id: "string",
-  }).array();
-  const parseSorting = (value: unknown) => {
-    const result = sortingSchema(value);
-    if (result instanceof type.errors) throw new Error(result.summary);
-    return result;
-  };
   const [sorting, setSorting] = useQueryState<SortingState>(
     urlSort,
     parseAsJson(parseSorting).withDefault(defaultSort).withOptions({
@@ -107,15 +120,6 @@ export function DataTable<TData extends RowData, TValue>({
       shallow: false,
     }),
   );
-  const filterSchema = type({
-    id: "string",
-    value: "unknown",
-  }).array();
-  const parseFilters = (value: unknown): ColumnFiltersState => {
-    const result = filterSchema(value);
-    if (result instanceof type.errors) throw new Error(result.summary);
-    return result;
-  };
   const [columnFilters, setColumnFilters] = useQueryState<ColumnFiltersState>(
     urlFilter,
     parseAsJson(parseFilters).withDefault([]).withOptions({
@@ -148,6 +152,53 @@ export function DataTable<TData extends RowData, TValue>({
     },
   });
 
+  const {
+    handleDropdownFilterChange,
+    handleFirstPage,
+    handleLastPage,
+    handleNextPage,
+    handlePageSizeChange,
+    handlePreviousPage,
+    handleTextFilterChange,
+    handleWeekFilterChange,
+  } = useDataTableHandlers(table);
+
+  return (
+    <>
+      <DataTableFilters
+        filters={filters}
+        onDropdownFilterChange={handleDropdownFilterChange}
+        onTextFilterChange={handleTextFilterChange}
+        onWeekFilterChange={handleWeekFilterChange}
+        table={table}
+      />
+
+      <div className="rounded-md border overflow-x-auto">
+        <Table>
+          <DataTableHead table={table} />
+          <DataTableBody colSpan={columns.length} table={table} />
+        </Table>
+      </div>
+
+      {!hidePagination && (
+        <DataTablePagination
+          onFirstPage={handleFirstPage}
+          onLastPage={handleLastPage}
+          onNextPage={handleNextPage}
+          onPageSizeChange={handlePageSizeChange}
+          onPreviousPage={handlePreviousPage}
+          table={table}
+        />
+      )}
+    </>
+  );
+}
+
+type DataTableInstance<TData extends RowData> = ReturnType<typeof useTable<DataTableFeatures, TData>>;
+
+type DataTableFilter = NonNullable<DataTableProps<RowData, unknown>["filters"]>[number];
+
+const useDataTableHandlers = <TData extends RowData>(table: DataTableInstance<TData>) => {
   const handleWeekFilterChange = useCallback(
     (field: string, value: string) => {
       if (value === "_ALL_") {
@@ -183,116 +234,190 @@ export function DataTable<TData extends RowData, TValue>({
   const handleLastPage = useCallback(() => table.lastPage(), [table]);
   const handlePageSizeChange = useCallback((value: string) => table.setPageSize(parseInt(value, 10)), [table]);
 
+  return {
+    handleDropdownFilterChange,
+    handleFirstPage,
+    handleLastPage,
+    handleNextPage,
+    handlePageSizeChange,
+    handlePreviousPage,
+    handleTextFilterChange,
+    handleWeekFilterChange,
+  };
+};
+
+type DataTableFiltersProps<TData extends RowData> = {
+  filters: DataTableFilter[];
+  onDropdownFilterChange: (field: string, value: string) => void;
+  onTextFilterChange: (field: string, value: string) => void;
+  onWeekFilterChange: (field: string, value: string) => void;
+  table: DataTableInstance<TData>;
+};
+
+const DataTableFilters = <TData extends RowData>({
+  filters,
+  onDropdownFilterChange,
+  onTextFilterChange,
+  onWeekFilterChange,
+  table,
+}: DataTableFiltersProps<TData>) => {
+  if (filters.length === 0) {
+    return null;
+  }
+
   return (
-    <>
-      {filters.length > 0 && (
-        <div className="flex flex-wrap items-center pb-4 gap-4">
-          {filters.map((filter) => {
-            if (filter.type === "week") {
-              return (
-                <WeekFilterSelect
-                  field={filter.field}
-                  key={filter.field}
-                  onFilterChange={handleWeekFilterChange}
-                  placeholder={filter.placeholder}
-                  value={(table.getColumn(filter.field)?.getFilterValue() as string) ?? ""}
-                />
-              );
-            }
-
-            if (filter.type === "dropdown") {
-              return (
-                <DropdownFilterSelect
-                  field={filter.field}
-                  key={filter.field}
-                  onFilterChange={handleDropdownFilterChange}
-                  options={filter.options}
-                  placeholder={filter.placeholder}
-                  value={(table.getColumn(filter.field)?.getFilterValue() as string) ?? ""}
-                />
-              );
-            }
-
-            return (
-              <TextFilterInput
-                field={filter.field}
-                key={filter.field}
-                onFilterChange={handleTextFilterChange}
-                placeholder={filter.placeholder}
-                value={(table.getColumn(filter.field)?.getFilterValue() as string) ?? ""}
-              />
-            );
-          })}
-        </div>
-      )}
-
-      <div className="rounded-md border overflow-x-auto">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead className="text-black" key={header.id}>
-                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow data-state={row.getIsSelected() && "selected"} key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell className="h-24 text-center" colSpan={columns.length}>
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
-      {!hidePagination && (
-        <div className="flex flex-wrap gap-x-2 mt-6 items-center">
-          <Button aria-label="First page" disabled={!table.getCanPreviousPage()} onClick={handleFirstPage}>
-            {"<<"}
-          </Button>
-          <Button aria-label="Previous page" disabled={!table.getCanPreviousPage()} onClick={handlePreviousPage}>
-            {"<"}
-          </Button>
-          <span className="text-nowrap">{`Page ${table.state.pagination.pageIndex + 1} of ${table.getPageCount()}`}</span>
-          <Button aria-label="Next page" disabled={!table.getCanNextPage()} onClick={handleNextPage}>
-            {">"}
-          </Button>
-          <Button aria-label="Last page" disabled={!table.getCanNextPage()} onClick={handleLastPage}>
-            {">>"}
-          </Button>
-          <Select onValueChange={handlePageSizeChange} value={table.state.pagination.pageSize.toString()}>
-            <SelectTrigger aria-label="Rows per page">
-              <SelectValue placeholder="Rows per page">{table.state.pagination.pageSize}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {[10, 25, 50, 100].map((pageSize) => (
-                <SelectItem key={pageSize} value={pageSize.toString()}>
-                  {pageSize}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
-    </>
+    <div className="flex flex-wrap items-center pb-4 gap-4">
+      {filters.map((filter) => (
+        <DataTableFilterControl
+          filter={filter}
+          key={filter.field}
+          onDropdownFilterChange={onDropdownFilterChange}
+          onTextFilterChange={onTextFilterChange}
+          onWeekFilterChange={onWeekFilterChange}
+          value={(table.getColumn(filter.field)?.getFilterValue() as string) ?? ""}
+        />
+      ))}
+    </div>
   );
-}
+};
+
+type DataTableFilterControlProps = {
+  filter: DataTableFilter;
+  onDropdownFilterChange: (field: string, value: string) => void;
+  onTextFilterChange: (field: string, value: string) => void;
+  onWeekFilterChange: (field: string, value: string) => void;
+  value: string;
+};
+
+const DataTableFilterControl = ({
+  filter,
+  onDropdownFilterChange,
+  onTextFilterChange,
+  onWeekFilterChange,
+  value,
+}: DataTableFilterControlProps) => {
+  if (filter.type === "week") {
+    return (
+      <WeekFilterSelect
+        field={filter.field}
+        onFilterChange={onWeekFilterChange}
+        placeholder={filter.placeholder}
+        value={value}
+      />
+    );
+  }
+
+  if (filter.type === "dropdown") {
+    return (
+      <DropdownFilterSelect
+        field={filter.field}
+        onFilterChange={onDropdownFilterChange}
+        options={filter.options}
+        placeholder={filter.placeholder}
+        value={value}
+      />
+    );
+  }
+
+  return (
+    <TextFilterInput
+      field={filter.field}
+      onFilterChange={onTextFilterChange}
+      placeholder={filter.placeholder}
+      value={value}
+    />
+  );
+};
+
+const DataTableHead = <TData extends RowData>({ table }: { table: DataTableInstance<TData> }) => (
+  <TableHeader>
+    {table.getHeaderGroups().map((headerGroup) => (
+      <TableRow key={headerGroup.id}>
+        {headerGroup.headers.map((header) => (
+          <TableHead className="text-black" key={header.id}>
+            {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+          </TableHead>
+        ))}
+      </TableRow>
+    ))}
+  </TableHeader>
+);
+
+const DataTableBody = <TData extends RowData>({
+  colSpan,
+  table,
+}: {
+  colSpan: number;
+  table: DataTableInstance<TData>;
+}) => {
+  const rows = table.getRowModel().rows;
+
+  return (
+    <TableBody>
+      {rows?.length ? (
+        rows.map((row) => (
+          <TableRow data-state={row.getIsSelected() && "selected"} key={row.id}>
+            {row.getVisibleCells().map((cell) => (
+              <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+            ))}
+          </TableRow>
+        ))
+      ) : (
+        <TableRow>
+          <TableCell className="h-24 text-center" colSpan={colSpan}>
+            No results.
+          </TableCell>
+        </TableRow>
+      )}
+    </TableBody>
+  );
+};
+
+type DataTablePaginationProps<TData extends RowData> = {
+  onFirstPage: () => void;
+  onLastPage: () => void;
+  onNextPage: () => void;
+  onPageSizeChange: (value: string) => void;
+  onPreviousPage: () => void;
+  table: DataTableInstance<TData>;
+};
+
+const DataTablePagination = <TData extends RowData>({
+  onFirstPage,
+  onLastPage,
+  onNextPage,
+  onPageSizeChange,
+  onPreviousPage,
+  table,
+}: DataTablePaginationProps<TData>) => (
+  <div className="flex flex-wrap gap-x-2 mt-6 items-center">
+    <Button aria-label="First page" disabled={!table.getCanPreviousPage()} onClick={onFirstPage}>
+      {"<<"}
+    </Button>
+    <Button aria-label="Previous page" disabled={!table.getCanPreviousPage()} onClick={onPreviousPage}>
+      {"<"}
+    </Button>
+    <span className="text-nowrap">{`Page ${table.state.pagination.pageIndex + 1} of ${table.getPageCount()}`}</span>
+    <Button aria-label="Next page" disabled={!table.getCanNextPage()} onClick={onNextPage}>
+      {">"}
+    </Button>
+    <Button aria-label="Last page" disabled={!table.getCanNextPage()} onClick={onLastPage}>
+      {">>"}
+    </Button>
+    <Select onValueChange={onPageSizeChange} value={table.state.pagination.pageSize.toString()}>
+      <SelectTrigger aria-label="Rows per page">
+        <SelectValue placeholder="Rows per page">{table.state.pagination.pageSize}</SelectValue>
+      </SelectTrigger>
+      <SelectContent>
+        {[10, 25, 50, 100].map((pageSize) => (
+          <SelectItem key={pageSize} value={pageSize.toString()}>
+            {pageSize}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  </div>
+);
 
 type WeekFilterSelectProps = {
   field: string;

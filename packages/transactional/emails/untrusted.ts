@@ -2,6 +2,7 @@ import type { Users } from "@nfl-pool-monorepo/db/src";
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import type { Selectable } from "kysely";
 
+import { getAdminNewUserEmailProps } from "../src/adminNewUserEmailProps";
 import { getBaseEmailClass, getBrowserLink, getUnsubscribeLink, sendEmail, updateEmailClass } from ".";
 import { getHtml, getPlainText, getSubject } from "./templates/UntrustedEmail";
 
@@ -21,24 +22,8 @@ export const sendUntrustedEmail = async (
       const browserLink = getBrowserLink(emailId);
       const unsubscribeLink = getUnsubscribeLink(to);
       const subject = getSubject();
-      const [html, text] = await Promise.all([
-        getHtml({
-          adminUserFirstName: admin.UserFirstName ?? "",
-          browserLink,
-          newUserUserEmail: newUser.UserEmail,
-          newUserUserName: newUser.UserName ?? "",
-          newUserUserReferredByRaw: newUser.UserReferredByRaw ?? "",
-          unsubscribeLink,
-        }),
-        getPlainText({
-          adminUserFirstName: admin.UserFirstName ?? "",
-          browserLink,
-          newUserUserEmail: newUser.UserEmail,
-          newUserUserName: newUser.UserName ?? "",
-          newUserUserReferredByRaw: newUser.UserReferredByRaw ?? "",
-          unsubscribeLink,
-        }),
-      ]);
+      const props = getAdminNewUserEmailProps(admin, newUser, { browserLink, unsubscribeLink });
+      const [html, text] = await Promise.all([getHtml(props), getPlainText(props)]);
 
       try {
         await sendEmail({
@@ -50,14 +35,7 @@ export const sendUntrustedEmail = async (
       } catch (error) {
         console.error("Failed to send untrusted email: ", {
           error,
-          props: {
-            adminUserFirstName: admin.UserFirstName ?? "",
-            browserLink,
-            newUserUserEmail: newUser.UserEmail,
-            newUserUserName: newUser.UserName ?? "",
-            newUserUserReferredByRaw: newUser.UserReferredByRaw ?? "",
-            unsubscribeLink,
-          },
+          props,
           to,
           type: "untrusted",
         });

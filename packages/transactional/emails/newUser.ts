@@ -3,6 +3,7 @@ import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { getSystemYear } from "@nfl-pool-monorepo/db/src/queries/systemValue";
 import type { Selectable } from "kysely";
 
+import { getAdminNewUserEmailProps, getNewUserEmailProps } from "../src/adminNewUserEmailProps";
 import { getBaseEmailClass, getBrowserLink, getUnsubscribeLink, sendEmail, updateEmailClass } from ".";
 import { getHtml, getPlainText, getSubject } from "./templates/NewUserEmail";
 
@@ -35,30 +36,9 @@ export const sendNewUserEmail = async (
       const browserLink = getBrowserLink(emailId);
       const unsubscribeLink = getUnsubscribeLink(to);
       const subject = getSubject();
-      const [html, text] = await Promise.all([
-        getHtml({
-          adminUserFirstName: admin.UserFirstName ?? "",
-          browserLink,
-          isReturning,
-          newUserUserEmail: newUser.UserEmail,
-          newUserUserName: newUser.UserName ?? "",
-          newUserUserReferredByRaw: newUser.UserReferredByRaw ?? "",
-          newUserUserTeamName: newUser.UserTeamName ?? "",
-          unsubscribeLink,
-          yearsPlayed,
-        }),
-        getPlainText({
-          adminUserFirstName: admin.UserFirstName ?? "",
-          browserLink,
-          isReturning,
-          newUserUserEmail: newUser.UserEmail,
-          newUserUserName: newUser.UserName ?? "",
-          newUserUserReferredByRaw: newUser.UserReferredByRaw ?? "",
-          newUserUserTeamName: newUser.UserTeamName ?? "",
-          unsubscribeLink,
-          yearsPlayed,
-        }),
-      ]);
+      const baseProps = getAdminNewUserEmailProps(admin, newUser, { browserLink, unsubscribeLink });
+      const props = getNewUserEmailProps(baseProps, newUser, { isReturning, yearsPlayed });
+      const [html, text] = await Promise.all([getHtml(props), getPlainText(props)]);
 
       try {
         await sendEmail({
@@ -70,14 +50,7 @@ export const sendNewUserEmail = async (
       } catch (error) {
         console.error("Failed to send new user email: ", {
           error,
-          props: {
-            adminUserFirstName: admin.UserFirstName ?? "",
-            browserLink,
-            newUserUserEmail: newUser.UserEmail,
-            newUserUserName: newUser.UserName ?? "",
-            newUserUserReferredByRaw: newUser.UserReferredByRaw ?? "",
-            unsubscribeLink,
-          },
+          props: baseProps,
           to,
           type: "newUser",
         });

@@ -17,14 +17,10 @@ type Props = {
   retry: () => void;
 };
 
-const ErrorPage: FC<Props> = ({ error, reset, retry }) => {
+const useErrorPageData = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [image, setImage] = useState<string>("");
-
-  useEffect(() => {
-    console.error("Error message:", error);
-  }, [error]);
 
   // react-doctor-disable-next-line no-fetch-in-effect -- error.tsx must be a client component per Next.js's error boundary contract, so this can't move to a Server Component
   useEffect(() => {
@@ -50,6 +46,41 @@ const ErrorPage: FC<Props> = ({ error, reset, retry }) => {
     loadErrorData();
   }, []);
 
+  return { image, isLoading, isLoggedIn };
+};
+
+const ErrorImage: FC<{ image: string }> = ({ image }) => (
+  <div className={cn("mx-auto relative min-h-[33vh]")}>
+    {!!image && (
+      <Image alt="Flag on the play" className="object-contain object-center" fill priority sizes="100vw" src={image} />
+    )}
+  </div>
+);
+
+const ErrorReturnLink: FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => (
+  <>
+    <h3 className="scroll-m-20 text-xl font-semibold tracking-tight mb-2 text-center">or</h3>
+    <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0 mb-2 text-center">
+      {isLoggedIn ? (
+        <WeekLink className="text-sky-600" href="/">
+          Click here to return to your dashboard
+        </WeekLink>
+      ) : (
+        <WeekLink className="text-sky-600" href="/auth/login">
+          Click here to return to the login page
+        </WeekLink>
+      )}
+    </h2>
+  </>
+);
+
+const ErrorPage: FC<Props> = ({ error, reset, retry }) => {
+  const { image, isLoading, isLoggedIn } = useErrorPageData();
+
+  useEffect(() => {
+    console.error("Error message:", error);
+  }, [error]);
+
   return (
     <div className="flex flex-col md:mx-3">
       {!!isLoggedIn && (
@@ -62,18 +93,7 @@ const ErrorPage: FC<Props> = ({ error, reset, retry }) => {
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-center mb-6">
           Flag on the play!
         </h1>
-        <div className={cn("mx-auto relative min-h-[33vh]")}>
-          {!!image && (
-            <Image
-              alt="Flag on the play"
-              className="object-contain object-center"
-              fill
-              priority
-              sizes="100vw"
-              src={image}
-            />
-          )}
-        </div>
+        <ErrorImage image={image} />
         <h2 className="mt-6 scroll-m-20 pb-2 text-3xl font-semibold tracking-tight transition-colors mb-2 text-center">
           There has been an error.
         </h2>
@@ -87,22 +107,7 @@ const ErrorPage: FC<Props> = ({ error, reset, retry }) => {
             Still broken? Reset the page
           </Button>
         </div>
-        {!isLoading && (
-          <>
-            <h3 className="scroll-m-20 text-xl font-semibold tracking-tight mb-2 text-center">or</h3>
-            <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0 mb-2 text-center">
-              {isLoggedIn ? (
-                <WeekLink className="text-sky-600" href="/">
-                  Click here to return to your dashboard
-                </WeekLink>
-              ) : (
-                <WeekLink className="text-sky-600" href="/auth/login">
-                  Click here to return to the login page
-                </WeekLink>
-              )}
-            </h2>
-          </>
-        )}
+        {!isLoading && <ErrorReturnLink isLoggedIn={isLoggedIn} />}
       </div>
     </div>
   );

@@ -36,21 +36,54 @@ import { sortPicks } from "@/lib/arrays";
 import type { getAllPicksForWeek } from "@/server/loaders/pick";
 import type { getWeeklyRankings } from "@/server/loaders/weeklyMv";
 
-const updateGames = (games: Awaited<ReturnType<typeof getGamesForWeek>>) => {
-  const gamesMap = games.reduce(
-    (acc, game) => {
-      const gameID = game.GameID;
+import { resolveViewAllGames, updateGames } from "./viewAllGames";
 
-      if (!acc[gameID]) {
-        acc[gameID] = game;
-      }
+type ModeButtonStyle = { className: string | undefined; variant: "outline" | "primary" };
 
-      return acc;
-    },
-    {} as Record<number, Awaited<ReturnType<typeof getGamesForWeek>>[number]>,
+const MODE_BUTTON_STYLES: Record<"live" | "whatIf", ModeButtonStyle> = {
+  live: { className: undefined, variant: "primary" },
+  whatIf: { className: "dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white", variant: "outline" },
+};
+
+type ViewModeToggleProps = {
+  isLive: boolean;
+  mode: string;
+  onOpenModal: () => void;
+  onSelectLive: () => void;
+  onSelectWhatIf: () => void;
+};
+
+const ViewModeToggle: FC<ViewModeToggleProps> = ({ isLive, mode, onOpenModal, onSelectLive, onSelectWhatIf }) => {
+  const { className, variant } = MODE_BUTTON_STYLES[isLive ? "live" : "whatIf"];
+
+  return (
+    <div className="inline-flex rounded-md shadow-sm overflow-hidden">
+      <Button
+        className={cn("px-7 text-nowrap grow shrink-0 rounded-none", className)}
+        disabled={isLive}
+        onClick={onOpenModal}
+        variant={variant}
+      >
+        {mode}
+      </Button>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            aria-label="Choose view mode"
+            className={cn("flex-grow-0 flex-shrink rounded-none border-l border-border px-2", className)}
+            variant={variant}
+          >
+            <FaChevronDown className="size-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={onSelectLive}>Live Results</DropdownMenuItem>
+          <DropdownMenuItem onClick={onSelectWhatIf}>What If</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
-
-  return gamesMap;
 };
 
 type Props = {
@@ -69,10 +102,7 @@ const ViewAllPicksClient: FC<Props> = ({ currentUserId, gamesForWeek, picksForWe
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const isLive = mode === "Live Results";
-  const isShowingCustomGames = !isLive && !!customGames;
-  // Deriving from gamesForWeek on every render (rather than copying it into state) keeps
-  // live scores from going stale if the page refreshes with updated props while this stays mounted.
-  const games = isShowingCustomGames ? customGames : updateGames(gamesForWeek);
+  const { games, isShowingCustomGames } = resolveViewAllGames({ customGames, gamesForWeek, isLive });
 
   const saveModalChanges = (updatedGames: Awaited<ReturnType<typeof getGamesForWeek>>): void => {
     setCustomGames(updateGames(updatedGames));
@@ -98,38 +128,13 @@ const ViewAllPicksClient: FC<Props> = ({ currentUserId, gamesForWeek, picksForWe
       <div className="w-full text-center md:text-start">
         Current Viewing Mode
         <br />
-        <div className="inline-flex rounded-md shadow-sm overflow-hidden">
-          <Button
-            className={cn(
-              "px-7 text-nowrap grow shrink-0 rounded-none",
-              !isLive && "dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white",
-            )}
-            disabled={isLive}
-            onClick={handleOpenModal}
-            variant={isLive ? "primary" : "outline"}
-          >
-            {mode}
-          </Button>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                aria-label="Choose view mode"
-                className={cn(
-                  "flex-grow-0 flex-shrink rounded-none border-l border-border px-2",
-                  !isLive && "dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white",
-                )}
-                variant={isLive ? "primary" : "outline"}
-              >
-                <FaChevronDown className="size-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={handleSelectLiveResultsMode}>Live Results</DropdownMenuItem>
-              <DropdownMenuItem onClick={handleSelectWhatIfMode}>What If</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <ViewModeToggle
+          isLive={isLive}
+          mode={mode}
+          onOpenModal={handleOpenModal}
+          onSelectLive={handleSelectLiveResultsMode}
+          onSelectWhatIf={handleSelectWhatIfMode}
+        />
       </div>
       <div className="w-full">
         <ViewAllTable

@@ -27,7 +27,7 @@ import { Input } from "@nfl-pool-monorepo/ui/components/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nfl-pool-monorepo/ui/components/select";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { useAction } from "next-safe-action/hooks";
-import type { ControllerFieldState, ControllerRenderProps, SubmitHandler } from "react-hook-form";
+import type { Control, ControllerFieldState, ControllerRenderProps, SubmitHandler } from "react-hook-form";
 import { useForm, useWatch } from "react-hook-form";
 import { PiFootballDuotone } from "react-icons/pi";
 import { useQuill } from "react-quilljs";
@@ -40,6 +40,7 @@ import { sendAdminEmailSchema } from "@/lib/validation";
 import { sendAdminEmail } from "@/server/actions/email";
 
 import PreviewAdminEmail from "../PreviewAdminEmail/PreviewAdminEmail";
+import { getPartialFailureDescription } from "./partialFailure";
 
 const quillModules = {
   clipboard: {
@@ -141,6 +142,208 @@ const BodyField: FC<BodyFieldProps> = ({ hasError, onBlur, onBodyChange }) => {
   );
 };
 
+const renderEmailTypeField = ({ field, fieldState }: SendAdminEmailFieldRenderProps<"emailType">) => (
+  <FormItem>
+    <FormLabel className="required">Which email?</FormLabel>
+    <FormControl>
+      <Select onValueChange={field.onChange} value={field.value}>
+        <SelectTrigger aria-label="Which email?" className={cn("w-full", fieldState.error && "border-red-600")}>
+          <SelectValue placeholder="-- Select an email type --">{field.value}</SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          {AdminEmailType.map((emailType) => (
+            <SelectItem key={`email-type-${emailType}`} value={emailType}>
+              {emailType}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </FormControl>
+    <FormMessage />
+  </FormItem>
+);
+
+const renderSendToField = ({ field, fieldState }: SendAdminEmailFieldRenderProps<"sendTo">) => (
+  <FormItem>
+    <FormLabel className="required">Send to</FormLabel>
+    <FormControl>
+      <Select onValueChange={field.onChange} value={field.value}>
+        <SelectTrigger aria-label="Send to" className={cn("w-full", fieldState.error && "border-red-600")}>
+          <SelectValue placeholder="-- Select send to group --">{field.value}</SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          {AdminEmailTo.map((sendTo) => (
+            <SelectItem key={`send-to-${sendTo}`} value={sendTo}>
+              {sendTo}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </FormControl>
+    <FormMessage />
+  </FormItem>
+);
+
+const renderUserEmailField = ({ field, fieldState }: SendAdminEmailFieldRenderProps<"userEmail">) => (
+  <FormItem>
+    <FormLabel className="required">Email</FormLabel>
+    <FormControl>
+      <Input
+        {...field}
+        aria-invalid={!!fieldState.error}
+        autoComplete="email"
+        className={cn(fieldState.error && "border-red-600")}
+        id="userEmail"
+        placeholder="someone@email.com"
+        type="email"
+        value={field.value ?? ""}
+      />
+    </FormControl>
+    <FormMessage />
+  </FormItem>
+);
+
+const renderUserFirstNameField = ({ field, fieldState }: SendAdminEmailFieldRenderProps<"userFirstName">) => (
+  <FormItem>
+    <FormLabel className="required">First name</FormLabel>
+    <FormControl>
+      <Input
+        {...field}
+        aria-invalid={!!fieldState.error}
+        autoComplete="given-name"
+        className={cn(fieldState.error && "border-red-600")}
+        id="userFirstName"
+        placeholder="John"
+        type="text"
+        value={field.value ?? ""}
+      />
+    </FormControl>
+    <FormMessage />
+  </FormItem>
+);
+
+type PreviewTextFieldProps = {
+  field: ControllerRenderProps<typeof sendAdminEmailSchema.infer, "preview" | "subject">;
+  fieldState: ControllerFieldState;
+  label: string;
+  onBlur: () => void;
+  placeholder: string;
+};
+
+const PreviewTextField: FC<PreviewTextFieldProps> = ({ field, fieldState, label, onBlur, placeholder }) => (
+  <FormItem>
+    <FormLabel className="required">{label}</FormLabel>
+    <FormControl>
+      <Input
+        {...field}
+        aria-invalid={!!fieldState.error}
+        autoComplete="off"
+        className={cn(fieldState.error && "border-red-600")}
+        onBlur={onBlur}
+        placeholder={placeholder}
+        type="text"
+      />
+    </FormControl>
+    <FormMessage />
+  </FormItem>
+);
+
+type NewUserFieldsProps = {
+  control: Control<typeof sendAdminEmailSchema.infer>;
+};
+
+const NewUserFields: FC<NewUserFieldsProps> = ({ control }) => (
+  <>
+    <FormField control={control} name="userEmail" render={renderUserEmailField} />
+
+    <FormField control={control} name="userFirstName" render={renderUserFirstNameField} />
+  </>
+);
+
+type SubmitButtonProps = {
+  isPending: boolean;
+};
+
+const SubmitButton: FC<SubmitButtonProps> = ({ isPending }) => (
+  <div className="w-full md:col-span-2 grid">
+    <Button disabled={isPending} type="submit" variant="primary">
+      {isPending ? (
+        <>
+          <PiFootballDuotone aria-hidden="true" className="animate-spin hidden md:inline-block" />
+          Sending...
+        </>
+      ) : (
+        "Send Email"
+      )}
+    </Button>
+  </div>
+);
+
+type CustomEmailFieldsProps = {
+  control: Control<typeof sendAdminEmailSchema.infer>;
+  emailType: (typeof AdminEmailType)[number];
+  onBodyChange: (html: string) => void;
+  onPreviewBlur: () => void;
+  previewPayload: { body: string; preview: string; subject: string };
+  userFirstName: string | null | undefined;
+};
+
+const CustomEmailFields: FC<CustomEmailFieldsProps> = ({
+  control,
+  emailType,
+  onBodyChange,
+  onPreviewBlur,
+  previewPayload,
+  userFirstName,
+}) => {
+  const renderSubjectField = useCallback(
+    ({ field, fieldState }: SendAdminEmailFieldRenderProps<"subject">) => (
+      <PreviewTextField
+        field={field}
+        fieldState={fieldState}
+        label="Subject"
+        onBlur={onPreviewBlur}
+        placeholder="Interesting email subject"
+      />
+    ),
+    [onPreviewBlur],
+  );
+
+  const renderPreviewField = useCallback(
+    ({ field, fieldState }: SendAdminEmailFieldRenderProps<"preview">) => (
+      <PreviewTextField
+        field={field}
+        fieldState={fieldState}
+        label="Preview"
+        onBlur={onPreviewBlur}
+        placeholder="Helpful email preview text"
+      />
+    ),
+    [onPreviewBlur],
+  );
+
+  const renderBodyField = useCallback(
+    ({ fieldState }: SendAdminEmailFieldRenderProps<"body">) => (
+      <BodyField hasError={!!fieldState.error} onBlur={onPreviewBlur} onBodyChange={onBodyChange} />
+    ),
+    [onBodyChange, onPreviewBlur],
+  );
+
+  return (
+    <>
+      <div className="grid">
+        <FormField control={control} name="subject" render={renderSubjectField} />
+
+        <FormField control={control} name="preview" render={renderPreviewField} />
+
+        <FormField control={control} name="body" render={renderBodyField} />
+      </div>
+
+      <PreviewAdminEmail emailType={emailType} payload={previewPayload} userFirstName={userFirstName ?? "USER"} />
+    </>
+  );
+};
+
 const SendAdminEmails: FC = () => {
   "use no memo";
 
@@ -164,12 +367,10 @@ const SendAdminEmails: FC = () => {
   const { executeAsync, isPending } = useAction(sendAdminEmail, {
     onError: onActionError,
     onSuccess: ({ data }) => {
-      const failedCount = data?.metadata?.failedCount;
+      const failureDescription = getPartialFailureDescription(data?.metadata);
 
-      if (typeof failedCount === "number" && failedCount > 0) {
-        toast.warning("Email partially sent", {
-          description: `${failedCount} of ${data?.metadata?.totalCount} emails failed to send. Check the server logs for details.`,
-        });
+      if (failureDescription) {
+        toast.warning("Email partially sent", { description: failureDescription });
       } else {
         toast.success("Successfully sent email!");
       }
@@ -192,148 +393,7 @@ const SendAdminEmails: FC = () => {
     return executeAsync(values).finally(() => toast.dismiss(toastId));
   };
 
-  const renderEmailTypeField = useCallback(
-    ({ field, fieldState }: SendAdminEmailFieldRenderProps<"emailType">) => (
-      <FormItem>
-        <FormLabel className="required">Which email?</FormLabel>
-        <FormControl>
-          <Select onValueChange={field.onChange} value={field.value}>
-            <SelectTrigger aria-label="Which email?" className={cn("w-full", fieldState.error && "border-red-600")}>
-              <SelectValue placeholder="-- Select an email type --">{field.value}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {AdminEmailType.map((emailType) => (
-                <SelectItem key={`email-type-${emailType}`} value={emailType}>
-                  {emailType}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    ),
-    [],
-  );
-
-  const renderSendToField = useCallback(
-    ({ field, fieldState }: SendAdminEmailFieldRenderProps<"sendTo">) => (
-      <FormItem>
-        <FormLabel className="required">Send to</FormLabel>
-        <FormControl>
-          <Select onValueChange={field.onChange} value={field.value}>
-            <SelectTrigger aria-label="Send to" className={cn("w-full", fieldState.error && "border-red-600")}>
-              <SelectValue placeholder="-- Select send to group --">{field.value}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {AdminEmailTo.map((sendTo) => (
-                <SelectItem key={`send-to-${sendTo}`} value={sendTo}>
-                  {sendTo}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    ),
-    [],
-  );
-
-  const renderUserEmailField = useCallback(
-    ({ field, fieldState }: SendAdminEmailFieldRenderProps<"userEmail">) => (
-      <FormItem>
-        <FormLabel className="required">Email</FormLabel>
-        <FormControl>
-          <Input
-            {...field}
-            aria-invalid={!!fieldState.error}
-            autoComplete="email"
-            className={cn(fieldState.error && "border-red-600")}
-            id="userEmail"
-            placeholder="someone@email.com"
-            type="email"
-            value={field.value ?? ""}
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    ),
-    [],
-  );
-
-  const renderUserFirstNameField = useCallback(
-    ({ field, fieldState }: SendAdminEmailFieldRenderProps<"userFirstName">) => (
-      <FormItem>
-        <FormLabel className="required">First name</FormLabel>
-        <FormControl>
-          <Input
-            {...field}
-            aria-invalid={!!fieldState.error}
-            autoComplete="given-name"
-            className={cn(fieldState.error && "border-red-600")}
-            id="userFirstName"
-            placeholder="John"
-            type="text"
-            value={field.value ?? ""}
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    ),
-    [],
-  );
-
-  const renderSubjectField = useCallback(
-    ({ field, fieldState }: SendAdminEmailFieldRenderProps<"subject">) => (
-      <FormItem>
-        <FormLabel className="required">Subject</FormLabel>
-        <FormControl>
-          <Input
-            {...field}
-            aria-invalid={!!fieldState.error}
-            autoComplete="off"
-            className={cn(fieldState.error && "border-red-600")}
-            onBlur={updatePreview}
-            placeholder="Interesting email subject"
-            type="text"
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    ),
-    [updatePreview],
-  );
-
-  const renderPreviewField = useCallback(
-    ({ field, fieldState }: SendAdminEmailFieldRenderProps<"preview">) => (
-      <FormItem>
-        <FormLabel className="required">Preview</FormLabel>
-        <FormControl>
-          <Input
-            {...field}
-            aria-invalid={!!fieldState.error}
-            autoComplete="off"
-            className={cn(fieldState.error && "border-red-600")}
-            onBlur={updatePreview}
-            placeholder="Helpful email preview text"
-            type="text"
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    ),
-    [updatePreview],
-  );
-
   const setBody = useCallback((html: string) => form.setValue("body", html), [form.setValue]);
-
-  const renderBodyField = useCallback(
-    ({ fieldState }: SendAdminEmailFieldRenderProps<"body">) => (
-      <BodyField hasError={!!fieldState.error} onBlur={updatePreview} onBodyChange={setBody} />
-    ),
-    [setBody, updatePreview],
-  );
 
   return (
     <div className="flex flex-col" id="quill-container">
@@ -347,44 +407,20 @@ const SendAdminEmails: FC = () => {
 
               <FormField control={form.control} name="sendTo" render={renderSendToField} />
 
-              {sendTo === "New" && (
-                <>
-                  <FormField control={form.control} name="userEmail" render={renderUserEmailField} />
-
-                  <FormField control={form.control} name="userFirstName" render={renderUserFirstNameField} />
-                </>
-              )}
+              {sendTo === "New" && <NewUserFields control={form.control} />}
 
               {emailType === "Custom" && (
-                <>
-                  <div className="grid">
-                    <FormField control={form.control} name="subject" render={renderSubjectField} />
-
-                    <FormField control={form.control} name="preview" render={renderPreviewField} />
-
-                    <FormField control={form.control} name="body" render={renderBodyField} />
-                  </div>
-
-                  <PreviewAdminEmail
-                    emailType={emailType}
-                    payload={previewPayload}
-                    userFirstName={userFirstName ?? "USER"}
-                  />
-                </>
+                <CustomEmailFields
+                  control={form.control}
+                  emailType={emailType}
+                  onBodyChange={setBody}
+                  onPreviewBlur={updatePreview}
+                  previewPayload={previewPayload}
+                  userFirstName={userFirstName}
+                />
               )}
 
-              <div className="w-full md:col-span-2 grid">
-                <Button disabled={isPending} type="submit" variant="primary">
-                  {isPending ? (
-                    <>
-                      <PiFootballDuotone aria-hidden="true" className="animate-spin hidden md:inline-block" />
-                      Sending...
-                    </>
-                  ) : (
-                    "Send Email"
-                  )}
-                </Button>
-              </div>
+              <SubmitButton isPending={isPending} />
             </div>
           </form>
         </Form>

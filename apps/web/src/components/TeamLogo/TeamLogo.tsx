@@ -1,6 +1,8 @@
 import Image from "next/image";
 import type { FC } from "react";
 
+import { getTeamLabel } from "./teamLabel";
+
 type TeamLogoProps = {
   className?: string;
   priority?: boolean;
@@ -9,7 +11,7 @@ type TeamLogoProps = {
 };
 
 const TeamLogo: FC<TeamLogoProps> = ({ className, priority = false, size = 70, team }) => {
-  const label = `${team?.TeamCity ?? ""} ${team?.TeamName ?? ""}`.trim();
+  const label = getTeamLabel(team);
 
   return (
     <Image

@@ -5,9 +5,20 @@ import { type FC, type FormEvent, useEffect, useRef } from "react";
 import { debounce } from "throttle-debounce";
 
 import FloatingLabelInput from "../FloatingLabelInput/FloatingLabelInput";
+import { getHashId } from "./hashId";
 
 type Props = {
   currentQuery: string;
+};
+
+const getHashTarget = () => {
+  if (!window) {
+    return null;
+  }
+
+  const id = getHashId(window.location.hash);
+
+  return id ? document.getElementById(id) : null;
 };
 
 const SupportSearch: FC<Props> = ({ currentQuery }) => {
@@ -15,18 +26,7 @@ const SupportSearch: FC<Props> = ({ currentQuery }) => {
   const router = useRouter();
 
   useEffect(() => {
-    if (!window) {
-      return;
-    }
-
-    const hash = window.location.hash;
-    const id = hash.startsWith("#") ? hash.slice(1) : hash;
-
-    if (!id) {
-      return;
-    }
-
-    const element = document.getElementById(id);
+    const element = getHashTarget();
 
     if (!element) {
       return;

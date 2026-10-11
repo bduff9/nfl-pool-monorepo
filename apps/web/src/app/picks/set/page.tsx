@@ -55,7 +55,7 @@ const MakePicksPageBody: FC<PageProps<"/picks/set">> = async ({ searchParams }) 
     return redirect("/");
   }
 
-  if (tiebreaker?.TiebreakerHasSubmitted === 1) {
+  if (tiebreaker.TiebreakerHasSubmitted === 1) {
     return redirect(withWeek("/picks/view", selectedWeek));
   }
 

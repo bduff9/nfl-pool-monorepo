@@ -22,7 +22,6 @@ import { Form } from "@nfl-pool-monorepo/ui/components/form";
 import { onActionError } from "@/lib/actionErrorToast";
 import { processFormErrors } from "@/lib/form-errors";
 import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
-import { getFirstName, getFullName, getLastName } from "@/lib/user";
 import { finishRegistrationSchema } from "@/lib/validation";
 import type { finishRegistration } from "@/server/actions/user";
 import type { getCurrentUser } from "@/server/loaders/user";
@@ -36,6 +35,7 @@ import { type SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import { RegistrationFields } from "./RegistrationFields";
+import { getRegistrationDefaults, shouldShowUntrustedNotice } from "./registrationDefaults";
 
 type FinishRegistrationFormProps = {
   currentUser: Awaited<ReturnType<typeof getCurrentUser>>;
@@ -52,22 +52,10 @@ const FinishRegistrationForm: FC<FinishRegistrationFormProps> = ({
 }) => {
   const router = useRouter();
   const form = useForm<typeof finishRegistrationSchema.infer>({
-    defaultValues: {
-      UserEmail: currentUser.UserEmail,
-      UserFirstName: getFirstName(currentUser),
-      UserLastName: getLastName(currentUser),
-      UserName: getFullName(currentUser),
-      UserPaymentAccount: currentUser.UserPaymentAccount ?? "",
-      UserPaymentType: currentUser.UserPaymentType ?? "Paypal",
-      UserPlaysSurvivor: seasonStatus !== "Not Started" ? false : currentUser.UserPlaysSurvivor === 1,
-      UserReferredByRaw: currentUser.UserReferredByRaw || "",
-      UserTeamName: currentUser.UserTeamName || "",
-    },
+    defaultValues: getRegistrationDefaults(currentUser, seasonStatus),
     resolver: arktypeResolver(finishRegistrationSchema),
   });
-  const [showUntrusted, setShowUntrusted] = useState<boolean>(
-    !currentUser.UserTrusted && !!currentUser.UserReferredByRaw,
-  );
+  const [showUntrusted, setShowUntrusted] = useState<boolean>(() => shouldShowUntrustedNotice(currentUser));
 
   const { execute, isPending } = useAction(finishRegistration, {
     onError: (args) => {

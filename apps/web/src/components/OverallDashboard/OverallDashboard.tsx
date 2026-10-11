@@ -24,8 +24,57 @@ import { getSeasonStatus } from "@/server/loaders/week";
 import ProgressChart from "../ProgressChart/ProgressChart";
 import { WeekLink } from "../WeekLink/WeekLink";
 import { OverallDashboardResults, OverallDashboardTitle } from "./OverallDashboard.client";
+import { getOverallPieData, getOverallPlacement } from "./overallPlacement";
 
 const RankingPieChart = dynamic(() => import("../RankingPieChart/RankingPieChart"));
+
+type OverallDashboardDetailsProps = {
+  myOverallRank: NonNullable<Awaited<ReturnType<typeof getMyOverallRank>>>;
+  overallTiedCount: number;
+  overallTotalCount: number;
+  seasonStatus: Awaited<ReturnType<typeof getSeasonStatus>>;
+};
+
+const OverallDashboardDetails: FC<OverallDashboardDetailsProps> = ({
+  myOverallRank,
+  overallTiedCount,
+  overallTotalCount,
+  seasonStatus,
+}) => {
+  const { aheadOfMe, behindMe, myPlace } = getOverallPlacement(myOverallRank, overallTotalCount, overallTiedCount);
+  const isOver = seasonStatus === "Complete";
+
+  return (
+    <div>
+      <div className="mb-12">
+        <WeekLink className="inline-block py-2.5 underline" href="/overall">
+          View Details
+        </WeekLink>
+      </div>
+      <RankingPieChart
+        data={getOverallPieData(myPlace, overallTotalCount, aheadOfMe, behindMe, overallTiedCount)}
+        layoutId="overallRankingPieChart"
+      />
+      <OverallDashboardResults className={cn("mt-5")} />
+      <ProgressChart
+        correct={myOverallRank.PointsEarned}
+        incorrect={myOverallRank.PointsWrong}
+        isOver={isOver}
+        layoutId="overallPointsEarned"
+        max={myOverallRank.PointsTotal}
+        type="Points"
+      />
+      <ProgressChart
+        correct={myOverallRank.GamesCorrect}
+        incorrect={myOverallRank.GamesWrong}
+        isOver={isOver}
+        layoutId="overallGamesCorrect"
+        max={myOverallRank.GamesTotal}
+        type="Games"
+      />
+    </div>
+  );
+};
 
 const OverallDashboard: FC = async () => {
   const seasonStatusPromise = getSeasonStatus();
@@ -40,67 +89,18 @@ const OverallDashboard: FC = async () => {
     overallTiedCountPromise,
   ]);
 
-  const myPlace = `${myOverallRank?.Tied ? "T" : ""}${myOverallRank?.Rank}`;
-  const me = myOverallRank?.Rank ?? 0;
-  const aheadOfMe = me - 1;
-  const behindMe = overallTotalCount - me - overallTiedCount;
-
   return (
     <div className={cn("text-center mb-3 md:mb-0 border-b border-border md:border-none px-3")}>
       <OverallDashboardTitle />
       {myOverallRank === undefined ? (
         <div>Season has not started yet!</div>
       ) : (
-        <div>
-          <div className="mb-12">
-            <WeekLink className="inline-block py-2.5 underline" href="/overall">
-              View Details
-            </WeekLink>
-          </div>
-          <RankingPieChart
-            data={[
-              {
-                fill: "var(--color-red-700)",
-                myPlace,
-                name: "ahead of me",
-                total: overallTotalCount,
-                value: aheadOfMe,
-              },
-              {
-                fill: "var(--color-green-700)",
-                myPlace,
-                name: "behind me",
-                total: overallTotalCount,
-                value: behindMe,
-              },
-              {
-                fill: "var(--color-amber-600)",
-                myPlace,
-                name: "tied with me",
-                total: overallTotalCount,
-                value: overallTiedCount,
-              },
-            ]}
-            layoutId="overallRankingPieChart"
-          />
-          <OverallDashboardResults className={cn("mt-5")} />
-          <ProgressChart
-            correct={myOverallRank.PointsEarned}
-            incorrect={myOverallRank.PointsWrong}
-            isOver={seasonStatus === "Complete"}
-            layoutId="overallPointsEarned"
-            max={myOverallRank.PointsTotal}
-            type="Points"
-          />
-          <ProgressChart
-            correct={myOverallRank.GamesCorrect}
-            incorrect={myOverallRank.GamesWrong}
-            isOver={seasonStatus === "Complete"}
-            layoutId="overallGamesCorrect"
-            max={myOverallRank.GamesTotal}
-            type="Games"
-          />
-        </div>
+        <OverallDashboardDetails
+          myOverallRank={myOverallRank}
+          overallTiedCount={overallTiedCount}
+          overallTotalCount={overallTotalCount}
+          seasonStatus={seasonStatus}
+        />
       )}
     </div>
   );

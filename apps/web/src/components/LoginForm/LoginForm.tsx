@@ -12,7 +12,6 @@ import { loginSchema } from "@/lib/validation";
 import { login, register } from "@/server/actions/user";
 import "client-only";
 
-import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useAction } from "next-safe-action/hooks";
 import { type FC, useEffect } from "react";
@@ -24,6 +23,7 @@ import FloatingLabelInput from "../FloatingLabelInput/FloatingLabelInput";
 import PasswordInput from "../PasswordInput/PasswordInput";
 import TextSeparator from "../TextSeparator/TextSeparator";
 import { WeekLink } from "../WeekLink/WeekLink";
+import { getLoginSubmitLabel, getPostLoginRoute } from "./loginFormHelpers";
 
 type Props = {
   error: string | undefined;
@@ -48,6 +48,29 @@ const renderEmailField: ControllerProps<typeof loginSchema.infer, "email">["rend
   </FormItem>
 );
 
+type LoginFormActionsProps = {
+  isLogin: boolean;
+  isLoginPending: boolean;
+  isRegisterPending: boolean;
+};
+
+const LoginFormActions: FC<LoginFormActionsProps> = ({ isLogin, isLoginPending, isRegisterPending }) => (
+  <div className="grid gap-2 mb-2">
+    <Button disabled={isLoginPending || isRegisterPending} type="submit" variant="primary">
+      {getLoginSubmitLabel(isLogin, isLoginPending, isRegisterPending)}
+    </Button>
+    {!!isLogin && (
+      <Button asChild variant="outline">
+        <WeekLink href="/auth/forgot-password">Forgot Password?</WeekLink>
+      </Button>
+    )}
+    <Button asChild variant="dark">
+      <WeekLink href="/support#loginregistration">{isLogin ? "Trouble logging in?" : "Trouble registering?"}</WeekLink>
+    </Button>
+    <TextSeparator>or</TextSeparator>
+  </div>
+);
+
 const LoginForm: FC<Props> = ({ error, isLogin }) => {
   const router = useRouter();
   const form = useForm<typeof loginSchema.infer>({
@@ -69,18 +92,16 @@ const LoginForm: FC<Props> = ({ error, isLogin }) => {
   const { execute: executeLogin, isPending: isLoginPending } = useAction(login, {
     onError: onActionError,
     onSuccess: ({ data }) => {
-      const redirectTo = data?.metadata?.redirectTo;
       toast.success("Successfully logged in!");
-      router.push(typeof redirectTo === "string" && redirectTo ? (redirectTo as Route) : "/");
+      router.push(getPostLoginRoute(data?.metadata?.redirectTo));
     },
   });
 
   const { execute: executeRegister, isPending: isRegisterPending } = useAction(register, {
     onError: onActionError,
     onSuccess: ({ data }) => {
-      const redirectTo = data?.metadata?.redirectTo;
       toast.success("Successfully registered!");
-      router.push(typeof redirectTo === "string" && redirectTo ? (redirectTo as Route) : "/");
+      router.push(getPostLoginRoute(data?.metadata?.redirectTo));
     },
   });
 
@@ -90,14 +111,6 @@ const LoginForm: FC<Props> = ({ error, isLogin }) => {
     } else {
       executeRegister(values);
     }
-  };
-
-  const getSubmitLabel = (): string => {
-    if (isLogin) {
-      return isLoginPending ? "Logging in..." : "Login";
-    }
-
-    return isRegisterPending ? "Registering..." : "Register";
   };
 
   return (
@@ -119,22 +132,7 @@ const LoginForm: FC<Props> = ({ error, isLogin }) => {
             <PasswordInput isLogin={false} label="Confirm Password" name="confirmPassword" required />
           </div>
         )}
-        <div className="grid gap-2 mb-2">
-          <Button disabled={isLoginPending || isRegisterPending} type="submit" variant="primary">
-            {getSubmitLabel()}
-          </Button>
-          {!!isLogin && (
-            <Button asChild variant="outline">
-              <WeekLink href="/auth/forgot-password">Forgot Password?</WeekLink>
-            </Button>
-          )}
-          <Button asChild variant="dark">
-            <WeekLink href="/support#loginregistration">
-              {isLogin ? "Trouble logging in?" : "Trouble registering?"}
-            </WeekLink>
-          </Button>
-          <TextSeparator>or</TextSeparator>
-        </div>
+        <LoginFormActions isLogin={isLogin} isLoginPending={isLoginPending} isRegisterPending={isRegisterPending} />
       </form>
     </Form>
   );

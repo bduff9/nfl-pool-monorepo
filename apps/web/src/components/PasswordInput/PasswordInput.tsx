@@ -6,6 +6,7 @@ import { useFormContext } from "react-hook-form";
 import { LuEye, LuEyeOff } from "react-icons/lu";
 
 import FloatingLabelInput from "../FloatingLabelInput/FloatingLabelInput";
+import { getPasswordFieldAttributes } from "./passwordFieldAttributes";
 
 type Props = {
   isLogin: boolean;
@@ -14,6 +15,25 @@ type Props = {
   required?: boolean;
 };
 
+type PasswordVisibilityToggleProps = {
+  isVisible: boolean;
+  label: string;
+  onToggle: () => void;
+};
+
+const PasswordVisibilityToggle: FC<PasswordVisibilityToggleProps> = ({ isVisible, label, onToggle }) => (
+  <button
+    aria-label={label}
+    className="absolute inset-y-0 right-0 flex cursor-pointer items-center p-3 text-muted-foreground"
+    onClick={onToggle}
+    type="button"
+  >
+    {createElement(isVisible ? LuEyeOff : LuEye, {
+      className: "size-6",
+    })}
+  </button>
+);
+
 const PasswordInput: FC<Props> = ({ isLogin, label, name, required = false }) => {
   const { control } = useFormContext();
   const [passwordVisibility, setPasswordVisibility] = useState(false);
@@ -21,6 +41,8 @@ const PasswordInput: FC<Props> = ({ isLogin, label, name, required = false }) =>
   const togglePasswordVisibility = () => {
     setPasswordVisibility((shown) => !shown);
   };
+
+  const { autoComplete, inputType, toggleLabel } = getPasswordFieldAttributes(isLogin, passwordVisibility);
 
   const renderPasswordField = ({
     field,
@@ -35,25 +57,20 @@ const PasswordInput: FC<Props> = ({ isLogin, label, name, required = false }) =>
           <FloatingLabelInput
             {...field}
             aria-invalid={!!fieldState.error}
-            autoComplete={isLogin ? "current-password" : "new-password"}
+            autoComplete={autoComplete}
             className={cn("pr-12", fieldState.error && "border-red-600")}
             id={name}
             label={label}
             placeholder=" "
             required={required}
             title={label}
-            type={passwordVisibility ? "text" : "password"}
+            type={inputType}
           />
-          <button
-            aria-label={passwordVisibility ? "Hide password" : "Show password"}
-            className="absolute inset-y-0 right-0 flex cursor-pointer items-center p-3 text-muted-foreground"
-            onClick={togglePasswordVisibility}
-            type="button"
-          >
-            {createElement(passwordVisibility ? LuEyeOff : LuEye, {
-              className: "size-6",
-            })}
-          </button>
+          <PasswordVisibilityToggle
+            isVisible={passwordVisibility}
+            label={toggleLabel}
+            onToggle={togglePasswordVisibility}
+          />
         </div>
       </FormControl>
       <FormMessage />

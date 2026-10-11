@@ -1,13 +1,12 @@
 "use client";
 
 import { type DataTableFeatures, SortableColumnHeader } from "@nfl-pool-monorepo/ui/components/data-table";
-import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { ColumnDef } from "@tanstack/react-table";
 
-import { getPayoutStatus } from "@/lib/payoutStatus";
 import type { getUserPayoutsForAdmin } from "@/server/loaders/payment";
 
 import { BalanceCell } from "./BalanceCell";
+import { PayoutCell } from "./PayoutCell";
 
 export type Prize = Awaited<ReturnType<typeof getUserPayoutsForAdmin>>[number];
 
@@ -26,25 +25,7 @@ export const getPrizeColumns = (): ColumnDef<DataTableFeatures, Prize>[] => [
   },
   {
     accessorKey: "UserWon",
-    cell: ({ row }) => {
-      const payoutStatus = getPayoutStatus(Number(row.original.UserBalance), Number(row.original.UserWon));
-
-      return (
-        <div
-          className={cn(
-            "text-right font-bold",
-            payoutStatus === "unpaid" && "text-red-600",
-            payoutStatus === "paid" && "text-green-600 line-through",
-            payoutStatus === "partial" && "text-amber-600",
-          )}
-          title={`Paid out $${(row.original.UserWon ?? 0) - (row.original.UserBalance ?? 0)} / $${
-            row.original.UserWon
-          }`}
-        >
-          ${row.original.UserWon ?? 0}
-        </div>
-      );
-    },
+    cell: ({ row }) => <PayoutCell prize={row.original} />,
     header: ({ column }) => <SortableColumnHeader column={column} title="Payout" />,
   },
   {
