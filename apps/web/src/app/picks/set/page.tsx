@@ -61,7 +61,7 @@ const MakePicksPageBody: FC<PageProps<"/picks/set">> = async ({ searchParams }) 
 
   return (
     <PageTransition>
-      <div className="h-[calc(100dvh-var(--top-offset))] flex flex-col md:mx-3">
+      <div className="h-[calc(100dvh-var(--safe-top))] flex flex-col md:mx-3">
         <CustomHead title={`Make week ${selectedWeek} picks`} />
         <PageContent className="flex flex-col pt-3 pb-(--actions-bar-height)">
           <MakePicksClient
