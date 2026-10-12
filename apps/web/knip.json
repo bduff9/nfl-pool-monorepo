@@ -1,10 +1,16 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "entry": ["scripts/generate-splash-screens.mjs", "scripts/upload-sourcemaps.mjs", "src/sw.ts"],
+  "entry": [
+    "scripts/generate-monochrome-icon.mjs",
+    "scripts/generate-splash-screens.mjs",
+    "scripts/upload-sourcemaps.mjs",
+    "src/sw.ts"
+  ],
   "ignoreBinaries": ["biome", "npmPkgJsonLint", "vitest"],
   "ignoreDependencies": ["vite-tsconfig-paths"],
   "ignoreFiles": ["vitest.config.ts", "vitest.setup.ts", "src/**/*.test.ts"],
   "ignoreIssues": {
+    "scripts/generate-monochrome-icon.mjs": ["unlisted"],
     "scripts/generate-splash-screens.mjs": ["unlisted"]
   },
   "paths": {

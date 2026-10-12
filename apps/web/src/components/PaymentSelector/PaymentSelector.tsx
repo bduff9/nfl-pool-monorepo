@@ -16,8 +16,10 @@
  * Home: https://asitewithnoname.com/
  */
 
+import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nfl-pool-monorepo/ui/components/select";
 import { type FC, useState } from "react";
+import { toast } from "sonner";
 
 import { PaymentMethod } from "@/lib/constants";
 
@@ -29,8 +31,28 @@ type PaymentSelectorProps = {
 const PAYMENT_MESSAGE =
   "NOTE: Please be sure to use an account tied to your name or put your name in the memo field so we correctly attribute your payment to you";
 
+const VENMO_HANDLE = "@brianduffey";
+const ZELLE_EMAIL = "bduff9@gmail.com";
+
 const isPaymentMethod = (value: string): value is (typeof PaymentMethod)[number] =>
   (PaymentMethod as readonly string[]).includes(value);
+
+const CopyButton: FC<{ value: string }> = ({ value }) => {
+  const handleCopy = async (): Promise<void> => {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast.success("Copied");
+    } catch {
+      toast.error("Could not copy");
+    }
+  };
+
+  return (
+    <Button className="ml-2 text-foreground" onClick={handleCopy} size="sm" type="button" variant="outline">
+      Copy
+    </Button>
+  );
+};
 
 const PaymentSelector: FC<PaymentSelectorProps> = ({ amount, defaultPayment }) => {
   const [paymentType, setPaymentType] = useState<(typeof PaymentMethod)[number]>(defaultPayment);
@@ -62,17 +84,36 @@ const PaymentSelector: FC<PaymentSelectorProps> = ({ amount, defaultPayment }) =
         {paymentType === "Paypal" && (
           <div className="font-bold text-red-500">
             Please pay ${amount} using PayPal:{" "}
-            <a href={`https://www.paypal.me/brianduffey/${amount}`} rel="noopener noreferrer" target="_blank">
+            <a
+              className="underline"
+              href={`https://www.paypal.me/brianduffey/${amount}`}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
               paypal.me/brianduffey/{amount}
             </a>
           </div>
         )}
         {paymentType === "Venmo" && (
-          <div className="font-bold text-red-500">Please pay ${amount} using Venmo to account @brianduffey</div>
+          <div className="font-bold text-red-500">
+            Please pay ${amount} using Venmo to account {VENMO_HANDLE}
+            <CopyButton value={VENMO_HANDLE} />
+            <div>
+              <a
+                className="underline"
+                href={`https://venmo.com/brianduffey?txn=pay&amount=${amount}&note=${encodeURIComponent("NFL Confidence Pool")}`}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                Open Venmo with ${amount} filled in
+              </a>
+            </div>
+          </div>
         )}
         {paymentType === "Zelle" && (
           <div className="font-bold text-red-500">
-            Please pay ${amount} using your bank&apos;s Zelle service to account bduff9@gmail.com
+            Please pay ${amount} using your bank&apos;s Zelle service to account {ZELLE_EMAIL}
+            <CopyButton value={ZELLE_EMAIL} />
           </div>
         )}
         <div className="mt-4 font-extrabold">{PAYMENT_MESSAGE}</div>

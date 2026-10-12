@@ -20,6 +20,12 @@ const manifest = (): MetadataRoute.Manifest => {
         type: "image/png",
       },
       {
+        purpose: "monochrome",
+        sizes: "512x512",
+        src: "/icon-monochrome-512x512.png",
+        type: "image/png",
+      },
+      {
         sizes: "192x192",
         src: "/icon-192x192.png",
         type: "image/png",
