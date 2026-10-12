@@ -24,7 +24,13 @@ const shouldScan = (input) => {
   const eventName = input.hook_event_name || input.eventName || input.event_name;
   if (eventName === 'PostToolBatch') {
     const toolCalls = Array.isArray(input.tool_calls) ? input.tool_calls : [];
-    return toolCalls.some((toolCall) => EDIT_TOOL_NAMES.has(toolCall.tool_name));
+    return toolCalls.some((toolCall) => {
+      if (!EDIT_TOOL_NAMES.has(toolCall.tool_name)) return false;
+      // Only .tsx edits matter to react-doctor. If the payload carries no
+      // path, scan anyway rather than silently skipping.
+      const filePath = toolCall.tool_input?.file_path ?? toolCall.input?.file_path;
+      return typeof filePath !== 'string' || filePath.endsWith('.tsx');
+    });
   }
   const toolName = input.tool_name || input.toolName || input.tool;
   return !toolName || EDIT_TOOL_NAMES.has(toolName);
