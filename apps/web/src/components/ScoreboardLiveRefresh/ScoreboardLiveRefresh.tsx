@@ -5,7 +5,7 @@ import { type FC, useEffect } from "react";
 
 import { useWakeLock } from "@/lib/hooks/useWakeLock";
 
-const LIVE_POLL_MS = 30_000;
+const LIVE_POLL_MS = 5_000;
 
 type ScoreboardLiveRefreshProps = {
   enabled: boolean;

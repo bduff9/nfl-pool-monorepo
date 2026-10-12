@@ -13,12 +13,12 @@ const ESPN_SCOREBOARD_URL = "https://site.api.espn.com/apis/site/v2/sports/footb
 const ESPN_TIMEOUT_MS = 3000;
 
 // ESPN's endpoint is unofficial and display-only: nothing from it is ever written to the database.
-// A short-lived cache (about 20s) means every viewer polling the scoreboard shares one upstream request, and a
-// failed fetch (cached as an empty map) is not retried against ESPN by every viewer. Stale-while-revalidate is
-// capped by `expire` so a live score is never older than ~30s.
+// A ~5s shared cache means every viewer polling the scoreboard (every 5s) shares one upstream ESPN request per 5s,
+// and a failed fetch (cached as an empty map) is not retried against ESPN by every viewer. Stale-while-revalidate is
+// capped by `expire` so a live score is never older than ~10s. ESPN itself serves max-age=10.
 const getEspnLiveScores = async (): Promise<LiveScoreMap> => {
   "use cache";
-  cacheLife({ expire: 30, revalidate: 20, stale: 20 });
+  cacheLife({ expire: 10, revalidate: 5, stale: 5 });
 
   try {
     const response = await fetch(ESPN_SCOREBOARD_URL, { signal: AbortSignal.timeout(ESPN_TIMEOUT_MS) });
