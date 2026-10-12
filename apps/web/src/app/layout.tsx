@@ -151,7 +151,7 @@ const RootLayout: FC<LayoutProps<"/">> = ({ children }) => {
               <Suspense fallback={null}>
                 <AuthenticatedNavigation />
               </Suspense>
-              <main className="w-full relative grid min-h-dvh pt-(--safe-top)">
+              <main className="w-full relative grid grid-cols-1 min-h-dvh pt-(--safe-top)">
                 <Suspense fallback={<PageLoadingFallback />}>{children}</Suspense>
               </main>
             </AuthenticatedNavPresenceProvider>
