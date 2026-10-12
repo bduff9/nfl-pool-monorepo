@@ -8,6 +8,7 @@ import sendWeekEndedPushNotification from "../pushNotifications/weekEnded";
 import sendWeekStartedPushNotification from "../pushNotifications/weekStarted";
 import sendWeekEndedSMS from "../sms/weekEnded";
 import sendWeekStartedSMS from "../sms/weekStarted";
+import { getWeekRecap, type WeekRecap } from "./recap";
 
 type WeekNotificationType = "WeekEnded" | "WeekStarted";
 
@@ -80,6 +81,17 @@ export const sendWeekStartedNotifications = (week: number): Promise<void> =>
     sms: sendWeekStartedSMS,
   });
 
+// The recap is a bonus section, so a failure reading it must not stop the weekly emails going out
+const getWeekRecapOrNull = async (week: number): Promise<WeekRecap | null> => {
+  try {
+    return await getWeekRecap(week);
+  } catch (error) {
+    console.error(`Error reading the week ${week} recap`, error);
+
+    return null;
+  }
+};
+
 export const sendWeeklyEmails = async (week: number, articles: Array<APINewsArticle>): Promise<void> => {
   const emails = await db
     .selectFrom("Notifications as n")
@@ -90,10 +102,13 @@ export const sendWeeklyEmails = async (week: number, articles: Array<APINewsArti
     .where("n.NotificationType", "=", "Essentials")
     .execute();
 
+  // The recap is the same pool-wide data for every recipient, so read it once instead of per user
+  const recap = await getWeekRecapOrNull(week);
+
   for (const user of emails) {
     try {
       // react-doctor-disable-next-line async-await-in-loop -- one email at a time keeps SES within its send rate, and each user is wrapped in try/catch so one failure cannot stop the rest
-      await sendWeeklyEmail(user, week, articles);
+      await sendWeeklyEmail(user, week, articles, recap);
     } catch (error) {
       console.error(`Error sending weekly email to ${user.UserEmail}`, error);
     }

@@ -98,6 +98,14 @@ describe("push notification and sms senders", () => {
     expect(record()).toMatchSnapshot();
   });
 
+  it("adds the user's weekly recap to the week ended push notification", async () => {
+    prepareWeekEnded();
+    mockDb.executeTakeFirst.mockResolvedValueOnce({ PointsEarned: 87, Rank: 3 });
+    await sendWeekEndedPushNotification(PUSH_USER, 5);
+
+    expect(record()).toMatchSnapshot();
+  });
+
   it("sends the week started push notification", async () => {
     prepareWeekStarted();
     await sendWeekStartedPushNotification(PUSH_USER, 5);

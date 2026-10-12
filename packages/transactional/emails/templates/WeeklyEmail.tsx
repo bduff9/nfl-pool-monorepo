@@ -4,11 +4,13 @@ import React from "react";
 import { Button, Column, Container, Html, Img, Preview, Row, Section, Text } from "react-email";
 
 import { env } from "../../src/env";
+import { getRecapLines, type UserRecap } from "../../src/recap";
 import type { Email } from "../../src/types";
 import { relativeTime, stripCharacterCount } from "../../src/util";
 import BodyWrapper from "./_components/BodyWrapper";
 import Footer from "./_components/Footer";
 import Header from "./_components/Header";
+import WeekRecapSection from "./_components/WeekRecapSection";
 
 type Props = {
   articles: {
@@ -21,6 +23,7 @@ type Props = {
   children?: React.ReactNode;
   messages: string[];
   poolUpdates: string[];
+  recap: UserRecap | null;
   survivorUpdates: string[];
   userFirstName: string;
   week: number;
@@ -31,6 +34,7 @@ const WeeklyEmail: Email<Props> = ({
   browserLink,
   messages = [],
   poolUpdates = [],
+  recap = null,
   survivorUpdates = [],
   unsubscribeLink,
   userFirstName,
@@ -57,6 +61,10 @@ const WeeklyEmail: Email<Props> = ({
                 </ul>
               </Column>
             </Row>
+
+            {recap ? (
+              <WeekRecapSection lines={getRecapLines(recap)} points={recap.points} rank={recap.rank} week={week} />
+            ) : null}
 
             <Row>
               <Column className="bg-white pt-8 px-6">
@@ -148,6 +156,16 @@ WeeklyEmail.PreviewProps = {
   browserLink: "https://example.com",
   messages: ["Please pay by Monday, September 30th, 2025"],
   poolUpdates: ["John Smith took first place this week"],
+  recap: {
+    overallPreviousRank: 6,
+    overallRank: 4,
+    pickOfTheWeek: { picks: [{ name: "Jane Doe", team: "Kansas City Chiefs" }], points: 16 },
+    points: 87,
+    rank: 3,
+    topScore: 102,
+    upset: { percent: 12, team: "New York Jets" },
+    winners: ["Sam Smith"],
+  },
   survivorUpdates: ["2 people went out, there are still 14 people left in the survivor pool"],
   unsubscribeLink: "https://example.com/unsubscribe",
   userFirstName: "John",

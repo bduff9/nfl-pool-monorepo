@@ -15,8 +15,10 @@
  */
 
 import type { Users } from "@nfl-pool-monorepo/db/src";
+import { getUserWeeklyResult } from "@nfl-pool-monorepo/db/src/queries/recap";
 import type { Selectable } from "kysely";
 
+import { getRecapPushMessage } from "../src/recap";
 import { getWeekEndedMessage, getWeekEndedResult } from "../src/weekTeams";
 import { sendPushNotification } from ".";
 
@@ -24,10 +26,11 @@ const sendWeekEndedPushNotification = async (
   user: Pick<Selectable<Users>, "UserID" | "UserFirstName">,
   week: number,
 ): Promise<void> => {
-  const result = await getWeekEndedResult(week);
+  const [result, weeklyResult] = await Promise.all([getWeekEndedResult(week), getUserWeeklyResult(user.UserID, week)]);
   const message = getWeekEndedMessage(user.UserFirstName, week, result);
+  const body = weeklyResult ? `${message} ${getRecapPushMessage(week, weeklyResult)}` : message;
 
-  await sendPushNotification(user.UserID, `Week ${week} Just Ended`, message, "weekEnded", `/weekly?week=${week}`);
+  await sendPushNotification(user.UserID, `Week ${week} Just Ended`, body, "weekEnded", `/weekly?week=${week}`);
 };
 
 export default sendWeekEndedPushNotification;

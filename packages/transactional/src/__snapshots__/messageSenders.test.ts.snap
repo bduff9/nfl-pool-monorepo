@@ -63,6 +63,22 @@ exports[`email template preview props > keeps the preview props the react-email 
 }
 `;
 
+exports[`push notification and sms senders > adds the user's weekly recap to the week ended push notification 1`] = `
+{
+  "consoleError": [],
+  "sendPushNotification": [
+    [
+      7,
+      "Week 5 Just Ended",
+      "Pat, week 5 has just ended with New York Giants @ Chicago Bears. The Bears won with a score of 21 - 14. Week 5 recap: you finished 3rd with 87 pts.",
+      "weekEnded",
+      "/weekly?week=5",
+    ],
+  ],
+  "sendSMS": [],
+}
+`;
+
 exports[`push notification and sms senders > logs instead of sending the pick reminder sms without a phone number 1`] = `
 {
   "consoleError": [
@@ -350,6 +366,13 @@ exports[`push notification and sms senders > sends the pick reminder push notifi
       "pickReminder",
       "/picks/set?week=5",
       1,
+      [
+        {
+          "action": "make-picks",
+          "title": "Make picks",
+          "url": "/picks/set?week=5",
+        },
+      ],
     ],
   ],
   "sendSMS": [],
@@ -381,6 +404,13 @@ exports[`push notification and sms senders > sends the survivor reminder push no
       "survivorReminder",
       "/survivor/set?week=5",
       1,
+      [
+        {
+          "action": "make-survivor-pick",
+          "title": "Make pick",
+          "url": "/survivor/set?week=5",
+        },
+      ],
     ],
   ],
   "sendSMS": [],

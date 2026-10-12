@@ -1,0 +1,46 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`weekly email recap > renders the recap section in plain text 1`] = `
+"Email not displaying correctly? View it in your browser https://example.com
+
+
+
+John's Messages
+
+ * Please pay by Monday, September 30th, 2025
+
+Week 1 Recap
+
+3rd
+
+Weekly rank
+
+87
+
+Points earned
+
+ * Week winner: Sam Smith with 102 points.
+ * You are 4th overall, up 2 spots from last week.
+ * Biggest upset: the New York Jets won while only 12% of the pool picked them.
+ * Pick of the week: 16 points on the Kansas City Chiefs from Jane Doe.
+
+NFL Updates
+
+
+
+Confidence Pool Updates
+
+ * John Smith took first place this week
+
+Survivor Pool Updates
+
+ * 2 people went out, there are still 14 people left in the survivor pool
+
+View full standings https://pool.test
+
+asitewithnoname.com https://asitewithnoname.com
+
+Chicago, IL USA
+
+Unsubscribe https://example.com/unsubscribe | Update Preferences undefined/users/edit"
+`;

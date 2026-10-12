@@ -6,6 +6,7 @@ import { addOrdinal } from "@nfl-pool-monorepo/utils/numbers";
 import type { APINewsArticle } from "@nfl-pool-monorepo/utils/validation";
 import type { Selectable } from "kysely";
 
+import { getUserRecap, type WeekRecap } from "../src/recap";
 import { getBaseEmailClass, getBrowserLink, getUnsubscribeLink, sendEmail, updateEmailClass } from ".";
 import { getHtml, getPlainText, getSubject } from "./templates/WeeklyEmail";
 
@@ -13,6 +14,7 @@ export const sendWeeklyEmail = async (
   user: Pick<Selectable<Users>, "UserID" | "UserEmail" | "UserFirstName">,
   week: number,
   weekArticles: APINewsArticle[],
+  recap: WeekRecap | null,
 ): Promise<void> => {
   const userMessages: string[] = [];
   const poolUpdates: string[] = [];
@@ -92,28 +94,18 @@ export const sendWeeklyEmail = async (
   const browserLink = getBrowserLink(emailId);
   const unsubscribeLink = getUnsubscribeLink(to);
   const subject = getSubject(week);
-  const [html, text] = await Promise.all([
-    getHtml({
-      articles: weekArticles,
-      browserLink,
-      messages: userMessages,
-      poolUpdates,
-      survivorUpdates,
-      unsubscribeLink,
-      userFirstName: user.UserFirstName ?? "player",
-      week,
-    }),
-    getPlainText({
-      articles: weekArticles,
-      browserLink,
-      messages: userMessages,
-      poolUpdates,
-      survivorUpdates,
-      unsubscribeLink,
-      userFirstName: user.UserFirstName ?? "player",
-      week,
-    }),
-  ]);
+  const props = {
+    articles: weekArticles,
+    browserLink,
+    messages: userMessages,
+    poolUpdates,
+    recap: getUserRecap(recap, user.UserID),
+    survivorUpdates,
+    unsubscribeLink,
+    userFirstName: user.UserFirstName ?? "player",
+    week,
+  };
+  const [html, text] = await Promise.all([getHtml(props), getPlainText(props)]);
 
   try {
     await sendEmail({
@@ -123,21 +115,7 @@ export const sendWeeklyEmail = async (
       to,
     });
   } catch (error) {
-    console.error("Failed to send weekly email: ", {
-      error,
-      props: {
-        articles: weekArticles,
-        browserLink,
-        messages: userMessages,
-        poolUpdates,
-        survivorUpdates,
-        unsubscribeLink,
-        userFirstName: user.UserFirstName ?? "player",
-        week,
-      },
-      to,
-      type: "weekly",
-    });
+    console.error("Failed to send weekly email: ", { error, props, to, type: "weekly" });
   }
 
   await updateEmailClass({
