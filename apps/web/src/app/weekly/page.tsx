@@ -30,11 +30,13 @@ import RetryableSection from "@/components/RetryableSection/RetryableSection";
 import ScenariosDashboard from "@/components/ScenariosDashboard/ScenariosDashboard";
 import ScoreboardLiveRefresh from "@/components/ScoreboardLiveRefresh/ScoreboardLiveRefresh";
 import SectionError from "@/components/SectionError/SectionError.client";
+import ShareButton from "@/components/ShareButton/ShareButton.client";
 import Crossfade from "@/components/ViewTransitions/Crossfade";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { WeekLink } from "@/components/WeekLink/WeekLink";
 import { WeeklyDashboardResults, WeeklyDashboardTitle } from "@/components/WeeklyDashboard/WeeklyDashboard.client";
 import { requireRegistered } from "@/lib/auth";
+import { buildWeekResultShareText } from "@/lib/share/shareText";
 import { withWeek } from "@/lib/weekSearchParams";
 import { getGamesForWeekScoreboardCached } from "@/server/loaders/game";
 import { getCurrentUser } from "@/server/loaders/user";
@@ -154,6 +156,16 @@ const WeeklyRankingsPageBody: FC<PageProps<"/weekly">> = async ({ searchParams }
                 &laquo; Back to Dashboard
               </WeekLink>
             </div>
+            {!!myWeeklyRank && (
+              <div className="w-full px-3 pb-2 text-center md:text-right">
+                <ShareButton
+                  imageUrl={`/api/share/week/${selectedWeek}`}
+                  label="Share my result"
+                  text={buildWeekResultShareText(selectedWeek, myWeeklyRank.Rank, myWeeklyRank.Tied === 1)}
+                  title={`My week ${selectedWeek} result`}
+                />
+              </div>
+            )}
             <SectionError title="Scenarios">
               <Suspense fallback={null}>
                 <ScenariosDashboard scope="weekly" />

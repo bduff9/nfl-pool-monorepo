@@ -27,8 +27,10 @@ import "server-only";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import MyPicksHead from "@/components/MyPicksHead/MyPicksHead";
 import PageContent from "@/components/PageContent/PageContent";
+import ShareButton from "@/components/ShareButton/ShareButton.client";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { requireRegistered } from "@/lib/auth";
+import { buildWeekPicksShareText } from "@/lib/share/shareText";
 import { getMyWeeklyPicks } from "@/server/loaders/pick";
 import { getSelectedWeekFromParams } from "@/server/loaders/week";
 
@@ -98,6 +100,14 @@ const ViewPicksPageBody: FC<PageProps<"/picks/view">> = async ({ searchParams })
             <Suspense fallback={<Skeleton className="h-32 w-full" />}>
               <MyPicksHead week={selectedWeek} />
             </Suspense>
+            <div className="flex justify-end py-2">
+              <ShareButton
+                label="Share my picks"
+                text={buildWeekPicksShareText(selectedWeek)}
+                title={`My week ${selectedWeek} picks`}
+                url={`/picks/view?week=${selectedWeek}`}
+              />
+            </div>
             <div className="w-full">
               <div className="rounded table-responsive">
                 <Table>
