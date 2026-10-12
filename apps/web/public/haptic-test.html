@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Haptic test</title>
+<style>
+  body { background: #101311; color: #eef1ec; font: 16px -apple-system, system-ui, sans-serif; margin: 0; padding: 20px 16px 120px; }
+  main { max-width: 520px; margin: 0 auto; display: grid; gap: 12px; }
+  .t { display: grid; gap: 6px; background: #1a1e1b; border: 1px solid #2c322e; border-radius: 12px; padding: 14px; }
+  p { margin: 0; color: #9aa39c; }
+  button { font: inherit; font-weight: 600; color: #fff; background: #1f7a3a; border: 0; border-radius: 10px; min-height: 52px; touch-action: manipulation; }
+  code { color: #9aa39c; font-size: 13px; overflow-wrap: anywhere; }
+  #visible { display: flex; gap: 10px; align-items: center; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Haptic test (dev site)</h1>
+  <p>Tap each button once. Reply with the letters that tick.</p>
+  <div class="t"><b>G. Flip with your finger</b><label><input type="checkbox" switch> real switch</label></div>
+  <div class="t"><b>A. Hidden switch (display:none), label.click()</b><button id="a">Tap A</button></div>
+  <div class="t"><b>B. App's current off-screen switch</b><button id="b">Tap B</button></div>
+  <div class="t"><b>H. Visible switch below, label.click()</b><label id="visible"><input id="vis" type="checkbox" switch> target switch</label><button id="h">Tap H</button></div>
+  <div class="t"><b>I. Visible switch above, input.click()</b><button id="i">Tap I</button></div>
+  <div class="t"><b>J. Nearly invisible switch on screen (opacity 0.01)</b><button id="j">Tap J</button></div>
+  <div class="t"><b>K. Fully opaque switch moved off screen</b><button id="k">Tap K</button></div>
+  <code id="ua"></code>
+</main>
+<script>
+  const makeSwitch = (style, parent) => {
+    const label = document.createElement("label");
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.setAttribute("switch", "");
+    label.append(input);
+    Object.assign(label.style, style);
+    (parent || document.body).append(label);
+    return label;
+  };
+  const a = makeSwitch({ display: "none" }, document.head);
+  const b = makeSwitch({ height: "1px", left: "-9999px", opacity: "0", pointerEvents: "none", position: "fixed", width: "1px" });
+  const j = makeSwitch({ bottom: "8px", left: "8px", opacity: "0.01", position: "fixed" });
+  const k = makeSwitch({ left: "-9999px", position: "fixed", top: "0" });
+  document.getElementById("a").onclick = () => a.click();
+  document.getElementById("b").onclick = () => b.click();
+  document.getElementById("h").onclick = () => document.getElementById("visible").click();
+  document.getElementById("i").onclick = () => document.getElementById("vis").click();
+  document.getElementById("j").onclick = () => j.click();
+  document.getElementById("k").onclick = () => k.click();
+  document.getElementById("ua").textContent = navigator.userAgent + " · vibrate: " + typeof navigator.vibrate;
+</script>
+</body>
+</html>
