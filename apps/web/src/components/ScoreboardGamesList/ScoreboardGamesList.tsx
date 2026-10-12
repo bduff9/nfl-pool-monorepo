@@ -19,19 +19,22 @@
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { type FC, Fragment, useEffect, useState } from "react";
 
+import GameStakes from "@/components/GameStakes/GameStakes";
 import GameStatusDisplay from "@/components/GameStatusDisplay/GameStatusDisplay";
 import ScoreboardDate from "@/components/ScoreboardDate/ScoreboardDate";
 import ScoreboardTeam from "@/components/ScoreboardTeam/ScoreboardTeam";
 import { formatDateForKickoff } from "@/lib/dates";
+import type { GameStakes as GameStakesData } from "@/lib/riding/stakes";
 import type { getGamesForWeekScoreboardCached } from "@/server/loaders/game";
 
-type Game = Awaited<ReturnType<typeof getGamesForWeekScoreboardCached>>[number];
+type Game = Awaited<ReturnType<typeof getGamesForWeekScoreboardCached>>[number] & { isLiveOverlay: boolean };
 
 type Props = {
   games: Game[];
+  stakes?: Record<number, GameStakesData>;
 };
 
-const ScoreboardGamesList: FC<Props> = ({ games }) => {
+const ScoreboardGamesList: FC<Props> = ({ games, stakes = {} }) => {
   const [headerIndexes, setHeaderIndexes] = useState<Set<number> | null>(null);
 
   useEffect(() => {
@@ -81,11 +84,13 @@ const ScoreboardGamesList: FC<Props> = ({ games }) => {
               <div className={cn("text-right pr-4 text-nowrap pt-4 text-lg grow")}>
                 <GameStatusDisplay
                   gameStatus={game.GameStatus}
+                  isLive={game.isLiveOverlay}
                   kickoff={game.GameKickoff}
                   timeLeft={game.GameTimeLeftInQuarter}
                 />
               </div>
             </div>
+            <GameStakes game={game} stakes={stakes[game.GameID]} />
           </div>
         </Fragment>
       ))}

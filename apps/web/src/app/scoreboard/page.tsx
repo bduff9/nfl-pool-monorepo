@@ -26,7 +26,10 @@ import ScoreboardGamesList from "@/components/ScoreboardGamesList/ScoreboardGame
 import ScoreboardLiveRefresh from "@/components/ScoreboardLiveRefresh/ScoreboardLiveRefresh";
 import Crossfade from "@/components/ViewTransitions/Crossfade";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import { isLiveCandidate } from "@/lib/liveScores/applyLiveScores";
 import { getGamesForWeekScoreboardCached } from "@/server/loaders/game";
+import { getGameStakes } from "@/server/loaders/gameStakes";
+import { getLiveScoreOverlay } from "@/server/loaders/liveScores";
 
 import ScoreboardLoader from "./loading";
 
@@ -41,14 +44,17 @@ type ScoreboardGamesProps = {
 };
 
 const ScoreboardGames: FC<ScoreboardGamesProps> = async ({ selectedWeek }) => {
-  const games = await getGamesForWeekScoreboardCached(selectedWeek);
-  const hasLiveGames = games.some((game) => game.GameStatus !== "Pregame" && game.GameStatus !== "Final");
+  const dbGames = await getGamesForWeekScoreboardCached(selectedWeek);
+  const games = await getLiveScoreOverlay(dbGames);
+  const stakes = await getGameStakes(selectedWeek, games);
+  const now = new Date();
+  const hasLiveGames = dbGames.some((game) => isLiveCandidate(game, now));
 
   return (
     <>
       <ScoreboardLiveRefresh enabled={hasLiveGames} />
       <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-x-5 px-3">
-        <ScoreboardGamesList games={games} />
+        <ScoreboardGamesList games={games} stakes={stakes} />
       </div>
     </>
   );

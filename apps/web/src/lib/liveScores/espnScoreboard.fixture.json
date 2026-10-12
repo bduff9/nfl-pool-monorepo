@@ -1,0 +1,172 @@
+{
+  "events": [
+    {
+      "competitions": [
+        {
+          "competitors": [
+            {
+              "homeAway": "home",
+              "score": "19",
+              "team": {
+                "abbreviation": "JAX"
+              }
+            },
+            {
+              "homeAway": "away",
+              "score": "17",
+              "team": {
+                "abbreviation": "PHI"
+              }
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "isTBDFlex": false,
+            "period": 4,
+            "type": {
+              "completed": true,
+              "description": "Final",
+              "detail": "Final",
+              "id": "3",
+              "name": "STATUS_FINAL",
+              "shortDetail": "Final",
+              "state": "post"
+            }
+          }
+        }
+      ],
+      "date": "2026-10-11T13:30Z",
+      "id": "401872981",
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 4,
+        "type": {
+          "completed": true,
+          "description": "Final",
+          "detail": "Final",
+          "id": "3",
+          "name": "STATUS_FINAL",
+          "shortDetail": "Final",
+          "state": "post"
+        }
+      }
+    },
+    {
+      "competitions": [
+        {
+          "competitors": [
+            {
+              "homeAway": "home",
+              "score": "27",
+              "team": {
+                "abbreviation": "WSH"
+              }
+            },
+            {
+              "homeAway": "away",
+              "score": "27",
+              "team": {
+                "abbreviation": "NYG"
+              }
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "isTBDFlex": false,
+            "period": 5,
+            "type": {
+              "altDetail": "OT",
+              "completed": true,
+              "description": "Final",
+              "detail": "Final/OT",
+              "id": "3",
+              "name": "STATUS_FINAL",
+              "shortDetail": "Final/OT",
+              "state": "post"
+            }
+          }
+        }
+      ],
+      "date": "2026-10-11T17:00Z",
+      "id": "401872988",
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 5,
+        "type": {
+          "altDetail": "OT",
+          "completed": true,
+          "description": "Final",
+          "detail": "Final/OT",
+          "id": "3",
+          "name": "STATUS_FINAL",
+          "shortDetail": "Final/OT",
+          "state": "post"
+        }
+      }
+    },
+    {
+      "competitions": [
+        {
+          "competitors": [
+            {
+              "homeAway": "home",
+              "score": "0",
+              "team": {
+                "abbreviation": "ATL"
+              }
+            },
+            {
+              "homeAway": "away",
+              "score": "0",
+              "team": {
+                "abbreviation": "BAL"
+              }
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "isTBDFlex": false,
+            "period": 0,
+            "type": {
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "Sun, October 11th at 8:20 PM EDT",
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "shortDetail": "10/11 - 8:20 PM EDT",
+              "state": "pre"
+            }
+          }
+        }
+      ],
+      "date": "2026-10-12T00:20Z",
+      "id": "401872993",
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "Sun, October 11th at 8:20 PM EDT",
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "shortDetail": "10/11 - 8:20 PM EDT",
+          "state": "pre"
+        }
+      }
+    }
+  ],
+  "season": {
+    "type": 2,
+    "year": 2026
+  },
+  "week": {
+    "number": 5
+  }
+}

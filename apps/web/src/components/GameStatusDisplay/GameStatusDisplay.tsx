@@ -26,9 +26,34 @@ type GameStatusDisplayProps = {
   kickoff: Date;
   gameStatus: Awaited<ReturnType<typeof getGamesForWeekCached>>[number]["GameStatus"];
   timeLeft: string;
+  /** True when the score/clock come from the live overlay rather than the official data. */
+  isLive?: boolean;
 };
 
-const GameStatusDisplay: FC<GameStatusDisplayProps> = ({ kickoff, gameStatus, timeLeft }) => {
+// An overlaid "Final" came from the live feed before the official result, so it is labelled unofficial
+const LiveBadge: FC<{ gameStatus: string; isLive: boolean }> = ({ gameStatus, isLive }) =>
+  isLive ? (
+    <span className="block text-xs font-bold tracking-wide text-red-600 dark:text-red-400">
+      {gameStatus === "Final" ? "UNOFFICIAL" : "LIVE"}
+    </span>
+  ) : null;
+
+type InProgressStatusProps = Pick<GameStatusDisplayProps, "gameStatus" | "timeLeft">;
+
+const InProgressStatus: FC<InProgressStatusProps> = ({ gameStatus, timeLeft }) => (
+  <>
+    <span className="hidden md:inline">{gameStatus}</span>
+    <span className="md:hidden">{getShortQuarter(gameStatus)}</span>
+    {gameStatus !== "Half Time" && (
+      <>
+        <br />
+        {timeLeft}
+      </>
+    )}
+  </>
+);
+
+const GameStatusDisplay: FC<GameStatusDisplayProps> = ({ kickoff, gameStatus, timeLeft, isLive = false }) => {
   const [localKickoffTime, setLocalKickoffTime] = useState<string | null>(null);
 
   useEffect(() => {
@@ -36,24 +61,14 @@ const GameStatusDisplay: FC<GameStatusDisplayProps> = ({ kickoff, gameStatus, ti
     setLocalKickoffTime(formatTimeFromKickoff(kickoff));
   }, [kickoff]);
 
-  if (gameStatus === "Final") {
-    return <>{gameStatus}</>;
-  }
-
   if (gameStatus === "Pregame") {
     return <>{localKickoffTime}</>;
   }
 
   return (
     <>
-      <span className="hidden md:inline">{gameStatus}</span>
-      <span className="md:hidden">{getShortQuarter(gameStatus)}</span>
-      {gameStatus !== "Half Time" && (
-        <>
-          <br />
-          {timeLeft}
-        </>
-      )}
+      <LiveBadge gameStatus={gameStatus} isLive={isLive} />
+      {gameStatus === "Final" ? gameStatus : <InProgressStatus gameStatus={gameStatus} timeLeft={timeLeft} />}
     </>
   );
 };
