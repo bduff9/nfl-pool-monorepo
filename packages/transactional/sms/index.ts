@@ -15,14 +15,13 @@
  */
 
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
-import { Twilio } from "twilio";
 
 import type { EmailTypes } from "../emails/types";
 import { EMAIL_SUBJECT_PREFIX } from "../src/constants";
 import { env } from "../src/env";
+import { sendTwilioMessage, TwilioError } from "./twilio";
 
-const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER } = env;
-const twilioClient = new Twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, { timeout: 10_000 });
+const { TWILIO_PHONE_NUMBER } = env;
 
 const getBaseSMSClass = async ({
   id,
@@ -51,15 +50,6 @@ const getBaseSMSClass = async ({
     });
   }
 };
-
-type TwilioError = {
-  code: number;
-  details?: string;
-  moreInfo: string;
-  status: number;
-};
-
-const isTwilioError = (obj: unknown): obj is TwilioError => typeof obj === "object" && obj !== null && "code" in obj;
 
 const disableAllSMSForUser = async (phoneNumber: string): Promise<void> => {
   const user = await db.selectFrom("Users").select(["UserID"]).where("UserPhone", "=", phoneNumber).executeTakeFirst();
@@ -101,13 +91,13 @@ export const sendSMS = async (sendTo: string, message: string, type: (typeof Ema
   });
 
   try {
-    await twilioClient.messages.create({
+    await sendTwilioMessage({
       body,
       from: TWILIO_PHONE_NUMBER,
       to,
     });
   } catch (error) {
-    if (isTwilioError(error) && error.code === 21610) {
+    if (error instanceof TwilioError && error.code === 21610) {
       console.info("User has opted out of SMS, turning all their SMS notifications off", sendTo);
       await disableAllSMSForUser(sendTo);
 

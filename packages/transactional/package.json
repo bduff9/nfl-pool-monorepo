@@ -13,7 +13,6 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-email": "6.11.1",
-    "twilio": "6.1.2",
     "web-push": "3.6.7"
   },
   "description": "Transactional emails and notifications for the NFL Pool.",

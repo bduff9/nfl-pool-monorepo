@@ -38,16 +38,20 @@ export class CdkStackProd extends Stack {
       EMAIL_FROM: process.env.EMAIL_FROM_PROD ?? "",
       EMAIL_LINK_SECRET: process.env.EMAIL_LINK_SECRET ?? "",
       NEXT_PUBLIC_VAPID_PUBLIC_KEY: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "",
+      NODE_OPTIONS: "--enable-source-maps",
       TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID ?? "",
       TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN ?? "",
       TWILIO_PHONE_NUMBER: process.env.TWILIO_PHONE_NUMBER ?? "",
       VAPID_PRIVATE_KEY: process.env.VAPID_PRIVATE_KEY ?? "",
     };
 
+    // Minified bundles: smaller upload, faster cold start. Source maps keep stack traces readable.
     const currentWeekUpdaterProd = new NodejsFunction(this, "CurrentWeekUpdaterProd", {
       bundling: {
         externalModules: [],
+        minify: true,
         nodeModules: [],
+        sourceMap: true,
       },
       entry: "./functions/currentWeekUpdater.ts",
       environment,
@@ -77,7 +81,9 @@ export class CdkStackProd extends Stack {
     const backupNflDatabaseProd = new NodejsFunction(this, "BackupNflDatabaseProd", {
       bundling: {
         externalModules: [],
+        minify: true,
         nodeModules: [],
+        sourceMap: true,
       },
       entry: "./functions/backupNflDatabase.ts",
       environment,
@@ -106,7 +112,9 @@ export class CdkStackProd extends Stack {
     const futureGameUpdaterProd = new NodejsFunction(this, "FutureGameUpdaterProd", {
       bundling: {
         externalModules: [],
+        minify: true,
         nodeModules: [],
+        sourceMap: true,
       },
       entry: "./functions/futureGameUpdater.ts",
       environment,
@@ -131,7 +139,9 @@ export class CdkStackProd extends Stack {
     const liveGameUpdaterProd = new NodejsFunction(this, "LiveGameUpdaterProd", {
       bundling: {
         externalModules: [],
+        minify: true,
         nodeModules: [],
+        sourceMap: true,
       },
       entry: "./functions/liveGameUpdater.ts",
       environment,
@@ -157,7 +167,9 @@ export class CdkStackProd extends Stack {
     const resetPoolProd = new NodejsFunction(this, "ResetPoolProd", {
       bundling: {
         externalModules: [],
+        minify: true,
         nodeModules: [],
+        sourceMap: true,
       },
       entry: "./functions/resetPool.ts",
       environment,

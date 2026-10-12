@@ -28,6 +28,7 @@ const getEnvironment = (): { [key: string]: string } => ({
   EMAIL_FROM: fromEnv("EMAIL_FROM_DEV"),
   EMAIL_LINK_SECRET: fromEnv("EMAIL_LINK_SECRET"),
   NEXT_PUBLIC_VAPID_PUBLIC_KEY: fromEnv("NEXT_PUBLIC_VAPID_PUBLIC_KEY"),
+  NODE_OPTIONS: "--enable-source-maps",
   TWILIO_ACCOUNT_SID: fromEnv("TWILIO_ACCOUNT_SID"),
   TWILIO_AUTH_TOKEN: fromEnv("TWILIO_AUTH_TOKEN"),
   TWILIO_PHONE_NUMBER: fromEnv("TWILIO_PHONE_NUMBER"),
@@ -40,10 +41,13 @@ export class CdkStackDev extends Stack {
 
     const environment = getEnvironment();
 
+    // Minified bundles: smaller upload, faster cold start. Source maps keep stack traces readable.
     const currentWeekUpdaterDev = new NodejsFunction(this, "CurrentWeekUpdaterDev", {
       bundling: {
         externalModules: [],
+        minify: true,
         nodeModules: [],
+        sourceMap: true,
       },
       entry: "./functions/currentWeekUpdater.ts",
       environment,
@@ -76,7 +80,9 @@ export class CdkStackDev extends Stack {
     const backupNflDatabaseDev = new NodejsFunction(this, "BackupNflDatabaseDev", {
       bundling: {
         externalModules: [],
+        minify: true,
         nodeModules: [],
+        sourceMap: true,
       },
       entry: "./functions/backupNflDatabase.ts",
       environment,
@@ -107,7 +113,9 @@ export class CdkStackDev extends Stack {
     const futureGameUpdaterDev = new NodejsFunction(this, "FutureGameUpdaterDev", {
       bundling: {
         externalModules: [],
+        minify: true,
         nodeModules: [],
+        sourceMap: true,
       },
       entry: "./functions/futureGameUpdater.ts",
       environment,
@@ -135,7 +143,9 @@ export class CdkStackDev extends Stack {
     const liveGameUpdaterDev = new NodejsFunction(this, "LiveGameUpdaterDev", {
       bundling: {
         externalModules: [],
+        minify: true,
         nodeModules: [],
+        sourceMap: true,
       },
       entry: "./functions/liveGameUpdater.ts",
       environment,
@@ -163,7 +173,9 @@ export class CdkStackDev extends Stack {
     new NodejsFunction(this, "ResetPoolDev", {
       bundling: {
         externalModules: [],
+        minify: true,
         nodeModules: [],
+        sourceMap: true,
       },
       entry: "./functions/resetPool.ts",
       environment,
