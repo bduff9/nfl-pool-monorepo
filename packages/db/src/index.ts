@@ -255,6 +255,23 @@ export interface OverallMV {
   UserName: string;
 }
 
+export interface Passkeys {
+  PasskeyAdded: Generated<Date>;
+  PasskeyAddedBy: string;
+  PasskeyBackedUp: Generated<number>;
+  PasskeyCounter: Generated<number>;
+  PasskeyCredentialID: string;
+  PasskeyDeviceType: string;
+  PasskeyID: Generated<number>;
+  PasskeyLastUsed: Date | null;
+  PasskeyName: string | null;
+  PasskeyPublicKey: string;
+  PasskeyTransports: string | null;
+  PasskeyUpdated: Generated<Date>;
+  PasskeyUpdatedBy: string;
+  UserID: number;
+}
+
 export interface Payments {
   PaymentAdded: Generated<Date>;
   PaymentAddedBy: string;
@@ -510,6 +527,7 @@ export interface DB {
   Notifications: Notifications;
   NotificationTypes: NotificationTypes;
   OverallMV: OverallMV;
+  Passkeys: Passkeys;
   Payments: Payments;
   Picks: Picks;
   RateLimits: RateLimits;

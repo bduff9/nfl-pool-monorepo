@@ -26,6 +26,7 @@ import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { requireRegistered } from "@/lib/auth";
 import { editMyProfile } from "@/server/actions/user";
 import { getUserNotifications } from "@/server/loaders/notification";
+import { getMyPasskeys } from "@/server/loaders/passkey";
 import { getCurrentUser, userHasGoogle } from "@/server/loaders/user";
 
 import UsersLoading from "../loading";
@@ -46,7 +47,13 @@ const EditProfilePageBody: FC<PageProps<"/users/edit">> = async () => {
   const hasGooglePromise = userHasGoogle(currentUser.UserID);
   const myNotificationsPromise = getUserNotifications(currentUser.UserID);
 
-  const [hasGoogle, myNotifications] = await Promise.all([hasGooglePromise, myNotificationsPromise]);
+  const myPasskeysPromise = getMyPasskeys(currentUser.UserID);
+
+  const [hasGoogle, myNotifications, passkeys] = await Promise.all([
+    hasGooglePromise,
+    myNotificationsPromise,
+    myPasskeysPromise,
+  ]);
 
   return (
     <PageTransition>
@@ -58,6 +65,7 @@ const EditProfilePageBody: FC<PageProps<"/users/edit">> = async () => {
             currentUser={currentUser}
             hasGoogle={hasGoogle}
             myNotifications={myNotifications}
+            passkeys={passkeys}
           />
         </PageContent>
       </div>

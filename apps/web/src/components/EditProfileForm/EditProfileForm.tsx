@@ -28,6 +28,7 @@ import { usePushNotifications } from "@/lib/hooks/usePushNotifications";
 import { editProfileSchema } from "@/lib/validation";
 import type { editMyProfile } from "@/server/actions/user";
 import type { getUserNotifications } from "@/server/loaders/notification";
+import type { PasskeySummary } from "@/server/loaders/passkey";
 import type { getCurrentUser } from "@/server/loaders/user";
 import "client-only";
 
@@ -39,6 +40,7 @@ import { toast } from "sonner";
 
 import GoogleAuthButton from "../GoogleAuthButton/GoogleAuthButton";
 import InstallPrompt from "../InstallPrompt/InstallPrompt";
+import PasskeySection from "../PasskeySection/PasskeySection";
 import TextSeparator from "../TextSeparator/TextSeparator";
 import { buildDefaultValues, hasValidPhone, smsOffUnlessPhone } from "./editProfileValues";
 import { NotificationRow } from "./NotificationRow";
@@ -49,6 +51,7 @@ type Props = {
   currentUser: Awaited<ReturnType<typeof getCurrentUser>>;
   hasGoogle: boolean;
   myNotifications: Awaited<ReturnType<typeof getUserNotifications>>;
+  passkeys: PasskeySummary[];
 };
 
 const ChannelHeader: FC<{ className?: string }> = ({ className }) => (
@@ -80,7 +83,7 @@ const PushNotificationSection: FC<{ push: ReturnType<typeof usePushNotifications
     return (
       <div>
         <p>
-          <Button onClick={unsubscribeFromPush} type="button" variant="danger">
+          <Button className="h-auto whitespace-normal" onClick={unsubscribeFromPush} type="button" variant="danger">
             Click here to disable push notifications in the current browser.
           </Button>
         </p>
@@ -90,7 +93,13 @@ const PushNotificationSection: FC<{ push: ReturnType<typeof usePushNotifications
 
   return (
     <p>
-      <Button disabled={isSubscribing} onClick={subscribeToPush} type="button" variant="primary">
+      <Button
+        className="h-auto whitespace-normal"
+        disabled={isSubscribing}
+        onClick={subscribeToPush}
+        type="button"
+        variant="primary"
+      >
         {isSubscribing ? "Enabling..." : "Click here to enable push notifications in the current browser."}
       </Button>
     </p>
@@ -117,7 +126,7 @@ const SubmitSection: FC<{ errorCount: number; isPending: boolean }> = ({ errorCo
   </div>
 );
 
-const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasGoogle }) => {
+const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasGoogle, passkeys }) => {
   const pushNotifications = usePushNotifications();
   const { isSupported, subscription } = pushNotifications;
 
@@ -202,6 +211,8 @@ const EditProfileForm: FC<Props> = ({ action, currentUser, myNotifications, hasG
             <GoogleAuthButton isLinked={hasGoogle} />
           </div>
           <div />
+          <TextSeparator className="col-span-full">Passkeys</TextSeparator>
+          <PasskeySection passkeys={passkeys} />
           <SubmitSection errorCount={errorCount} isPending={isPending} />
         </div>
       </form>

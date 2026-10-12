@@ -25,6 +25,7 @@ import { getSystemYear } from "@nfl-pool-monorepo/db/src/queries/systemValue";
 
 import GoogleAuthButton from "@/components/GoogleAuthButton/GoogleAuthButton";
 import LoginForm from "@/components/LoginForm/LoginForm";
+import PasskeySignInButton from "@/components/PasskeySignInButton/PasskeySignInButton";
 import TextSeparator from "@/components/TextSeparator/TextSeparator";
 import { WeekLink } from "@/components/WeekLink/WeekLink";
 import { requireLoggedOut } from "@/lib/auth";
@@ -43,12 +44,17 @@ type LoginChoicesProps = {
   isLogin: boolean;
 };
 
+const QuickSignIn: FC<{ isLogin: boolean }> = ({ isLogin }) => (
+  <div className="flex flex-col items-center gap-2 mb-2">
+    {!!isLogin && <PasskeySignInButton />}
+    <GoogleAuthButton isRegister={!isLogin} isSignIn />
+  </div>
+);
+
 const LoginChoices: FC<LoginChoicesProps> = ({ errorMessage, isLogin }) => (
   <>
     <LoginForm error={errorMessage} isLogin={isLogin} />
-    <div className="flex justify-center mb-2">
-      <GoogleAuthButton isRegister={!isLogin} isSignIn />
-    </div>
+    <QuickSignIn isLogin={isLogin} />
     <div className="grid gap-2">
       <TextSeparator>{isLogin ? "Need to sign up?" : "Already registered?"}</TextSeparator>
       <Button asChild variant="black">
