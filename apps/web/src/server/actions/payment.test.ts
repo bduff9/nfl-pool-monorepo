@@ -42,6 +42,7 @@ describe("insertUserPayout", () => {
 
     expect(result?.serverError).toBeUndefined();
     expect(mockDb.values).toHaveBeenCalledWith(expect.objectContaining({ PaymentAmount: -25, UserID: 5 }));
+    expect(revalidatePath).toHaveBeenCalledWith("/admin/users");
   });
 });
 

@@ -22,7 +22,9 @@ import { autoPickSchema, serverActionResultSchema, setMyPickSchema, validateMyPi
 import { unusedPicksCountQuery } from "./unusedPicksQuery";
 
 const expirePickCaches = (week: number, path: "/picks/set" | "/picks/view"): void => {
+  // The pick pages read the user's own picks through request-time (React cache) loaders that tags can't reach.
   revalidatePath(path);
+  // Cached weekly standings loaders (weeklyMv, bestPlacement) are tagged per week.
   updateTag(cacheTags.weeklyMv(week));
 };
 

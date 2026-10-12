@@ -59,6 +59,7 @@ export const updateMyTiebreakerScore = authActionClient
       throw new ActionError("Failed to update my tiebreaker score");
     }
 
+    // /picks/set reads the user's tiebreaker through a request-time loader that tags can't reach.
     revalidatePath("/picks/set");
     updateTag(cacheTags.weeklyMv(week));
 

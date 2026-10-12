@@ -6,8 +6,9 @@ import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { updateAllPayouts } from "@nfl-pool-monorepo/db/src/mutations/payment";
 import { getCurrentWeekInProgress } from "@nfl-pool-monorepo/db/src/queries/game";
 import { sendPrizesSetEmail } from "@nfl-pool-monorepo/transactional/emails/prizesSet";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 
+import { cacheTags } from "@/lib/cacheTags";
 import { ActionError, adminActionClient } from "@/lib/safe-action";
 import { payoutsSchema, serverActionResultSchema } from "@/lib/validation";
 
@@ -28,6 +29,8 @@ export const updatePayouts = adminActionClient
     const overallPrizes = JSON.stringify([0, overall1stPrize, overall2ndPrize, overall3rdPrize]);
     const survivorPrizes = JSON.stringify([0, survivor1stPrize, survivor2ndPrize]);
 
+    const week = (await getCurrentWeekInProgress()) ?? 1;
+
     try {
       await db.transaction().execute(async (trx) => {
         await trx
@@ -46,9 +49,7 @@ export const updatePayouts = adminActionClient
           .where("SystemValueName", "=", "SurvivorPrizes")
           .executeTakeFirstOrThrow();
 
-        const week = await getCurrentWeekInProgress();
-
-        await updateAllPayouts(week ?? 1, trx);
+        await updateAllPayouts(week, trx);
       });
     } catch (error) {
       console.error("Failed to save payouts", error, parsedInput);
@@ -84,7 +85,11 @@ export const updatePayouts = adminActionClient
       ),
     );
 
+    // The admin payments page reads prizes and payouts at request time; tags can't reach it.
     revalidatePath("/admin/payments");
+    // Payouts are derived from standings, so expire the MV-backed loaders too.
+    updateTag(cacheTags.overallMv());
+    updateTag(cacheTags.weeklyMv(week));
 
     return {
       metadata: {},

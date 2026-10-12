@@ -34,6 +34,9 @@ export const insertUserPayout = adminActionClient
       })
       .executeTakeFirstOrThrow();
 
+    // The admin users table reads balances at request time; no tag-cached loader reads Payments.
+    revalidatePath("/admin/users");
+
     return {
       metadata: {},
       status: "Success",
@@ -112,6 +115,7 @@ export const updateUserPaid = adminActionClient
       throw new ActionError("Failed to update user paid amount");
     }
 
+    // The admin users table reads balances at request time; no tag-cached loader reads Payments.
     revalidatePath("/admin/users");
 
     return {

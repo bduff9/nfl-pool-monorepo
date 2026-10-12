@@ -5,6 +5,7 @@ let mockDb: MockDb;
 
 const getCurrentSession = vi.fn();
 const revalidatePath = vi.fn();
+const updateTag = vi.fn();
 const updateAllPayouts = vi.fn();
 const getCurrentWeekInProgress = vi.fn();
 const sendPrizesSetEmail = vi.fn();
@@ -15,7 +16,7 @@ vi.mock("@nfl-pool-monorepo/db/src/kysely", () => ({
   },
 }));
 vi.mock("@/server/loaders/sessions", () => ({ getCurrentSession }));
-vi.mock("next/cache", () => ({ revalidatePath }));
+vi.mock("next/cache", () => ({ revalidatePath, updateTag }));
 vi.mock("@nfl-pool-monorepo/db/src/mutations/payment", () => ({ updateAllPayouts }));
 vi.mock("@nfl-pool-monorepo/db/src/queries/game", () => ({ getCurrentWeekInProgress }));
 vi.mock("@nfl-pool-monorepo/transactional/emails/prizesSet", () => ({ sendPrizesSetEmail }));
@@ -45,6 +46,7 @@ describe("updatePayouts", () => {
     mockDb = createMockDb();
     getCurrentSession.mockReset().mockResolvedValue({ session: { id: "s1" }, user: ADMIN_USER });
     revalidatePath.mockReset();
+    updateTag.mockReset();
     updateAllPayouts.mockReset().mockResolvedValue(undefined);
     getCurrentWeekInProgress.mockReset().mockResolvedValue(5);
     sendPrizesSetEmail.mockReset().mockResolvedValue(undefined);
@@ -62,6 +64,8 @@ describe("updatePayouts", () => {
     expect(updateAllPayouts).toHaveBeenCalledWith(5, mockDb);
     expect(sendPrizesSetEmail).toHaveBeenCalledTimes(1);
     expect(revalidatePath).toHaveBeenCalledWith("/admin/payments");
+    expect(updateTag).toHaveBeenCalledWith("overall-mv");
+    expect(updateTag).toHaveBeenCalledWith("weekly-mv-5");
   });
 
   it("falls back to week 1 when no week is currently in progress", async () => {

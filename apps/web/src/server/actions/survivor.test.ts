@@ -98,6 +98,7 @@ describe("makeSurvivorPick", () => {
     expect(result?.data?.status).toBe("Success");
     expect(revalidatePath).toHaveBeenCalledWith("/survivor/set");
     expect(updateTag).not.toHaveBeenCalled();
+    expect(updateTag).not.toHaveBeenCalled();
   });
 });
 

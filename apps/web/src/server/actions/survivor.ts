@@ -89,6 +89,7 @@ export const makeSurvivorPick = authActionClient
       throw new ActionError(`Failed to make survivor pick for week ${week}`);
     }
 
+    // Survivor pages read picks and standings through request-time loaders (no tag-cached survivor loaders).
     revalidatePath("/survivor/set");
 
     return {
@@ -116,6 +117,7 @@ export const registerForSurvivor = authActionClient.outputSchema(serverActionRes
     throw new ActionError("Failed to register user for survivor");
   }
 
+  // Layout-level data (survivor nav and registration state) comes from the session, which tags can't reach.
   revalidatePath("/", "layout");
 
   return {
@@ -153,6 +155,7 @@ export const toggleUserSurvivor = adminActionClient
       throw new ActionError("Failed to toggle user survivor");
     }
 
+    // The admin users table reads survivor registration at request time; tags can't reach it.
     revalidatePath("/admin/users");
 
     return {
@@ -180,6 +183,7 @@ export const unregisterForSurvivor = authActionClient.outputSchema(serverActionR
     throw new ActionError("Failed to unregister user for survivor");
   }
 
+  // Layout-level data (survivor nav and registration state) comes from the session, which tags can't reach.
   revalidatePath("/", "layout");
 
   return {

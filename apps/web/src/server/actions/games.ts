@@ -74,6 +74,8 @@ export const adminUpdateGame = adminActionClient
       console.error("Game updated, but MV refresh failed (cron will converge)", { error, gameID, week });
     }
 
+    // These pages also read uncached request-time data (admin games table, the user's picks, survivor
+    // standings, which are not tag-cached) that tags can't reach, so the paths stay alongside the tags.
     revalidatePath("/admin/games");
     revalidatePath("/scoreboard");
     revalidatePath("/picks/view");
