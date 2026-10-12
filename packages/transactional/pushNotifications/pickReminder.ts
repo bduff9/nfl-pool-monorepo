@@ -30,6 +30,7 @@ const sendPickReminderPushNotification = async (
     "pickReminder",
     `/picks/set?week=${week}`,
     1,
+    [{ action: "make-picks", title: "Make picks", url: `/picks/set?week=${week}` }],
   );
 
 export default sendPickReminderPushNotification;

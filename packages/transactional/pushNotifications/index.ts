@@ -18,6 +18,7 @@ import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import webpush from "web-push";
 
 import type { EmailTypes } from "../emails/types";
+import { buildPushPayload, type PushAction } from "./payload";
 
 webpush.setVapidDetails(
   "mailto:info@asitewithnoname.com",
@@ -36,6 +37,7 @@ export const sendPushNotification = async (
   type: (typeof EmailTypes)[number],
   path: string,
   badge?: number,
+  actions?: Array<PushAction>,
 ): Promise<void> => {
   try {
     const subscriptions = await db
@@ -49,12 +51,7 @@ export const sendPushNotification = async (
         try {
           await webpush.sendNotification(
             JSON.parse(subscription.DeviceSub) as webpush.PushSubscription,
-            JSON.stringify({
-              body,
-              title,
-              url: path,
-              ...(badge === undefined ? {} : { badge }),
-            }),
+            buildPushPayload(title, body, path, badge, actions),
             { timeout: 10_000 },
           );
         } catch (error) {

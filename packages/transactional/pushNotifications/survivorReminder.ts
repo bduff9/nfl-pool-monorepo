@@ -31,6 +31,7 @@ const sendSurvivorReminderPushNotification = async (
     "survivorReminder",
     `/survivor/set?week=${week}`,
     1,
+    [{ action: "make-survivor-pick", title: "Make pick", url: `/survivor/set?week=${week}` }],
   );
 
 export default sendSurvivorReminderPushNotification;

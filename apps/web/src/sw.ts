@@ -182,13 +182,48 @@ type BadgeNavigator = {
   setAppBadge?: (count: number) => Promise<void>;
 };
 
-type PushPayload = { badge?: number; body?: string; icon?: string; tag?: string; title?: string; url?: string };
+type PushAction = { action: string; title: string; url?: string };
+
+type PushPayload = {
+  actions?: Array<PushAction> | undefined;
+  badge?: number | undefined;
+  body?: string | undefined;
+  icon?: string | undefined;
+  tag?: string | undefined;
+  title?: string | undefined;
+  url?: string | undefined;
+};
+
+// Declarative Web Push (https://webkit.org/blog/16535/meet-declarative-web-push/). Browsers that understand it show the
+// notification without this worker; everything else delivers the same JSON to the push event.
+type DeclarativePayload = {
+  actions?: Array<PushAction>;
+  icon?: string;
+  notification?: { app_badge?: number; body?: string; navigate?: string; tag?: string; title?: string };
+  web_push?: number;
+};
+
+const DECLARATIVE_WEB_PUSH = 8030;
 
 const FALLBACK_NOTIFICATION = { body: "Open the app to see what changed.", title: "NFL Confidence Pool" };
 
+const fromDeclarative = ({ actions, icon, notification = {} }: DeclarativePayload): PushPayload => ({
+  actions,
+  badge: notification.app_badge,
+  body: notification.body,
+  icon,
+  tag: notification.tag,
+  title: notification.title,
+  url: notification.navigate,
+});
+
+// Pushes sent before the declarative format (flat fields) can still be queued, so both shapes are accepted
+const normalizePayload = (raw: DeclarativePayload & PushPayload): PushPayload =>
+  raw.web_push === DECLARATIVE_WEB_PUSH ? fromDeclarative(raw) : raw;
+
 const parsePayload = (data: PushMessageData | null): PushPayload => {
   try {
-    return (data?.json() ?? {}) as PushPayload;
+    return normalizePayload(data?.json() ?? {});
   } catch {
     return {};
   }
@@ -211,12 +246,27 @@ const updateBadge = async (count: unknown): Promise<void> => {
   }
 };
 
-const notificationOptions = (payload: PushPayload): NotificationOptions => ({
-  body: payload.body ?? FALLBACK_NOTIFICATION.body,
-  data: { dateOfArrival: Date.now(), primaryKey: "2", url: payload.url },
-  icon: payload.icon ?? "/football.png",
-  ...(payload.tag ? { tag: payload.tag } : {}),
-});
+// Action buttons only exist on Android/Chrome; each one's destination travels in the notification data
+const validActions = (actions: PushPayload["actions"]): Array<PushAction> =>
+  Array.isArray(actions) ? actions.filter((a) => typeof a?.action === "string" && typeof a.title === "string") : [];
+
+// The DOM typings leave out action buttons, which Chrome on Android supports
+const notificationOptions = (payload: PushPayload): NotificationOptions & { actions: Array<PushAction> } => {
+  const actions = validActions(payload.actions);
+
+  return {
+    actions: actions.map(({ action, title }) => ({ action, title })),
+    body: payload.body ?? FALLBACK_NOTIFICATION.body,
+    data: {
+      actionUrls: Object.fromEntries(actions.map((a) => [a.action, a.url])),
+      dateOfArrival: Date.now(),
+      primaryKey: "2",
+      url: payload.url,
+    },
+    icon: payload.icon ?? "/football.png",
+    ...(payload.tag ? { tag: payload.tag } : {}),
+  };
+};
 
 self.addEventListener("push", (event) => {
   // iOS revokes subscriptions that receive pushes without showing anything, so always show a notification
@@ -254,5 +304,8 @@ const openOrFocus = async (targetUrl: string): Promise<WindowClient | null> => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  event.waitUntil(openOrFocus(resolveTargetUrl(event.notification.data?.url, self.location.origin)));
+  // A tapped action button goes to its own destination; the notification body goes to data.url
+  const destination = event.notification.data?.actionUrls?.[event.action] ?? event.notification.data?.url;
+
+  event.waitUntil(openOrFocus(resolveTargetUrl(destination, self.location.origin)));
 });

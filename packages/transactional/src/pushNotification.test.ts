@@ -19,6 +19,7 @@ vi.mock("@nfl-pool-monorepo/db/src/kysely", () => ({
     return mockDb;
   },
 }));
+vi.mock("./env", () => ({ env: { domain: "https://pool.test" } }));
 vi.mock("web-push", () => ({
   default: { sendNotification, setVapidDetails: vi.fn(), WebPushError },
 }));
@@ -55,31 +56,39 @@ describe("sendPushNotification", () => {
     expect(console.error).toHaveBeenCalled();
   });
 
-  it("sends the destination path as url so tapping the notification deep links", async () => {
+  it("sends a declarative web push payload with an absolute navigate url", async () => {
     mockDb.execute.mockResolvedValueOnce([{ DeviceID: 5, DeviceSub: '{"endpoint":"https://push.example"}' }]);
     sendNotification.mockResolvedValueOnce(undefined);
 
     const { sendPushNotification } = await import("../pushNotifications");
-    await sendPushNotification(1, "Title", "Body", "pickReminder", "/picks/set?week=3");
+    await sendPushNotification(1, "Title", "Body", "weekStarted", "/weekly?week=3");
 
     expect(JSON.parse(sendNotification.mock.calls[0]?.[1] as string)).toEqual({
-      body: "Body",
-      title: "Title",
-      url: "/picks/set?week=3",
+      mutable: true,
+      notification: { body: "Body", lang: "en", navigate: "https://pool.test/weekly?week=3", title: "Title" },
+      web_push: 8030,
     });
   });
 
-  it("includes a badge count only when one is given", async () => {
+  it("includes the app badge and action buttons only when given", async () => {
     mockDb.execute
       .mockResolvedValueOnce([{ DeviceID: 5, DeviceSub: "{}" }])
       .mockResolvedValueOnce([{ DeviceID: 5, DeviceSub: "{}" }]);
     sendNotification.mockResolvedValue(undefined);
 
+    const actions = [{ action: "make-picks", title: "Make picks", url: "/picks/set?week=3" }];
     const { sendPushNotification } = await import("../pushNotifications");
-    await sendPushNotification(1, "Title", "Body", "pickReminder", "/picks/set?week=3", 1);
+    await sendPushNotification(1, "Title", "Body", "pickReminder", "/picks/set?week=3", 1, actions);
     await sendPushNotification(1, "Title", "Body", "weekStarted", "/weekly?week=3");
 
-    expect(JSON.parse(sendNotification.mock.calls[0]?.[1] as string)).toMatchObject({ badge: 1 });
-    expect(JSON.parse(sendNotification.mock.calls[1]?.[1] as string)).not.toHaveProperty("badge");
+    expect(JSON.parse(sendNotification.mock.calls[0]?.[1] as string)).toMatchObject({
+      actions,
+      notification: { app_badge: 1 },
+    });
+
+    const plain = JSON.parse(sendNotification.mock.calls[1]?.[1] as string);
+
+    expect(plain).not.toHaveProperty("actions");
+    expect(plain.notification).not.toHaveProperty("app_badge");
   });
 });

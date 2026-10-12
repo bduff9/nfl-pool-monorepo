@@ -198,6 +198,46 @@ describe("service worker push", () => {
     expect(sw.badge).toHaveBeenCalledWith(2);
   });
 
+  it("shows a declarative web push payload with its navigate url, icon and badge", async () => {
+    const sw = await load();
+    const payload = {
+      icon: "/team.png",
+      mutable: true,
+      notification: { app_badge: 1, body: "b", lang: "en", navigate: `${ORIGIN}/weekly?week=3`, tag: "wk", title: "t" },
+      web_push: 8030,
+    };
+
+    await sw.fire("push", { data: { json: () => payload } });
+
+    expect(sw.showNotification).toHaveBeenCalledWith(
+      "t",
+      expect.objectContaining({
+        body: "b",
+        data: expect.objectContaining({ url: `${ORIGIN}/weekly?week=3` }),
+        icon: "/team.png",
+        tag: "wk",
+      }),
+    );
+    expect(sw.badge).toHaveBeenCalledWith(1);
+  });
+
+  it("passes action buttons through and keeps each destination in the notification data", async () => {
+    const sw = await load();
+    const actions = [{ action: "make-picks", title: "Make picks", url: "/picks/set?week=3" }];
+
+    await sw.fire("push", {
+      data: { json: () => ({ actions, notification: { body: "b", navigate: "/x", title: "t" }, web_push: 8030 }) },
+    });
+
+    expect(sw.showNotification).toHaveBeenCalledWith(
+      "t",
+      expect.objectContaining({
+        actions: [{ action: "make-picks", title: "Make picks" }],
+        data: expect.objectContaining({ actionUrls: { "make-picks": "/picks/set?week=3" } }),
+      }),
+    );
+  });
+
   it("clears the badge for a zero count and leaves it alone when none is sent", async () => {
     const sw = await load();
 
@@ -267,6 +307,39 @@ describe("service worker notification taps", () => {
     await sw.fire("notificationclick", tap("/weekly?week=2"));
 
     expect(sw.openWindow).toHaveBeenCalledWith(`${ORIGIN}/weekly?week=2`);
+  });
+
+  it("opens the action destination when an action button is tapped", async () => {
+    const sw = await load();
+
+    await sw.fire("notificationclick", {
+      action: "make-picks",
+      notification: { close: vi.fn(), data: { actionUrls: { "make-picks": "/picks/set?week=6" }, url: "/weekly" } },
+    });
+
+    expect(sw.openWindow).toHaveBeenCalledWith(`${ORIGIN}/picks/set?week=6`);
+  });
+
+  it("opens data.url when the notification body is tapped, even with action buttons", async () => {
+    const sw = await load();
+
+    await sw.fire("notificationclick", {
+      action: "",
+      notification: { close: vi.fn(), data: { actionUrls: { "make-picks": "/picks/set?week=6" }, url: "/weekly" } },
+    });
+
+    expect(sw.openWindow).toHaveBeenCalledWith(`${ORIGIN}/weekly`);
+  });
+
+  it("never sends the user to another site through an action button", async () => {
+    const sw = await load();
+
+    await sw.fire("notificationclick", {
+      action: "a",
+      notification: { close: vi.fn(), data: { actionUrls: { a: "https://evil.example/x" } } },
+    });
+
+    expect(sw.openWindow).toHaveBeenCalledWith(ORIGIN);
   });
 
   it("never sends the user to another site", async () => {
