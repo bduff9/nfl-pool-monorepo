@@ -19,6 +19,7 @@
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { type FC, Fragment, useEffect, useState } from "react";
 
+import GameDetailsLink from "@/components/GameDetailsLink/GameDetailsLink";
 import GameStakes from "@/components/GameStakes/GameStakes";
 import GameStatusDisplay from "@/components/GameStatusDisplay/GameStatusDisplay";
 import LiveGameStrip from "@/components/LiveGameStrip/LiveGameStrip";
@@ -103,6 +104,7 @@ const ScoreboardGamesList: FC<Props> = ({ games, stakes = {} }) => {
               </div>
             </div>
             <LiveGameStrip game={game} />
+            <GameDetailsLink game={game} />
             <GameStakes game={game} stakes={stakes[game.GameID]} />
           </div>
         </Fragment>

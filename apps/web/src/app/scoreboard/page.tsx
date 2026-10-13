@@ -14,6 +14,7 @@
  * Home: https://asitewithnoname.com/
  */
 
+import { getSystemYear } from "@nfl-pool-monorepo/db/src/queries/systemValue";
 import type { Metadata } from "next";
 import { type FC, Suspense } from "react";
 import "server-only";
@@ -27,6 +28,8 @@ import ScoreboardLiveRefresh from "@/components/ScoreboardLiveRefresh/Scoreboard
 import Crossfade from "@/components/ViewTransitions/Crossfade";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { isLiveCandidate } from "@/lib/liveScores/applyLiveScores";
+import { attachEventIds, type EventIdGame, hasFinalGame } from "@/lib/liveScores/attachEventIds";
+import { getEspnEventIds } from "@/server/loaders/espnEventIds";
 import { getGamesForWeekScoreboardCached } from "@/server/loaders/game";
 import { getGameStakes } from "@/server/loaders/gameStakes";
 import { getLiveScoreOverlay } from "@/server/loaders/liveScores";
@@ -43,9 +46,13 @@ type ScoreboardGamesProps = {
   selectedWeek: number;
 };
 
+// Finished games were not overlaid, so look up their ESPN event ids to link to the game page
+const getGamesWithEventIds = async <T extends EventIdGame>(games: T[], week: number): Promise<T[]> =>
+  hasFinalGame(games) ? attachEventIds(games, await getEspnEventIds(week, await getSystemYear())) : games;
+
 const ScoreboardGames: FC<ScoreboardGamesProps> = async ({ selectedWeek }) => {
   const dbGames = await getGamesForWeekScoreboardCached(selectedWeek);
-  const games = await getLiveScoreOverlay(dbGames);
+  const games = await getGamesWithEventIds(await getLiveScoreOverlay(dbGames), selectedWeek);
   const stakes = await getGameStakes(selectedWeek, games);
   const now = new Date();
   const hasLiveGames = dbGames.some((game) => isLiveCandidate(game, now));
