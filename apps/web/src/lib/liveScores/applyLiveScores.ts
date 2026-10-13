@@ -21,6 +21,8 @@ export type OverlayableGame = {
   GameStatus: GameStatus;
   GameTimeLeftInQuarter: string;
   GameVisitorScore: number;
+  HomeTeamID: number;
+  VisitorTeamID: number;
   homeTeam: TeamRef;
   visitorTeam: TeamRef;
 };
@@ -75,17 +77,29 @@ const getLiveScore = (game: OverlayableGame, liveScores: LiveScoreMap): LiveScor
   return liveScores[getLiveScoreKey(game.visitorTeam.TeamShortName, game.homeTeam.TeamShortName)];
 };
 
-const overlayGame = <T extends OverlayableGame>(game: T, live: LiveScore): WithLiveFlag<T> => ({
-  ...game,
-  // Possession is not mapped from ESPN; clearing it avoids showing a stale arrow from the database.
-  GameHasPossession: null,
-  GameHomeScore: live.homeScore,
-  GameInRedzone: null,
-  GameStatus: toGameStatus(live),
-  GameTimeLeftInQuarter: live.clock,
-  GameVisitorScore: live.visitorScore,
-  isLiveOverlay: true,
-});
+// Stored as the team ID with the ball, matching how the official feed fills GameHasPossession/GameInRedzone
+const getPossessionTeamId = (game: OverlayableGame, live: LiveScore): number | null => {
+  if (live.final || !live.possession) {
+    return null;
+  }
+
+  return live.possession === "home" ? game.HomeTeamID : game.VisitorTeamID;
+};
+
+const overlayGame = <T extends OverlayableGame>(game: T, live: LiveScore): WithLiveFlag<T> => {
+  const possessionTeamId = getPossessionTeamId(game, live);
+
+  return {
+    ...game,
+    GameHasPossession: possessionTeamId,
+    GameHomeScore: live.homeScore,
+    GameInRedzone: live.inRedZone ? possessionTeamId : null,
+    GameStatus: toGameStatus(live),
+    GameTimeLeftInQuarter: live.clock,
+    GameVisitorScore: live.visitorScore,
+    isLiveOverlay: true,
+  };
+};
 
 /**
  * Overlays ESPN live scores onto games the database considers live (see isLiveCandidate). Games without an

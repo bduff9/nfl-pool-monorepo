@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import liveFixture from "./espnLiveGame.fixture.json";
 import fixture from "./espnScoreboard.fixture.json";
 import { getLiveScoreKey, parseEspnScoreboard } from "./parseEspn";
 
@@ -47,7 +48,9 @@ describe("parseEspnScoreboard", () => {
       detail: "7:01 - 3rd",
       final: false,
       homeScore: 17,
+      inRedZone: false,
       period: 3,
+      possession: null,
       visitorScore: 13,
     });
   });
@@ -75,5 +78,21 @@ describe("parseEspnScoreboard", () => {
   it("throws on a schema mismatch", () => {
     expect(() => parseEspnScoreboard({ events: "nope" })).toThrow(/schema mismatch/);
     expect(() => parseEspnScoreboard(null)).toThrow(/schema mismatch/);
+  });
+
+  it("reads possession and red zone from a real live game (BUF at LAR, Monday night)", () => {
+    expect(parseEspnScoreboard(liveFixture)["BUF@LAR"]).toMatchObject({
+      inRedZone: true,
+      possession: "home",
+      visitorScore: 19,
+    });
+  });
+
+  it("reports no possession when ESPN names a team that isn't playing", () => {
+    const [event] = liveFixture.events;
+    const competition = event?.competitions[0];
+    const stray = { events: [{ ...event, competitions: [{ ...competition, situation: { possession: "99" } }] }] };
+
+    expect(parseEspnScoreboard(stray)["BUF@LAR"]?.possession).toBeNull();
   });
 });

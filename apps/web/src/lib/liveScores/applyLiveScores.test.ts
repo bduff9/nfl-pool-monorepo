@@ -12,13 +12,24 @@ const makeGame = (overrides: Partial<OverlayableGame> = {}): OverlayableGame => 
   GameStatus: "1st Quarter",
   GameTimeLeftInQuarter: "3:00",
   GameVisitorScore: 3,
+  HomeTeamID: 28,
   homeTeam: { TeamShortName: "SEA" },
+  VisitorTeamID: 29,
   visitorTeam: { TeamShortName: "SFO" },
   ...overrides,
 });
 
 const LIVE = {
-  "SFO@SEA": { clock: "9:12", detail: "9:12 - 2nd", final: false, homeScore: 14, period: 2, visitorScore: 10 },
+  "SFO@SEA": {
+    clock: "9:12",
+    detail: "9:12 - 2nd",
+    final: false,
+    homeScore: 14,
+    inRedZone: false,
+    period: 2,
+    possession: null,
+    visitorScore: 10,
+  },
 };
 
 describe("isLiveCandidate", () => {
@@ -54,6 +65,26 @@ describe("applyLiveScores", () => {
       GameVisitorScore: 10,
       isLiveOverlay: true,
     });
+  });
+
+  it("maps ESPN possession and red zone to the team ID, like the official feed", () => {
+    const visitorDriving = { "SFO@SEA": { ...LIVE["SFO@SEA"], inRedZone: true, possession: "visitor" as const } };
+    const homeBall = { "SFO@SEA": { ...LIVE["SFO@SEA"], possession: "home" as const } };
+
+    expect(applyLiveScores([makeGame()], visitorDriving, NOW)[0]).toMatchObject({
+      GameHasPossession: 29,
+      GameInRedzone: 29,
+    });
+    expect(applyLiveScores([makeGame()], homeBall, NOW)[0]).toMatchObject({
+      GameHasPossession: 28,
+      GameInRedzone: null,
+    });
+  });
+
+  it("clears possession once ESPN reports the game over", () => {
+    const over = { "SFO@SEA": { ...LIVE["SFO@SEA"], final: true, inRedZone: true, possession: "home" as const } };
+
+    expect(applyLiveScores([makeGame()], over, NOW)[0]).toMatchObject({ GameHasPossession: null, GameInRedzone: null });
   });
 
   it("overlays a pregame row whose kickoff has passed", () => {

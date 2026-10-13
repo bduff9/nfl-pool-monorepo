@@ -12,7 +12,11 @@ export type LiveScore = {
   /** ESPN reports the game over; shown as an unofficial final until the official API marks it final. */
   final: boolean;
   homeScore: number;
+  /** ESPN's red zone flag for the team with the ball. */
+  inRedZone: boolean;
   period: number;
+  /** Which side has the ball, from ESPN's live situation; null between possessions or when not reported. */
+  possession: "home" | "visitor" | null;
   visitorScore: number;
 };
 
@@ -25,9 +29,12 @@ const EspnScoreboardSchema = type({
     competitions: type({
       competitors: type({
         homeAway: "'home' | 'away'",
+        "id?": "string",
         score: "string",
         team: { abbreviation: "string" },
       }).array(),
+      // Only present while a game is in progress; possession is the ESPN team id of the competitor with the ball
+      "situation?": { "isRedZone?": "boolean", "possession?": "string" },
     }).array(),
     status: {
       displayClock: "string",
@@ -38,13 +45,29 @@ const EspnScoreboardSchema = type({
 });
 
 type EspnEvent = (typeof EspnScoreboardSchema.infer)["events"][number];
-type EspnCompetitor = EspnEvent["competitions"][number]["competitors"][number];
+type EspnCompetition = EspnEvent["competitions"][number];
+type EspnCompetitor = EspnCompetition["competitors"][number];
+
+const getPossession = (
+  situation: EspnCompetition["situation"],
+  home: EspnCompetitor,
+  visitor: EspnCompetitor,
+): LiveScore["possession"] => {
+  if (!situation?.possession) {
+    return null;
+  }
+
+  const sides = { [home.id ?? "home"]: "home", [visitor.id ?? "visitor"]: "visitor" } as const;
+
+  return sides[situation.possession] ?? null;
+};
 
 export const getLiveScoreKey = (visitorShortName: string, homeShortName: string): string =>
   `${visitorShortName}@${homeShortName}`;
 
 const toLiveScoreEntry = (event: EspnEvent): [string, LiveScore] | null => {
-  const competitors = event.competitions[0]?.competitors ?? [];
+  const competition = event.competitions[0];
+  const competitors = competition?.competitors ?? [];
   const home = competitors.find((competitor: EspnCompetitor) => competitor.homeAway === "home");
   const visitor = competitors.find((competitor: EspnCompetitor) => competitor.homeAway === "away");
 
@@ -59,7 +82,9 @@ const toLiveScoreEntry = (event: EspnEvent): [string, LiveScore] | null => {
       detail: event.status.type.shortDetail,
       final: event.status.type.state === "post",
       homeScore: Number(home.score),
+      inRedZone: competition?.situation?.isRedZone === true,
       period: event.status.period,
+      possession: getPossession(competition?.situation, home, visitor),
       visitorScore: Number(visitor.score),
     },
   ];

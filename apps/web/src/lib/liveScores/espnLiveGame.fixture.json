@@ -1,0 +1,51 @@
+{
+  "events": [
+    {
+      "competitions": [
+        {
+          "competitors": [
+            {
+              "homeAway": "home",
+              "id": "14",
+              "score": "14",
+              "team": {
+                "abbreviation": "LAR",
+                "id": "14"
+              }
+            },
+            {
+              "homeAway": "away",
+              "id": "2",
+              "score": "19",
+              "team": {
+                "abbreviation": "BUF",
+                "id": "2"
+              }
+            }
+          ],
+          "situation": {
+            "distance": 4,
+            "down": 1,
+            "downDistanceText": "1st & Goal at BUF 4",
+            "isRedZone": true,
+            "possession": "14",
+            "possessionText": "BUF 4",
+            "yardLine": 96
+          }
+        }
+      ],
+      "status": {
+        "clock": 900.0,
+        "displayClock": "15:00",
+        "period": 4,
+        "type": {
+          "completed": false,
+          "id": "2",
+          "name": "STATUS_IN_PROGRESS",
+          "shortDetail": "15:00 - 4th",
+          "state": "in"
+        }
+      }
+    }
+  ]
+}
