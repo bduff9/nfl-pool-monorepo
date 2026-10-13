@@ -8,8 +8,9 @@ export const getRowActionVisibility = (
   canTrust: user.UserTrusted !== 1,
 });
 
-// Offered only for registered users with no payment on record, and never for the acting admin themselves.
+// Offered for anyone still in this season's standings (including users the payment lockout unregistered, who keep
+// their picks) with no payment on record, and never for the acting admin themselves.
 export const canShowDeregister = (
-  user: Pick<User, "UserDoneRegistering" | "UserID" | "UserPaid">,
+  user: Pick<User, "UserHasSeasonEntries" | "UserID" | "UserPaid">,
   currentUserId: number,
-): boolean => user.UserDoneRegistering === 1 && user.UserID !== currentUserId && (user.UserPaid ?? 0) === 0;
+): boolean => Number(user.UserHasSeasonEntries) === 1 && user.UserID !== currentUserId && (user.UserPaid ?? 0) === 0;

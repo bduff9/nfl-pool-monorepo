@@ -8,6 +8,7 @@ import { canDeregister } from "@nfl-pool-monorepo/db/src/mutations/userHelpers";
 import { removeUserFromSeason } from "@nfl-pool-monorepo/db/src/mutations/users";
 import { updateWeeklyMV } from "@nfl-pool-monorepo/db/src/mutations/weeklyMv";
 import { getCurrentWeek } from "@nfl-pool-monorepo/db/src/queries/week";
+import { sql } from "kysely";
 import { revalidatePath, updateTag } from "next/cache";
 
 import { cacheTags } from "@/lib/cacheTags";
@@ -37,19 +38,26 @@ const expireStandingsCaches = (week: number): void => {
   revalidatePath("/admin/users");
 };
 
-const getRegisteredUserName = async (userID: number, adminID: number): Promise<string> => {
+// The payment lockout marks unpaid users unregistered but leaves their picks and standings rows, so eligibility is
+// "still has entries this season", not the registered flag
+const getDeregistrableUserName = async (userID: number, adminID: number): Promise<string> => {
   if (userID === adminID) {
     throw new ActionError("You cannot deregister yourself");
   }
 
   const user = await db
-    .selectFrom("Users")
-    .select(["UserName", "UserDoneRegistering"])
-    .where("UserID", "=", userID)
+    .selectFrom("Users as u")
+    .select(({ selectFrom }) => [
+      "u.UserName",
+      sql<number>`exists(${selectFrom("Picks as p").select("p.PickID").whereRef("p.UserID", "=", "u.UserID")})`.as(
+        "hasEntries",
+      ),
+    ])
+    .where("u.UserID", "=", userID)
     .executeTakeFirst();
 
-  if (user?.UserDoneRegistering !== 1) {
-    throw new ActionError("User is not registered");
+  if (!user?.hasEntries) {
+    throw new ActionError("User has no entries this season");
   }
 
   return user.UserName ?? `User ${userID}`;
@@ -82,7 +90,7 @@ export const deregisterUser = adminActionClient
   .outputSchema(serverActionResultSchema)
   .action(async ({ ctx, parsedInput }) => {
     const { userID } = parsedInput;
-    const userName = await getRegisteredUserName(userID, ctx.user.id);
+    const userName = await getDeregistrableUserName(userID, ctx.user.id);
 
     await deregisterInTransaction(userID, userName, ctx.user.email);
 

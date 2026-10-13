@@ -36,15 +36,15 @@ describe("getRowActionVisibility", () => {
 });
 
 describe("canShowDeregister", () => {
-  const registered = { UserDoneRegistering: 1, UserID: 2, UserPaid: null };
+  const registered = { UserHasSeasonEntries: 1, UserID: 2, UserPaid: null };
 
-  it("shows for a registered user with no payment", () => {
+  it("shows for a user still in the season with no payment, including one the payment lockout unregistered", () => {
     expect(canShowDeregister(registered, 1)).toBe(true);
     expect(canShowDeregister({ ...registered, UserPaid: 0 }, 1)).toBe(true);
   });
 
-  it("hides for unregistered users, the acting admin, and users with a payment on record", () => {
-    expect(canShowDeregister({ ...registered, UserDoneRegistering: 0 }, 1)).toBe(false);
+  it("hides for users with no season entries, the acting admin, and users with a payment on record", () => {
+    expect(canShowDeregister({ ...registered, UserHasSeasonEntries: 0 }, 1)).toBe(false);
     expect(canShowDeregister(registered, 2)).toBe(false);
     expect(canShowDeregister({ ...registered, UserPaid: 20 }, 1)).toBe(false);
   });

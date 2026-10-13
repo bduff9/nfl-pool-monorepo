@@ -62,18 +62,18 @@ describe("deregisterUser", () => {
     expect(deregisterUserMutation).not.toHaveBeenCalled();
   });
 
-  it("refuses users who are not registered", async () => {
-    mockDb.executeTakeFirst.mockResolvedValueOnce({ UserDoneRegistering: 0, UserName: "Pat" });
+  it("refuses users with no entries this season", async () => {
+    mockDb.executeTakeFirst.mockResolvedValueOnce({ hasEntries: 0, UserName: "Pat" });
 
     const { deregisterUser } = await import("./adminUser");
     const result = await deregisterUser({ userID: 5 });
 
-    expect(result?.serverError).toContain("not registered");
+    expect(result?.serverError).toContain("no entries");
     expect(deregisterUserMutation).not.toHaveBeenCalled();
   });
 
   it("refuses users who have a payment on record", async () => {
-    mockDb.executeTakeFirst.mockResolvedValueOnce({ UserDoneRegistering: 1, UserName: "Pat" });
+    mockDb.executeTakeFirst.mockResolvedValueOnce({ hasEntries: 1, UserName: "Pat" });
     mockDb.execute.mockResolvedValueOnce([{ PaymentType: "Fee" }, { PaymentType: "Paid" }]);
 
     const { deregisterUser } = await import("./adminUser");
@@ -85,7 +85,7 @@ describe("deregisterUser", () => {
   });
 
   it("deregisters, rebuilds standings for every started week, and expires caches", async () => {
-    mockDb.executeTakeFirst.mockResolvedValueOnce({ UserDoneRegistering: 1, UserName: "Pat" });
+    mockDb.executeTakeFirst.mockResolvedValueOnce({ hasEntries: 1, UserName: "Pat" });
     mockDb.execute.mockResolvedValueOnce([{ PaymentType: "Fee" }]);
     mockDb.executeTakeFirstOrThrow.mockResolvedValueOnce({});
 
@@ -109,7 +109,7 @@ describe("deregisterUser", () => {
   });
 
   it("still succeeds and expires caches when the standings rebuild fails", async () => {
-    mockDb.executeTakeFirst.mockResolvedValueOnce({ UserDoneRegistering: 1, UserName: "Pat" });
+    mockDb.executeTakeFirst.mockResolvedValueOnce({ hasEntries: 1, UserName: "Pat" });
     mockDb.execute.mockResolvedValueOnce([]);
     mockDb.executeTakeFirstOrThrow.mockResolvedValueOnce({});
     updateWeeklyMV.mockRejectedValueOnce(new Error("lock timeout"));

@@ -47,6 +47,10 @@ export const getAdminUsers = cache(async (params: Awaited<PageProps<"/admin/user
     sql<number>`(${selectFrom("Payments as p")
       .select((eb) => sql<number>`SUM(${eb.ref("p.PaymentAmount")})`.as("balance"))
       .whereRef("p.UserID", "=", "u.UserID")}) < 0`.as("UserIsOwing"),
+    // Locked-out users are unregistered but keep their picks, so this (not UserDoneRegistering) says they're in the season
+    sql<number>`exists(${selectFrom("Picks as pk").select("pk.PickID").whereRef("pk.UserID", "=", "u.UserID")})`.as(
+      "UserHasSeasonEntries",
+    ),
     selectFrom("Payments as p")
       .select((eb) => sql<number>`ABS(SUM(${eb.ref("p.PaymentAmount")}))`.as("paid"))
       .whereRef("p.UserID", "=", "u.UserID")
