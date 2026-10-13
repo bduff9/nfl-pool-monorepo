@@ -6,6 +6,7 @@ import {
   aws_iam as iam,
   aws_lambda as lambda,
   aws_logs as logs,
+  RemovalPolicy,
   Size,
   Stack,
   type StackProps,
@@ -166,7 +167,19 @@ export class CdkStackProd extends Stack {
       }),
     });
 
-    const liveGameAlertsProd = createLiveGameAlerts(this, { enabled: true, environment, suffix: "Prod" });
+    // Created up front because the memory metric filter below needs the log group to exist, and Lambda only creates it
+    // on the first invocation. The older functions' groups already exist. Kept a month, as this runs every minute.
+    const liveGameAlertsProdLogGroup = new logs.LogGroup(this, "LiveGameAlertsProdLogs", {
+      logGroupName: "/aws/lambda/LiveGameAlertsProd",
+      removalPolicy: RemovalPolicy.RETAIN,
+      retention: logs.RetentionDays.ONE_MONTH,
+    });
+    const liveGameAlertsProd = createLiveGameAlerts(this, {
+      enabled: true,
+      environment,
+      logGroup: liveGameAlertsProdLogGroup,
+      suffix: "Prod",
+    });
 
     const resetPoolProd = new NodejsFunction(this, "ResetPoolProd", {
       bundling: {
@@ -231,16 +244,16 @@ export class CdkStackProd extends Stack {
       rule.addTarget(new targets.LambdaFunction(fn, { deadLetterQueue: dlq }));
     }
 
-    const prodFunctions: Array<{ fn: NodejsFunction; memorySize: number }> = [
+    const prodFunctions: Array<{ fn: NodejsFunction; logGroup?: logs.ILogGroup; memorySize: number }> = [
       { fn: backupNflDatabaseProd, memorySize: 2048 },
       { fn: currentWeekUpdaterProd, memorySize: 512 },
       { fn: futureGameUpdaterProd, memorySize: 256 },
       { fn: liveGameUpdaterProd, memorySize: 512 },
-      { fn: liveGameAlertsProd.fn, memorySize: 256 },
+      { fn: liveGameAlertsProd.fn, logGroup: liveGameAlertsProdLogGroup, memorySize: 256 },
       { fn: resetPoolProd, memorySize: 256 },
     ];
 
-    for (const { fn, memorySize } of prodFunctions) {
+    for (const { fn, logGroup, memorySize } of prodFunctions) {
       const functionName = fn.node.id;
       const memoryAlarmThreshold = Math.round(memorySize * 0.9);
 
@@ -261,7 +274,8 @@ export class CdkStackProd extends Stack {
       // are covered by the errors alarm above.
       const memoryMetricFilter = new logs.MetricFilter(this, `${functionName}MemoryMetricFilter`, {
         filterPattern: logs.FilterPattern.literal("[REPORT, ..., Max, Memory, usedLbl=%Used:%, memUsed, MB]"),
-        logGroup: logs.LogGroup.fromLogGroupName(this, `${functionName}LogGroup`, `/aws/lambda/${functionName}`),
+        logGroup:
+          logGroup ?? logs.LogGroup.fromLogGroupName(this, `${functionName}LogGroup`, `/aws/lambda/${functionName}`),
         metricName: `${functionName}MaxMemoryMB`,
         metricNamespace: "NFLPool/Lambda",
         metricValue: "$memUsed",
