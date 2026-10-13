@@ -276,6 +276,27 @@
   }
 }
 
+/* Briefly highlights the last play on a live scoreboard card when a new play arrives */
+@keyframes live-play-flash {
+  from {
+    background-color: rgb(245 158 11 / 35%);
+  }
+
+  to {
+    background-color: transparent;
+  }
+}
+
+.live-play-flash {
+  animation: live-play-flash 2.5s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-play-flash {
+    animation: none;
+  }
+}
+
 @keyframes slide {
   from {
     translate: var(--slide-offset);

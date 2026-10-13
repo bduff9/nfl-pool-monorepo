@@ -301,7 +301,7 @@ export const SidebarNavigation: FC<SidebarNavigationProps> = ({
       />
 
       <SidebarMenuButton asChild>
-        <NavLink href="/scoreboard" show={showScoreboard(user)}>
+        <NavLink href="/scoreboard" includeSubpages show={showScoreboard(user)}>
           NFL Scoreboard
         </NavLink>
       </SidebarMenuButton>

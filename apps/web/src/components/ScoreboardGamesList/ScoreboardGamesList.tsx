@@ -21,18 +21,28 @@ import { type FC, Fragment, useEffect, useState } from "react";
 
 import GameStakes from "@/components/GameStakes/GameStakes";
 import GameStatusDisplay from "@/components/GameStatusDisplay/GameStatusDisplay";
+import LiveGameStrip from "@/components/LiveGameStrip/LiveGameStrip";
 import ScoreboardDate from "@/components/ScoreboardDate/ScoreboardDate";
 import ScoreboardTeam from "@/components/ScoreboardTeam/ScoreboardTeam";
 import { formatDateForKickoff } from "@/lib/dates";
+import type { WithLiveFlag } from "@/lib/liveScores/applyLiveScores";
 import type { GameStakes as GameStakesData } from "@/lib/riding/stakes";
 import type { getGamesForWeekScoreboardCached } from "@/server/loaders/game";
 
-type Game = Awaited<ReturnType<typeof getGamesForWeekScoreboardCached>>[number] & { isLiveOverlay: boolean };
+type Game = WithLiveFlag<Awaited<ReturnType<typeof getGamesForWeekScoreboardCached>>[number]>;
 
 type Props = {
   games: Game[];
   stakes?: Record<number, GameStakesData>;
 };
+
+const isLiveUnfinished = (game: Game): boolean => game.isLiveOverlay && game.GameStatus !== "Final";
+
+const TIMEOUT_FIELDS = { home: "homeTimeouts", visitor: "awayTimeouts" } as const;
+
+// Timeouts only mean something while the live overlay is showing an unfinished game
+const getLiveTimeouts = (game: Game, side: keyof typeof TIMEOUT_FIELDS): number | undefined =>
+  isLiveUnfinished(game) ? game.liveSituation?.[TIMEOUT_FIELDS[side]] : undefined;
 
 const ScoreboardGamesList: FC<Props> = ({ games, stakes = {} }) => {
   const [headerIndexes, setHeaderIndexes] = useState<Set<number> | null>(null);
@@ -70,6 +80,7 @@ const ScoreboardGamesList: FC<Props> = ({ games, stakes = {} }) => {
                   priority={index === 0}
                   score={game.GameHomeScore}
                   team={game.homeTeam}
+                  timeouts={getLiveTimeouts(game, "home")}
                 />
                 <ScoreboardTeam
                   gameStatus={game.GameStatus}
@@ -79,6 +90,7 @@ const ScoreboardGamesList: FC<Props> = ({ games, stakes = {} }) => {
                   priority={index === 0}
                   score={game.GameVisitorScore}
                   team={game.visitorTeam}
+                  timeouts={getLiveTimeouts(game, "visitor")}
                 />
               </div>
               <div className={cn("text-right pr-4 text-nowrap pt-4 text-lg grow")}>
@@ -90,6 +102,7 @@ const ScoreboardGamesList: FC<Props> = ({ games, stakes = {} }) => {
                 />
               </div>
             </div>
+            <LiveGameStrip game={game} />
             <GameStakes game={game} stakes={stakes[game.GameID]} />
           </div>
         </Fragment>

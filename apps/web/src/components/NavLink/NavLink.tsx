@@ -22,20 +22,29 @@ import { usePathname } from "next/navigation";
 import type { FC } from "react";
 
 import { WeekLink } from "../WeekLink/WeekLink";
-import { getNavLinkClassName } from "./navLinkClassName";
+import { getNavLinkClassName, isNavLinkActive } from "./navLinkClassName";
 
 type NavLinkProps = {
   children: string;
   href?: Route;
+  /** Also show as active on pages under `href`. */
+  includeSubpages?: boolean;
   isNested?: boolean;
   onClick?: () => void;
   show?: boolean;
 };
 
-const NavLink: FC<NavLinkProps> = ({ children, href, isNested = false, onClick, show = true }) => {
+const NavLink: FC<NavLinkProps> = ({
+  children,
+  href,
+  includeSubpages = false,
+  isNested = false,
+  onClick,
+  show = true,
+}) => {
   const { setOpenMobile } = useSidebar();
   const pathname = usePathname();
-  const isActive = pathname === href;
+  const isActive = isNavLinkActive(pathname, href, includeSubpages);
 
   const handleLinkClick = () => {
     setOpenMobile(false);

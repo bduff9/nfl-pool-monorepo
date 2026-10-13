@@ -24,3 +24,11 @@ export const getTeamsFromDB = async (): Promise<Record<string, number>> => {
     {} as Record<string, number>,
   );
 };
+
+export const getTeamsByShortNames = async (shortNames: string[]) => {
+  return db
+    .selectFrom("Teams")
+    .select(["TeamShortName", "TeamCity", "TeamName", "TeamLogo", "TeamPrimaryColor", "TeamSecondaryColor"])
+    .where("TeamShortName", "in", shortNames)
+    .execute();
+};

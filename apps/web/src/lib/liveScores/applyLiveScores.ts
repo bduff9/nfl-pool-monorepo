@@ -1,3 +1,4 @@
+import type { LiveSituation } from "./espnSituation";
 import { getLiveScoreKey, type LiveScore, type LiveScoreMap } from "./parseEspn";
 
 type GameStatus =
@@ -27,8 +28,15 @@ export type OverlayableGame = {
   visitorTeam: TeamRef;
 };
 
-/** A game plus whether its score/clock came from the live overlay rather than the database. */
-export type WithLiveFlag<T> = T & { isLiveOverlay: boolean };
+/**
+ * A game plus whether its score/clock came from the live overlay rather than the database. `liveSituation` and
+ * `espnEventId` are only set on overlaid games.
+ */
+export type WithLiveFlag<T> = T & {
+  espnEventId?: string | undefined;
+  isLiveOverlay: boolean;
+  liveSituation?: LiveSituation | undefined;
+};
 
 // A game that kicked off longer ago than this and is still not final in the database is treated as stale,
 // not live, so old unfinished rows never keep a page polling.
@@ -91,6 +99,7 @@ const overlayGame = <T extends OverlayableGame>(game: T, live: LiveScore): WithL
 
   return {
     ...game,
+    espnEventId: live.eventId,
     GameHasPossession: possessionTeamId,
     GameHomeScore: live.homeScore,
     GameInRedzone: live.inRedZone ? possessionTeamId : null,
@@ -98,6 +107,7 @@ const overlayGame = <T extends OverlayableGame>(game: T, live: LiveScore): WithL
     GameTimeLeftInQuarter: live.clock,
     GameVisitorScore: live.visitorScore,
     isLiveOverlay: true,
+    liveSituation: live.situation,
   };
 };
 

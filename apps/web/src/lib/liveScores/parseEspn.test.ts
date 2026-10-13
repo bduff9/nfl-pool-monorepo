@@ -46,6 +46,7 @@ describe("parseEspnScoreboard", () => {
     expect(result["BAL@ATL"]).toEqual({
       clock: "7:01",
       detail: "7:01 - 3rd",
+      eventId: "401872993",
       final: false,
       homeScore: 17,
       inRedZone: false,
@@ -94,5 +95,47 @@ describe("parseEspnScoreboard", () => {
     const stray = { events: [{ ...event, competitions: [{ ...competition, situation: { possession: "99" } }] }] };
 
     expect(parseEspnScoreboard(stray)["BUF@LAR"]?.possession).toBeNull();
+  });
+
+  it("carries the ESPN event id and the live situation detail", () => {
+    const [event] = liveFixture.events;
+    const competition = event?.competitions[0];
+    const withDetail = {
+      events: [
+        {
+          ...event,
+          competitions: [
+            {
+              ...competition,
+              situation: {
+                ...competition?.situation,
+                homeTimeouts: 2,
+                lastPlay: { id: "9", text: "Rush for 3 yards", type: { abbreviation: "RUSH", text: "Rush" } },
+              },
+            },
+          ],
+          id: "401872994",
+        },
+      ],
+    };
+
+    expect(parseEspnScoreboard(withDetail)["BUF@LAR"]).toMatchObject({
+      eventId: "401872994",
+      situation: { ballSpot: "BUF 4", downDistance: "1st & Goal", homeTimeouts: 2, lastPlay: { id: "9" } },
+    });
+  });
+
+  it("keeps the score overlay when the situation detail is malformed", () => {
+    const [event] = liveFixture.events;
+    const competition = event?.competitions[0];
+    const broken = {
+      events: [{ ...event, competitions: [{ ...competition, situation: { homeTimeouts: "many", isRedZone: 7 } }] }],
+    };
+
+    expect(parseEspnScoreboard(broken)["BUF@LAR"]).toMatchObject({
+      inRedZone: false,
+      situation: undefined,
+      visitorScore: 19,
+    });
   });
 });

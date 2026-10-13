@@ -1,0 +1,524 @@
+{
+  "drives": {
+    "previous": [
+      {
+        "description": "4 plays, -5 yards, 1:37",
+        "displayResult": "Field Goal",
+        "id": "4018729941",
+        "plays": [
+          {
+            "awayScore": 0,
+            "clock": {
+              "displayValue": "15:00"
+            },
+            "homeScore": 0,
+            "id": "40187299440",
+            "isTurnover": false,
+            "period": {
+              "number": 1
+            },
+            "scoringPlay": false,
+            "start": {},
+            "text": "E.Evans kicks 61 yards from LA 35 to BUF 4. R.Davis pushed ob at LA 26 for 70 yards (E.Evans).",
+            "type": {
+              "abbreviation": "K",
+              "id": "53",
+              "text": "Kickoff"
+            }
+          },
+          {
+            "awayScore": 0,
+            "clock": {
+              "displayValue": "14:50"
+            },
+            "homeScore": 0,
+            "id": "40187299468",
+            "isTurnover": false,
+            "period": {
+              "number": 1
+            },
+            "scoringPlay": false,
+            "start": {
+              "downDistanceText": "1st & 10 at LAR 26"
+            },
+            "text": "J.Cook up the middle to LA 23 for 3 yards (N.Landman).",
+            "type": {
+              "abbreviation": "RUSH",
+              "id": "5",
+              "text": "Rush"
+            }
+          },
+          {
+            "awayScore": 0,
+            "clock": {
+              "displayValue": "14:13"
+            },
+            "homeScore": 0,
+            "id": "40187299490",
+            "isTurnover": false,
+            "period": {
+              "number": 1
+            },
+            "scoringPlay": false,
+            "start": {
+              "downDistanceText": "2nd & 7 at LAR 23"
+            },
+            "text": "(Shotgun) J.Allen pass incomplete deep middle to D.Knox.",
+            "type": {
+              "id": "3",
+              "text": "Pass Incompletion"
+            }
+          }
+        ],
+        "result": "FG",
+        "team": {
+          "abbreviation": "BUF",
+          "id": "2",
+          "shortDisplayName": "Bills"
+        }
+      },
+      {
+        "description": "14 plays, 38 yards, 7:48",
+        "displayResult": "Missed FG",
+        "id": "4018729942",
+        "plays": [
+          {
+            "awayScore": 3,
+            "clock": {
+              "displayValue": "13:23"
+            },
+            "homeScore": 0,
+            "id": "401872994153",
+            "isTurnover": false,
+            "period": {
+              "number": 1
+            },
+            "scoringPlay": false,
+            "start": {},
+            "text": "T.Bass kicks 58 yards from BUF 35 to LA 7. A.Bachman to LA 30 for 23 yards (J.Solomon).",
+            "type": {
+              "abbreviation": "K",
+              "id": "53",
+              "text": "Kickoff"
+            }
+          },
+          {
+            "awayScore": 3,
+            "clock": {
+              "displayValue": "13:18"
+            },
+            "homeScore": 0,
+            "id": "401872994183",
+            "isTurnover": false,
+            "period": {
+              "number": 1
+            },
+            "scoringPlay": false,
+            "start": {
+              "downDistanceText": "1st & 10 at LAR 30"
+            },
+            "text": "(Shotgun) M.Stafford pass short left to C.Parkinson pushed ob at LA 33 for 3 yards (C.Benford).",
+            "type": {
+              "abbreviation": "REC",
+              "id": "24",
+              "text": "Pass Reception"
+            }
+          },
+          {
+            "awayScore": 3,
+            "clock": {
+              "displayValue": "12:41"
+            },
+            "homeScore": 0,
+            "id": "401872994213",
+            "isTurnover": false,
+            "period": {
+              "number": 1
+            },
+            "scoringPlay": false,
+            "start": {
+              "downDistanceText": "2nd & 7 at LAR 33"
+            },
+            "text": "M.Stafford pass short left to P.Nacua to LA 37 for 4 yards (C.Benford).",
+            "type": {
+              "abbreviation": "REC",
+              "id": "24",
+              "text": "Pass Reception"
+            }
+          }
+        ],
+        "result": "MISSED FG",
+        "team": {
+          "abbreviation": "LAR",
+          "id": "14",
+          "shortDisplayName": "Rams"
+        }
+      },
+      {
+        "description": "10 plays, 55 yards, 5:25",
+        "displayResult": "Field Goal",
+        "id": "4018729943",
+        "plays": [
+          {
+            "awayScore": 3,
+            "clock": {
+              "displayValue": "5:35"
+            },
+            "homeScore": 0,
+            "id": "401872994562",
+            "isTurnover": false,
+            "period": {
+              "number": 1
+            },
+            "scoringPlay": false,
+            "start": {
+              "downDistanceText": "1st & 10 at BUF 40"
+            },
+            "text": "J.Allen pass short left to J.Cook ran ob at BUF 47 for 7 yards (D.Johnson; T.McDuffie).",
+            "type": {
+              "abbreviation": "REC",
+              "id": "24",
+              "text": "Pass Reception"
+            }
+          },
+          {
+            "awayScore": 3,
+            "clock": {
+              "displayValue": "5:03"
+            },
+            "homeScore": 0,
+            "id": "401872994599",
+            "isTurnover": false,
+            "period": {
+              "number": 1
+            },
+            "scoringPlay": false,
+            "start": {
+              "downDistanceText": "2nd & 3 at BUF 47"
+            },
+            "text": "J.Cook right guard to LA 47 for 6 yards (B.Young; Q.Lake).",
+            "type": {
+              "abbreviation": "RUSH",
+              "id": "5",
+              "text": "Rush"
+            }
+          },
+          {
+            "awayScore": 3,
+            "clock": {
+              "displayValue": "4:24"
+            },
+            "homeScore": 0,
+            "id": "401872994621",
+            "isTurnover": false,
+            "period": {
+              "number": 1
+            },
+            "scoringPlay": false,
+            "start": {
+              "downDistanceText": "1st & 10 at LAR 47"
+            },
+            "text": "(Shotgun) J.Allen scrambles left end ran ob at LA 39 for 8 yards (J.Watson).",
+            "type": {
+              "abbreviation": "RUSH",
+              "id": "5",
+              "text": "Rush"
+            }
+          }
+        ],
+        "result": "FG",
+        "team": {
+          "abbreviation": "BUF",
+          "id": "2",
+          "shortDisplayName": "Bills"
+        }
+      },
+      {
+        "description": "3 plays, 4 yards, 1:32",
+        "displayResult": "Interception",
+        "id": "4018729947",
+        "plays": [
+          {
+            "awayScore": 13,
+            "clock": {
+              "displayValue": "1:52"
+            },
+            "homeScore": 7,
+            "id": "4018729941875",
+            "isTurnover": false,
+            "period": {
+              "number": 2
+            },
+            "scoringPlay": false,
+            "start": {
+              "downDistanceText": "1st & 10 at BUF 12"
+            },
+            "text": "(Shotgun) J.Cook right tackle to BUF 14 for 2 yards (Q.Lake).",
+            "type": {
+              "abbreviation": "RUSH",
+              "id": "5",
+              "text": "Rush"
+            }
+          },
+          {
+            "awayScore": 13,
+            "clock": {
+              "displayValue": "1:11"
+            },
+            "homeScore": 7,
+            "id": "4018729941897",
+            "isTurnover": false,
+            "period": {
+              "number": 2
+            },
+            "scoringPlay": false,
+            "start": {
+              "downDistanceText": "2nd & 8 at BUF 14"
+            },
+            "text": "(Shotgun) J.Allen pass short left to D.Kincaid to BUF 21 for 7 yards (J.Wallace).",
+            "type": {
+              "abbreviation": "REC",
+              "id": "24",
+              "text": "Pass Reception"
+            }
+          },
+          {
+            "awayScore": 13,
+            "clock": {
+              "displayValue": "0:37"
+            },
+            "homeScore": 7,
+            "id": "4018729941910",
+            "isTurnover": false,
+            "period": {
+              "number": 2
+            },
+            "scoringPlay": false,
+            "start": {
+              "downDistanceText": "3rd & 1 at BUF 21"
+            },
+            "text": "Timeout #1 by BUF at 00:37.",
+            "type": {
+              "abbreviation": "TO",
+              "id": "21",
+              "text": "Timeout"
+            }
+          },
+          {
+            "awayScore": 13,
+            "clock": {
+              "displayValue": "0:37"
+            },
+            "homeScore": 7,
+            "id": "4018729941922",
+            "isTurnover": false,
+            "period": {
+              "number": 2
+            },
+            "scoringPlay": false,
+            "start": {
+              "downDistanceText": "3rd & 1 at BUF 21"
+            },
+            "text": "(Shotgun) PENALTY on BUF, Illegal Shift, 5 yards, enforced at BUF 21 - No Play.",
+            "type": {
+              "abbreviation": "PEN",
+              "id": "8",
+              "text": "Penalty"
+            }
+          }
+        ],
+        "result": "INT",
+        "team": {
+          "abbreviation": "BUF",
+          "id": "2",
+          "shortDisplayName": "Bills"
+        }
+      }
+    ]
+  },
+  "header": {
+    "competitions": [
+      {
+        "competitors": [
+          {
+            "homeAway": "home",
+            "id": "14",
+            "score": "34",
+            "team": {
+              "abbreviation": "LAR",
+              "id": "14"
+            }
+          },
+          {
+            "homeAway": "away",
+            "id": "2",
+            "score": "37",
+            "team": {
+              "abbreviation": "BUF",
+              "id": "2"
+            }
+          }
+        ],
+        "date": "2026-10-13T00:15Z",
+        "status": {
+          "type": {
+            "altDetail": "OT",
+            "completed": true,
+            "description": "Final",
+            "detail": "Final/OT",
+            "id": "3",
+            "name": "STATUS_FINAL",
+            "shortDetail": "Final/OT",
+            "state": "post"
+          }
+        }
+      }
+    ],
+    "id": "401872994"
+  },
+  "scoringPlays": [
+    {
+      "awayScore": 3,
+      "clock": {
+        "displayValue": "13:23",
+        "value": 803
+      },
+      "homeScore": 0,
+      "id": "401872994133",
+      "period": {
+        "number": 1
+      },
+      "scoringType": {
+        "abbreviation": "FG",
+        "displayName": "Field Goal",
+        "name": "field-goal"
+      },
+      "team": {
+        "abbreviation": "BUF",
+        "id": "2"
+      },
+      "text": "Tyler Bass 49 Yd Field Goal",
+      "type": {
+        "abbreviation": "FG",
+        "id": "59",
+        "text": "Field Goal Good"
+      }
+    },
+    {
+      "awayScore": 6,
+      "clock": {
+        "displayValue": "0:10",
+        "value": 10
+      },
+      "homeScore": 0,
+      "id": "401872994812",
+      "period": {
+        "number": 1
+      },
+      "scoringType": {
+        "abbreviation": "FG",
+        "displayName": "Field Goal",
+        "name": "field-goal"
+      },
+      "team": {
+        "abbreviation": "BUF",
+        "id": "2"
+      },
+      "text": "Tyler Bass 23 Yd Field Goal",
+      "type": {
+        "abbreviation": "FG",
+        "id": "59",
+        "text": "Field Goal Good"
+      }
+    },
+    {
+      "awayScore": 6,
+      "clock": {
+        "displayValue": "8:00",
+        "value": 480
+      },
+      "homeScore": 7,
+      "id": "4018729941240",
+      "period": {
+        "number": 2
+      },
+      "scoringType": {
+        "abbreviation": "TD",
+        "displayName": "Touchdown",
+        "name": "touchdown"
+      },
+      "team": {
+        "abbreviation": "LAR",
+        "id": "14"
+      },
+      "text": "Davante Adams 4 Yd pass from Matthew Stafford (Harrison Mevis Kick)",
+      "type": {
+        "abbreviation": "TD",
+        "id": "67",
+        "text": "Passing Touchdown"
+      }
+    }
+  ],
+  "winprobability": [
+    {
+      "homeWinPercentage": 0.5801,
+      "playId": "4018729941",
+      "tiePercentage": 0
+    },
+    {
+      "homeWinPercentage": 0.4864,
+      "playId": "40187299440",
+      "tiePercentage": 0
+    },
+    {
+      "homeWinPercentage": 0.4924,
+      "playId": "40187299468",
+      "tiePercentage": 0
+    },
+    {
+      "homeWinPercentage": 0.5084,
+      "playId": "40187299490",
+      "tiePercentage": 0
+    },
+    {
+      "homeWinPercentage": 0.5534,
+      "playId": "401872994113",
+      "tiePercentage": 0
+    },
+    {
+      "homeWinPercentage": 0.5184,
+      "playId": "401872994133",
+      "tiePercentage": 0
+    },
+    {
+      "homeWinPercentage": 0.5184,
+      "playId": "401872994143",
+      "tiePercentage": 0
+    },
+    {
+      "homeWinPercentage": 0.5283,
+      "playId": "401872994153",
+      "tiePercentage": 0
+    },
+    {
+      "homeWinPercentage": 0.5202,
+      "playId": "401872994183",
+      "tiePercentage": 0
+    },
+    {
+      "homeWinPercentage": 0.5241,
+      "playId": "401872994213",
+      "tiePercentage": 0
+    },
+    {
+      "homeWinPercentage": 0.5409,
+      "playId": "401872994238",
+      "tiePercentage": 0
+    },
+    {
+      "homeWinPercentage": 0.5098,
+      "playId": "401872994263",
+      "tiePercentage": 0
+    }
+  ]
+}

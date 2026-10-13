@@ -21,6 +21,7 @@ import { PiFootballDuotone } from "react-icons/pi";
 import type { getGamesForWeekCached } from "@/server/loaders/game";
 
 import TeamLogo from "../TeamLogo/TeamLogo";
+import TimeoutDots from "../TimeoutDots/TimeoutDots";
 import { getLogoClasses, getPossessionClasses, getScoreboardTextClasses, isLoserOf } from "./scoreboardTeamHelpers";
 
 type ScoreboardTeamProps = {
@@ -30,17 +31,26 @@ type ScoreboardTeamProps = {
   isWinner: boolean;
   priority?: boolean;
   score: number;
+  /** Timeouts left, from the live overlay; only passed for games in progress. */
+  timeouts?: number | undefined;
   team:
     | Awaited<ReturnType<typeof getGamesForWeekCached>>[number]["homeTeam"]
     | Awaited<ReturnType<typeof getGamesForWeekCached>>[number]["visitorTeam"];
 };
 
-const TeamNameCell: FC<{ classes: string; team: NonNullable<ScoreboardTeamProps["team"]> }> = ({ classes, team }) => (
-  <div className={cn("flex-grow flex items-center ps-3", classes)}>
+type TeamNameCellProps = {
+  classes: string;
+  team: NonNullable<ScoreboardTeamProps["team"]>;
+  timeouts?: number | undefined;
+};
+
+const TeamNameCell: FC<TeamNameCellProps> = ({ classes, team, timeouts }) => (
+  <div className={cn("flex-grow flex flex-col justify-center ps-3", classes)}>
     <span className="hidden md:inline">
       {team.TeamCity} {team.TeamName}
     </span>
     <span className="md:hidden">{team.TeamShortName}</span>
+    {timeouts === undefined ? null : <TimeoutDots className="mt-1" name={team.TeamShortName} remaining={timeouts} />}
   </div>
 );
 
@@ -67,6 +77,7 @@ const ScoreboardTeam: FC<ScoreboardTeamProps> = ({
   priority = false,
   score,
   team,
+  timeouts,
 }) => {
   const isLoser = isLoserOf(isWinner, gameStatus);
   const textClasses = getScoreboardTextClasses(isWinner, isLoser, isInRedzone);
@@ -78,7 +89,7 @@ const ScoreboardTeam: FC<ScoreboardTeamProps> = ({
       <div>
         <TeamLogo className={getLogoClasses(isLoser)} priority={priority} team={team} />
       </div>
-      <TeamNameCell classes={textClasses} team={team} />
+      <TeamNameCell classes={textClasses} team={team} timeouts={timeouts} />
       <ScoreCell
         classes={textClasses}
         gameStatus={gameStatus}

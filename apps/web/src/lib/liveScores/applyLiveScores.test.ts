@@ -126,4 +126,14 @@ describe("applyLiveScores", () => {
     expect(game?.GameStatus).toBe("Final");
     expect(game?.isLiveOverlay).toBe(true);
   });
+
+  it("passes the ESPN event id and situation through to overlaid games only", () => {
+    const situation = { downDistance: "2nd & 5" };
+    const live = { "SFO@SEA": { ...LIVE["SFO@SEA"], eventId: "401872992", situation } };
+    const [overlaid, plain] = applyLiveScores([makeGame(), makeGame({ GameStatus: "Final" })], live, NOW);
+
+    expect(overlaid).toMatchObject({ espnEventId: "401872992", liveSituation: situation });
+    expect(plain?.espnEventId).toBeUndefined();
+    expect(plain?.liveSituation).toBeUndefined();
+  });
 });

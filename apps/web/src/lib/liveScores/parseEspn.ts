@@ -1,5 +1,6 @@
 import { type } from "arktype";
 
+import { type LiveSituation, parseSituationCore, parseSituationDetail } from "./espnSituation";
 import { toTeamShortName } from "./espnTeams";
 
 /**
@@ -9,6 +10,8 @@ import { toTeamShortName } from "./espnTeams";
 export type LiveScore = {
   clock: string;
   detail: string;
+  /** ESPN's event id, used to link to the game detail page; undefined if ESPN omits it. */
+  eventId?: string | undefined;
   /** ESPN reports the game over; shown as an unofficial final until the official API marks it final. */
   final: boolean;
   homeScore: number;
@@ -17,6 +20,8 @@ export type LiveScore = {
   period: number;
   /** Which side has the ball, from ESPN's live situation; null between possessions or when not reported. */
   possession: "home" | "visitor" | null;
+  /** Down & distance, timeouts, last play and win probability; undefined when ESPN sends no usable situation. */
+  situation?: LiveSituation | undefined;
   visitorScore: number;
 };
 
@@ -33,9 +38,11 @@ const EspnScoreboardSchema = type({
         score: "string",
         team: { abbreviation: "string" },
       }).array(),
-      // Only present while a game is in progress; possession is the ESPN team id of the competitor with the ball
-      "situation?": { "isRedZone?": "boolean", "possession?": "string" },
+      // Only present while a game is in progress. Validated separately (see espnSituation.ts) so that a change to
+      // any of its optional detail never invalidates the score overlay itself.
+      "situation?": "unknown",
     }).array(),
+    "id?": "string",
     status: {
       displayClock: "string",
       period: "number",
@@ -45,21 +52,21 @@ const EspnScoreboardSchema = type({
 });
 
 type EspnEvent = (typeof EspnScoreboardSchema.infer)["events"][number];
-type EspnCompetition = EspnEvent["competitions"][number];
-type EspnCompetitor = EspnCompetition["competitors"][number];
+type EspnCompetitor = EspnEvent["competitions"][number]["competitors"][number];
 
+// Possession is the ESPN team id of the competitor with the ball
 const getPossession = (
-  situation: EspnCompetition["situation"],
+  possession: string | undefined,
   home: EspnCompetitor,
   visitor: EspnCompetitor,
 ): LiveScore["possession"] => {
-  if (!situation?.possession) {
+  if (!possession) {
     return null;
   }
 
   const sides = { [home.id ?? "home"]: "home", [visitor.id ?? "visitor"]: "visitor" } as const;
 
-  return sides[situation.possession] ?? null;
+  return sides[possession] ?? null;
 };
 
 export const getLiveScoreKey = (visitorShortName: string, homeShortName: string): string =>
@@ -75,16 +82,20 @@ const toLiveScoreEntry = (event: EspnEvent): [string, LiveScore] | null => {
     return null;
   }
 
+  const { isRedZone, possession } = parseSituationCore(competition?.situation);
+
   return [
     getLiveScoreKey(toTeamShortName(visitor.team.abbreviation), toTeamShortName(home.team.abbreviation)),
     {
       clock: event.status.displayClock,
       detail: event.status.type.shortDetail,
+      eventId: event.id,
       final: event.status.type.state === "post",
       homeScore: Number(home.score),
-      inRedZone: competition?.situation?.isRedZone === true,
+      inRedZone: isRedZone,
       period: event.status.period,
-      possession: getPossession(competition?.situation, home, visitor),
+      possession: getPossession(possession, home, visitor),
+      situation: parseSituationDetail(competition?.situation),
       visitorScore: Number(visitor.score),
     },
   ];
