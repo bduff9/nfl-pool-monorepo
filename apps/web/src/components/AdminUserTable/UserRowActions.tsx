@@ -1,5 +1,16 @@
 "use client";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@nfl-pool-monorepo/ui/components/alert-dialog";
 import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import {
   Dialog,
@@ -18,19 +29,21 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { useAction } from "next-safe-action/hooks";
 import { type ChangeEvent, type FC, type FormEvent, useState } from "react";
 import { FaDollarSign, FaThumbsDown, FaThumbsUp } from "react-icons/fa";
-import { PiFootballDuotone, PiIslandDuotone } from "react-icons/pi";
+import { PiFootballDuotone, PiIslandDuotone, PiUserMinusDuotone } from "react-icons/pi";
 import { toast } from "sonner";
 
 import { onActionError } from "@/lib/actionErrorToast";
+import { deregisterUser } from "@/server/actions/adminUser";
 import { updateUserPaid } from "@/server/actions/payment";
 import { toggleUserSurvivor } from "@/server/actions/survivor";
 import { markUserAsTrusted, removeUserFromAdmin } from "@/server/actions/user";
 import type { getTrustedUsersDropdown } from "@/server/loaders/user";
 
 import type { User } from "./AdminUserColumns";
-import { getRowActionVisibility } from "./rowActionVisibility";
+import { canShowDeregister, getRowActionVisibility } from "./rowActionVisibility";
 
 type UserRowActionsProps = {
+  currentUserId: number;
   trustedUsers: Awaited<ReturnType<typeof getTrustedUsersDropdown>>;
   user: User;
 };
@@ -104,7 +117,7 @@ const PaidDialog: FC<{ user: User }> = ({ user }) => {
   );
 };
 
-const TrustUserDialog: FC<UserRowActionsProps> = ({ trustedUsers, user }) => {
+const TrustUserDialog: FC<Pick<UserRowActionsProps, "trustedUsers" | "user">> = ({ trustedUsers, user }) => {
   const [referredByUserId, setReferredByUserId] = useState<number>(0);
   const [open, setOpen] = useState<boolean>(false);
 
@@ -254,7 +267,50 @@ const SurvivorToggleButton: FC<{ user: User }> = ({ user }) => {
   );
 };
 
-export const UserRowActions: FC<UserRowActionsProps> = ({ trustedUsers, user }) => {
+const DeregisterUserDialog: FC<{ user: User }> = ({ user }) => {
+  const userLabel = [user.UserFirstName, user.UserLastName].filter(Boolean).join(" ") || "user";
+  const { execute: deregister, isPending } = useAction(deregisterUser, {
+    onError: onActionError,
+    onSuccess: () => {
+      toast.success("Successfully deregistered user!");
+    },
+  });
+
+  const handleDeregister = () => {
+    deregister({ userID: user.UserID });
+  };
+
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button aria-label={`Deregister ${userLabel} from this season`} variant="ghost">
+          <PiUserMinusDuotone className="cursor-pointer size-6 text-red-600" />
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Deregister {userLabel}?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This removes them from this season&apos;s standings, deletes their picks and survivor picks, and clears
+            their unpaid entry fees. It cannot be undone; they would have to register again.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            className="bg-destructive text-white hover:bg-destructive/90"
+            disabled={isPending}
+            onClick={handleDeregister}
+          >
+            Deregister
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};
+
+export const UserRowActions: FC<UserRowActionsProps> = ({ currentUserId, trustedUsers, user }) => {
   const { canManageSurvivor, canTakePayment, canTrust } = getRowActionVisibility(user);
 
   return (
@@ -267,6 +323,7 @@ export const UserRowActions: FC<UserRowActionsProps> = ({ trustedUsers, user }) 
         </>
       )}
       {!!canManageSurvivor && <SurvivorToggleButton user={user} />}
+      {!!canShowDeregister(user, currentUserId) && <DeregisterUserDialog user={user} />}
     </div>
   );
 };

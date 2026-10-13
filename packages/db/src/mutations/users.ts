@@ -4,7 +4,7 @@ import type { Selectable, Transaction } from "kysely";
 import type { DB, Users } from "../index";
 import { db } from "../kysely";
 import { getPublicLeague } from "../queries/league";
-import { getSurvivorCost } from "../queries/systemValue";
+import { getSurvivorCost, getSystemYear } from "../queries/systemValue";
 import { getCurrentWeek } from "../queries/week";
 import { upcomingSeasonOpenerQuery } from "./userHelpers";
 
@@ -309,6 +309,32 @@ export const unregisterUser = async (userId: number): Promise<void> => {
   await db
     .updateTable("Users")
     .set({ UserDoneRegistering: 0, UserUpdated: new Date(), UserUpdatedBy: ADMIN_USER })
+    .where("UserID", "=", userId)
+    .executeTakeFirstOrThrow();
+};
+
+// Removes a user from this season's pool: their entries, standings rows, unpaid fees and history record. The Users row,
+// Notifications, Devices, Sessions and Passkeys stay so they can re-register like a late signup.
+export const removeUserFromSeason = async (trx: Transaction<DB>, userId: number, adminEmail: string): Promise<void> => {
+  const year = await getSystemYear();
+
+  await trx.deleteFrom("Picks").where("UserID", "=", userId).execute();
+  await trx.deleteFrom("Tiebreakers").where("UserID", "=", userId).execute();
+  await trx.deleteFrom("SurvivorPicks").where("UserID", "=", userId).execute();
+  await trx.deleteFrom("WeeklyMV").where("UserID", "=", userId).execute();
+  await trx.deleteFrom("OverallMV").where("UserID", "=", userId).execute();
+  await trx.deleteFrom("SurvivorMV").where("UserID", "=", userId).execute();
+  await trx.deleteFrom("Payments").where("UserID", "=", userId).where("PaymentType", "=", "Fee").execute();
+  await trx.deleteFrom("UserHistory").where("UserID", "=", userId).where("UserHistoryYear", "=", year).execute();
+  await trx
+    .updateTable("Users")
+    .set({
+      UserAutoPicksLeft: DEFAULT_AUTO_PICKS,
+      UserDoneRegistering: 0,
+      UserPlaysSurvivor: 0,
+      UserUpdated: new Date(),
+      UserUpdatedBy: adminEmail,
+    })
     .where("UserID", "=", userId)
     .executeTakeFirstOrThrow();
 };

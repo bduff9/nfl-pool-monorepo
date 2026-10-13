@@ -14,6 +14,7 @@ export type User = Awaited<ReturnType<typeof getAdminUsers>>["results"][number];
 
 export const getUserColumns = (
   trustedUsers: Awaited<ReturnType<typeof getTrustedUsersDropdown>>,
+  currentUserId: number,
 ): ColumnDef<DataTableFeatures, User>[] => [
   {
     accessorKey: "UserName",
@@ -33,7 +34,7 @@ export const getUserColumns = (
     header: ({ column }) => <SortableColumnHeader column={column} title="Name" />,
   },
   {
-    cell: ({ row }) => <UserRowActions trustedUsers={trustedUsers} user={row.original} />,
+    cell: ({ row }) => <UserRowActions currentUserId={currentUserId} trustedUsers={trustedUsers} user={row.original} />,
     header: "",
     id: "Actions",
   },

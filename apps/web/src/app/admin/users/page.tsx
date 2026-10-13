@@ -23,7 +23,7 @@ import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { requireAdmin } from "@/lib/auth";
-import { getAdminUsers, getTrustedUsersDropdown } from "@/server/loaders/user";
+import { getAdminUsers, getCurrentAdminId, getTrustedUsersDropdown } from "@/server/loaders/user";
 
 import AdminLoading from "../loading";
 
@@ -38,9 +38,10 @@ const AdminUsersPageBody: FC<PageProps<"/admin/users">> = async ({ searchParams 
     return redirect(redirectUrl);
   }
 
-  const [{ count, results: users }, trustedUsers] = await Promise.all([
+  const [{ count, results: users }, trustedUsers, currentUserId] = await Promise.all([
     getAdminUsers(await searchParams),
     getTrustedUsersDropdown(),
+    getCurrentAdminId(),
   ]);
 
   return (
@@ -54,7 +55,12 @@ const AdminUsersPageBody: FC<PageProps<"/admin/users">> = async ({ searchParams 
             </div>
             <div className="w-full mt-3">
               <div className="bg-muted/80 rounded p-4">
-                <AdminUsersDataTable count={count} trustedUsers={trustedUsers} users={users} />
+                <AdminUsersDataTable
+                  count={count}
+                  currentUserId={currentUserId}
+                  trustedUsers={trustedUsers}
+                  users={users}
+                />
               </div>
             </div>
           </div>

@@ -9,14 +9,15 @@ import { getUserColumns } from "./AdminUserColumns";
 
 type AdminUsersDataTableProps = {
   count: number;
+  currentUserId: number;
   trustedUsers: Awaited<ReturnType<typeof getTrustedUsersDropdown>>;
   users: Awaited<ReturnType<typeof getAdminUsers>>["results"];
 };
 
-const AdminUsersDataTable: FC<AdminUsersDataTableProps> = ({ count, trustedUsers, users }) => {
+const AdminUsersDataTable: FC<AdminUsersDataTableProps> = ({ count, currentUserId, trustedUsers, users }) => {
   return (
     <DataTable
-      columns={getUserColumns(trustedUsers)}
+      columns={getUserColumns(trustedUsers, currentUserId)}
       columnVisibility={{
         UserIsOwing: false,
         UserStatus2: false,

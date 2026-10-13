@@ -100,6 +100,8 @@ export const getAdminUsers = cache(async (params: Awaited<PageProps<"/admin/user
   return fetchTablePage(countResult, queryResult);
 });
 
+export const getCurrentAdminId = async (): Promise<number> => (await getCurrentSession()).user?.id ?? 0;
+
 export const getCurrentUser = cache(async () => {
   const user = await requireUser();
 
