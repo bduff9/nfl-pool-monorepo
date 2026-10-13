@@ -190,7 +190,7 @@ const ViewAllTable: FC<Props> = ({ currentUserId, games, picks, ranks }) => {
   };
 
   return (
-    <Table className="align-middle" parentClassName="rounded max-w-[98vw] max-h-[98vh] overflow-scroll">
+    <Table className="align-middle" parentClassName="rounded max-w-[98vw] md:max-h-[98vh] md:overflow-scroll">
       <TableHeader>
         <TableRow className="hover:bg-transparent">
           <TableHead className={cn("sticky top-0 left-0 z-[2] opacity-0")} />

@@ -200,7 +200,7 @@ const ViewSurvivorPageBody: FC<PageProps<"/survivor/view">> = async ({ searchPar
               </div>
             </div>
             <div className={cn("w-full mt-4 text-center p-0")}>
-              <Table parentClassName="max-w-[98vw] max-h-[98vh] overflow-scroll">
+              <Table parentClassName="max-w-[98vw] md:max-h-[98vh] md:overflow-scroll">
                 <TableHeader>
                   <TableRow className={cn("hidden md:table-row")}>
                     <TableHead className="text-center bg-card text-foreground font-semibold" colSpan={99}>
