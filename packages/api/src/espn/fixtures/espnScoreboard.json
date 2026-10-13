@@ -1,0 +1,177 @@
+{
+  "events": [
+    {
+      "competitions": [
+        {
+          "competitors": [
+            {
+              "homeAway": "home",
+              "id": "14",
+              "score": "34",
+              "team": {
+                "abbreviation": "LAR",
+                "id": "14"
+              },
+              "winner": false
+            },
+            {
+              "homeAway": "away",
+              "id": "2",
+              "score": "37",
+              "team": {
+                "abbreviation": "BUF",
+                "id": "2"
+              },
+              "winner": true
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 5,
+            "type": {
+              "altDetail": "OT",
+              "completed": true,
+              "description": "Final",
+              "detail": "Final/OT",
+              "id": "3",
+              "name": "STATUS_FINAL",
+              "shortDetail": "Final/OT",
+              "state": "post"
+            }
+          }
+        }
+      ],
+      "date": "2026-10-13T00:15Z",
+      "id": "401872994",
+      "shortName": "BUF @ LAR",
+      "status": {
+        "period": 5,
+        "type": {
+          "altDetail": "OT",
+          "completed": true,
+          "description": "Final",
+          "detail": "Final/OT",
+          "id": "3",
+          "name": "STATUS_FINAL",
+          "shortDetail": "Final/OT",
+          "state": "post"
+        }
+      }
+    },
+    {
+      "competitions": [
+        {
+          "competitors": [
+            {
+              "homeAway": "home",
+              "id": "9",
+              "score": "31",
+              "team": {
+                "abbreviation": "GB",
+                "id": "9"
+              },
+              "winner": true
+            },
+            {
+              "homeAway": "away",
+              "id": "3",
+              "score": "7",
+              "team": {
+                "abbreviation": "CHI",
+                "id": "3"
+              },
+              "winner": false
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 4,
+            "type": {
+              "completed": true,
+              "description": "Final",
+              "detail": "Final",
+              "id": "3",
+              "name": "STATUS_FINAL",
+              "shortDetail": "Final",
+              "state": "post"
+            }
+          }
+        }
+      ],
+      "date": "2026-10-11T17:00Z",
+      "id": "401872990",
+      "shortName": "CHI @ GB",
+      "status": {
+        "period": 4,
+        "type": {
+          "completed": true,
+          "description": "Final",
+          "detail": "Final",
+          "id": "3",
+          "name": "STATUS_FINAL",
+          "shortDetail": "Final",
+          "state": "post"
+        }
+      }
+    },
+    {
+      "competitions": [
+        {
+          "competitors": [
+            {
+              "homeAway": "home",
+              "id": "17",
+              "score": "45",
+              "team": {
+                "abbreviation": "NE",
+                "id": "17"
+              },
+              "winner": true
+            },
+            {
+              "homeAway": "away",
+              "id": "13",
+              "score": "17",
+              "team": {
+                "abbreviation": "LV",
+                "id": "13"
+              },
+              "winner": false
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 4,
+            "type": {
+              "completed": true,
+              "description": "Final",
+              "detail": "Final",
+              "id": "3",
+              "name": "STATUS_FINAL",
+              "shortDetail": "Final",
+              "state": "post"
+            }
+          }
+        }
+      ],
+      "date": "2026-10-11T17:00Z",
+      "id": "401872986",
+      "shortName": "LV @ NE",
+      "status": {
+        "period": 4,
+        "type": {
+          "completed": true,
+          "description": "Final",
+          "detail": "Final",
+          "id": "3",
+          "name": "STATUS_FINAL",
+          "shortDetail": "Final",
+          "state": "post"
+        }
+      }
+    }
+  ]
+}

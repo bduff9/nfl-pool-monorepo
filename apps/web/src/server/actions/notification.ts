@@ -29,4 +29,12 @@ export const updateUserNotifications = async (
     .where("NotificationType", "=", "Essentials")
     .where("UserID", "=", user.UserID)
     .executeTakeFirstOrThrow();
+  // Live game alerts are push-only and unobtrusive enough to be on by default; they still only reach users with a
+  // push subscription.
+  await trx
+    .updateTable("Notifications")
+    .set({ NotificationPushNotification: 1, NotificationUpdatedBy: user.UserEmail })
+    .where("NotificationType", "=", "LiveGameAlerts")
+    .where("UserID", "=", user.UserID)
+    .executeTakeFirstOrThrow();
 };

@@ -18,6 +18,8 @@ import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import type { Construct } from "constructs";
 import { config } from "dotenv";
 
+import { createLiveGameAlerts } from "./liveGameAlertsFunction";
+
 config();
 
 export class CdkStackProd extends Stack {
@@ -164,6 +166,8 @@ export class CdkStackProd extends Stack {
       }),
     });
 
+    const liveGameAlertsProd = createLiveGameAlerts(this, { enabled: true, environment, suffix: "Prod" });
+
     const resetPoolProd = new NodejsFunction(this, "ResetPoolProd", {
       bundling: {
         externalModules: [],
@@ -201,6 +205,7 @@ export class CdkStackProd extends Stack {
       { fn: currentWeekUpdaterProd, rule: onceAnHourScheduleRule },
       { fn: futureGameUpdaterProd, rule: twiceADayOnTheHalfHoursScheduleRule },
       { fn: liveGameUpdaterProd, rule: every5MinutesScheduleRule },
+      { fn: liveGameAlertsProd.fn, rule: liveGameAlertsProd.rule },
     ];
 
     for (const { fn, rule } of scheduledFunctions) {
@@ -231,6 +236,7 @@ export class CdkStackProd extends Stack {
       { fn: currentWeekUpdaterProd, memorySize: 512 },
       { fn: futureGameUpdaterProd, memorySize: 256 },
       { fn: liveGameUpdaterProd, memorySize: 512 },
+      { fn: liveGameAlertsProd.fn, memorySize: 256 },
       { fn: resetPoolProd, memorySize: 256 },
     ];
 

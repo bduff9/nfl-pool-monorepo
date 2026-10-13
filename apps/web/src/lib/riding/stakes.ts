@@ -1,18 +1,17 @@
+import {
+  forceWinner,
+  getProjectedRank,
+  getProjectedTotals,
+  getWinningTeam,
+  type ProjectionGame,
+  type ProjectionPick,
+} from "@nfl-pool-monorepo/utils/projections";
+
 import { isLiveCandidate, type OverlayableGame } from "@/lib/liveScores/applyLiveScores";
 
-export type RidingGame = Pick<OverlayableGame, "GameHomeScore" | "GameKickoff" | "GameStatus" | "GameVisitorScore"> & {
-  GameID: number;
-  HomeTeamID: number;
-  VisitorTeamID: number;
-  WinnerTeamID: null | number;
-};
+export type RidingGame = Pick<OverlayableGame, "GameKickoff" | "GameStatus"> & ProjectionGame;
 
-export type RidingPick = {
-  GameID: number;
-  PickPoints: null | number;
-  TeamID: null | number;
-  UserID: number;
-};
+export type RidingPick = ProjectionPick;
 
 export type PickStatus = "losing" | "tied" | "winning";
 
@@ -34,18 +33,6 @@ export type GameStakes = {
   };
   split: PoolSplit;
 };
-
-/** The team currently ahead on the (possibly overlaid) score, or null before kickoff or when tied. */
-const getLeader = (game: RidingGame): null | number => {
-  if (game.GameStatus === "Pregame" || game.GameHomeScore === game.GameVisitorScore) {
-    return null;
-  }
-
-  return game.GameHomeScore > game.GameVisitorScore ? game.HomeTeamID : game.VisitorTeamID;
-};
-
-/** The official winner when known, otherwise whoever is currently leading. */
-const getWinningTeam = (game: RidingGame): null | number => game.WinnerTeamID ?? getLeader(game);
 
 const getPickStatus = (game: RidingGame, teamId: number): PickStatus => {
   const winning = getWinningTeam(game);
@@ -80,36 +67,9 @@ const getPoolSplit = (picks: RidingPick[], game: RidingGame): PoolSplit => {
   return split;
 };
 
-const pickEarnsPoints = (pick: RidingPick, game: RidingGame | undefined): boolean =>
-  game !== undefined && pick.TeamID !== null && pick.TeamID === getWinningTeam(game);
-
-/** Each user's weekly points if every game ended with its current winner/leader. */
-const getProjectedTotals = (games: RidingGame[], picks: RidingPick[]): Map<number, number> => {
-  const gamesById = new Map(games.map((game) => [game.GameID, game]));
-  const totals = new Map<number, number>();
-
-  for (const pick of picks) {
-    const earned = pickEarnsPoints(pick, gamesById.get(pick.GameID)) ? (pick.PickPoints ?? 0) : 0;
-
-    totals.set(pick.UserID, (totals.get(pick.UserID) ?? 0) + earned);
-  }
-
-  return totals;
-};
-
-/** Competition ranking: users with equal totals share a rank (1, 2, 2, 4). */
-const getProjectedRank = (totals: Map<number, number>, userId: number): number => {
-  const own = totals.get(userId) ?? 0;
-
-  return 1 + [...totals.values()].filter((total) => total > own).length;
-};
-
 /** True for games that have kicked off and are not final, plus games the live overlay has just marked final. */
 const hasStakes = (game: RidingGame & { isLiveOverlay?: boolean }, now: Date): boolean =>
   isLiveCandidate(game, now) || game.isLiveOverlay === true;
-
-const forceWinner = (games: RidingGame[], gameId: number, winnerTeamId: number): RidingGame[] =>
-  games.map((game) => (game.GameID === gameId ? { ...game, GameStatus: "Final", WinnerTeamID: winnerTeamId } : game));
 
 const getScenario = (
   games: RidingGame[],

@@ -3,6 +3,7 @@ export const EmailTypes = [
   "gameTimeChanged",
   "interest",
   "invalidGames",
+  "liveGameAlert",
   "lockedOut",
   "newUser",
   "passwordReset",

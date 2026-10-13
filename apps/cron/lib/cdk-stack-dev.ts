@@ -12,6 +12,7 @@ import type { Construct } from "constructs";
 import { config } from "dotenv";
 
 import { fromEnv } from "./fromEnv";
+import { createLiveGameAlerts } from "./liveGameAlertsFunction";
 
 config();
 
@@ -169,6 +170,10 @@ export class CdkStackDev extends Stack {
     });
 
     every5MinutesScheduleRule.addTarget(new targets.LambdaFunction(liveGameUpdaterDev));
+
+    const liveGameAlertsDev = createLiveGameAlerts(this, { enabled: false, environment, suffix: "Dev" });
+
+    liveGameAlertsDev.rule.addTarget(new targets.LambdaFunction(liveGameAlertsDev.fn));
 
     new NodejsFunction(this, "ResetPoolDev", {
       bundling: {

@@ -24,4 +24,19 @@ describe("updateUserNotifications", () => {
     );
     expect(mockDb.where).toHaveBeenCalledWith("NotificationType", "=", "Essentials");
   });
+
+  it("turns live game alert push notifications on by default for the new user", async () => {
+    mockDb.executeTakeFirstOrThrow.mockResolvedValue({});
+
+    const { updateUserNotifications } = await import("./notification");
+
+    await updateUserNotifications(mockDb as unknown as Transaction<DB>, { UserEmail: "user@example.com", UserID: 7 });
+
+    expect(mockDb.set).toHaveBeenCalledWith({
+      NotificationPushNotification: 1,
+      NotificationUpdatedBy: "user@example.com",
+    });
+    expect(mockDb.where).toHaveBeenCalledWith("NotificationType", "=", "LiveGameAlerts");
+    expect(mockDb.where).toHaveBeenCalledWith("UserID", "=", 7);
+  });
 });

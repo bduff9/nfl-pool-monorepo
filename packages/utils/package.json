@@ -22,6 +22,7 @@
     "./database": "./src/database.ts",
     "./dates": "./src/dates.ts",
     "./numbers": "./src/numbers.ts",
+    "./projections": "./src/projections.ts",
     "./styles": "./src/styles.ts",
     "./validation": "./src/validation.ts"
   },

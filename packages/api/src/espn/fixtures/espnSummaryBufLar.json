@@ -1,0 +1,525 @@
+{
+  "drives": {
+    "previous": [
+      {
+        "id": "d1",
+        "plays": [
+          {
+            "awayScore": 3,
+            "homeScore": 0,
+            "id": "401872994133",
+            "period": {
+              "number": 1
+            },
+            "scoringPlay": true,
+            "text": "T.Bass 49 yard field goal is GOOD, Center-R.Ferguson, Holder-T.Doman.",
+            "type": {
+              "text": "Field Goal Good"
+            },
+            "wallclock": "2026-10-13T00:18:47Z"
+          },
+          {
+            "awayScore": 6,
+            "homeScore": 0,
+            "id": "401872994812",
+            "period": {
+              "number": 1
+            },
+            "scoringPlay": true,
+            "text": "T.Bass 23 yard field goal is GOOD, Center-R.Ferguson, Holder-T.Doman.",
+            "type": {
+              "text": "Field Goal Good"
+            },
+            "wallclock": "2026-10-13T00:42:11Z"
+          },
+          {
+            "awayScore": 6,
+            "homeScore": 7,
+            "id": "4018729941240",
+            "period": {
+              "number": 2
+            },
+            "scoringPlay": true,
+            "text": "(Shotgun) M.Stafford pass short left to D.Adams for 4 yards, TOUCHDOWN. H.Mevis extra point is GOOD, Center-J.Cardona, Holder-E.Evans.",
+            "type": {
+              "text": "Passing Touchdown"
+            },
+            "wallclock": "2026-10-13T00:58:58Z"
+          },
+          {
+            "awayScore": 13,
+            "homeScore": 7,
+            "id": "4018729941453",
+            "period": {
+              "number": 2
+            },
+            "scoringPlay": true,
+            "text": "J.Cook right tackle for 17 yards, TOUCHDOWN. T.Bass extra point is GOOD, Center-R.Ferguson, Holder-T.Doman.",
+            "type": {
+              "text": "Rushing Touchdown"
+            },
+            "wallclock": "2026-10-13T01:09:47Z"
+          },
+          {
+            "awayScore": 13,
+            "homeScore": 14,
+            "id": "4018729942383",
+            "period": {
+              "number": 3
+            },
+            "scoringPlay": true,
+            "text": "B.Corum right tackle for 1 yard, TOUCHDOWN. H.Mevis extra point is GOOD, Center-J.Cardona, Holder-E.Evans.",
+            "type": {
+              "text": "Rushing Touchdown"
+            },
+            "wallclock": "2026-10-13T01:56:52Z"
+          },
+          {
+            "awayScore": 19,
+            "homeScore": 14,
+            "id": "4018729943039",
+            "period": {
+              "number": 3
+            },
+            "scoringPlay": true,
+            "text": "(Shotgun) J.Allen pass short right to K.Coleman for 7 yards, TOUCHDOWN. LA-J.Watson was injured during the play. T.Bass extra point is No Good, Wide Right, Center-R.Ferguson, Holder-T.Doman.",
+            "type": {
+              "text": "Passing Touchdown"
+            },
+            "wallclock": "2026-10-13T02:22:51Z"
+          },
+          {
+            "awayScore": 19,
+            "homeScore": 20,
+            "id": "4018729943307",
+            "period": {
+              "number": 4
+            },
+            "scoringPlay": true,
+            "text": "M.Stafford pass short left to P.Nacua for 2 yards, TOUCHDOWN. TWO-POINT CONVERSION ATTEMPT. M.Stafford is sacked. ATTEMPT FAILS.",
+            "type": {
+              "text": "Passing Touchdown"
+            },
+            "wallclock": "2026-10-13T02:38:23Z"
+          },
+          {
+            "awayScore": 27,
+            "homeScore": 20,
+            "id": "4018729943512",
+            "period": {
+              "number": 4
+            },
+            "scoringPlay": true,
+            "text": "J.Allen up the middle for 1 yard, TOUCHDOWN. TWO-POINT CONVERSION ATTEMPT. J.Allen pass to D.Kincaid is complete. ATTEMPT SUCCEEDS.",
+            "type": {
+              "text": "Rushing Touchdown"
+            },
+            "wallclock": "2026-10-13T02:45:42Z"
+          },
+          {
+            "awayScore": 27,
+            "homeScore": 27,
+            "id": "4018729943788",
+            "period": {
+              "number": 4
+            },
+            "scoringPlay": true,
+            "text": "(Shotgun) M.Stafford pass short middle to D.Adams for 5 yards, TOUCHDOWN. H.Mevis extra point is GOOD, Center-J.Cardona, Holder-E.Evans.",
+            "type": {
+              "text": "Passing Touchdown"
+            },
+            "wallclock": "2026-10-13T02:57:51Z"
+          },
+          {
+            "awayScore": 34,
+            "homeScore": 27,
+            "id": "4018729944123",
+            "period": {
+              "number": 4
+            },
+            "scoringPlay": true,
+            "text": "J.Cook up the middle for 5 yards, TOUCHDOWN. T.Bass extra point is GOOD, Center-R.Ferguson, Holder-T.Doman.",
+            "type": {
+              "text": "Rushing Touchdown"
+            },
+            "wallclock": "2026-10-13T03:13:51Z"
+          },
+          {
+            "awayScore": 34,
+            "homeScore": 34,
+            "id": "4018729944392",
+            "period": {
+              "number": 4
+            },
+            "scoringPlay": true,
+            "text": "(No Huddle, Shotgun) K.Williams left guard for 1 yard, TOUCHDOWN. H.Mevis extra point is GOOD, Center-J.Cardona, Holder-E.Evans.",
+            "type": {
+              "text": "Rushing Touchdown"
+            },
+            "wallclock": "2026-10-13T03:20:07Z"
+          },
+          {
+            "awayScore": 37,
+            "homeScore": 34,
+            "id": "4018729944965",
+            "period": {
+              "number": 5
+            },
+            "scoringPlay": true,
+            "text": " T.Bass 45 yard field goal is GOOD, Center-R.Ferguson, Holder-T.Doman.",
+            "type": {
+              "text": "Field Goal Good"
+            },
+            "wallclock": "2026-10-13T03:47:02Z"
+          },
+          {
+            "awayScore": 37,
+            "homeScore": 34,
+            "id": "4018729944992",
+            "period": {
+              "number": 5
+            },
+            "scoringPlay": false,
+            "text": "END GAME",
+            "type": {
+              "text": "End of Game"
+            },
+            "wallclock": "2026-10-13T03:47:02Z"
+          }
+        ]
+      }
+    ]
+  },
+  "header": {
+    "competitions": [
+      {
+        "competitors": [
+          {
+            "homeAway": "home",
+            "id": "14",
+            "score": "34",
+            "team": {
+              "abbreviation": "LAR",
+              "id": "14"
+            },
+            "winner": false
+          },
+          {
+            "homeAway": "away",
+            "id": "2",
+            "score": "37",
+            "team": {
+              "abbreviation": "BUF",
+              "id": "2"
+            },
+            "winner": true
+          }
+        ],
+        "date": "2026-10-13T00:15Z",
+        "status": {
+          "type": {
+            "altDetail": "OT",
+            "completed": true,
+            "description": "Final",
+            "detail": "Final/OT",
+            "id": "3",
+            "name": "STATUS_FINAL",
+            "shortDetail": "Final/OT",
+            "state": "post"
+          }
+        }
+      }
+    ],
+    "id": "401872994"
+  },
+  "scoringPlays": [
+    {
+      "awayScore": 3,
+      "clock": {
+        "displayValue": "13:23",
+        "value": 803
+      },
+      "homeScore": 0,
+      "id": "401872994133",
+      "period": {
+        "number": 1
+      },
+      "scoringType": {
+        "name": "field-goal"
+      },
+      "team": {
+        "abbreviation": "BUF",
+        "id": "2"
+      },
+      "text": "Tyler Bass 49 Yd Field Goal",
+      "type": {
+        "abbreviation": "FG",
+        "text": "Field Goal Good"
+      }
+    },
+    {
+      "awayScore": 6,
+      "clock": {
+        "displayValue": "0:10",
+        "value": 10
+      },
+      "homeScore": 0,
+      "id": "401872994812",
+      "period": {
+        "number": 1
+      },
+      "scoringType": {
+        "name": "field-goal"
+      },
+      "team": {
+        "abbreviation": "BUF",
+        "id": "2"
+      },
+      "text": "Tyler Bass 23 Yd Field Goal",
+      "type": {
+        "abbreviation": "FG",
+        "text": "Field Goal Good"
+      }
+    },
+    {
+      "awayScore": 6,
+      "clock": {
+        "displayValue": "8:00",
+        "value": 480
+      },
+      "homeScore": 7,
+      "id": "4018729941240",
+      "period": {
+        "number": 2
+      },
+      "scoringType": {
+        "name": "touchdown"
+      },
+      "team": {
+        "abbreviation": "LAR",
+        "id": "14"
+      },
+      "text": "Davante Adams 4 Yd pass from Matthew Stafford (Harrison Mevis Kick)",
+      "type": {
+        "abbreviation": "TD",
+        "text": "Passing Touchdown"
+      }
+    },
+    {
+      "awayScore": 13,
+      "clock": {
+        "displayValue": "5:09",
+        "value": 309
+      },
+      "homeScore": 7,
+      "id": "4018729941453",
+      "period": {
+        "number": 2
+      },
+      "scoringType": {
+        "name": "touchdown"
+      },
+      "team": {
+        "abbreviation": "BUF",
+        "id": "2"
+      },
+      "text": "James Cook III 17 Yd Rush (Tyler Bass Kick)",
+      "type": {
+        "abbreviation": "TD",
+        "text": "Rushing Touchdown"
+      }
+    },
+    {
+      "awayScore": 13,
+      "clock": {
+        "displayValue": "10:11",
+        "value": 611
+      },
+      "homeScore": 14,
+      "id": "4018729942383",
+      "period": {
+        "number": 3
+      },
+      "scoringType": {
+        "name": "touchdown"
+      },
+      "team": {
+        "abbreviation": "LAR",
+        "id": "14"
+      },
+      "text": "Blake Corum 1 Yd Rush (Harrison Mevis Kick)",
+      "type": {
+        "abbreviation": "TD",
+        "text": "Rushing Touchdown"
+      }
+    },
+    {
+      "awayScore": 19,
+      "clock": {
+        "displayValue": "2:45",
+        "value": 165
+      },
+      "homeScore": 14,
+      "id": "4018729943039",
+      "period": {
+        "number": 3
+      },
+      "scoringType": {
+        "name": "touchdown"
+      },
+      "team": {
+        "abbreviation": "BUF",
+        "id": "2"
+      },
+      "text": "Keon Coleman 7 Yd pass from Josh Allen (Tyler Bass PAT Failed)",
+      "type": {
+        "abbreviation": "TD",
+        "text": "Passing Touchdown"
+      }
+    },
+    {
+      "awayScore": 19,
+      "clock": {
+        "displayValue": "14:16",
+        "value": 856
+      },
+      "homeScore": 20,
+      "id": "4018729943307",
+      "period": {
+        "number": 4
+      },
+      "scoringType": {
+        "name": "touchdown"
+      },
+      "team": {
+        "abbreviation": "LAR",
+        "id": "14"
+      },
+      "text": "Puka Nacua 2 Yd pass from Matthew Stafford (Two-Point Pass Conversion Failed)",
+      "type": {
+        "abbreviation": "TD",
+        "text": "Passing Touchdown"
+      }
+    },
+    {
+      "awayScore": 27,
+      "clock": {
+        "displayValue": "11:28",
+        "value": 688
+      },
+      "homeScore": 20,
+      "id": "4018729943512",
+      "period": {
+        "number": 4
+      },
+      "scoringType": {
+        "name": "touchdown"
+      },
+      "team": {
+        "abbreviation": "BUF",
+        "id": "2"
+      },
+      "text": "Josh Allen 1 Yd Rush (Josh Allen Pass to Dalton Kincaid for Two-Point Conversion)",
+      "type": {
+        "abbreviation": "TD",
+        "text": "Rushing Touchdown"
+      }
+    },
+    {
+      "awayScore": 27,
+      "clock": {
+        "displayValue": "7:14",
+        "value": 434
+      },
+      "homeScore": 27,
+      "id": "4018729943788",
+      "period": {
+        "number": 4
+      },
+      "scoringType": {
+        "name": "touchdown"
+      },
+      "team": {
+        "abbreviation": "LAR",
+        "id": "14"
+      },
+      "text": "Davante Adams 5 Yd pass from Matthew Stafford (Harrison Mevis Kick)",
+      "type": {
+        "abbreviation": "TD",
+        "text": "Passing Touchdown"
+      }
+    },
+    {
+      "awayScore": 34,
+      "clock": {
+        "displayValue": "1:39",
+        "value": 99
+      },
+      "homeScore": 27,
+      "id": "4018729944123",
+      "period": {
+        "number": 4
+      },
+      "scoringType": {
+        "name": "touchdown"
+      },
+      "team": {
+        "abbreviation": "BUF",
+        "id": "2"
+      },
+      "text": "James Cook III 5 Yd Rush (Tyler Bass Kick)",
+      "type": {
+        "abbreviation": "TD",
+        "text": "Rushing Touchdown"
+      }
+    },
+    {
+      "awayScore": 34,
+      "clock": {
+        "displayValue": "0:05",
+        "value": 5
+      },
+      "homeScore": 34,
+      "id": "4018729944392",
+      "period": {
+        "number": 4
+      },
+      "scoringType": {
+        "name": "touchdown"
+      },
+      "team": {
+        "abbreviation": "LAR",
+        "id": "14"
+      },
+      "text": "Kyren Williams 1 Yd Rush (Harrison Mevis Kick)",
+      "type": {
+        "abbreviation": "TD",
+        "text": "Rushing Touchdown"
+      }
+    },
+    {
+      "awayScore": 37,
+      "clock": {
+        "displayValue": "1:55",
+        "value": 115
+      },
+      "homeScore": 34,
+      "id": "4018729944965",
+      "period": {
+        "number": 5
+      },
+      "scoringType": {
+        "name": "field-goal"
+      },
+      "team": {
+        "abbreviation": "BUF",
+        "id": "2"
+      },
+      "text": "Tyler Bass 45 Yd Field Goal ",
+      "type": {
+        "abbreviation": "FG",
+        "text": "Field Goal Good"
+      }
+    }
+  ]
+}
