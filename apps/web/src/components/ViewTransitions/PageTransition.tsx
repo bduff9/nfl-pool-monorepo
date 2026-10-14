@@ -3,6 +3,7 @@ import { type FC, type ReactNode, ViewTransition } from "react";
 const directionalSlide = {
   default: "none",
   "nav-back": "nav-back",
+  "nav-fade": "nav-fade",
   "nav-forward": "nav-forward",
 } as const;
 

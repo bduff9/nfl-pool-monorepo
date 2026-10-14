@@ -43,6 +43,8 @@
   --duration-exit: 150ms;
   --duration-enter: 210ms;
   --duration-move: 400ms;
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-quint: cubic-bezier(0.83, 0, 0.17, 1);
   --safe-top: env(safe-area-inset-top, 0px);
   --actions-bar-height: calc(70px + env(safe-area-inset-bottom, 0px));
 }
@@ -324,7 +326,7 @@
 
   animation:
     var(--duration-exit) ease-in both fade reverse,
-    var(--duration-move) ease-in-out both slide reverse;
+    var(--duration-move) var(--ease-in-out-quint) both slide reverse;
 }
 
 ::view-transition-new(.nav-forward) {
@@ -332,7 +334,7 @@
 
   animation:
     var(--duration-enter) ease-out var(--duration-exit) both fade,
-    var(--duration-move) ease-in-out both slide;
+    var(--duration-move) var(--ease-in-out-quint) both slide;
 }
 
 ::view-transition-old(.nav-back) {
@@ -340,7 +342,7 @@
 
   animation:
     var(--duration-exit) ease-in both fade reverse,
-    var(--duration-move) ease-in-out both slide reverse;
+    var(--duration-move) var(--ease-in-out-quint) both slide reverse;
 }
 
 ::view-transition-new(.nav-back) {
@@ -348,7 +350,20 @@
 
   animation:
     var(--duration-enter) ease-out var(--duration-exit) both fade,
-    var(--duration-move) ease-in-out both slide;
+    var(--duration-move) var(--ease-in-out-quint) both slide;
+}
+
+::view-transition-old(.nav-fade) {
+  animation: var(--duration-exit) ease-in both fade reverse;
+}
+
+::view-transition-new(.nav-fade) {
+  animation: var(--duration-enter) ease-out var(--duration-exit) both fade;
+}
+
+::view-transition-group(.morph) {
+  animation-duration: var(--duration-move);
+  animation-timing-function: var(--ease-in-out-quint);
 }
 
 ::view-transition-group(persistent-nav),
