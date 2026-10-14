@@ -186,8 +186,9 @@ export const quickPick = authActionClient
       }
     });
 
+    // The quick-pick page doesn't know the game's week; it uses this to land on that week's picks
     return {
-      metadata: {},
+      metadata: { week: game.GameWeek },
       status: "Success",
     };
   });

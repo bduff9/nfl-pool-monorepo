@@ -202,7 +202,7 @@ describe("quickPick", () => {
     const { quickPick } = await import("./pick");
     const result = await quickPick({ teamId: 5 });
 
-    expect(result?.data?.status).toBe("Success");
+    expect(result?.data).toEqual({ metadata: { week: 1 }, status: "Success" });
     expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({ PickPoints: 4, TeamID: 5 }));
     expect(sendQuickPickConfirmationEmail).not.toHaveBeenCalled();
 

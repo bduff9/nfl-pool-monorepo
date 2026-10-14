@@ -9,6 +9,8 @@ import { toast } from "sonner";
 
 import { quickPick } from "@/server/actions/pick";
 
+import { getQuickPickLandingRoute } from "./quickPickConfirmHelpers";
+
 type Props = {
   teamId: number;
   teamLabel: string;
@@ -24,9 +26,9 @@ const QuickPickConfirm: FC<Props> = ({ teamId, teamLabel }) => {
       setErrorMessage(message);
       toast.error("Quick pick failed!", { description: message });
     },
-    onSuccess: () => {
+    onSuccess: ({ data }) => {
       toast.success("Successfully made your quick pick!");
-      router.push("/picks/set", { transitionTypes: ["nav-forward"] });
+      router.push(getQuickPickLandingRoute(data?.metadata?.week), { transitionTypes: ["nav-forward"] });
     },
   });
 

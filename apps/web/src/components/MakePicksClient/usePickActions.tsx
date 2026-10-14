@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { onActionError } from "@/lib/actionErrorToast";
 import type { AutoPickStrategy } from "@/lib/constants";
+import { withWeek } from "@/lib/weekSearchParams";
 import { autoPickMyPicks, resetMyPicksForWeek, submitMyPicks, validateMyPicks } from "@/server/actions/pick";
 import { updateMyTiebreakerScore } from "@/server/actions/tiebreaker";
 import type { getMyWeeklyPicks } from "@/server/loaders/pick";
@@ -130,7 +131,7 @@ export const usePickActions = ({
     },
     onSuccess: () => {
       toast.success(`Successfully submitted your picks for week ${selectedWeek}`);
-      router.push("/picks/view", { transitionTypes: ["nav-forward"] });
+      router.push(withWeek("/picks/view", selectedWeek), { transitionTypes: ["nav-forward"] });
     },
   });
 
