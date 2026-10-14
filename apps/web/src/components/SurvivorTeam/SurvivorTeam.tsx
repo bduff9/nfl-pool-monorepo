@@ -25,6 +25,7 @@ import type { FC } from "react";
 import { PiFootballDuotone } from "react-icons/pi";
 
 import TeamLogo from "../TeamLogo/TeamLogo";
+import SharedElement from "../ViewTransitions/SharedElement";
 import {
   getPickBadgeVariant,
   getSurvivorTeamClasses,
@@ -34,6 +35,7 @@ import {
 } from "./survivorTeamHelpers";
 
 type Props = {
+  badgeTransitionName?: string | undefined;
   isHome?: boolean;
   isOnBye?: boolean;
   loading?: null | number;
@@ -43,16 +45,22 @@ type Props = {
   weekInProgress: number | null;
 };
 
-const SurvivorPickBadge: FC<Pick<Props, "pick" | "weekInProgress">> = ({ pick, weekInProgress }) => {
+const SurvivorPickBadge: FC<Pick<Props, "badgeTransitionName" | "pick" | "weekInProgress">> = ({
+  badgeTransitionName,
+  pick,
+  weekInProgress,
+}) => {
   if (!pick) return null;
 
   return (
-    <Badge
-      className="rounded-full absolute top-0 start-0"
-      variant={getPickBadgeVariant(pick.SurvivorPickWeek, weekInProgress)}
-    >
-      {pick.SurvivorPickWeek}
-    </Badge>
+    <SharedElement name={badgeTransitionName}>
+      <Badge
+        className="rounded-full absolute top-0 start-0"
+        variant={getPickBadgeVariant(pick.SurvivorPickWeek, weekInProgress)}
+      >
+        {pick.SurvivorPickWeek}
+      </Badge>
+    </SharedElement>
   );
 };
 
@@ -66,7 +74,16 @@ const SurvivorTeamName: FC<Pick<Props, "team">> = ({ team }) => (
   </>
 );
 
-const SurvivorTeam: FC<Props> = ({ isHome, isOnBye, loading, onClick, pick, team, weekInProgress }) => {
+const SurvivorTeam: FC<Props> = ({
+  badgeTransitionName,
+  isHome,
+  isOnBye,
+  loading,
+  onClick,
+  pick,
+  team,
+  weekInProgress,
+}) => {
   const stateClasses = getSurvivorTeamStateClasses(pick?.SurvivorPickWeek, weekInProgress, isOnBye, loading, isHome);
 
   return (
@@ -76,7 +93,7 @@ const SurvivorTeam: FC<Props> = ({ isHome, isOnBye, loading, onClick, pick, team
       onClick={onClick}
       type="button"
     >
-      <SurvivorPickBadge pick={pick} weekInProgress={weekInProgress} />
+      <SurvivorPickBadge badgeTransitionName={badgeTransitionName} pick={pick} weekInProgress={weekInProgress} />
       <TeamLogo team={team} />
       <br />
       {isTeamLoading(loading, team?.TeamID) && <PiFootballDuotone aria-hidden="true" className="animate-spin" />}

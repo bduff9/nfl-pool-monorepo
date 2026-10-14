@@ -4,14 +4,18 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { useOffline } from "next/offline";
 import { useAction } from "next-safe-action/hooks";
 import {
+  addTransitionType,
   type Dispatch,
   type FC,
   type SetStateAction,
+  startTransition,
+  useDeferredValue,
   useEffect,
   useOptimistic,
   useRef,
   useState,
   useTransition,
+  ViewTransition,
 } from "react";
 import { FaAt, FaInfoCircle, FaTimesCircle } from "react-icons/fa";
 import { toast } from "sonner";
@@ -28,6 +32,18 @@ import SurvivorTeam from "../SurvivorTeam/SurvivorTeam";
 import TeamDetail from "../TeamDetail/TeamDetail";
 import { getPreviousTeamId, getSavingToastMessage } from "./survivorPickHelpers";
 
+// Only opening or closing a game's details animates these boundaries: a pick (the week badge hop) or a page or week
+// change leaves them still
+const DETAIL_TRANSITION = "survivor-detail";
+// Typed so globals.css can keep the page scrim out of it (see [data-page-scrim])
+const PICK_TRANSITION = "survivor-pick";
+const detailFade = { default: "none", [DETAIL_TRANSITION]: "nav-fade" } as const;
+const detailMove = { default: "none", [DETAIL_TRANSITION]: "morph" } as const;
+const detailPanelEnter = { default: "none", [DETAIL_TRANSITION]: "detail-expand" } as const;
+const detailPanelExit = { default: "none", [DETAIL_TRANSITION]: "detail-collapse" } as const;
+
+const SURVIVOR_WEEK_BADGE = "survivor-week-badge";
+
 type Props = {
   games: Awaited<ReturnType<typeof getGamesForWeekCached>>;
   survivorPicks: Awaited<ReturnType<typeof getMySurvivorPicks>>;
@@ -43,8 +59,15 @@ type SurvivorGameCardProps = {
   selectedGame: null | Awaited<ReturnType<typeof getGamesForWeekCached>>[number];
   setSelectedGame: Dispatch<SetStateAction<null | Awaited<ReturnType<typeof getGamesForWeekCached>>[number]>>;
   setSurvivorPick: (gameID: number, teamID: number | null) => void;
+  week: number;
   weekInProgress: number | null;
 };
+
+type SurvivorPick = Awaited<ReturnType<typeof getMySurvivorPicks>>[number];
+
+// Only the badge of the week being picked carries the name, so it hops from the old team to the new one on a new pick
+const getBadgeTransitionName = (pick: SurvivorPick | undefined, week: number): string | undefined =>
+  pick?.SurvivorPickWeek === week ? SURVIVOR_WEEK_BADGE : undefined;
 
 const SurvivorGameCard: FC<SurvivorGameCardProps> = ({
   game,
@@ -53,10 +76,16 @@ const SurvivorGameCard: FC<SurvivorGameCardProps> = ({
   selectedGame,
   setSelectedGame,
   setSurvivorPick,
+  week,
   weekInProgress,
 }) => {
+  const visitorPick = optimisticPicks.find((pick) => pick.TeamID === game.visitorTeam?.TeamID);
+  const homePick = optimisticPicks.find((pick) => pick.TeamID === game.homeTeam?.TeamID);
   const onToggleGame = () => {
-    setSelectedGame((currentGame) => (currentGame ? null : game));
+    startTransition(() => {
+      addTransitionType(DETAIL_TRANSITION);
+      setSelectedGame((currentGame) => (currentGame ? null : game));
+    });
   };
 
   const onSelectVisitor = () => {
@@ -89,17 +118,19 @@ const SurvivorGameCard: FC<SurvivorGameCardProps> = ({
         <div>{selectedGame ? <FaTimesCircle className="text-red-500" /> : <FaInfoCircle />}</div>
       </button>
       <SurvivorTeam
+        badgeTransitionName={getBadgeTransitionName(visitorPick, week)}
         loading={loading}
         onClick={onSelectVisitor}
-        pick={optimisticPicks.find((pick) => pick.TeamID === game.visitorTeam?.TeamID)}
+        pick={visitorPick}
         team={game.visitorTeam}
         weekInProgress={weekInProgress}
       />
       <SurvivorTeam
+        badgeTransitionName={getBadgeTransitionName(homePick, week)}
         isHome
         loading={loading}
         onClick={onSelectHome}
-        pick={optimisticPicks.find((pick) => pick.TeamID === game.homeTeam?.TeamID)}
+        pick={homePick}
         team={game.homeTeam}
         weekInProgress={weekInProgress}
       />
@@ -130,6 +161,9 @@ const MakeSurvivorPickClient: FC<Props> = ({ games, survivorPicks, teamsOnBye, w
       return pick;
     });
   });
+  // An optimistic update renders urgently, which never starts a view transition. Following it one deferred render later
+  // does, so the week badge can hop from the old team to the new one (and back if the pick fails)
+  const shownPicks = useDeferredValue(optimisticPicks);
   const toastIdRef = useRef<string | number | undefined>(undefined);
   const previousTeamIdRef = useRef<number | null>(null);
   const [, startSurvivorPickUpdating] = useTransition();
@@ -138,6 +172,7 @@ const MakeSurvivorPickClient: FC<Props> = ({ games, survivorPicks, teamsOnBye, w
     onError: (args) => {
       onActionError(args);
       startSurvivorPickUpdating(() => {
+        addTransitionType(PICK_TRANSITION);
         setOptimisticPick(previousTeamIdRef.current);
       });
     },
@@ -163,6 +198,7 @@ const MakeSurvivorPickClient: FC<Props> = ({ games, survivorPicks, teamsOnBye, w
     });
 
     startSurvivorPickUpdating(() => {
+      addTransitionType(PICK_TRANSITION);
       setOptimisticPick(teamID);
       executeSurvivorPick({ gameID, teamID, week });
     });
@@ -180,35 +216,45 @@ const MakeSurvivorPickClient: FC<Props> = ({ games, survivorPicks, teamsOnBye, w
           }
 
           return (
-            <SurvivorGameCard
-              game={game}
+            <ViewTransition
+              default="none"
+              enter={detailFade}
+              exit={detailFade}
               key={`survivor-game-${game.GameID}`}
-              loading={loading}
-              optimisticPicks={optimisticPicks}
-              selectedGame={selectedGame}
-              setSelectedGame={setSelectedGame}
-              setSurvivorPick={setSurvivorPick}
-              weekInProgress={weekInProgress}
-            />
+              update={detailMove}
+            >
+              <SurvivorGameCard
+                game={game}
+                loading={loading}
+                optimisticPicks={shownPicks}
+                selectedGame={selectedGame}
+                setSelectedGame={setSelectedGame}
+                setSurvivorPick={setSurvivorPick}
+                week={week}
+                weekInProgress={weekInProgress}
+              />
+            </ViewTransition>
           );
         })}
       </div>
       {selectedGame ? (
-        <TeamDetail game={selectedGame} />
+        <ViewTransition default="none" enter={detailPanelEnter} exit={detailPanelExit} key="team-detail">
+          <TeamDetail game={selectedGame} />
+        </ViewTransition>
       ) : teamsOnBye.length > 0 ? (
-        <>
+        <ViewTransition default="none" enter={detailFade} exit={detailFade} key="teams-on-bye">
           <div className="w-full"></div>
           <h5 className="text-center pt-4 text-lg font-semibold">Teams on Bye Week</h5>
           {teamsOnBye.map((team) => (
             <SurvivorTeam
               isOnBye
               key={`bye-week-team-${team.TeamID}`}
-              pick={optimisticPicks.find((pick) => pick.TeamID === team.TeamID)}
+              pick={shownPicks.find((pick) => pick.TeamID === team.TeamID)}
               team={team}
               weekInProgress={weekInProgress}
             />
           ))}
-        </>
+        </ViewTransition>
       ) : null}
     </div>
   );

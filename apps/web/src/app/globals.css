@@ -378,6 +378,30 @@
     var(--duration-move) var(--ease-out-quint) both slide;
 }
 
+/* Inline details panel (survivor picks): once the other games have faded out it unrolls downwards from its top edge, and
+   it rolls back up as it closes */
+@keyframes unroll {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+
+  to {
+    clip-path: inset(0);
+  }
+}
+
+::view-transition-new(.detail-expand) {
+  animation:
+    var(--duration-move) var(--ease-out-quint) var(--duration-exit) both unroll,
+    var(--duration-enter) ease-out var(--duration-exit) both fade;
+}
+
+::view-transition-old(.detail-collapse) {
+  animation:
+    var(--duration-enter) ease-in both unroll reverse,
+    var(--duration-enter) ease-in both fade reverse;
+}
+
 ::view-transition-group(.morph) {
   animation-duration: var(--duration-move);
   animation-timing-function: var(--ease-in-out-quint);
@@ -400,6 +424,17 @@
    under it, since the root snapshot is the opaque background photo. */
 ::view-transition-group(root) {
   z-index: -2;
+}
+
+[data-page-scrim] {
+  view-transition-name: page-scrim;
+}
+
+/* A transition inside a page (the survivor pick screen's details and week badge) leaves the page content in the root
+   snapshot, so the scrim stays in it too, under that content as on screen. Named, it would be drawn over the root and
+   dim the whole page while the transition runs. */
+:root:active-view-transition-type(survivor-detail, survivor-pick) [data-page-scrim] {
+  view-transition-name: none;
 }
 
 ::view-transition-group(page-scrim) {

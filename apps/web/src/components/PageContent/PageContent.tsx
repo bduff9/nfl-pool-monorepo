@@ -17,7 +17,7 @@ const PageContent: FC<PageContentProps> = ({ children, className, id }) => {
           is one screen tall and sticks to the top of the screen, so its transition snapshot is screen-sized rather than
           as tall as the page; the clipping box keeps it to the page's area as the page scrolls. */}
       <div aria-hidden="true" className="absolute inset-0 -z-10 overflow-clip">
-        <div className="sticky top-0 h-lvh bg-background/80" style={{ viewTransitionName: "page-scrim" }} />
+        <div className="sticky top-0 h-lvh bg-background/80" data-page-scrim />
       </div>
       <div className="px-1 pt-1 shrink-0">
         <PageSidebarTrigger />
