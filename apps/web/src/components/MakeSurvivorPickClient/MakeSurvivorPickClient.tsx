@@ -147,6 +147,7 @@ const SurvivorGameCard: FC<SurvivorGameCardProps> = ({
   );
 };
 
+// fallow-ignore-next-line complexity -- view-transition and optimistic pick wiring kept inline on purpose so the survivor pick save and flight ordering stays readable; splitting this live pick path mid-season adds risk
 const MakeSurvivorPickClient: FC<Props> = ({ games, survivorPicks, teamsOnBye, week, weekInProgress }) => {
   const isOffline = useOffline();
   const [selectedGame, setSelectedGame] = useState<null | (typeof games)[number]>(null);

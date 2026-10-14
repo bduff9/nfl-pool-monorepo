@@ -32,6 +32,30 @@ const formatSynced = (at: number): string => {
     : `${date.toLocaleDateString([], { day: "numeric", month: "short" })} ${time}`;
 };
 
+const SyncedLabel: FC<{ lastSynced: number | null }> = ({ lastSynced }) => {
+  return <span>Offline · {lastSynced ? `saved ${formatSynced(lastSynced)}` : "showing saved data"}</span>;
+};
+
+const BannerPill: FC<{ isOffline: boolean; lastSynced: number | null }> = ({ isOffline, lastSynced }) => {
+  return (
+    <div
+      aria-hidden={!isOffline}
+      className="offline-banner pointer-events-none fixed inset-x-0 top-[calc(env(safe-area-inset-top)+0.25rem)] z-[70] flex justify-center px-2"
+      data-state={isOffline ? "open" : "closed"}
+      style={isOffline ? { viewTransitionName: "offline-banner" } : undefined}
+    >
+      <div
+        aria-live="polite"
+        className="pointer-events-auto flex items-center gap-2 rounded-full border border-amber-500/60 bg-black/85 px-3 py-1 text-sm text-amber-300 shadow-lg backdrop-blur"
+        role="status"
+      >
+        <LuWifiOff aria-hidden="true" className="size-4 shrink-0" />
+        <SyncedLabel lastSynced={lastSynced} />
+      </div>
+    </div>
+  );
+};
+
 // A small pill pinned to the top of the screen so it is visible from any scroll position. It slides down from under the
 // status bar when the connection drops and back up when it returns (see .offline-banner in globals.css), so it stays
 // mounted, hidden, once it has been shown.
@@ -48,23 +72,7 @@ const OfflineBanner: FC = () => {
     return null;
   }
 
-  return (
-    <div
-      aria-hidden={!isOffline}
-      className="offline-banner pointer-events-none fixed inset-x-0 top-[calc(env(safe-area-inset-top)+0.25rem)] z-[70] flex justify-center px-2"
-      data-state={isOffline ? "open" : "closed"}
-      style={isOffline ? { viewTransitionName: "offline-banner" } : undefined}
-    >
-      <div
-        aria-live="polite"
-        className="pointer-events-auto flex items-center gap-2 rounded-full border border-amber-500/60 bg-black/85 px-3 py-1 text-sm text-amber-300 shadow-lg backdrop-blur"
-        role="status"
-      >
-        <LuWifiOff aria-hidden="true" className="size-4 shrink-0" />
-        <span>Offline · {lastSynced ? `saved ${formatSynced(lastSynced)}` : "showing saved data"}</span>
-      </div>
-    </div>
-  );
+  return <BannerPill isOffline={isOffline} lastSynced={lastSynced} />;
 };
 
 export default OfflineBanner;

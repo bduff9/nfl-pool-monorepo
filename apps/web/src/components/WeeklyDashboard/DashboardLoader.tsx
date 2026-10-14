@@ -42,48 +42,59 @@ type Props = {
   transitionNames?: TransitionNames;
 };
 
-const DashboardLoader: FC<Props> = ({ title, transitionNames }) => {
-  const rankTitle = transitionNames?.rankTitle;
-  const resultsTitle = transitionNames?.resultsTitle;
+const RankTitle: FC<{ name: string | undefined; title: string }> = ({ name, title }) => {
   const heading = <h2 className={RANK_TITLE_CLASS}>{title}</h2>;
+
+  if (name === undefined) {
+    return heading;
+  }
+
+  return (
+    <HandedOffHeading
+      className={RANK_TITLE_CLASS}
+      fallback={<SharedElement name={name}>{heading}</SharedElement>}
+      name={name}
+    />
+  );
+};
+
+const ResultsTitle: FC<{ name: string | undefined }> = ({ name }) => {
   const resultsSkeleton = <Skeleton className="mx-auto h-9 w-[250px] bg-muted" />;
+
+  if (name === undefined) {
+    return resultsSkeleton;
+  }
+
+  return <HandedOffHeading className={RESULTS_TITLE_CLASS} fallback={resultsSkeleton} name={name} />;
+};
+
+const DashboardLoader: FC<Props> = ({ title, transitionNames }) => {
+  const names = transitionNames ?? {};
 
   return (
     <div className={cn("text-center mb-3 md:mb-0 border-b border-border md:border-none px-3", DASHBOARD_CARD)}>
       {/* Named slots show what the page last rendered under the same name, so coming back from a details page the
           titles, ring and bars arrive filled instead of turning into placeholders */}
-      {rankTitle === undefined ? (
-        heading
-      ) : (
-        <HandedOffHeading
-          className={RANK_TITLE_CLASS}
-          fallback={<SharedElement name={rankTitle}>{heading}</SharedElement>}
-          name={rankTitle}
-        />
-      )}
+      <RankTitle name={names.rankTitle} title={title} />
       {/* View Details link */}
       <div className="mb-3 mt-[42px]">
         <Skeleton className="h-[18px] w-[87px] bg-muted" />
       </div>
       {/* Pie Chart */}
       <div className={cn("flex flex-col items-center", DASHBOARD_ROW.chart)}>
-        <RankingPieChartLoader transitionName={transitionNames?.rankingPieChart} />
+        <RankingPieChartLoader transitionName={names.rankingPieChart} />
       </div>
       {/* H2 */}
       <div className={cn("mt-5 md:mt-0", DASHBOARD_ROW.resultsTitle)}>
-        {resultsTitle === undefined ? (
-          resultsSkeleton
-        ) : (
-          <HandedOffHeading className={RESULTS_TITLE_CLASS} fallback={resultsSkeleton} name={resultsTitle} />
-        )}
+        <ResultsTitle name={names.resultsTitle} />
       </div>
       {/* Points Bar */}
       <div className={DASHBOARD_ROW.firstBar}>
-        <ProgressChartLoader transitionName={transitionNames?.pointsChart} />
+        <ProgressChartLoader transitionName={names.pointsChart} />
       </div>
       {/* Games Bar */}
       <div className={DASHBOARD_ROW.secondBar}>
-        <ProgressChartLoader transitionName={transitionNames?.gamesChart} />
+        <ProgressChartLoader transitionName={names.gamesChart} />
       </div>
     </div>
   );

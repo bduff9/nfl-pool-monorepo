@@ -107,9 +107,30 @@ const StaticRing: FC<{ data: Array<PieChartData> }> = ({ data }) => {
   );
 };
 
+// The ring sweeps open on a fresh load only. After a client navigation it is already drawn, so it moves with its page
+// or morphs from the other page's ring instead of being redrawn there. "auto" keeps Recharts' reduced motion check.
+const LiveRing: FC<{ data: Array<PieChartData>; hasNavigated: boolean }> = ({ data, hasNavigated }) => {
+  return (
+    <ResponsiveContainer height={CHART_HEIGHT} width="100%">
+      <PieChart height={400} width={400}>
+        <Pie
+          className={hasNavigated ? "opacity-0" : ""}
+          cx="50%"
+          cy="50%"
+          data={data}
+          dataKey="value"
+          innerRadius={INNER_RADIUS}
+          isAnimationActive={hasNavigated ? false : "auto"}
+          outerRadius={OUTER_RADIUS}
+        />
+        {!hasNavigated && <CenterLabel data={data} />}
+        <Tooltip />
+      </PieChart>
+    </ResponsiveContainer>
+  );
+};
+
 const RankingPieChart: FC<RankingPieChartProps> = ({ data, transitionName }) => {
-  // The ring sweeps open on a fresh load only. After a client navigation it is already drawn, so it moves with its page
-  // or morphs from the other page's ring instead of being redrawn there. "auto" keeps Recharts' reduced motion check.
   const hasNavigated = useHasNavigated();
 
   useRememberHandoff(rankingPieChartHandoff, transitionName, data);
@@ -120,22 +141,7 @@ const RankingPieChart: FC<RankingPieChartProps> = ({ data, transitionName }) => 
         {/* After a navigation the static ring is what shows; Recharts' own sectors stay invisible over it, only there
             for the tooltip */}
         {hasNavigated && <StaticRing data={data} />}
-        <ResponsiveContainer height={CHART_HEIGHT} width="100%">
-          <PieChart height={400} width={400}>
-            <Pie
-              className={hasNavigated ? "opacity-0" : ""}
-              cx="50%"
-              cy="50%"
-              data={data}
-              dataKey="value"
-              innerRadius={INNER_RADIUS}
-              isAnimationActive={hasNavigated ? false : "auto"}
-              outerRadius={OUTER_RADIUS}
-            />
-            {!hasNavigated && <CenterLabel data={data} />}
-            <Tooltip />
-          </PieChart>
-        </ResponsiveContainer>
+        <LiveRing data={data} hasNavigated={hasNavigated} />
       </div>
     </SharedElement>
   );

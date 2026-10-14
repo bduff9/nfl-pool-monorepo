@@ -61,6 +61,7 @@ const useMarkRowsOutOfView = (scrollerRef: RefObject<HTMLElement | null>): void 
   }, [scrollerRef]);
 };
 
+// fallow-ignore-next-line complexity -- row selection, lazy-mounted details and the pick row wiring kept inline on purpose so the pick board stays readable; splitting this live pick path mid-season adds risk
 const PickGameRow: FC<PickGameRowProps> = ({
   dragGameID,
   gameCount,
