@@ -20,7 +20,7 @@ import SharedElement from "@/components/ViewTransitions/SharedElement";
 
 type RankingPieChartLoaderProps = {
   // Only the detail-page loaders pass this; the dashboard loader renders the same skeleton without a name
-  transitionName?: string;
+  transitionName?: string | undefined;
 };
 
 const RankingPieChartLoader: FC<RankingPieChartLoaderProps> = ({ transitionName }) => {

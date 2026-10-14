@@ -75,14 +75,14 @@ export const SidebarUserMenu: FC<SidebarUserMenuProps> = ({ isMobile, onNavigate
             <DropdownMenuContent align="end" side={isMobile ? "bottom" : "right"}>
               {showAccountLinks(user) && (
                 <DropdownMenuItem>
-                  <WeekLink href="/users/edit" onClick={handleLinkClick}>
+                  <WeekLink href="/users/edit" onClick={handleLinkClick} transitionTypes={["nav-fade"]}>
                     Edit Account
                   </WeekLink>
                 </DropdownMenuItem>
               )}
               {showAccountLinks(user) && (
                 <DropdownMenuItem>
-                  <WeekLink href="/users/payments" onClick={handleLinkClick}>
+                  <WeekLink href="/users/payments" onClick={handleLinkClick} transitionTypes={["nav-fade"]}>
                     View Payments
                   </WeekLink>
                 </DropdownMenuItem>
@@ -100,7 +100,7 @@ export const SidebarUserMenu: FC<SidebarUserMenuProps> = ({ isMobile, onNavigate
                 )}
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <WeekLink href="/auth/logout" onClick={handleLinkClick}>
+                <WeekLink href="/auth/logout" onClick={handleLinkClick} transitionTypes={["nav-fade"]}>
                   Sign out
                 </WeekLink>
               </DropdownMenuItem>

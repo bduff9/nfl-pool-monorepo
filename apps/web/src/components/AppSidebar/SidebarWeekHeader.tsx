@@ -39,7 +39,13 @@ type WeekStepButtonProps = {
 
 const WeekStepButton: FC<WeekStepButtonProps> = ({ ariaLabel, href, icon, onClick, transitionType }) => (
   <Button asChild className="p-0 m-0 [&_svg]:size-6" size="icon" variant="ghost">
-    <WeekLink aria-label={ariaLabel} href={href} onClick={onClick} prefetch={true} transitionTypes={[transitionType]}>
+    <WeekLink
+      aria-label={ariaLabel}
+      href={href}
+      onClick={onClick}
+      prefetch={true}
+      transitionTypes={[transitionType, "week-change"]}
+    >
       {icon}
     </WeekLink>
   </Button>
@@ -59,7 +65,8 @@ const WeekMenuItem: FC<WeekMenuItemProps> = ({ currentWeek, href, onSelectWeek, 
     onSelectWeek(week);
   };
 
-  const transitionTypes: string[] = week > selectedWeek ? ["nav-forward"] : week < selectedWeek ? ["nav-back"] : [];
+  const transitionTypes: string[] =
+    week > selectedWeek ? ["nav-forward", "week-change"] : week < selectedWeek ? ["nav-back", "week-change"] : [];
 
   return (
     <Fragment>
@@ -158,7 +165,9 @@ export const SidebarWeekHeader: FC<SidebarWeekHeaderProps> = ({
                 href={withWeek(asRoute(pathname), currentWeek)}
                 onClick={handleGoToCurrentWeek}
                 prefetch={true}
-                transitionTypes={currentWeek > selectedWeek ? ["nav-forward"] : ["nav-back"]}
+                transitionTypes={
+                  currentWeek > selectedWeek ? ["nav-forward", "week-change"] : ["nav-back", "week-change"]
+                }
               >
                 <LuReply />
                 &nbsp;Go to current week

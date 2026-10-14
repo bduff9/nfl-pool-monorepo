@@ -20,27 +20,40 @@ import type { FC } from "react";
 
 import ProgressChartLoader from "../ProgressChart/ProgressChartLoader";
 import RankingPieChartLoader from "../RankingPieChart/RankingPieChartLoader";
+import SharedElement from "../ViewTransitions/SharedElement";
+
+// The view transition names the real dashboard uses at each slot, so the detail pages can morph back into this skeleton
+type TransitionNames = {
+  gamesChart?: string;
+  pointsChart?: string;
+  rankingPieChart?: string;
+  rankTitle?: string;
+};
 
 type Props = {
   title: string;
+  transitionNames?: TransitionNames;
 };
 
-const DashboardLoader: FC<Props> = ({ title }) => {
+const DashboardLoader: FC<Props> = ({ title, transitionNames }) => {
+  const rankTitle = transitionNames?.rankTitle;
+  const heading = <h2 className="mb-0 scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0">{title}</h2>;
+
   return (
     <div className={cn("md:w-1/3 text-center mb-3 md:mb-0 border-b border-border md:border-none")}>
-      <h2 className="mb-0">{title}</h2>
+      {rankTitle === undefined ? heading : <SharedElement name={rankTitle}>{heading}</SharedElement>}
       {/* View Details link */}
       <div className="mb-3 mt-[42px]">
         <Skeleton className="h-[18px] w-[87px] bg-muted" />
       </div>
       {/* Pie Chart */}
-      <RankingPieChartLoader />
+      <RankingPieChartLoader transitionName={transitionNames?.rankingPieChart} />
       {/* H2 */}
       <Skeleton className="mt-5 h-9 w-[250px] bg-muted" />
       {/* Points Bar */}
-      <ProgressChartLoader />
+      <ProgressChartLoader transitionName={transitionNames?.pointsChart} />
       {/* Games Bar */}
-      <ProgressChartLoader />
+      <ProgressChartLoader transitionName={transitionNames?.gamesChart} />
     </div>
   );
 };

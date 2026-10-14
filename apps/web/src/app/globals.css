@@ -366,6 +366,11 @@
   animation-timing-function: var(--ease-in-out-quint);
 }
 
+::view-transition-old(.morph),
+::view-transition-new(.morph) {
+  animation-duration: var(--duration-move);
+}
+
 ::view-transition-group(persistent-nav),
 ::view-transition-group(offline-banner),
 ::view-transition-group(app-toaster) {

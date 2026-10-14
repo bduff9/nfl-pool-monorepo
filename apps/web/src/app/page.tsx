@@ -48,21 +48,52 @@ const DashboardPageBody: FC<PageProps<"/">> = async ({ searchParams }) => {
           <InstallAppPrompt />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-0 min-h-dvh">
             <SectionError title="Weekly Rank">
-              <Suspense fallback={<DashboardLoader title="Weekly Rank" />}>
+              <Suspense
+                fallback={
+                  <DashboardLoader
+                    title="Weekly Rank"
+                    transitionNames={{
+                      gamesChart: "weeklyGamesCorrect",
+                      pointsChart: "weeklyPointsEarned",
+                      rankingPieChart: "weeklyRankingPieChart",
+                      rankTitle: "weeklyRankTitle",
+                    }}
+                  />
+                }
+              >
                 <Crossfade>
                   <WeeklyDashboard selectedWeek={selectedWeek} />
                 </Crossfade>
               </Suspense>
             </SectionError>
             <SectionError title="Overall Rank">
-              <Suspense fallback={<DashboardLoader title="Overall Rank" />}>
+              <Suspense
+                fallback={
+                  <DashboardLoader
+                    title="Overall Rank"
+                    transitionNames={{
+                      gamesChart: "overallGamesCorrect",
+                      pointsChart: "overallPointsEarned",
+                      rankingPieChart: "overallRankingPieChart",
+                      rankTitle: "overallRankTitle",
+                    }}
+                  />
+                }
+              >
                 <Crossfade>
                   <OverallDashboard />
                 </Crossfade>
               </Suspense>
             </SectionError>
             <SectionError title="Survivor Pool">
-              <Suspense fallback={<DashboardLoader title="Survivor Pool" />}>
+              <Suspense
+                fallback={
+                  <DashboardLoader
+                    title="Survivor Pool"
+                    transitionNames={{ gamesChart: "survivorOverallStatus", pointsChart: "survivorWeekStatus" }}
+                  />
+                }
+              >
                 <Crossfade>
                   <SurvivorDashboard selectedWeek={selectedWeek} />
                 </Crossfade>
