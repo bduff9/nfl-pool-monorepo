@@ -25,8 +25,10 @@ import {
 } from "@nfl-pool-monorepo/ui/components/dialog";
 import { LoaderCircle } from "lucide-react";
 import type { FC, ReactNode } from "react";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
+
+import { createCloseIntent } from "./closeIntent";
 
 type ConfirmationModalProps = {
   acceptButton?: string;
@@ -47,14 +49,14 @@ const ConfirmationModal: FC<ConfirmationModalProps> = ({
 }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(true);
-  const accepted = useRef<boolean>(false);
+  const [intent] = useState(createCloseIntent);
 
   const handleAccept = async (): Promise<void> => {
     setLoading(true);
 
     try {
       await onAccept();
-      accepted.current = true;
+      intent.accept();
       setOpen(false);
     } catch (error) {
       console.error("Failed to confirm action", error);
@@ -66,20 +68,33 @@ const ConfirmationModal: FC<ConfirmationModalProps> = ({
     setLoading(false);
   };
 
+  // Escape or a tap outside (false), or opening again (true)
+  const handleOpenChange = (next: boolean): void => {
+    if (next) {
+      intent.open();
+    } else {
+      intent.cancel();
+    }
+
+    setOpen(next);
+  };
+
   const handleCancel = (): void => {
+    intent.cancel();
     setOpen(false);
   };
 
-  // Radix calls this once the dialog has closed and finished animating out. Cancelling (the button, Escape or a tap
-  // outside) only tells the caller now, since callers unmount the modal on cancel, which would cut its close animation.
+  // Radix calls this once the dialog has closed and finished animating out, and also whenever its focus scope unmounts
+  // for another reason, so only a cancel the user made tells the caller. It waits until now since callers unmount the
+  // modal on cancel, which would cut its close animation.
   const handleCloseAutoFocus = (): void => {
-    if (!accepted.current) {
+    if (intent.takeCancel()) {
       void onCancel();
     }
   };
 
   return (
-    <Dialog onOpenChange={setOpen} open={open}>
+    <Dialog onOpenChange={handleOpenChange} open={open}>
       <DialogContent onCloseAutoFocus={handleCloseAutoFocus}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
