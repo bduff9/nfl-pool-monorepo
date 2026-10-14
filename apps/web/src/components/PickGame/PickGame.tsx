@@ -18,12 +18,13 @@ import { Draggable, Droppable } from "@hello-pangea/dnd";
 import type { Games, Picks, Teams } from "@nfl-pool-monorepo/db/src";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { Selectable } from "kysely";
-import type { FC } from "react";
+import { type FC, ViewTransition } from "react";
 import { FaAt, FaInfoCircle, FaTimesCircle } from "react-icons/fa";
 
 import { getBackgroundColor, getForegroundColor } from "@/lib/strings";
 
 import type { LoadingType } from "../MakePicksClient/MakePicksClient";
+import { PICK_POINTS_TRANSITION } from "../MakePicksClient/pickPlacement";
 import TeamLogo from "../TeamLogo/TeamLogo";
 import { formatSpread, type SpreadValue } from "./formatSpread";
 
@@ -39,28 +40,37 @@ type PointProps = {
   isDropDisabled?: boolean;
 } & DraggablePointProps;
 
+// Each point value is on screen once, in the bank or on a game, so a reset or an auto pick moves the chip itself from one
+// to the other. A week change remounts the board (see WeekTransition), so the week types keep the chips in the week slide.
+const POINT_SHARE = { default: "pick-point", "week-back": "none", "week-forward": "none" } as const;
+// The chips that stay put in the bank only make room in a reset (or its rollback). Every other transition re-renders them
+// with new props, so a default update would start an empty view transition on each save's refresh and hold the screen.
+const POINT_UPDATE = { default: "none", [PICK_POINTS_TRANSITION]: "pick-point" } as const;
+
 const DraggablePoint: FC<DraggablePointProps> = ({ index, isDragDisabled = false, maxValue, value }) => {
   return (
     <Draggable draggableId={`point-${value}`} index={index ?? value} isDragDisabled={isDragDisabled}>
       {(provided, snapshot) => (
-        <div
-          className={cn(
-            "inline-block rounded-full text-center pt-1 md:size-[60px] md:text-[2rem] size-10 text-lg",
-            isDragDisabled ? "cursor-not-allowed" : "cursor-move",
-            snapshot.isDragging && "opacity-75",
-          )}
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          style={{
-            backgroundColor: getBackgroundColor(value, maxValue),
-            border: `1px solid ${getBackgroundColor(value, maxValue, "#000")}`,
-            color: getForegroundColor(value, maxValue),
-            ...provided.draggableProps.style,
-          }}
-        >
-          {value || ""}
-        </div>
+        <ViewTransition default="none" name={`pick-point-${value}`} share={POINT_SHARE} update={POINT_UPDATE}>
+          <div
+            className={cn(
+              "inline-block rounded-full text-center pt-1 md:size-[60px] md:text-[2rem] size-10 text-lg",
+              isDragDisabled ? "cursor-not-allowed" : "cursor-move",
+              snapshot.isDragging && "opacity-75",
+            )}
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            style={{
+              backgroundColor: getBackgroundColor(value, maxValue),
+              border: `1px solid ${getBackgroundColor(value, maxValue, "#000")}`,
+              color: getForegroundColor(value, maxValue),
+              ...provided.draggableProps.style,
+            }}
+          >
+            {value || ""}
+          </div>
+        </ViewTransition>
       )}
     </Draggable>
   );
@@ -205,7 +215,11 @@ const ROW_BACKGROUNDS = {
 } as const;
 
 const getRowClassName = (hasMadePick: boolean, hasStarted: boolean, isBackgrounded: boolean): string =>
-  cn("flex py-3", ROW_BACKGROUNDS[`${hasMadePick}-${hasStarted}`], isBackgrounded && "opacity-65");
+  cn(
+    "flex py-3 motion-safe:transition-opacity motion-safe:duration-(--duration-enter)",
+    ROW_BACKGROUNDS[`${hasMadePick}-${hasStarted}`],
+    isBackgrounded && "opacity-65",
+  );
 
 const getTeamID = (team: PickTeam): number | undefined => team?.TeamID;
 

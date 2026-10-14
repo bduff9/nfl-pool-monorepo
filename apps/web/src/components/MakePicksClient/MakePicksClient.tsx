@@ -23,6 +23,7 @@ import { PiFootballDuotone } from "react-icons/pi";
 import { PickActionsBar } from "./PickActionsBar";
 import { PicksBoard } from "./PicksBoard";
 import {
+  clearUnstartedPicks,
   getAvailablePoints,
   getLastGameMatchup,
   getTiebreakerPlaceholder,
@@ -90,8 +91,14 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
   const { open } = useSidebar();
   const [selectedGame, setSelectedGame] = useState<null | number>(null);
   const [dragGameID, setDragGameID] = useState<null | string>(null);
-  const [optimisticPicks, setOptimisticPicks] = useOptimistic(weeklyPicks);
+  const [droppedPicks, setDroppedPicks] = useOptimistic(weeklyPicks);
+  // The server's picks a reset is being saved against. Until fresh picks arrive the board shows them reset. This is state
+  // set in a transition rather than an optimistic update, whose urgent render never starts a view transition, so the
+  // chips fly back to the bank (and out again if the reset fails).
+  const [resetFrom, setResetFrom] = useState<null | typeof weeklyPicks>(null);
   const [picksUpdating, startPicksUpdating] = useTransition();
+  const now = useNow() ?? new Date(0);
+  const optimisticPicks = resetFrom === weeklyPicks ? clearUnstartedPicks(weeklyPicks, now) : droppedPicks;
   const lastGame = optimisticPicks[optimisticPicks.length - 1];
 
   const { execute: executeSetMyPick } = useAction(setMyPick, {
@@ -117,7 +124,7 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
     );
 
     startPicksUpdating(() => {
-      setOptimisticPicks((picks) => placePoints(picks, gameID, points, pickTeam, new Date()));
+      setDroppedPicks((picks) => placePoints(picks, gameID, points, pickTeam, new Date()));
 
       executeSetMyPick({ gameID, points, teamID, week: selectedWeek });
     });
@@ -132,7 +139,6 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
     setDragGameID(droppableId.replace("home-", "").replace("visitor-", ""));
   };
 
-  const now = useNow() ?? new Date(0);
   const available = getAvailablePoints(optimisticPicks, now);
 
   const {
@@ -148,11 +154,11 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
   } = usePickActions({
     available,
     lastGame,
-    optimisticPicks,
     selectedWeek,
-    setOptimisticPicks,
+    setResetFrom,
     startPicksUpdating,
     tiebreaker,
+    weeklyPicks,
   });
 
   const onCancelCallback = () => setCallback(null);

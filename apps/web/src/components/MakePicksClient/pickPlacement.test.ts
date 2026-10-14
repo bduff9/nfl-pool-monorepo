@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  clearUnstartedPicks,
   getAvailablePoints,
   getLastGameMatchup,
   getTiebreakerPlaceholder,
@@ -53,6 +54,20 @@ describe("placePoints", () => {
     const started = makePick({ GameKickoff: EARLIER, PickPoints: 5, pickTeam: HOME as never });
 
     expect(placePoints([started], 1, 7, VISITOR as never, NOW)[0]).toBe(started);
+  });
+});
+
+describe("clearUnstartedPicks", () => {
+  it("clears games that have not kicked off and keeps started ones", () => {
+    const picks = [
+      makePick({ GameID: 1, PickPoints: 2, pickTeam: HOME as never, TeamID: 1 }),
+      makePick({ GameID: 2, GameKickoff: EARLIER, PickPoints: 1, pickTeam: VISITOR as never, TeamID: 2 }),
+    ];
+
+    const [future, started] = clearUnstartedPicks(picks, NOW);
+
+    expect(future).toMatchObject({ PickPoints: null, pickTeam: null, TeamID: null });
+    expect(started).toBe(picks[1]);
   });
 });
 

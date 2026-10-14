@@ -3,6 +3,9 @@ import type { DraggableLocation } from "@hello-pangea/dnd";
 import { parseDragData } from "@/lib/strings";
 import type { getMyWeeklyPicks } from "@/server/loaders/pick";
 
+// The transition type of a reset and its rollback, in which the chips already in the bank make room for those flying back
+export const PICK_POINTS_TRANSITION = "pick-points";
+
 export type WeeklyPicks = Awaited<ReturnType<typeof getMyWeeklyPicks>>;
 type DropDestination = NonNullable<ReturnType<typeof parseDragData>[2]>;
 type DroppedTeam = WeeklyPicks[number]["pickTeam"];
@@ -39,6 +42,10 @@ export const placePoints = (
 
     return points === pick.PickPoints ? { ...pick, PickPoints: null, pickTeam: null, TeamID: null } : pick;
   });
+
+// The picks as a reset leaves them: games that have not kicked off lose their points and team
+export const clearUnstartedPicks = (picks: WeeklyPicks, now: Date): WeeklyPicks =>
+  picks.map((pick) => (pick.GameKickoff > now ? { ...pick, PickPoints: null, pickTeam: null, TeamID: null } : pick));
 
 const isPointInUse = (pick: WeeklyPicks[number], now: Date): boolean =>
   !!pick.PickPoints && (!!pick.pickTeam || now > pick.GameKickoff);

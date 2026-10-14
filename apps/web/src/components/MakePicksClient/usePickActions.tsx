@@ -1,7 +1,16 @@
 import { useRouter } from "next/navigation";
 import { useOffline } from "next/offline";
 import { useAction } from "next-safe-action/hooks";
-import { type FocusEventHandler, type ReactNode, useLayoutEffect, useRef, useState } from "react";
+import {
+  addTransitionType,
+  type Dispatch,
+  type FocusEventHandler,
+  type ReactNode,
+  type SetStateAction,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { toast } from "sonner";
 
 import { onActionError } from "@/lib/actionErrorToast";
@@ -13,6 +22,7 @@ import type { getMyWeeklyPicks } from "@/server/loaders/pick";
 import type { getMyTiebreaker } from "@/server/loaders/tiebreaker";
 
 import type { LoadingType } from "./MakePicksClient";
+import { PICK_POINTS_TRANSITION } from "./pickPlacement";
 
 type ConfirmCallback = {
   acceptButton: string;
@@ -45,21 +55,21 @@ const getSubmitPicksValidationError = (
 type UsePickActionsArgs = {
   available: Array<number>;
   lastGame: LastGame;
-  optimisticPicks: Awaited<ReturnType<typeof getMyWeeklyPicks>>;
   selectedWeek: number;
-  setOptimisticPicks: (picks: Awaited<ReturnType<typeof getMyWeeklyPicks>>) => void;
+  setResetFrom: Dispatch<SetStateAction<Awaited<ReturnType<typeof getMyWeeklyPicks>> | null>>;
   startPicksUpdating: (callback: () => void) => void;
   tiebreaker: NonNullable<Awaited<ReturnType<typeof getMyTiebreaker>>>;
+  weeklyPicks: Awaited<ReturnType<typeof getMyWeeklyPicks>>;
 };
 
 export const usePickActions = ({
   available,
   lastGame,
-  optimisticPicks,
   selectedWeek,
-  setOptimisticPicks,
+  setResetFrom,
   startPicksUpdating,
   tiebreaker,
+  weeklyPicks,
 }: UsePickActionsArgs) => {
   const router = useRouter();
   const isOffline = useOffline();
@@ -67,7 +77,6 @@ export const usePickActions = ({
   const [tiebreakerLastScoreError, setTiebreakerLastScoreError] = useState<null | string>(null);
   const [callback, setCallback] = useState<ConfirmCallback | null>(null);
   const toastIdRef = useRef<string | number | undefined>(undefined);
-  const previousPicksRef = useRef<Awaited<ReturnType<typeof getMyWeeklyPicks>>>(optimisticPicks);
 
   // Next keeps this page mounted but hidden when navigating away, so close any open confirmation on the way out
   // instead of showing it again when the user comes back
@@ -81,7 +90,8 @@ export const usePickActions = ({
     onError: (args) => {
       onActionError(args);
       startPicksUpdating(() => {
-        setOptimisticPicks(previousPicksRef.current);
+        addTransitionType(PICK_POINTS_TRANSITION);
+        setResetFrom(null);
       });
     },
     onSettled: () => {
@@ -162,25 +172,13 @@ export const usePickActions = ({
 
   const resetPicks = async (): Promise<void> => {
     setLoading("reset");
-    previousPicksRef.current = optimisticPicks;
     startPicksUpdating(() => {
-      setOptimisticPicks(
-        optimisticPicks.map((pick) => {
-          if (pick.GameKickoff > new Date()) {
-            return {
-              ...pick,
-              PickPoints: null,
-              pickTeam: null,
-              TeamID: null,
-            };
-          }
-
-          return pick;
-        }),
-      );
-
-      executeResetPicks({ week: selectedWeek });
+      addTransitionType(PICK_POINTS_TRANSITION);
+      setResetFrom(weeklyPicks);
     });
+    // Saved from the next task: a transition started in the same event shares the save's lane, which would hold the
+    // chips' flight back until the server answered
+    setTimeout(() => executeResetPicks({ week: selectedWeek }), 0);
   };
 
   const autoPick = (type: (typeof AutoPickStrategy)[number]): void => {

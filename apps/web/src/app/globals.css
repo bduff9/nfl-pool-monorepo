@@ -543,12 +543,42 @@
    page content in the root snapshot, so the scrim stays in it too, under that content as on screen. Named, it would be
    drawn over the root and dim the whole page while the transition runs. The badge is matched by the name React puts on
    it for the transition, since a failed pick's hop back can be committed with the save's own (untyped) transition. A
-   refresh that animates live data in place (lib/refreshTransition) is the same. */
+   refresh that animates live data in place (lib/refreshTransition) is the same, and so are the picks board's point
+   chips, matched by name too since an auto pick arrives in its save's own transition. */
 :root:active-view-transition-type(survivor-detail) [data-page-scrim],
 :root:active-view-transition-type(refresh) [data-page-scrim],
 :root:active-view-transition-type(matchup-swap) [data-page-scrim],
-:root:has([style*="survivor-week-badge"]) [data-page-scrim] {
+:root:has([style*="survivor-week-badge"]) [data-page-scrim],
+:root:has([style*="pick-point-"]) [data-page-scrim] {
   view-transition-name: none;
+}
+
+/* Picks board point chips (PickGame) fly between the bank and the games, decelerating into place. A chip on a game row
+   scrolled partly or wholly out of the list (marked by PicksBoard) sits out of the flight, as React already leaves out
+   one outside the viewport: its snapshot would be drawn unclipped, over the bank or the actions bar. Its partner in the
+   bank, left alone in its group, then simply appears or goes, like those React left out. */
+::view-transition-group(.pick-point) {
+  animation-duration: var(--duration-move);
+  animation-timing-function: var(--ease-out-quint);
+}
+
+::view-transition-old(.pick-point),
+::view-transition-new(.pick-point) {
+  animation-duration: var(--duration-move);
+}
+
+::view-transition-old(.pick-point):only-child,
+::view-transition-new(.pick-point):only-child {
+  animation: none;
+}
+
+::view-transition-old(.pick-point):only-child {
+  opacity: 0;
+}
+
+[data-out-of-view] [data-rfd-draggable-id] {
+  /* biome-ignore lint/complexity/noImportantStyles: the only way to beat the name React sets inline for the transition */
+  view-transition-name: none !important;
 }
 
 ::view-transition-group(page-scrim) {
