@@ -134,7 +134,6 @@ const LiveGameStrip: FC<Props> = ({ game }) => {
     <WeekLink
       className="block border border-t-0 border-border bg-muted px-3 py-2 text-sm hover:bg-border/30"
       href={`/scoreboard/game/${target.eventId}?week=${game.GameWeek}` as Route}
-      prefetch={false}
       preserveWeek={false}
     >
       <StripBody
