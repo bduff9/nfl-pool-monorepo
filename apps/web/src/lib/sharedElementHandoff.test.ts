@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { headingHandoff, progressChartHandoff, rankingPieChartHandoff } from "./sharedElementHandoff";
+import {
+  forgetSharedElementHandoffs,
+  headingHandoff,
+  progressChartHandoff,
+  rankingPieChartHandoff,
+  survivorDashboardIconHandoff,
+} from "./sharedElementHandoff";
 
 const bar = (max: number) => ({ correct: 1, incorrect: 2, isOver: false, max, type: "Points" as const });
 
@@ -52,5 +58,19 @@ describe("shared element handoffs", () => {
     headingHandoff.remember("weeklyRankingPieChart", "1", "not a pie");
 
     expect(rankingPieChartHandoff.find("weeklyRankingPieChart", "1")).toBeUndefined();
+  });
+
+  it("forget everything on sign out, so the next user's skeletons never show this user's data", () => {
+    headingHandoff.remember("weeklyRankTitle", "1", "Week 1 Rank");
+    progressChartHandoff.remember("weeklyPointsEarned", "1", bar(136));
+    rankingPieChartHandoff.remember("weeklyRankingPieChart", "1", []);
+    survivorDashboardIconHandoff.remember("survivorIcon", "1", {} as never);
+
+    forgetSharedElementHandoffs();
+
+    expect(headingHandoff.find("weeklyRankTitle", "1")).toBeUndefined();
+    expect(progressChartHandoff.find("weeklyPointsEarned", "1")).toBeUndefined();
+    expect(rankingPieChartHandoff.find("weeklyRankingPieChart", "1")).toBeUndefined();
+    expect(survivorDashboardIconHandoff.find("survivorIcon", "1")).toBeUndefined();
   });
 });

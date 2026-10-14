@@ -1,3 +1,5 @@
+import type { GameStakes } from "@/lib/riding/stakes";
+
 import type { ScoreboardGame } from "./ScoreboardGameCard";
 
 /*
@@ -8,21 +10,37 @@ import type { ScoreboardGame } from "./ScoreboardGameCard";
  * its content. Read it through useSyncExternalStore with a server snapshot of undefined, so server rendering and
  * hydration always show the plain skeleton.
  */
+type Stakes = Record<number, GameStakes>;
+
 let games: readonly ScoreboardGame[] | undefined;
+// The signed-in user's "what's riding" rows under the games, so the list on the way back is as tall as the real one
+let stakes: Stakes | undefined;
 let scrollY = 0;
 const listeners = new Set<() => void>();
 
-/** Remembers the games the scoreboard last rendered. */
-export const rememberScoreboardGames = (next: readonly ScoreboardGame[]): void => {
-  if (next === games) {
+const notify = (): void => {
+  for (const listener of listeners) {
+    listener();
+  }
+};
+
+/** Remembers the games (and their stakes) the scoreboard last rendered. */
+export const rememberScoreboardGames = (next: readonly ScoreboardGame[], nextStakes?: Stakes): void => {
+  if (next === games && nextStakes === stakes) {
     return;
   }
 
   games = next;
+  stakes = nextStakes;
+  notify();
+};
 
-  for (const listener of listeners) {
-    listener();
-  }
+/** Drops everything remembered (signing out), so the next user signed in on this tab never sees this one's stakes. */
+export const forgetScoreboard = (): void => {
+  games = undefined;
+  stakes = undefined;
+  scrollY = 0;
+  notify();
 };
 
 export const subscribeScoreboardGames = (listener: () => void): (() => void) => {
@@ -34,6 +52,8 @@ export const subscribeScoreboardGames = (listener: () => void): (() => void) => 
 };
 
 export const getScoreboardGamesSnapshot = (): readonly ScoreboardGame[] | undefined => games;
+
+export const getScoreboardStakesSnapshot = (): Stakes | undefined => stakes;
 
 /** Remembers how far the scoreboard was scrolled when the user left it, so coming back can return there. */
 export const rememberScoreboardScroll = (y: number): void => {

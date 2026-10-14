@@ -7,6 +7,7 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
 
 import { onActionError } from "@/lib/actionErrorToast";
 import { formatError } from "@/lib/auth.client";
+import { forgetHandoffs } from "@/lib/forgetHandoffs";
 import { processFormErrors } from "@/lib/form-errors";
 import { loginSchema } from "@/lib/validation";
 import { login, register } from "@/server/actions/user";
@@ -88,6 +89,12 @@ const LoginForm: FC<Props> = ({ error, isLogin }) => {
     form.setValue("isLogin", isLogin);
     // react-doctor-disable-next-line exhaustive-deps -- form.setValue is a stable RHF method; only isLogin should retrigger this
   }, [isLogin]);
+
+  // Signing in here does not reload the tab, so whatever an earlier user's pages left for loading skeletons (after a
+  // sign out, or a session that ran out) must go before the next user's first page
+  useEffect(() => {
+    forgetHandoffs();
+  }, []);
 
   const { execute: executeLogin, isPending: isLoginPending } = useAction(login, {
     onError: onActionError,

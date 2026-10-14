@@ -30,7 +30,7 @@ import type { GameStakes as GameStakesData } from "@/lib/riding/stakes";
 
 type Props = {
   games: readonly ScoreboardGame[];
-  stakes?: Record<number, GameStakesData>;
+  stakes?: Record<number, GameStakesData> | undefined;
 };
 
 // Indexes of the games that start a new kickoff day, in the visitor's timezone
@@ -50,11 +50,11 @@ const getDayHeaderIndexes = (games: Props["games"]): Set<number> => {
   return indexes;
 };
 
-const ScoreboardGamesList: FC<Props> = ({ games, stakes = {} }) => {
+const ScoreboardGamesList: FC<Props> = ({ games, stakes }) => {
   // Kept on the client so the game page, and this page on the way back, can show these cards while they load
   useEffect(() => {
-    rememberScoreboardGames(games);
-  }, [games]);
+    rememberScoreboardGames(games, stakes);
+  }, [games, stakes]);
 
   // The scroll position at the tap that leaves the page (read later, it can already be reset or anchored elsewhere)
   useEffect(() => {
@@ -77,7 +77,7 @@ const ScoreboardGamesList: FC<Props> = ({ games, stakes = {} }) => {
             <ScoreboardGameCard game={game} priority={index === 0} />
             <LiveGameStrip game={game} />
             <GameDetailsLink game={game} />
-            <GameStakes game={game} stakes={stakes[game.GameID]} />
+            <GameStakes game={game} stakes={stakes?.[game.GameID]} />
           </div>
         </Fragment>
       ))}

@@ -9,6 +9,11 @@ export const rememberAlerts = (next: readonly string[]): void => {
   alerts = next.length ? next : NO_ALERTS;
 };
 
+/** Drops the remembered alerts (signing out), so the next user signed in on this tab never sees this one's. */
+export const forgetAlerts = (): void => {
+  alerts = NO_ALERTS;
+};
+
 export const getAlertsSnapshot = (): readonly string[] => alerts;
 
 export const getServerAlertsSnapshot = (): readonly string[] => NO_ALERTS;

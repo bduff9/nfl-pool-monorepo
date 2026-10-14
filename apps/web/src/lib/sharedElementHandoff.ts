@@ -21,8 +21,9 @@ type Entry<T> = {
   week: string | null;
 };
 
-export type Handoff<T> = {
+type Handoff<T> = {
   find: (name: string, week: string | null) => T | undefined;
+  forget: () => void;
   remember: (name: string, week: string | null, value: T) => void;
 };
 
@@ -34,6 +35,9 @@ const createHandoff = <T>(): Handoff<T> => {
       const entry = entries.get(name);
 
       return entry?.week === week ? entry.value : undefined;
+    },
+    forget: () => {
+      entries.clear();
     },
     remember: (name, week, value) => {
       const entry = entries.get(name);
@@ -76,3 +80,10 @@ export const headingHandoff = createHandoff<string>();
 export const progressChartHandoff = createHandoff<ProgressChartData>();
 export const rankingPieChartHandoff = createHandoff<Array<PieChartData>>();
 export const survivorDashboardIconHandoff = createHandoff<SurvivorIconData>();
+
+/** Drops everything remembered, so the next user signed in on this tab never sees this one's numbers in a skeleton. */
+export const forgetSharedElementHandoffs = (): void => {
+  for (const handoff of [headingHandoff, progressChartHandoff, rankingPieChartHandoff, survivorDashboardIconHandoff]) {
+    handoff.forget();
+  }
+};

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getAlertsSnapshot, getServerAlertsSnapshot, rememberAlerts } from "./alertsHandoff";
+import { forgetAlerts, getAlertsSnapshot, getServerAlertsSnapshot, rememberAlerts } from "./alertsHandoff";
 
 describe("alertsHandoff", () => {
   it("remembers the last alerts shown", () => {
@@ -16,5 +16,12 @@ describe("alertsHandoff", () => {
 
     expect(getAlertsSnapshot()).toBe(getServerAlertsSnapshot());
     expect(getServerAlertsSnapshot()).toEqual([]);
+  });
+
+  it("forgets the alerts on sign out", () => {
+    rememberAlerts(["Please pay $45"]);
+    forgetAlerts();
+
+    expect(getAlertsSnapshot()).toBe(getServerAlertsSnapshot());
   });
 });
