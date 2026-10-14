@@ -21,6 +21,7 @@ import type { FC } from "react";
 import { Pie, PieChart, ResponsiveContainer, Tooltip, useChartHeight, useChartWidth } from "recharts";
 
 import SharedElement from "@/components/ViewTransitions/SharedElement";
+import { useHasNavigated } from "@/lib/hooks/useHasNavigated";
 
 type PieChartData = {
   fill: string;
@@ -58,12 +59,24 @@ const CenterLabel: FC<{ data: Array<PieChartData> }> = ({ data }) => {
 };
 
 const RankingPieChart: FC<RankingPieChartProps> = ({ data, transitionName }) => {
+  // The ring sweeps open on a fresh load only. After a client navigation it is already drawn, so it moves with its page
+  // or morphs from the other page's ring instead of being redrawn there. "auto" keeps Recharts' reduced motion check.
+  const hasNavigated = useHasNavigated();
+
   return (
     <SharedElement name={transitionName}>
       <div className="min-h-[206px] w-full">
         <ResponsiveContainer height={206} width="100%">
           <PieChart height={400} width={400}>
-            <Pie cx="50%" cy="50%" data={data} dataKey="value" innerRadius={60} outerRadius={80} />
+            <Pie
+              cx="50%"
+              cy="50%"
+              data={data}
+              dataKey="value"
+              innerRadius={60}
+              isAnimationActive={hasNavigated ? false : "auto"}
+              outerRadius={80}
+            />
             <CenterLabel data={data} />
             <Tooltip />
           </PieChart>
