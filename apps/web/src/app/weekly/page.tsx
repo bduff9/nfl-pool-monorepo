@@ -148,7 +148,7 @@ const WeeklyRankingsPageBody: FC<PageProps<"/weekly">> = async ({ searchParams }
                     value: weeklyTiedCount,
                   },
                 ]}
-                layoutId="weeklyRankingPieChart"
+                transitionName="weeklyRankingPieChart"
               />
             </div>
             <div className="mt-4 block md:hidden">
@@ -177,16 +177,16 @@ const WeeklyRankingsPageBody: FC<PageProps<"/weekly">> = async ({ searchParams }
                 correct={myWeeklyRank?.PointsEarned ?? 0}
                 incorrect={myWeeklyRank?.PointsWrong ?? 0}
                 isOver={weekStatus === "Complete"}
-                layoutId="weeklyPointsEarned"
                 max={myWeeklyRank?.PointsTotal ?? 0}
+                transitionName="weeklyPointsEarned"
                 type="Points"
               />
               <ProgressChart
                 correct={myWeeklyRank?.GamesCorrect ?? 0}
                 incorrect={myWeeklyRank?.GamesWrong ?? 0}
                 isOver={weekStatus === "Complete"}
-                layoutId="weeklyGamesCorrect"
                 max={myWeeklyRank?.GamesTotal ?? 0}
+                transitionName="weeklyGamesCorrect"
                 type="Games"
               />
             </div>

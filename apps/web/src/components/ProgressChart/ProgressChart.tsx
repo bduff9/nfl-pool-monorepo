@@ -16,8 +16,9 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
  * along with this program.  If not, see {http://www.gnu.org/licenses/}.
  * Home: https://asitewithnoname.com/
  */
-import { m } from "framer-motion";
 import type { FC } from "react";
+
+import SharedElement from "@/components/ViewTransitions/SharedElement";
 
 import { getPercent, isPositive, type ProgressChartType, showsMaxPossible } from "./progressChartHelpers";
 
@@ -26,7 +27,7 @@ type ProgressChartProps = {
   incorrect: number;
   inProgress?: number;
   isOver?: boolean;
-  layoutId: string;
+  transitionName: string;
   max: number;
   type: ProgressChartType;
 };
@@ -107,28 +108,36 @@ const ProgressChart: FC<ProgressChartProps> = ({
   incorrect,
   inProgress,
   isOver = false,
-  layoutId,
+  transitionName,
   max,
   type,
 }) => {
   const labels = LABELS_BY_TYPE[type];
 
   return (
-    <m.div layoutId={layoutId}>
-      <div className="text-start">{type}</div>
-      <div className={cn("flex overflow-hidden h-8 text-xs bg-muted rounded-sm")}>
-        <ProgressSegment colorClass="bg-green-700" isOver={isOver} label={labels.correct} max={max} value={correct} />
-        <ProgressSegment colorClass="bg-red-700" isOver={isOver} label={labels.incorrect} max={max} value={incorrect} />
-        <ProgressSegment
-          colorClass="bg-gray-700"
-          isOver={isOver}
-          label={labels.inProgress}
-          max={max}
-          value={inProgress}
-        />
+    <SharedElement name={transitionName}>
+      <div>
+        <div className="text-start">{type}</div>
+        <div className={cn("flex overflow-hidden h-8 text-xs bg-muted rounded-sm")}>
+          <ProgressSegment colorClass="bg-green-700" isOver={isOver} label={labels.correct} max={max} value={correct} />
+          <ProgressSegment
+            colorClass="bg-red-700"
+            isOver={isOver}
+            label={labels.incorrect}
+            max={max}
+            value={incorrect}
+          />
+          <ProgressSegment
+            colorClass="bg-gray-700"
+            isOver={isOver}
+            label={labels.inProgress}
+            max={max}
+            value={inProgress}
+          />
+        </div>
+        <ProgressFooter max={max} type={type} />
       </div>
-      <ProgressFooter max={max} type={type} />
-    </m.div>
+    </SharedElement>
   );
 };
 

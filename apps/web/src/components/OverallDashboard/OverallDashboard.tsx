@@ -53,23 +53,23 @@ const OverallDashboardDetails: FC<OverallDashboardDetailsProps> = ({
       </div>
       <RankingPieChart
         data={getOverallPieData(myPlace, overallTotalCount, aheadOfMe, behindMe, overallTiedCount)}
-        layoutId="overallRankingPieChart"
+        transitionName="overallRankingPieChart"
       />
       <OverallDashboardResults className={cn("mt-5")} />
       <ProgressChart
         correct={myOverallRank.PointsEarned}
         incorrect={myOverallRank.PointsWrong}
         isOver={isOver}
-        layoutId="overallPointsEarned"
         max={myOverallRank.PointsTotal}
+        transitionName="overallPointsEarned"
         type="Points"
       />
       <ProgressChart
         correct={myOverallRank.GamesCorrect}
         incorrect={myOverallRank.GamesWrong}
         isOver={isOver}
-        layoutId="overallGamesCorrect"
         max={myOverallRank.GamesTotal}
+        transitionName="overallGamesCorrect"
         type="Games"
       />
     </div>

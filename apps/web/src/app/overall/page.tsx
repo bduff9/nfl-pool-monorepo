@@ -139,7 +139,7 @@ const OverallRankingsPageBody: FC<PageProps<"/overall">> = async () => {
                     value: overallTiedCount,
                   },
                 ]}
-                layoutId="overallRankingPieChart"
+                transitionName="overallRankingPieChart"
               />
             </div>
             <div className="mt-4 block md:hidden">
@@ -158,16 +158,16 @@ const OverallRankingsPageBody: FC<PageProps<"/overall">> = async () => {
                 correct={myOverallRank?.PointsEarned ?? 0}
                 incorrect={myOverallRank?.PointsWrong ?? 0}
                 isOver={seasonStatus === "Complete"}
-                layoutId="overallPointsEarned"
                 max={myOverallRank?.PointsTotal ?? 0}
+                transitionName="overallPointsEarned"
                 type="Points"
               />
               <ProgressChart
                 correct={myOverallRank?.GamesCorrect ?? 0}
                 incorrect={myOverallRank?.GamesWrong ?? 0}
                 isOver={seasonStatus === "Complete"}
-                layoutId="overallGamesCorrect"
                 max={myOverallRank?.GamesTotal ?? 0}
+                transitionName="overallGamesCorrect"
                 type="Games"
               />
             </div>

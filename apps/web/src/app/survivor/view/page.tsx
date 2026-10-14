@@ -185,16 +185,16 @@ const ViewSurvivorPageBody: FC<PageProps<"/survivor/view">> = async ({ searchPar
                   incorrect={survivorWeeklyCounts.deadCount}
                   inProgress={survivorWeeklyCounts.waitingCount}
                   isOver={weekStatus === "Complete"}
-                  layoutId="survivorWeekStatus"
                   max={survivorWeeklyCounts.overallCount}
+                  transitionName="survivorWeekStatus"
                   type="Current Week Remaining"
                 />
                 <ProgressChart
                   correct={survivorOverallCounts.aliveCount}
                   incorrect={survivorOverallCounts.deadCount}
                   isOver={survivorStatus === "Complete"}
-                  layoutId="survivorOverallStatus"
                   max={survivorOverallCounts.overallCount}
+                  transitionName="survivorOverallStatus"
                   type="Overall Remaining"
                 />
               </div>

@@ -90,8 +90,8 @@ const SurvivorResults: FC<SurvivorResultsProps> = ({ overallCounts, survivorStat
           incorrect={weeklyCounts.deadCount}
           inProgress={weeklyCounts.waitingCount}
           isOver={weekStatus === "Complete"}
-          layoutId="survivorWeekStatus"
           max={weeklyCounts.overallCount}
+          transitionName="survivorWeekStatus"
           type="Current Week Remaining"
         />
       )}
@@ -100,8 +100,8 @@ const SurvivorResults: FC<SurvivorResultsProps> = ({ overallCounts, survivorStat
           correct={overallCounts.aliveCount}
           incorrect={overallCounts.deadCount}
           isOver={survivorStatus === "Complete"}
-          layoutId="survivorOverallStatus"
           max={overallCounts.overallCount}
+          transitionName="survivorOverallStatus"
           type="Overall Remaining"
         />
       )}

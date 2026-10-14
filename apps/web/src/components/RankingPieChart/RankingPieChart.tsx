@@ -16,10 +16,11 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { m } from "framer-motion";
 import type { FC } from "react";
 // react-doctor-disable-next-line prefer-dynamic-import -- both consumers (OverallDashboard, WeeklyDashboard) already load this whole component via next/dynamic, so recharts is already code-split
 import { Pie, PieChart, ResponsiveContainer, Tooltip, useChartHeight, useChartWidth } from "recharts";
+
+import SharedElement from "@/components/ViewTransitions/SharedElement";
 
 type PieChartData = {
   fill: string;
@@ -31,7 +32,7 @@ type PieChartData = {
 
 type RankingPieChartProps = {
   data: Array<PieChartData>;
-  layoutId: string;
+  transitionName: string;
 };
 
 const CenterLabel: FC<{ data: Array<PieChartData> }> = ({ data }) => {
@@ -56,17 +57,19 @@ const CenterLabel: FC<{ data: Array<PieChartData> }> = ({ data }) => {
   );
 };
 
-const RankingPieChart: FC<RankingPieChartProps> = ({ data, layoutId }) => {
+const RankingPieChart: FC<RankingPieChartProps> = ({ data, transitionName }) => {
   return (
-    <m.div className="min-h-[206px] w-full" layoutId={layoutId}>
-      <ResponsiveContainer height={206} width="100%">
-        <PieChart height={400} width={400}>
-          <Pie cx="50%" cy="50%" data={data} dataKey="value" innerRadius={60} outerRadius={80} />
-          <CenterLabel data={data} />
-          <Tooltip />
-        </PieChart>
-      </ResponsiveContainer>
-    </m.div>
+    <SharedElement name={transitionName}>
+      <div className="min-h-[206px] w-full">
+        <ResponsiveContainer height={206} width="100%">
+          <PieChart height={400} width={400}>
+            <Pie cx="50%" cy="50%" data={data} dataKey="value" innerRadius={60} outerRadius={80} />
+            <CenterLabel data={data} />
+            <Tooltip />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+    </SharedElement>
   );
 };
 

@@ -71,22 +71,22 @@ type WeeklyRankChartsProps = {
 
 const WeeklyRankCharts: FC<WeeklyRankChartsProps> = ({ isOver, rank, selectedWeek, tiedCount, totalCount }) => (
   <div>
-    <RankingPieChart data={buildRankingData(rank, totalCount, tiedCount)} layoutId="weeklyRankingPieChart" />
+    <RankingPieChart data={buildRankingData(rank, totalCount, tiedCount)} transitionName="weeklyRankingPieChart" />
     <WeeklyDashboardResults className={cn("mt-5")} selectedWeek={selectedWeek} />
     <ProgressChart
       correct={rank.PointsEarned}
       incorrect={rank.PointsWrong}
       isOver={isOver}
-      layoutId="weeklyPointsEarned"
       max={rank.PointsTotal}
+      transitionName="weeklyPointsEarned"
       type="Points"
     />
     <ProgressChart
       correct={rank.GamesCorrect}
       incorrect={rank.GamesWrong}
       isOver={isOver}
-      layoutId="weeklyGamesCorrect"
       max={rank.GamesTotal}
+      transitionName="weeklyGamesCorrect"
       type="Games"
     />
   </div>
