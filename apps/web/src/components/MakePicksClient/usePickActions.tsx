@@ -22,7 +22,7 @@ import type { getMyWeeklyPicks } from "@/server/loaders/pick";
 import type { getMyTiebreaker } from "@/server/loaders/tiebreaker";
 
 import type { LoadingType } from "./MakePicksClient";
-import { PICK_POINTS_TRANSITION } from "./pickPlacement";
+import { type PendingReset, PICK_POINTS_TRANSITION } from "./pickPlacement";
 
 type ConfirmCallback = {
   acceptButton: string;
@@ -56,7 +56,7 @@ type UsePickActionsArgs = {
   available: Array<number>;
   lastGame: LastGame;
   selectedWeek: number;
-  setResetFrom: Dispatch<SetStateAction<Awaited<ReturnType<typeof getMyWeeklyPicks>> | null>>;
+  setResetFrom: Dispatch<SetStateAction<null | PendingReset>>;
   startPicksUpdating: (callback: () => void) => void;
   tiebreaker: NonNullable<Awaited<ReturnType<typeof getMyTiebreaker>>>;
   weeklyPicks: Awaited<ReturnType<typeof getMyWeeklyPicks>>;
@@ -77,6 +77,13 @@ export const usePickActions = ({
   const [tiebreakerLastScoreError, setTiebreakerLastScoreError] = useState<null | string>(null);
   const [callback, setCallback] = useState<ConfirmCallback | null>(null);
   const toastIdRef = useRef<string | number | undefined>(undefined);
+  // The server's latest picks. A reset is confirmed from a callback made in an earlier render, and the page may have
+  // refreshed since (coming back to the app, pull to refresh), so it must not use that render's picks
+  const weeklyPicksRef = useRef(weeklyPicks);
+
+  useLayoutEffect(() => {
+    weeklyPicksRef.current = weeklyPicks;
+  }, [weeklyPicks]);
 
   // Next keeps this page mounted but hidden when navigating away, so close any open confirmation on the way out
   // instead of showing it again when the user comes back
@@ -174,10 +181,12 @@ export const usePickActions = ({
     setLoading("reset");
     startPicksUpdating(() => {
       addTransitionType(PICK_POINTS_TRANSITION);
-      setResetFrom(weeklyPicks);
+      setResetFrom({ base: weeklyPicksRef.current, requestedAt: new Date() });
     });
     // Saved from the next task: a transition started in the same event shares the save's lane, which would hold the
-    // chips' flight back until the server answered
+    // chips' flight back until the server answered. Never cancelled: the user confirmed this reset, so it is saved even if
+    // the page goes away in between, and useAction delivers its callbacks from an effect, so they never run on an
+    // unmounted page (and on one Next keeps hidden, only once it shows again, which also clears its spinner).
     setTimeout(() => executeResetPicks({ week: selectedWeek }), 0);
   };
 

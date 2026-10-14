@@ -44,8 +44,22 @@ export const placePoints = (
   });
 
 // The picks as a reset leaves them: games that have not kicked off lose their points and team
-export const clearUnstartedPicks = (picks: WeeklyPicks, now: Date): WeeklyPicks =>
+const clearUnstartedPicks = (picks: WeeklyPicks, now: Date): WeeklyPicks =>
   picks.map((pick) => (pick.GameKickoff > now ? { ...pick, PickPoints: null, pickTeam: null, TeamID: null } : pick));
+
+/** A reset being saved: the server's picks it was requested against, and when (games kicked off by then keep theirs) */
+export type PendingReset = { base: WeeklyPicks; requestedAt: Date };
+
+/**
+ * The picks the board shows: reset while a reset is being saved against the server's current picks, otherwise the
+ * picks with any drops applied. Fresh picks from the server (a new array) always win over a pending reset.
+ */
+export const getBoardPicks = (
+  pendingReset: null | PendingReset,
+  weeklyPicks: WeeklyPicks,
+  droppedPicks: WeeklyPicks,
+): WeeklyPicks =>
+  pendingReset?.base === weeklyPicks ? clearUnstartedPicks(weeklyPicks, pendingReset.requestedAt) : droppedPicks;
 
 const isPointInUse = (pick: WeeklyPicks[number], now: Date): boolean =>
   !!pick.PickPoints && (!!pick.pickTeam || now > pick.GameKickoff);

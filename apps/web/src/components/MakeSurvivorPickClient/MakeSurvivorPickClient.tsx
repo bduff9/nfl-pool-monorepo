@@ -28,7 +28,13 @@ import type { getTeamsOnBye } from "@/server/loaders/team";
 
 import SurvivorTeam from "../SurvivorTeam/SurvivorTeam";
 import TeamDetail from "../TeamDetail/TeamDetail";
-import { getPreviousTeamId, getSavingToastMessage } from "./survivorPickHelpers";
+import {
+  getPreviousTeamId,
+  getSavingToastMessage,
+  getShownSurvivorPicks,
+  isPendingPickCurrent,
+  type PendingSurvivorPick,
+} from "./survivorPickHelpers";
 
 // Only opening or closing a game's details animates these boundaries: a pick (the week badge hop) or a page or week
 // change leaves them still
@@ -145,25 +151,25 @@ const MakeSurvivorPickClient: FC<Props> = ({ games, survivorPicks, teamsOnBye, w
   const isOffline = useOffline();
   const [selectedGame, setSelectedGame] = useState<null | (typeof games)[number]>(null);
   const [loading, setLoading] = useState<null | number>(null);
-  // The pick being saved, shown over the server's picks it was made against until fresh picks arrive from the server. It
-  // is set and rolled back in a transition rather than with useOptimistic, whose urgent updates never start a view
-  // transition, so the week badge hops from the old team to the new one (and back if the pick fails)
-  const [pendingPick, setPendingPick] = useState<null | { basePicks: typeof survivorPicks; teamId: number | null }>(
-    null,
-  );
-  const shownPicks =
-    pendingPick?.basePicks === survivorPicks
-      ? survivorPicks.map((pick) => (pick.SurvivorPickWeek === week ? { ...pick, TeamID: pendingPick.teamId } : pick))
-      : survivorPicks;
+  // The pick being saved, shown over the server's pick it was made against until the server's pick changes. It is set
+  // and rolled back in a transition rather than with useOptimistic, whose urgent updates never start a view transition,
+  // so the week badge hops from the old team to the new one (and back if the pick fails)
+  const [pendingPick, setPendingPick] = useState<null | PendingSurvivorPick>(null);
+  const shownPicks = getShownSurvivorPicks(pendingPick, survivorPicks, week);
   const toastIdRef = useRef<string | number | undefined>(undefined);
-  const previousTeamIdRef = useRef<number | null>(null);
   const [, startSurvivorPickUpdating] = useTransition();
+
+  // Once the server's pick has moved on (the save landed, or another device changed it) the pending pick is spent, so it
+  // can never apply again if the server's pick later returns to the team it was made against
+  if (pendingPick && !isPendingPickCurrent(pendingPick, survivorPicks, week)) {
+    setPendingPick(null);
+  }
 
   const { execute: executeSurvivorPick } = useAction(makeSurvivorPick, {
     onError: (args) => {
       onActionError(args);
       startSurvivorPickUpdating(() => {
-        setPendingPick((current) => current && { ...current, teamId: previousTeamIdRef.current });
+        setPendingPick((current) => current && { ...current, teamId: current.baseTeamId });
       });
     },
     onSettled: () => {
@@ -178,7 +184,6 @@ const MakeSurvivorPickClient: FC<Props> = ({ games, survivorPicks, teamsOnBye, w
   const setSurvivorPick = (gameID: number, teamID: number | null): void => {
     if (loading) return;
 
-    previousTeamIdRef.current = getPreviousTeamId(survivorPicks, week);
     setLoading(teamID);
 
     toastIdRef.current = toast.loading(getSavingToastMessage(isOffline), {
@@ -188,10 +193,11 @@ const MakeSurvivorPickClient: FC<Props> = ({ games, survivorPicks, teamsOnBye, w
     });
 
     startSurvivorPickUpdating(() => {
-      setPendingPick({ basePicks: survivorPicks, teamId: teamID });
+      setPendingPick({ baseTeamId: getPreviousTeamId(survivorPicks, week), teamId: teamID });
     });
     // Saved from the next task: transitions started in the same event share a lane, so starting the save here would hold
-    // the badge hop back until the server answered
+    // the badge hop back until the server answered. Never cancelled: a tapped pick is saved even if the page goes away in
+    // between, and useAction delivers its callbacks from an effect, so they never run on an unmounted page
     setTimeout(() => executeSurvivorPick({ gameID, teamID, week }), 0);
   };
 

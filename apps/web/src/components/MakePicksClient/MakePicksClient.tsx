@@ -23,11 +23,12 @@ import { PiFootballDuotone } from "react-icons/pi";
 import { PickActionsBar } from "./PickActionsBar";
 import { PicksBoard } from "./PicksBoard";
 import {
-  clearUnstartedPicks,
   getAvailablePoints,
+  getBoardPicks,
   getLastGameMatchup,
   getTiebreakerPlaceholder,
   isDropMove,
+  type PendingReset,
   placePoints,
   resolveDrop,
 } from "./pickPlacement";
@@ -95,10 +96,10 @@ const MakePicksClient: FC<Props> = ({ selectedWeek, tiebreaker, weeklyPicks }) =
   // The server's picks a reset is being saved against. Until fresh picks arrive the board shows them reset. This is state
   // set in a transition rather than an optimistic update, whose urgent render never starts a view transition, so the
   // chips fly back to the bank (and out again if the reset fails).
-  const [resetFrom, setResetFrom] = useState<null | typeof weeklyPicks>(null);
+  const [resetFrom, setResetFrom] = useState<null | PendingReset>(null);
   const [picksUpdating, startPicksUpdating] = useTransition();
   const now = useNow() ?? new Date(0);
-  const optimisticPicks = resetFrom === weeklyPicks ? clearUnstartedPicks(weeklyPicks, now) : droppedPicks;
+  const optimisticPicks = getBoardPicks(resetFrom, weeklyPicks, droppedPicks);
   const lastGame = optimisticPicks[optimisticPicks.length - 1];
 
   const { execute: executeSetMyPick } = useAction(setMyPick, {

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  clearUnstartedPicks,
   getAvailablePoints,
+  getBoardPicks,
   getLastGameMatchup,
   getTiebreakerPlaceholder,
   isDropMove,
@@ -57,17 +57,39 @@ describe("placePoints", () => {
   });
 });
 
-describe("clearUnstartedPicks", () => {
-  it("clears games that have not kicked off and keeps started ones", () => {
-    const picks = [
-      makePick({ GameID: 1, PickPoints: 2, pickTeam: HOME as never, TeamID: 1 }),
-      makePick({ GameID: 2, GameKickoff: EARLIER, PickPoints: 1, pickTeam: VISITOR as never, TeamID: 2 }),
-    ];
+describe("getBoardPicks", () => {
+  const server = [
+    makePick({ GameID: 1, PickPoints: 2, pickTeam: HOME as never, TeamID: 1 }),
+    makePick({ GameID: 2, GameKickoff: EARLIER, PickPoints: 1, pickTeam: VISITOR as never, TeamID: 2 }),
+  ];
 
-    const [future, started] = clearUnstartedPicks(picks, NOW);
+  it("shows the picks reset while a reset is pending against the server's current picks", () => {
+    const [future, started] = getBoardPicks({ base: server, requestedAt: NOW }, server, server);
 
     expect(future).toMatchObject({ PickPoints: null, pickTeam: null, TeamID: null });
-    expect(started).toBe(picks[1]);
+    expect(started).toBe(server[1]);
+  });
+
+  it("keeps games that kicked off before the reset was requested, not before the last clock tick", () => {
+    const kickingOff = [makePick({ GameKickoff: NOW, PickPoints: 1, pickTeam: HOME as never, TeamID: 1 })];
+
+    expect(getBoardPicks({ base: kickingOff, requestedAt: EARLIER }, kickingOff, kickingOff)[0]).toMatchObject({
+      PickPoints: null,
+    });
+    expect(getBoardPicks({ base: kickingOff, requestedAt: LATER }, kickingOff, kickingOff)[0]).toBe(kickingOff[0]);
+  });
+
+  it("shows the dropped picks without a pending reset, so a failed reset rolls back to the server's picks", () => {
+    const dropped = [...server];
+
+    expect(getBoardPicks(null, server, dropped)).toBe(dropped);
+    expect(getBoardPicks(null, server, server)).toBe(server);
+  });
+
+  it("lets fresh picks from the server win over a reset pending against older ones", () => {
+    const fresh = server.map((pick) => ({ ...pick }));
+
+    expect(getBoardPicks({ base: server, requestedAt: NOW }, fresh, fresh)).toBe(fresh);
   });
 });
 
