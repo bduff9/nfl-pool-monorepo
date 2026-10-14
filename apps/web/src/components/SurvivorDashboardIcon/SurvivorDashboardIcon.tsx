@@ -21,20 +21,13 @@ import type { FC } from "react";
 import { PiFootballHelmetDuotone, PiQuestionMark, PiUserDuotone } from "react-icons/pi";
 
 import { survivorDashboardIconHandoff, useRememberHandoff } from "@/lib/sharedElementHandoff";
-import type { getMySurvivorPickForWeek } from "@/server/loaders/survivor";
-import type { getMySurvivorMv } from "@/server/loaders/survivorMv";
 
 import SharedElement from "../ViewTransitions/SharedElement";
+import type { SurvivorIconData } from "./survivorIconData";
 
-type SurvivorDashboardIconProps = {
-  isAlive: boolean;
-  isPlaying: boolean;
-  lastPick?: NonNullable<Awaited<ReturnType<typeof getMySurvivorMv>>>["lastPickTeam"];
-  pickForWeek?: Awaited<ReturnType<typeof getMySurvivorPickForWeek>>;
+type SurvivorDashboardIconProps = SurvivorIconData & {
   transitionName: string;
 };
-
-export type SurvivorIconData = Omit<SurvivorDashboardIconProps, "transitionName">;
 
 type SurvivorLastPick = NonNullable<SurvivorDashboardIconProps["lastPick"]>;
 
@@ -109,12 +102,7 @@ const AliveIcon: FC<{ pick: NonNullable<SurvivorDashboardIconProps["pickForWeek"
   </>
 );
 
-const SurvivorIconContent: FC<Omit<SurvivorDashboardIconProps, "transitionName">> = ({
-  isAlive = false,
-  isPlaying,
-  lastPick,
-  pickForWeek,
-}) => {
+const SurvivorIconContent: FC<SurvivorIconData> = ({ isAlive = false, isPlaying, lastPick, pickForWeek }) => {
   if (!isPlaying) {
     return <ObserverIcon />;
   }

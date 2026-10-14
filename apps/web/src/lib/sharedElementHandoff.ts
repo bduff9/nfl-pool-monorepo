@@ -1,9 +1,9 @@
 import { useSearchParams } from "next/navigation";
 import { useLayoutEffect, useSyncExternalStore } from "react";
 
-import type { ProgressChartData } from "@/components/ProgressChart/ProgressChart";
-import type { PieChartData } from "@/components/RankingPieChart/RankingPieChart";
-import type { SurvivorIconData } from "@/components/SurvivorDashboardIcon/SurvivorDashboardIcon";
+import type { ProgressChartData } from "@/components/ProgressChart/progressChartHelpers";
+import type { PieChartData } from "@/components/RankingPieChart/rankingPieChartData";
+import type { SurvivorIconData } from "@/components/SurvivorDashboardIcon/survivorIconData";
 
 /*
  * Hands the data behind a shared element (a ranking pie, a progress bar, a title, the survivor icon) from one page to

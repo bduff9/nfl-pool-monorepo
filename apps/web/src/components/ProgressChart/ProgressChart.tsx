@@ -21,19 +21,17 @@ import type { FC } from "react";
 import SharedElement from "@/components/ViewTransitions/SharedElement";
 import { progressChartHandoff, useRememberHandoff } from "@/lib/sharedElementHandoff";
 
-import { getPercent, isPositive, type ProgressChartType, showsMaxPossible } from "./progressChartHelpers";
+import {
+  getPercent,
+  isPositive,
+  type ProgressChartData,
+  type ProgressChartType,
+  showsMaxPossible,
+} from "./progressChartHelpers";
 
-type ProgressChartProps = {
-  correct: number;
-  incorrect: number;
-  inProgress?: number | undefined;
-  isOver?: boolean;
+type ProgressChartProps = ProgressChartData & {
   transitionName: string;
-  max: number;
-  type: ProgressChartType;
 };
-
-export type ProgressChartData = Omit<ProgressChartProps, "transitionName">;
 
 const LABELS_BY_TYPE: Record<ProgressChartType, { correct: string; inProgress: string; incorrect: string }> = {
   "Current Week Remaining": {

@@ -24,13 +24,7 @@ import SharedElement from "@/components/ViewTransitions/SharedElement";
 import { useHasNavigated } from "@/lib/hooks/useHasNavigated";
 import { rankingPieChartHandoff, useRememberHandoff } from "@/lib/sharedElementHandoff";
 
-export type PieChartData = {
-  fill: string;
-  myPlace: string;
-  name: string;
-  total: number;
-  value: number;
-};
+import type { PieChartData } from "./rankingPieChartData";
 
 type RankingPieChartProps = {
   data: Array<PieChartData>;

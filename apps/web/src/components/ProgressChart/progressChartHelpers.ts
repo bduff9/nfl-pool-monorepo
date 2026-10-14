@@ -16,6 +16,16 @@
 
 export type ProgressChartType = "Current Week Remaining" | "Games" | "Overall Remaining" | "Points";
 
+// What a progress chart draws, which is also what it hands to the next page's skeleton (see sharedElementHandoff)
+export type ProgressChartData = {
+  correct: number;
+  incorrect: number;
+  inProgress?: number | undefined;
+  isOver?: boolean;
+  max: number;
+  type: ProgressChartType;
+};
+
 export const getPercent = (value: number, max: number): number => (max > 0 ? (value / max) * 100 : 0);
 
 export const isPositive = (value: number | undefined): value is number => typeof value === "number" && value > 0;
