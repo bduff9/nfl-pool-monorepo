@@ -542,3 +542,34 @@ a:has(> [data-link-pending]) {
     scale: none;
   }
 }
+
+/* The offline pill (OfflineBanner) slides down from under the status bar and back up */
+.offline-banner {
+  --offline-banner-hidden: 0 calc(-100% - var(--safe-top) - 0.25rem);
+
+  transition:
+    translate var(--duration-move) var(--ease-out-quint),
+    opacity var(--duration-enter) ease-out;
+
+  @starting-style {
+    opacity: 0;
+    translate: var(--offline-banner-hidden);
+  }
+}
+
+.offline-banner[data-state="closed"] {
+  visibility: hidden;
+  opacity: 0;
+  translate: var(--offline-banner-hidden);
+  transition:
+    translate var(--duration-enter) ease-in,
+    opacity var(--duration-enter) ease-in,
+    visibility 0s var(--duration-enter);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .offline-banner,
+  .offline-banner[data-state="closed"] {
+    transition: none;
+  }
+}
