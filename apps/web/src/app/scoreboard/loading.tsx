@@ -18,38 +18,13 @@ import "server-only";
 
 import { Skeleton } from "@nfl-pool-monorepo/ui/components/skeleton";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
-import { type FC, Fragment } from "react";
+import { type FC, Fragment, Suspense } from "react";
 
 import PageContent from "@/components/PageContent/PageContent";
+import { HandedOffScoreboard } from "@/components/ScoreboardGameCard/HandedOffGames";
+import ScoreboardGameCardSkeleton from "@/components/ScoreboardGameCard/ScoreboardGameCardSkeleton";
 
-const TeamLoader: FC = () => (
-  <>
-    <div>
-      <Skeleton className="size-[70px] bg-muted" />
-    </div>
-    <div className={cn("flex-grow flex items-center ps-5")}>
-      <Skeleton className="hidden md:inline-block h-6 w-[200px] bg-muted" />
-      <Skeleton className="inline-block md:hidden h-6 w-8 bg-muted" />
-    </div>
-    <div className="w-full"></div>
-  </>
-);
-
-const GameLoader: FC = () => (
-  <div className="mb-3">
-    <div className={cn("p-3 flex bg-muted border")}>
-      <div className={cn("flex flex-shrink flex-col md:flex-row flex-wrap")}>
-        <TeamLoader />
-        <TeamLoader />
-      </div>
-      <div className={cn("text-center pt-4 flex-grow")}>
-        <Skeleton className="inline-block h-7 w-36 bg-muted" />
-      </div>
-    </div>
-  </div>
-);
-
-const ScoreboardLoader: FC = () => {
+const ScoreboardSkeleton: FC = () => {
   return (
     <div className="h-full flex flex-col" data-testid="route-loading">
       <PageContent className="mx-2 pt-5 md:pt-3 pb-4">
@@ -62,7 +37,7 @@ const ScoreboardLoader: FC = () => {
                   <Skeleton className="h-6 w-full md:w-96 bg-muted" />
                 </div>
               )}
-              <GameLoader />
+              <ScoreboardGameCardSkeleton />
             </Fragment>
           ))}
         </div>
@@ -70,5 +45,13 @@ const ScoreboardLoader: FC = () => {
     </div>
   );
 };
+
+// On the way back from a game page this shows the list the scoreboard last rendered, so the game card moves back
+// into its row; otherwise (and while prerendering, where the week in the URL is unknown) the skeleton
+const ScoreboardLoader: FC = () => (
+  <Suspense fallback={<ScoreboardSkeleton />}>
+    <HandedOffScoreboard fallback={<ScoreboardSkeleton />} />
+  </Suspense>
+);
 
 export default ScoreboardLoader;

@@ -4,7 +4,7 @@ import "server-only";
 
 import { toTeamShortName } from "@/lib/liveScores/espnTeams";
 
-export type GameTeam = Awaited<ReturnType<typeof getTeamsByShortNames>>[number];
+type GameTeam = Awaited<ReturnType<typeof getTeamsByShortNames>>[number];
 
 export type GameTeams = { away: GameTeam | null; home: GameTeam | null };
 

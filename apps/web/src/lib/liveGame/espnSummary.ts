@@ -8,7 +8,7 @@ import { toTeamShortName } from "@/lib/liveScores/espnTeams";
  * Every section is validated on its own and every field inside it is optional where possible: a section or an
  * item ESPN changes is dropped, never thrown on, so the rest of the page still renders.
  */
-export type SummaryTeam = { name: string; score: number };
+type SummaryTeam = { name: string; score: number };
 
 export type SummaryHeader = {
   away: SummaryTeam;
