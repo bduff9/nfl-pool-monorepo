@@ -9,9 +9,7 @@ import {
   type FC,
   type SetStateAction,
   startTransition,
-  useDeferredValue,
   useEffect,
-  useOptimistic,
   useRef,
   useState,
   useTransition,
@@ -35,8 +33,6 @@ import { getPreviousTeamId, getSavingToastMessage } from "./survivorPickHelpers"
 // Only opening or closing a game's details animates these boundaries: a pick (the week badge hop) or a page or week
 // change leaves them still
 const DETAIL_TRANSITION = "survivor-detail";
-// Typed so globals.css can keep the page scrim out of it (see [data-page-scrim])
-const PICK_TRANSITION = "survivor-pick";
 const detailFade = { default: "none", [DETAIL_TRANSITION]: "nav-fade" } as const;
 const detailMove = { default: "none", [DETAIL_TRANSITION]: "morph" } as const;
 const detailPanelEnter = { default: "none", [DETAIL_TRANSITION]: "detail-expand" } as const;
@@ -149,21 +145,16 @@ const MakeSurvivorPickClient: FC<Props> = ({ games, survivorPicks, teamsOnBye, w
   const isOffline = useOffline();
   const [selectedGame, setSelectedGame] = useState<null | (typeof games)[number]>(null);
   const [loading, setLoading] = useState<null | number>(null);
-  const [optimisticPicks, setOptimisticPick] = useOptimistic(survivorPicks, (currentPicks, teamId: number | null) => {
-    return currentPicks.map((pick) => {
-      if (pick.SurvivorPickWeek === week) {
-        return {
-          ...pick,
-          TeamID: teamId,
-        };
-      }
-
-      return pick;
-    });
-  });
-  // An optimistic update renders urgently, which never starts a view transition. Following it one deferred render later
-  // does, so the week badge can hop from the old team to the new one (and back if the pick fails)
-  const shownPicks = useDeferredValue(optimisticPicks);
+  // The pick being saved, shown over the server's picks it was made against until fresh picks arrive from the server. It
+  // is set and rolled back in a transition rather than with useOptimistic, whose urgent updates never start a view
+  // transition, so the week badge hops from the old team to the new one (and back if the pick fails)
+  const [pendingPick, setPendingPick] = useState<null | { basePicks: typeof survivorPicks; teamId: number | null }>(
+    null,
+  );
+  const shownPicks =
+    pendingPick?.basePicks === survivorPicks
+      ? survivorPicks.map((pick) => (pick.SurvivorPickWeek === week ? { ...pick, TeamID: pendingPick.teamId } : pick))
+      : survivorPicks;
   const toastIdRef = useRef<string | number | undefined>(undefined);
   const previousTeamIdRef = useRef<number | null>(null);
   const [, startSurvivorPickUpdating] = useTransition();
@@ -172,8 +163,7 @@ const MakeSurvivorPickClient: FC<Props> = ({ games, survivorPicks, teamsOnBye, w
     onError: (args) => {
       onActionError(args);
       startSurvivorPickUpdating(() => {
-        addTransitionType(PICK_TRANSITION);
-        setOptimisticPick(previousTeamIdRef.current);
+        setPendingPick((current) => current && { ...current, teamId: previousTeamIdRef.current });
       });
     },
     onSettled: () => {
@@ -198,10 +188,11 @@ const MakeSurvivorPickClient: FC<Props> = ({ games, survivorPicks, teamsOnBye, w
     });
 
     startSurvivorPickUpdating(() => {
-      addTransitionType(PICK_TRANSITION);
-      setOptimisticPick(teamID);
-      executeSurvivorPick({ gameID, teamID, week });
+      setPendingPick({ basePicks: survivorPicks, teamId: teamID });
     });
+    // Saved from the next task: transitions started in the same event share a lane, so starting the save here would hold
+    // the badge hop back until the server answered
+    setTimeout(() => executeSurvivorPick({ gameID, teamID, week }), 0);
   };
 
   return (
@@ -243,17 +234,19 @@ const MakeSurvivorPickClient: FC<Props> = ({ games, survivorPicks, teamsOnBye, w
         </ViewTransition>
       ) : teamsOnBye.length > 0 ? (
         <ViewTransition default="none" enter={detailFade} exit={detailFade} key="teams-on-bye">
-          <div className="w-full"></div>
-          <h5 className="text-center pt-4 text-lg font-semibold">Teams on Bye Week</h5>
-          {teamsOnBye.map((team) => (
-            <SurvivorTeam
-              isOnBye
-              key={`bye-week-team-${team.TeamID}`}
-              pick={shownPicks.find((pick) => pick.TeamID === team.TeamID)}
-              team={team}
-              weekInProgress={weekInProgress}
-            />
-          ))}
+          {/* Its own wrapping row, like the games above: in the page's column the teams would stack one per line */}
+          <div className="flex flex-wrap">
+            <h5 className="w-full text-center pt-4 text-lg font-semibold">Teams on Bye Week</h5>
+            {teamsOnBye.map((team) => (
+              <SurvivorTeam
+                isOnBye
+                key={`bye-week-team-${team.TeamID}`}
+                pick={shownPicks.find((pick) => pick.TeamID === team.TeamID)}
+                team={team}
+                weekInProgress={weekInProgress}
+              />
+            ))}
+          </div>
         </ViewTransition>
       ) : null}
     </div>

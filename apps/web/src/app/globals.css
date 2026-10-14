@@ -432,8 +432,10 @@
 
 /* A transition inside a page (the survivor pick screen's details and week badge) leaves the page content in the root
    snapshot, so the scrim stays in it too, under that content as on screen. Named, it would be drawn over the root and
-   dim the whole page while the transition runs. */
-:root:active-view-transition-type(survivor-detail, survivor-pick) [data-page-scrim] {
+   dim the whole page while the transition runs. The badge is matched by the name React puts on it for the transition,
+   since a failed pick's hop back can be committed with the save's own (untyped) transition. */
+:root:active-view-transition-type(survivor-detail) [data-page-scrim],
+:root:has([style*="survivor-week-badge"]) [data-page-scrim] {
   view-transition-name: none;
 }
 
