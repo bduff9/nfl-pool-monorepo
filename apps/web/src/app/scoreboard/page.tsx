@@ -15,7 +15,7 @@
  */
 
 import type { Metadata } from "next";
-import { type FC, Suspense } from "react";
+import type { FC } from "react";
 import "server-only";
 
 import { requireSelectedWeek } from "@/app/requireSelectedWeek";
@@ -26,6 +26,7 @@ import ScoreboardGamesList from "@/components/ScoreboardGamesList/ScoreboardGame
 import ScoreboardLiveRefresh from "@/components/ScoreboardLiveRefresh/ScoreboardLiveRefresh";
 import Crossfade from "@/components/ViewTransitions/Crossfade";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import SuspenseReveal from "@/components/ViewTransitions/SuspenseReveal";
 import WeekTransition from "@/components/ViewTransitions/WeekTransition";
 import { isLiveCandidate } from "@/lib/liveScores/applyLiveScores";
 import { getGamesForWeekScoreboardCached } from "@/server/loaders/game";
@@ -82,9 +83,9 @@ const ScoreboardPageBody: FC<PageProps<"/scoreboard">> = async ({ searchParams }
 
 const Scoreboard: FC<PageProps<"/scoreboard">> = (props) => (
   <PageTransition>
-    <Suspense fallback={<ScoreboardLoader />}>
+    <SuspenseReveal fallback={<ScoreboardLoader />}>
       <ScoreboardPageBody {...props} />
-    </Suspense>
+    </SuspenseReveal>
   </PageTransition>
 );
 

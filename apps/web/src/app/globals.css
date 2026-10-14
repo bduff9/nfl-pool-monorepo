@@ -361,6 +361,23 @@
   animation: var(--duration-enter) ease-out var(--duration-exit) both fade;
 }
 
+/* Suspense reveal (SuspenseReveal): the skeleton leaves quickly downwards, then the content arrives upwards */
+::view-transition-old(.reveal-out) {
+  --slide-offset: 0 10px;
+
+  animation:
+    var(--duration-exit) ease-out both fade reverse,
+    var(--duration-exit) ease-out both slide reverse;
+}
+
+::view-transition-new(.reveal-in) {
+  --slide-offset: 0 10px;
+
+  animation:
+    var(--duration-enter) ease-out var(--duration-exit) both fade,
+    var(--duration-move) var(--ease-out-quint) both slide;
+}
+
 ::view-transition-group(.morph) {
   animation-duration: var(--duration-move);
   animation-timing-function: var(--ease-in-out-quint);

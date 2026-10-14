@@ -21,7 +21,7 @@ import { Separator } from "@nfl-pool-monorepo/ui/components/separator";
 import Fuse, { type FuseResult } from "fuse.js";
 import type { Selectable } from "kysely";
 import type { Metadata } from "next";
-import { type FC, type ReactNode, Suspense } from "react";
+import type { FC, ReactNode } from "react";
 import "server-only";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
@@ -29,6 +29,7 @@ import PageContent from "@/components/PageContent/PageContent";
 import SlackLink from "@/components/SlackLink/slackLink";
 import SupportSearch from "@/components/SupportSearch/supportSearch";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import SuspenseReveal from "@/components/ViewTransitions/SuspenseReveal";
 import { WeekLink } from "@/components/WeekLink/WeekLink";
 import { writeLog } from "@/server/actions/logs";
 import { getCurrentSession } from "@/server/loaders/sessions";
@@ -294,9 +295,9 @@ const SupportPageBody: FC<SupportPageBodyProps> = async ({ searchParams }) => {
 const Support: FC<PageProps<"/support">> = ({ searchParams }) => {
   return (
     <PageTransition>
-      <Suspense fallback={<SupportLoader />}>
+      <SuspenseReveal fallback={<SupportLoader />}>
         <SupportPageBody searchParams={searchParams} />
-      </Suspense>
+      </SuspenseReveal>
     </PageTransition>
   );
 };

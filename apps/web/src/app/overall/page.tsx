@@ -34,6 +34,7 @@ import ScoreboardLiveRefresh from "@/components/ScoreboardLiveRefresh/Scoreboard
 import SectionError from "@/components/SectionError/SectionError.client";
 import Crossfade from "@/components/ViewTransitions/Crossfade";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import SuspenseReveal from "@/components/ViewTransitions/SuspenseReveal";
 import { WeekLink } from "@/components/WeekLink/WeekLink";
 import { requireRegistered } from "@/lib/auth";
 import { getGamesForWeekScoreboardCached } from "@/server/loaders/game";
@@ -148,7 +149,9 @@ const OverallRankingsPageBody: FC<PageProps<"/overall">> = async () => {
           </div>
           <SectionError title="Scenarios">
             <Suspense fallback={null}>
-              <ScenariosDashboard scope="overall" />
+              <Crossfade>
+                <ScenariosDashboard scope="overall" />
+              </Crossfade>
             </Suspense>
           </SectionError>
           <div className="hidden md:inline-block flex-1 px-3">
@@ -183,9 +186,9 @@ const OverallRankingsPageBody: FC<PageProps<"/overall">> = async () => {
 
 const OverallRankings: FC<PageProps<"/overall">> = (props) => (
   <PageTransition>
-    <Suspense fallback={<OverallLoading />}>
+    <SuspenseReveal fallback={<OverallLoading />}>
       <OverallRankingsPageBody {...props} />
-    </Suspense>
+    </SuspenseReveal>
   </PageTransition>
 );
 

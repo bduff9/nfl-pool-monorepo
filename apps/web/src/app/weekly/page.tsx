@@ -33,6 +33,7 @@ import SectionError from "@/components/SectionError/SectionError.client";
 import ShareButton from "@/components/ShareButton/ShareButton.client";
 import Crossfade from "@/components/ViewTransitions/Crossfade";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import SuspenseReveal from "@/components/ViewTransitions/SuspenseReveal";
 import WeekTransition from "@/components/ViewTransitions/WeekTransition";
 import { WeekLink } from "@/components/WeekLink/WeekLink";
 import { WeeklyDashboardResults, WeeklyDashboardTitle } from "@/components/WeeklyDashboard/WeeklyDashboard.client";
@@ -159,7 +160,9 @@ const WeeklyRankingsPageBody: FC<PageProps<"/weekly">> = async ({ searchParams }
             </div>
             <SectionError title="Scenarios">
               <Suspense fallback={null}>
-                <ScenariosDashboard scope="weekly" />
+                <Crossfade>
+                  <ScenariosDashboard scope="weekly" />
+                </Crossfade>
               </Suspense>
             </SectionError>
             <div className="hidden md:inline-block flex-1 px-3">
@@ -205,9 +208,9 @@ const WeeklyRankingsPageBody: FC<PageProps<"/weekly">> = async ({ searchParams }
 
 const WeeklyRankings: FC<PageProps<"/weekly">> = (props) => (
   <PageTransition>
-    <Suspense fallback={<WeeklyLoading />}>
+    <SuspenseReveal fallback={<WeeklyLoading />}>
       <WeeklyRankingsPageBody {...props} />
-    </Suspense>
+    </SuspenseReveal>
   </PageTransition>
 );
 

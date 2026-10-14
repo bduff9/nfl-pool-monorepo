@@ -18,10 +18,11 @@ import type { Metadata, Route } from "next";
 import { redirect } from "next/navigation";
 import "server-only";
 
-import { type FC, Suspense } from "react";
+import type { FC } from "react";
 
 import MakeSurvivorPickClient from "@/components/MakeSurvivorPickClient/MakeSurvivorPickClient";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import SuspenseReveal from "@/components/ViewTransitions/SuspenseReveal";
 import WeekTransition from "@/components/ViewTransitions/WeekTransition";
 import { requireRegistered } from "@/lib/auth";
 import { withWeek } from "@/lib/weekSearchParams";
@@ -101,9 +102,9 @@ const SetSurvivorPageBody: FC<PageProps<"/survivor/set">> = async ({ searchParam
 
 const SetSurvivorPage: FC<PageProps<"/survivor/set">> = (props) => (
   <PageTransition>
-    <Suspense fallback={<SurvivorSetLoading />}>
+    <SuspenseReveal fallback={<SurvivorSetLoading />}>
       <SetSurvivorPageBody {...props} />
-    </Suspense>
+    </SuspenseReveal>
   </PageTransition>
 );
 

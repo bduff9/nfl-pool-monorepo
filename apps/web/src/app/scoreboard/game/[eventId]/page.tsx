@@ -12,6 +12,7 @@ import { HandedOffGameCard } from "@/components/ScoreboardGameCard/HandedOffGame
 import ScoreboardGameCard from "@/components/ScoreboardGameCard/ScoreboardGameCard";
 import ScoreboardLiveRefresh from "@/components/ScoreboardLiveRefresh/ScoreboardLiveRefresh";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import SuspenseReveal from "@/components/ViewTransitions/SuspenseReveal";
 import { WeekLink } from "@/components/WeekLink/WeekLink";
 import { getGamesForWeekScoreboardCached } from "@/server/loaders/game";
 import { getGameTeamsForHeader } from "@/server/loaders/gameTeams";
@@ -89,9 +90,9 @@ const GamePageBody: FC<PageProps<"/scoreboard/game/[eventId]">> = async ({ param
 
 const GamePage: FC<PageProps<"/scoreboard/game/[eventId]">> = (props) => (
   <PageTransition>
-    <Suspense fallback={<GameDetailSkeleton />}>
+    <SuspenseReveal fallback={<GameDetailSkeleton />}>
       <GamePageBody {...props} />
-    </Suspense>
+    </SuspenseReveal>
   </PageTransition>
 );
 

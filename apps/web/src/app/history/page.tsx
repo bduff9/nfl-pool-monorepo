@@ -19,7 +19,7 @@ import { addOrdinal } from "@nfl-pool-monorepo/utils/numbers";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { type FC, Suspense } from "react";
+import type { FC } from "react";
 import "server-only";
 
 import { getHistory, type HistoryEntry } from "@nfl-pool-monorepo/db/src/queries/history";
@@ -28,6 +28,7 @@ import CustomHead from "@/components/CustomHead/CustomHead";
 import HistoryTrendChart from "@/components/HistoryTrendChart/HistoryTrendChart";
 import PageContent from "@/components/PageContent/PageContent";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import SuspenseReveal from "@/components/ViewTransitions/SuspenseReveal";
 import { requireLoggedIn } from "@/lib/auth";
 import { getCurrentUser } from "@/server/loaders/user";
 
@@ -173,9 +174,9 @@ const HistoryPageBody: FC = async () => {
 
 const HistoryPage: FC = () => (
   <PageTransition>
-    <Suspense fallback={<HistoryLoading />}>
+    <SuspenseReveal fallback={<HistoryLoading />}>
       <HistoryPageBody />
-    </Suspense>
+    </SuspenseReveal>
   </PageTransition>
 );
 

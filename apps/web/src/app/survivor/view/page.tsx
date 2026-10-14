@@ -23,7 +23,7 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import "server-only";
 
-import { type FC, Suspense } from "react";
+import type { FC } from "react";
 import { PiInfoDuotone } from "react-icons/pi";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
@@ -31,6 +31,7 @@ import PageContent from "@/components/PageContent/PageContent";
 import ProgressChart from "@/components/ProgressChart/ProgressChart";
 import SurvivorDashboardIcon from "@/components/SurvivorDashboardIcon/SurvivorDashboardIcon";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import SuspenseReveal from "@/components/ViewTransitions/SuspenseReveal";
 import WeekTransition from "@/components/ViewTransitions/WeekTransition";
 import { WeekLink } from "@/components/WeekLink/WeekLink";
 import { requireRegistered } from "@/lib/auth";
@@ -298,9 +299,9 @@ const ViewSurvivorPageBody: FC<PageProps<"/survivor/view">> = async ({ searchPar
 
 const ViewSurvivor: FC<PageProps<"/survivor/view">> = (props) => (
   <PageTransition>
-    <Suspense fallback={<SurvivorViewLoading />}>
+    <SuspenseReveal fallback={<SurvivorViewLoading />}>
       <ViewSurvivorPageBody {...props} />
-    </Suspense>
+    </SuspenseReveal>
   </PageTransition>
 );
 

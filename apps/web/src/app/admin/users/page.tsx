@@ -16,12 +16,13 @@
 
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { type FC, Suspense } from "react";
+import type { FC } from "react";
 
 import AdminUsersDataTable from "@/components/AdminUserTable/AdminUsersDataTable";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import SuspenseReveal from "@/components/ViewTransitions/SuspenseReveal";
 import { requireAdmin } from "@/lib/auth";
 import { getAdminUsers, getCurrentAdminId, getTrustedUsersDropdown } from "@/server/loaders/user";
 
@@ -70,9 +71,9 @@ const AdminUsersPageBody: FC<PageProps<"/admin/users">> = async ({ searchParams 
 
 const AdminUsersPage: FC<PageProps<"/admin/users">> = (props) => (
   <PageTransition>
-    <Suspense fallback={<AdminLoading />}>
+    <SuspenseReveal fallback={<AdminLoading />}>
       <AdminUsersPageBody {...props} />
-    </Suspense>
+    </SuspenseReveal>
   </PageTransition>
 );
 

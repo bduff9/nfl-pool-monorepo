@@ -19,11 +19,12 @@ import "server-only";
 import { getGamesForWeek } from "@nfl-pool-monorepo/db/src/queries/game";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { type FC, Suspense } from "react";
+import type { FC } from "react";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import SuspenseReveal from "@/components/ViewTransitions/SuspenseReveal";
 import WeekTransition from "@/components/ViewTransitions/WeekTransition";
 import { requireRegistered } from "@/lib/auth";
 import { getAllPicksForWeek } from "@/server/loaders/pick";
@@ -89,9 +90,9 @@ const ViewAllPicksPageBody: FC<PageProps<"/picks/viewall">> = async ({ searchPar
 
 const ViewAllPicks: FC<PageProps<"/picks/viewall">> = (props) => (
   <PageTransition>
-    <Suspense fallback={<ViewAllPicksLoading />}>
+    <SuspenseReveal fallback={<ViewAllPicksLoading />}>
       <ViewAllPicksPageBody {...props} />
-    </Suspense>
+    </SuspenseReveal>
   </PageTransition>
 );
 

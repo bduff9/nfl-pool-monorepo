@@ -16,13 +16,14 @@
 
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { type FC, Suspense } from "react";
+import type { FC } from "react";
 import "server-only";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import EditProfileForm from "@/components/EditProfileForm/EditProfileForm";
 import PageContent from "@/components/PageContent/PageContent";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import SuspenseReveal from "@/components/ViewTransitions/SuspenseReveal";
 import { requireRegistered } from "@/lib/auth";
 import { editMyProfile } from "@/server/actions/user";
 import { getUserNotifications } from "@/server/loaders/notification";
@@ -73,9 +74,9 @@ const EditProfilePageBody: FC<PageProps<"/users/edit">> = async () => {
 
 const EditProfile: FC<PageProps<"/users/edit">> = (props) => (
   <PageTransition>
-    <Suspense fallback={<UsersLoading />}>
+    <SuspenseReveal fallback={<UsersLoading />}>
       <EditProfilePageBody {...props} />
-    </Suspense>
+    </SuspenseReveal>
   </PageTransition>
 );
 

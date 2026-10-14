@@ -16,12 +16,13 @@
 
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { type FC, Suspense } from "react";
+import type { FC } from "react";
 
 import ApiCallsDataTable from "@/components/ApiCallsTable/ApiCallsDataTable";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import SuspenseReveal from "@/components/ViewTransitions/SuspenseReveal";
 import { requireAdmin } from "@/lib/auth";
 import { loadAPICalls } from "@/server/loaders/apiCall";
 
@@ -61,9 +62,9 @@ const AdminAPICallsPageBody: FC<PageProps<"/admin/api">> = async ({ searchParams
 
 const AdminAPICalls: FC<PageProps<"/admin/api">> = (props) => (
   <PageTransition>
-    <Suspense fallback={<AdminLoading />}>
+    <SuspenseReveal fallback={<AdminLoading />}>
       <AdminAPICallsPageBody {...props} />
-    </Suspense>
+    </SuspenseReveal>
   </PageTransition>
 );
 

@@ -28,7 +28,9 @@ import CustomHead from "@/components/CustomHead/CustomHead";
 import MyPicksHead from "@/components/MyPicksHead/MyPicksHead";
 import PageContent from "@/components/PageContent/PageContent";
 import ShareButton from "@/components/ShareButton/ShareButton.client";
+import Crossfade from "@/components/ViewTransitions/Crossfade";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import SuspenseReveal from "@/components/ViewTransitions/SuspenseReveal";
 import WeekTransition from "@/components/ViewTransitions/WeekTransition";
 import { requireRegistered } from "@/lib/auth";
 import { buildWeekPicksShareText } from "@/lib/share/shareText";
@@ -99,7 +101,9 @@ const ViewPicksPageBody: FC<PageProps<"/picks/view">> = async ({ searchParams })
         <PageContent className="pb-4">
           <div className="flex flex-col min-h-dvh">
             <Suspense fallback={<Skeleton className="h-32 w-full" />}>
-              <MyPicksHead week={selectedWeek} />
+              <Crossfade>
+                <MyPicksHead week={selectedWeek} />
+              </Crossfade>
             </Suspense>
             <div className="flex justify-end py-2">
               <ShareButton
@@ -142,9 +146,9 @@ const ViewPicksPageBody: FC<PageProps<"/picks/view">> = async ({ searchParams })
 
 const ViewPicks: FC<PageProps<"/picks/view">> = (props) => (
   <PageTransition>
-    <Suspense fallback={<ViewPicksLoading />}>
+    <SuspenseReveal fallback={<ViewPicksLoading />}>
       <ViewPicksPageBody {...props} />
-    </Suspense>
+    </SuspenseReveal>
   </PageTransition>
 );
 

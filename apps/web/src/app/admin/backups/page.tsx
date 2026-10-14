@@ -16,12 +16,13 @@
 
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { type FC, Suspense } from "react";
+import type { FC } from "react";
 
 import BackupsTable from "@/components/BackupsTable/BackupsTable";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import SuspenseReveal from "@/components/ViewTransitions/SuspenseReveal";
 import { requireAdmin } from "@/lib/auth";
 import { getAdminBackups } from "@/server/loaders/backup";
 
@@ -52,9 +53,9 @@ const AdminBackupsPageBody: FC<PageProps<"/admin/backups">> = async () => {
 
 const AdminBackupsPage: FC<PageProps<"/admin/backups">> = (props) => (
   <PageTransition>
-    <Suspense fallback={<AdminLoading />}>
+    <SuspenseReveal fallback={<AdminLoading />}>
       <AdminBackupsPageBody {...props} />
-    </Suspense>
+    </SuspenseReveal>
   </PageTransition>
 );
 

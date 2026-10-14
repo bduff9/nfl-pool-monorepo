@@ -17,13 +17,14 @@
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@nfl-pool-monorepo/ui/components/table";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { type FC, Suspense } from "react";
+import type { FC } from "react";
 import "server-only";
 
 import AdminGameRow from "@/components/AdminGameRow/AdminGameRow";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import SuspenseReveal from "@/components/ViewTransitions/SuspenseReveal";
 import WeekTransition from "@/components/ViewTransitions/WeekTransition";
 import { requireAdmin } from "@/lib/auth";
 import { getGamesForWeekCached } from "@/server/loaders/game";
@@ -81,9 +82,9 @@ const AdminGamesPageBody: FC<PageProps<"/weekly">> = async ({ searchParams }) =>
 
 const AdminGamesPage: FC<PageProps<"/weekly">> = (props) => (
   <PageTransition>
-    <Suspense fallback={<AdminLoading />}>
+    <SuspenseReveal fallback={<AdminLoading />}>
       <AdminGamesPageBody {...props} />
-    </Suspense>
+    </SuspenseReveal>
   </PageTransition>
 );
 

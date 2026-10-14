@@ -18,12 +18,13 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import "server-only";
 
-import { type FC, Suspense } from "react";
+import type { FC } from "react";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import MakePicksClient from "@/components/MakePicksClient/MakePicksClient";
 import PageContent from "@/components/PageContent/PageContent";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import SuspenseReveal from "@/components/ViewTransitions/SuspenseReveal";
 import WeekTransition from "@/components/ViewTransitions/WeekTransition";
 import { requireRegistered } from "@/lib/auth";
 import { withWeek } from "@/lib/weekSearchParams";
@@ -79,9 +80,9 @@ const MakePicksPageBody: FC<PageProps<"/picks/set">> = async ({ searchParams }) 
 
 const MakePicks: FC<PageProps<"/picks/set">> = (props) => (
   <PageTransition>
-    <Suspense fallback={<MakePicksLoading />}>
+    <SuspenseReveal fallback={<MakePicksLoading />}>
       <MakePicksPageBody {...props} />
-    </Suspense>
+    </SuspenseReveal>
   </PageTransition>
 );
 

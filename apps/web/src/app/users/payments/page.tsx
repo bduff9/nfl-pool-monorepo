@@ -25,7 +25,7 @@ import {
 } from "@nfl-pool-monorepo/ui/components/table";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { type FC, Suspense } from "react";
+import type { FC } from "react";
 import "server-only";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
@@ -33,6 +33,7 @@ import PageContent from "@/components/PageContent/PageContent";
 import PaymentSelector from "@/components/PaymentSelector/PaymentSelector";
 import TextSeparator from "@/components/TextSeparator/TextSeparator";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import SuspenseReveal from "@/components/ViewTransitions/SuspenseReveal";
 import { WeekLink } from "@/components/WeekLink/WeekLink";
 import { requireRegistered } from "@/lib/auth";
 import { getMyPayments } from "@/server/loaders/payment";
@@ -116,9 +117,9 @@ const ViewPaymentsPageBody: FC<PageProps<"/users/payments">> = async () => {
 
 const ViewPayments: FC<PageProps<"/users/payments">> = (props) => (
   <PageTransition>
-    <Suspense fallback={<UsersLoading />}>
+    <SuspenseReveal fallback={<UsersLoading />}>
       <ViewPaymentsPageBody {...props} />
-    </Suspense>
+    </SuspenseReveal>
   </PageTransition>
 );
 

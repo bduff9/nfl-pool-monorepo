@@ -23,13 +23,14 @@ import {
 } from "@nfl-pool-monorepo/db/src/queries/systemValue";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { type FC, Suspense } from "react";
+import type { FC } from "react";
 
 import AdminPrizeDataTable from "@/components/AdminUserPayoutTable/AdminPrizeDataTable";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import ManageAdminPayments from "@/components/ManageAdminPayments/ManageAdminPayments";
 import PageContent from "@/components/PageContent/PageContent";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import SuspenseReveal from "@/components/ViewTransitions/SuspenseReveal";
 import { requireAdmin } from "@/lib/auth";
 import { getUserPayoutsForAdmin } from "@/server/loaders/payment";
 import { getRegisteredCount, getSurvivorCount } from "@/server/loaders/user";
@@ -83,9 +84,9 @@ const AdminPaymentsPageBody: FC<PageProps<"/admin/payments">> = async ({ searchP
 
 const AdminPaymentsPage: FC<PageProps<"/admin/payments">> = (props) => (
   <PageTransition>
-    <Suspense fallback={<AdminLoading />}>
+    <SuspenseReveal fallback={<AdminLoading />}>
       <AdminPaymentsPageBody {...props} />
-    </Suspense>
+    </SuspenseReveal>
   </PageTransition>
 );
 

@@ -26,6 +26,7 @@ import SectionError from "@/components/SectionError/SectionError.client";
 import SurvivorDashboard from "@/components/SurvivorDashboard/SurvivorDashboard";
 import Crossfade from "@/components/ViewTransitions/Crossfade";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import SuspenseReveal from "@/components/ViewTransitions/SuspenseReveal";
 import WeekTransition from "@/components/ViewTransitions/WeekTransition";
 import DashboardLoader from "@/components/WeeklyDashboard/DashboardLoader";
 import WeeklyDashboard from "@/components/WeeklyDashboard/WeeklyDashboard";
@@ -120,9 +121,9 @@ const DashboardSkeleton: FC = () => (
 
 const Dashboard: FC<PageProps<"/">> = (props) => (
   <PageTransition>
-    <Suspense fallback={<DashboardSkeleton />}>
+    <SuspenseReveal fallback={<DashboardSkeleton />}>
       <DashboardPageBody {...props} />
-    </Suspense>
+    </SuspenseReveal>
   </PageTransition>
 );
 

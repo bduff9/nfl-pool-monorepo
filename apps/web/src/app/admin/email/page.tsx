@@ -16,13 +16,14 @@
 
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { type FC, Suspense } from "react";
+import type { FC } from "react";
 
 import AdminEmailsDataTable from "@/components/AdminEmailsTable/AdminEmailsDataTable";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
 import SendAdminEmails from "@/components/SendAdminEmails/SendAdminEmails";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import SuspenseReveal from "@/components/ViewTransitions/SuspenseReveal";
 import { requireAdmin } from "@/lib/auth";
 import { getAdminEmails } from "@/server/loaders/email";
 
@@ -64,9 +65,9 @@ const AdminEmailPageBody: FC<PageProps<"/admin/email">> = async ({ searchParams 
 
 const AdminEmail: FC<PageProps<"/admin/email">> = (props) => (
   <PageTransition>
-    <Suspense fallback={<AdminLoading />}>
+    <SuspenseReveal fallback={<AdminLoading />}>
       <AdminEmailPageBody {...props} />
-    </Suspense>
+    </SuspenseReveal>
   </PageTransition>
 );
 
