@@ -379,9 +379,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(*),
-  ::view-transition-new(*),
-  ::view-transition-group(*) {
+  /* :root lifts (*) to the specificity of the class-based rules above, e.g. ::view-transition-old(.nav-forward),
+     so this later rule wins over them */
+  :root::view-transition-old(*),
+  :root::view-transition-new(*),
+  :root::view-transition-group(*) {
     animation: none;
   }
 }
