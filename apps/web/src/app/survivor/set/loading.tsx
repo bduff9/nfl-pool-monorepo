@@ -5,6 +5,7 @@ import { FaInfoCircle } from "react-icons/fa";
 import { PiAtDuotone } from "react-icons/pi";
 import "server-only";
 
+import { HandedOffAlerts } from "@/components/CustomHead/CustomHead.client";
 import PageContent from "@/components/PageContent/PageContent";
 import { SURVIVOR_PICK_INSTRUCTIONS } from "@/lib/constants";
 
@@ -32,8 +33,9 @@ const SurvivorTeamLoader: FC<SurvivorTeamLoaderProps> = ({ isHome = false }) => 
 
 const SetPicksLoadingPage: FC = () => {
   return (
-    <div className="h-full flex" data-testid="route-loading">
-      <PageContent className="mx-2 md:pt-3 pb-4">
+    <div className="h-full flex flex-col md:mx-3" data-testid="route-loading">
+      <HandedOffAlerts />
+      <PageContent className="pt-5 md:pt-3 pb-4">
         <div className="flex flex-col min-h-dvh">
           <h4 className="scroll-m-20 text-xl font-semibold tracking-tight mb-5 text-center">
             {SURVIVOR_PICK_INSTRUCTIONS}

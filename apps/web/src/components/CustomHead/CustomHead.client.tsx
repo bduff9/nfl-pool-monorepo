@@ -70,8 +70,10 @@ const AlertList: FC<{ alerts: readonly string[] }> = ({ alerts }) => {
     return null;
   }
 
+  // Named so the row holds still like the sidebar (see page-alerts in globals.css) while the page under it slides. A
+  // page and its loading skeleton (HandedOffAlerts) never render at the same time, so the name is unique.
   return (
-    <div className="w-full">
+    <div className="w-full" style={{ viewTransitionName: "page-alerts" }}>
       {alerts.map((alert) => (
         <Alert key={alert} variant="destructive">
           <LuCircleAlert />

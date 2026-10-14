@@ -4,6 +4,7 @@ import "server-only";
 
 import type { FC } from "react";
 
+import { HandedOffAlerts } from "@/components/CustomHead/CustomHead.client";
 import PageContent from "@/components/PageContent/PageContent";
 import ProgressChartLoader from "@/components/ProgressChart/ProgressChartLoader";
 import RankingPieChartLoader from "@/components/RankingPieChart/RankingPieChartLoader";
@@ -32,8 +33,9 @@ const ROW_COUNT = 20;
 // The shared skeleton for the overall and weekly rankings pages
 const RankingsLoader: FC<Props> = ({ columns, rankTitle, resultsTitle, transitionNames }) => {
   return (
-    <div className="h-full flex" data-testid="route-loading">
-      <PageContent className="mx-2 pt-0 md:pt-3 pb-4">
+    <div className="h-full flex flex-col md:mx-3" data-testid="route-loading">
+      <HandedOffAlerts />
+      <PageContent className="pt-0 md:pt-3 pb-4">
         <div className="flex flex-wrap items-start">
           <div className="hidden md:inline-block w-[25%] text-center h-[205px]">
             <SharedElement name={transitionNames.rankTitle}>

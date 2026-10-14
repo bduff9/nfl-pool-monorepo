@@ -19,12 +19,14 @@ import { Skeleton } from "@nfl-pool-monorepo/ui/components/skeleton";
 import type { FC } from "react";
 import "server-only";
 
+import { HandedOffAlerts } from "@/components/CustomHead/CustomHead.client";
 import PageContent from "@/components/PageContent/PageContent";
 
 const SupportLoader: FC = async () => {
   return (
-    <div className="min-h-full flex" data-testid="route-loading">
-      <PageContent className="m-3 px-3 md:pt-3 pb-3" id="top">
+    <div className="min-h-full flex flex-col md:mx-3" data-testid="route-loading">
+      <HandedOffAlerts />
+      <PageContent className="pt-5 md:pt-3 pb-4 px-3 grow shrink-0 max-w-full" id="top">
         <div className="mb-2">
           <Skeleton className="w-full h-12 bg-muted" />
         </div>

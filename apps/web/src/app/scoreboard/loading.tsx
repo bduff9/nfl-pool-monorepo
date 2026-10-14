@@ -20,14 +20,16 @@ import { Skeleton } from "@nfl-pool-monorepo/ui/components/skeleton";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { type FC, Fragment, Suspense } from "react";
 
+import { HandedOffAlerts } from "@/components/CustomHead/CustomHead.client";
 import PageContent from "@/components/PageContent/PageContent";
 import { HandedOffScoreboard } from "@/components/ScoreboardGameCard/HandedOffGames";
 import ScoreboardGameCardSkeleton from "@/components/ScoreboardGameCard/ScoreboardGameCardSkeleton";
 
 const ScoreboardSkeleton: FC = () => {
   return (
-    <div className="h-full flex flex-col" data-testid="route-loading">
-      <PageContent className="mx-2 pt-5 md:pt-3 pb-4">
+    <div className="h-full flex flex-col md:mx-3" data-testid="route-loading">
+      <HandedOffAlerts />
+      <PageContent className="pt-5 md:pt-3 pb-4">
         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-x-5 px-3">
           {Array.from({ length: 16 }).map((_, i) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: This is a loader and the key is not important
