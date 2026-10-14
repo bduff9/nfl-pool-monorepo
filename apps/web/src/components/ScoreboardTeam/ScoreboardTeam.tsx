@@ -15,16 +15,20 @@
  */
 
 import { cn } from "@nfl-pool-monorepo/utils/styles";
-import type { FC } from "react";
+import { type FC, ViewTransition } from "react";
 import { PiFootballDuotone } from "react-icons/pi";
 
+import { getPossessionTransitionName, getScoreTransitionName } from "@/lib/gameTransitionNames";
+import { REFRESH_TRANSITION } from "@/lib/refreshTransition";
 import type { getGamesForWeekCached } from "@/server/loaders/game";
 
 import TeamLogo from "../TeamLogo/TeamLogo";
 import TimeoutDots from "../TimeoutDots/TimeoutDots";
+import SharedElement from "../ViewTransitions/SharedElement";
 import { getLogoClasses, getPossessionClasses, getScoreboardTextClasses, isLoserOf } from "./scoreboardTeamHelpers";
 
 type ScoreboardTeamProps = {
+  gameId: number;
   gameStatus: Awaited<ReturnType<typeof getGamesForWeekCached>>[number]["GameStatus"];
   hasPossession: boolean;
   isInRedzone: boolean;
@@ -54,22 +58,44 @@ const TeamNameCell: FC<TeamNameCellProps> = ({ classes, team, timeouts }) => (
   </div>
 );
 
-type ScoreCellProps = Pick<ScoreboardTeamProps, "gameStatus" | "hasPossession" | "isInRedzone" | "score"> & {
+// Keyed on the score, so a live refresh that changes it rolls the old number up and out as the new one rolls up into
+// place (score-roll in globals.css). The two share a name, so when the number also shifts sideways (a wider clock
+// beside it, the football arriving) the roll travels with it. Only a refresh animates it: on a page change or a reveal
+// the number is part of the card.
+const RollingScore: FC<{ name: string; score: number }> = ({ name, score }) => (
+  <ViewTransition
+    default="none"
+    key={score}
+    name={name}
+    share={{ default: "none", [REFRESH_TRANSITION]: "score-roll" }}
+  >
+    <span className="inline-block">{score}</span>
+  </ViewTransition>
+);
+
+type ScoreCellProps = Pick<ScoreboardTeamProps, "gameId" | "gameStatus" | "hasPossession" | "isInRedzone" | "score"> & {
   classes: string;
+  teamId: number;
 };
 
-const ScoreCell: FC<ScoreCellProps> = ({ classes, gameStatus, hasPossession, isInRedzone, score }) => (
+// The football has the same name in both team rows, so it moves to the other row when possession changes
+const ScoreCell: FC<ScoreCellProps> = ({ classes, gameId, gameStatus, hasPossession, isInRedzone, score, teamId }) => (
   <div className={cn("flex items-center pe-3", classes)}>
     {gameStatus !== "Pregame" && (
       <>
-        {!!hasPossession && <PiFootballDuotone className={getPossessionClasses(isInRedzone)} />}
-        {score}
+        {!!hasPossession && (
+          <SharedElement name={getPossessionTransitionName(gameId)}>
+            <PiFootballDuotone className={getPossessionClasses(isInRedzone)} />
+          </SharedElement>
+        )}
+        <RollingScore name={getScoreTransitionName(gameId, teamId)} score={score} />
       </>
     )}
   </div>
 );
 
 const ScoreboardTeam: FC<ScoreboardTeamProps> = ({
+  gameId,
   gameStatus,
   hasPossession,
   isInRedzone,
@@ -92,10 +118,12 @@ const ScoreboardTeam: FC<ScoreboardTeamProps> = ({
       <TeamNameCell classes={textClasses} team={team} timeouts={timeouts} />
       <ScoreCell
         classes={textClasses}
+        gameId={gameId}
         gameStatus={gameStatus}
         hasPossession={hasPossession}
         isInRedzone={isInRedzone}
         score={score}
+        teamId={team.TeamID}
       />
       <div className="w-full"></div>
     </>

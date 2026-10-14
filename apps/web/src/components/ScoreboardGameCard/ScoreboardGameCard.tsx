@@ -33,6 +33,7 @@ const ScoreboardGameCard: FC<Props> = ({ game, priority = false }) => (
     <div className={cn("p-3 flex bg-muted border border-border")}>
       <div className={cn("flex shrink flex-wrap")}>
         <ScoreboardTeam
+          gameId={game.GameID}
           gameStatus={game.GameStatus}
           hasPossession={game.GameHasPossession === game.HomeTeamID}
           isInRedzone={game.GameInRedzone === game.HomeTeamID}
@@ -43,6 +44,7 @@ const ScoreboardGameCard: FC<Props> = ({ game, priority = false }) => (
           timeouts={getLiveTimeouts(game, "home")}
         />
         <ScoreboardTeam
+          gameId={game.GameID}
           gameStatus={game.GameStatus}
           hasPossession={game.GameHasPossession === game.VisitorTeamID}
           isInRedzone={game.GameInRedzone === game.VisitorTeamID}

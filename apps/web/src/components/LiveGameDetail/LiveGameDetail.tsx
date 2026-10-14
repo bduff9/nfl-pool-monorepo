@@ -1,4 +1,4 @@
-import type { FC } from "react";
+import { type FC, ViewTransition } from "react";
 
 import type { LiveGameSummary, SummaryHeader } from "@/lib/liveGame/espnSummary";
 import { getMatchupColors, type MatchupColors } from "@/lib/liveScores/teamColors";
@@ -57,10 +57,16 @@ const LiveGameDetail: FC<Props> = ({ summary, teams }) => {
     return <Unavailable />;
   }
 
+  // The lists' rows slide in when a live refresh adds them (LiveRow). This boundary is what enters when the details
+  // appear (on the page's first load, or on a refresh once the game kicks off or ESPN is reachable again), and it does
+  // not animate, so the rows already in the lists do not all slide in at once: React only animates the outermost
+  // boundary that enters.
   return summary.header.state === "pre" ? (
     <Pregame />
   ) : (
-    <GameBody colors={getMatchupColors(teams.home, teams.away)} header={summary.header} summary={summary} />
+    <ViewTransition default="none">
+      <GameBody colors={getMatchupColors(teams.home, teams.away)} header={summary.header} summary={summary} />
+    </ViewTransition>
   );
 };
 

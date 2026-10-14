@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { type FC, useEffect } from "react";
 
 import { useWakeLock } from "@/lib/hooks/useWakeLock";
+import { refreshWithTransition } from "@/lib/refreshTransition";
 
 const LIVE_POLL_MS = 5_000;
 
@@ -23,7 +24,7 @@ const ScoreboardLiveRefresh: FC<ScoreboardLiveRefreshProps> = ({ enabled }) => {
 
     const refreshIfVisible = () => {
       if (document.visibilityState === "visible") {
-        router.refresh();
+        refreshWithTransition(router);
       }
     };
 

@@ -2,6 +2,7 @@ import type { FC } from "react";
 
 import type { SummaryScoringPlay } from "@/lib/liveGame/espnSummary";
 
+import LiveRow from "./LiveRow";
 import { formatPlayTime } from "./playFormat";
 
 type Props = {
@@ -20,17 +21,21 @@ const ScoringPlays: FC<Props> = ({ homeName, plays, visitorName }) =>
       </h2>
       <ul className="border border-border bg-muted px-3">
         {plays.map((play) => (
-          <li className="border-t border-border py-1.5 first:border-t-0" key={play.id}>
-            <div className="flex justify-between gap-3 text-xs text-muted-foreground tabular-nums">
-              <span>{[formatPlayTime(play.period, play.clock), play.team, play.type].filter(Boolean).join(" · ")}</span>
-              {hasScore(play) ? (
+          <LiveRow key={play.id}>
+            <li className="border-t border-border py-1.5 first:border-t-0">
+              <div className="flex justify-between gap-3 text-xs text-muted-foreground tabular-nums">
                 <span>
-                  {homeName} {play.homeScore} – {visitorName} {play.awayScore}
+                  {[formatPlayTime(play.period, play.clock), play.team, play.type].filter(Boolean).join(" · ")}
                 </span>
-              ) : null}
-            </div>
-            <p>{play.text}</p>
-          </li>
+                {hasScore(play) ? (
+                  <span>
+                    {homeName} {play.homeScore} – {visitorName} {play.awayScore}
+                  </span>
+                ) : null}
+              </div>
+              <p>{play.text}</p>
+            </li>
+          </LiveRow>
         ))}
       </ul>
     </section>

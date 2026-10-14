@@ -3,6 +3,7 @@ import type { FC } from "react";
 
 import type { SummaryDrive, SummaryPlay } from "@/lib/liveGame/espnSummary";
 
+import LiveRow from "./LiveRow";
 import { formatPlayTime } from "./playFormat";
 
 const getLabelClasses = (play: SummaryPlay): string => {
@@ -33,7 +34,9 @@ const PlayList: FC<{ plays: SummaryPlay[] }> = ({ plays }) =>
   ) : (
     <ul>
       {plays.map((play) => (
-        <PlayItem key={play.id} play={play} />
+        <LiveRow key={play.id}>
+          <PlayItem play={play} />
+        </LiveRow>
       ))}
     </ul>
   );
@@ -57,10 +60,12 @@ export const PreviousDrives: FC<{ drives: SummaryDrive[] }> = ({ drives }) =>
         Previous drives
       </h2>
       {drives.map((drive) => (
-        <details className="border border-t-0 border-border bg-muted px-3 first:border-t" key={drive.id}>
-          <summary className="cursor-pointer py-2 select-none marker:text-muted-foreground">{drive.headline}</summary>
-          <PlayList plays={drive.plays} />
-        </details>
+        <LiveRow key={drive.id}>
+          <details className="border border-t-0 border-border bg-muted px-3 first:border-t">
+            <summary className="cursor-pointer py-2 select-none marker:text-muted-foreground">{drive.headline}</summary>
+            <PlayList plays={drive.plays} />
+          </details>
+        </LiveRow>
       ))}
     </section>
   );

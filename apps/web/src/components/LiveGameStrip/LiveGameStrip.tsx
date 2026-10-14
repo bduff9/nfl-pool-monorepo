@@ -73,10 +73,14 @@ const WinProbability: FC<WinProbabilityProps> = ({ colors, homeName, homeWinPct,
 
   return (
     <div className="mt-1.5 flex items-center gap-2 text-xs text-muted-foreground tabular-nums">
-      {/* Tug of war in team colors: the home team (listed first on the card) fills from the left */}
+      {/* Tug of war in team colors: the home team (listed first on the card) fills from the left, and eases to each new
+          value on a live refresh (a transition never runs when the strip first renders) */}
       <span aria-hidden>{homeName}</span>
       <div aria-hidden className="flex h-1.5 flex-1 gap-px overflow-hidden rounded-full">
-        <div className="h-full" style={{ backgroundColor: colors.home, width: `${homeWinPct}%` }} />
+        <div
+          className="h-full motion-safe:transition-[width] motion-safe:duration-700 motion-safe:ease-(--ease-out-quint)"
+          style={{ backgroundColor: colors.home, width: `${homeWinPct}%` }}
+        />
         <div className="h-full flex-1" style={{ backgroundColor: colors.visitor }} />
       </div>
       <span aria-hidden>{visitorName}</span>

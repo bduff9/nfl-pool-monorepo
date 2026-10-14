@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { type FC, useEffect, useRef } from "react";
 
 import { shouldRefresh } from "@/lib/foregroundRefresh";
+import { refreshWithTransition } from "@/lib/refreshTransition";
 
 // The installed app resumes from the background still showing the data it had when it was last open, so refresh it
 // when it comes back to the foreground (throttled so quick app switches don't keep refetching)
@@ -18,7 +19,7 @@ const ForegroundRefresh: FC = () => {
       }
 
       lastRefreshAt.current = Date.now();
-      router.refresh();
+      refreshWithTransition(router);
     };
 
     document.addEventListener("visibilitychange", onVisibilityChange);

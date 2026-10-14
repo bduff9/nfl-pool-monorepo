@@ -15,6 +15,7 @@ import {
   isPullEnabledOn,
   PULL_THRESHOLD_PX,
 } from "@/lib/pullToRefresh";
+import { refreshInTransition } from "@/lib/refreshTransition";
 
 // A refresh that finishes instantly would otherwise remove the spinner before it was seen
 const MIN_SPINNER_MS = 700;
@@ -135,7 +136,7 @@ const usePullToRefresh = (): PullIndicatorProps => {
   const refresh = (): void => {
     setIsHolding(true);
     window.setTimeout(() => setIsHolding(false), MIN_SPINNER_MS);
-    startRefresh(() => router.refresh());
+    startRefresh(() => refreshInTransition(router));
   };
 
   const pull = usePull(isPullEnabledOn(pathname) && !isOffline, refresh);

@@ -16,9 +16,10 @@
  * Home: https://asitewithnoname.com/
  */
 
-import { type FC, useEffect, useState } from "react";
+import { type FC, type ReactNode, useEffect, useState, ViewTransition } from "react";
 
 import { formatTimeFromKickoff } from "@/lib/dates";
+import { REFRESH_TRANSITION } from "@/lib/refreshTransition";
 import { getShortQuarter } from "@/lib/strings";
 import type { getGamesForWeekCached } from "@/server/loaders/game";
 
@@ -49,6 +50,19 @@ const LiveBadge: FC<{ gameStatus: string; isLive: boolean }> = ({ gameStatus, is
     </span>
   ) : null;
 
+// Render with a key: when a live refresh changes it (kickoff, a new quarter, half time, final, the live badge turning
+// unofficial), the old text crossfades into the new (status-in/status-out in globals.css). The clock ticking within a
+// quarter just updates in place.
+const StatusFade: FC<{ children: ReactNode }> = ({ children }) => (
+  <ViewTransition
+    default="none"
+    enter={{ default: "none", [REFRESH_TRANSITION]: "status-in" }}
+    exit={{ default: "none", [REFRESH_TRANSITION]: "status-out" }}
+  >
+    {children}
+  </ViewTransition>
+);
+
 type InProgressStatusProps = Pick<GameStatusDisplayProps, "gameStatus" | "timeLeft">;
 
 const InProgressStatus: FC<InProgressStatusProps> = ({ gameStatus, timeLeft }) => (
@@ -72,14 +86,20 @@ const GameStatusDisplay: FC<GameStatusDisplayProps> = ({ kickoff, gameStatus, ti
     setLocalKickoffTime(formatTimeFromKickoff(kickoff));
   }, [kickoff]);
 
-  if (gameStatus === "Pregame") {
-    return <>{localKickoffTime}</>;
-  }
-
   return (
     <>
-      <LiveBadge gameStatus={gameStatus} isLive={isLive} />
-      {gameStatus === "Final" ? gameStatus : <InProgressStatus gameStatus={gameStatus} timeLeft={timeLeft} />}
+      <StatusFade key={isLive ? `live-${gameStatus === "Final"}` : "official"}>
+        <LiveBadge gameStatus={gameStatus} isLive={isLive} />
+      </StatusFade>
+      <StatusFade key={gameStatus}>
+        <div>
+          {gameStatus === "Pregame" && localKickoffTime}
+          {gameStatus === "Final" && gameStatus}
+          {gameStatus !== "Pregame" && gameStatus !== "Final" && (
+            <InProgressStatus gameStatus={gameStatus} timeLeft={timeLeft} />
+          )}
+        </div>
+      </StatusFade>
     </>
   );
 };

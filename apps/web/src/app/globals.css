@@ -424,6 +424,64 @@
     var(--duration-enter) ease-in both fade reverse;
 }
 
+/* Live games: only a refresh (lib/refreshTransition) runs these. A changed score rolls, the old number moving up and
+   out as the new one moves up into place, like iOS's numeric text. */
+@keyframes score-roll {
+  from {
+    opacity: 0;
+    filter: blur(2px);
+    translate: 0 var(--roll-offset);
+  }
+}
+
+@keyframes fade-only {
+  from {
+    opacity: 0;
+  }
+}
+
+::view-transition-group(.score-roll) {
+  animation-duration: 300ms;
+  animation-timing-function: var(--ease-out-quint);
+}
+
+::view-transition-old(.score-roll),
+::view-transition-new(.score-roll) {
+  height: 100%;
+  object-fit: none;
+  object-position: right center;
+}
+
+::view-transition-old(.score-roll) {
+  --roll-offset: -50%;
+
+  animation: 300ms ease-in both score-roll reverse;
+}
+
+::view-transition-new(.score-roll) {
+  --roll-offset: 50%;
+
+  animation: 300ms var(--ease-out-quint) both score-roll;
+}
+
+/* A game's status (quarter, half time, final) crossfades in place */
+::view-transition-old(.status-out) {
+  animation: var(--duration-enter) ease-in both fade-only reverse;
+}
+
+::view-transition-new(.status-in) {
+  animation: var(--duration-enter) ease-out both fade-only;
+}
+
+/* A new play or drive (LiveRow) slides down into the top of its list */
+::view-transition-new(.row-in) {
+  --slide-offset: 0 -8px;
+
+  animation:
+    var(--duration-enter) ease-out both fade,
+    300ms var(--ease-out-quint) both slide;
+}
+
 ::view-transition-group(.morph),
 ::view-transition-group(.shared),
 ::view-transition-group(.shared-start),
@@ -484,8 +542,10 @@
 /* A transition inside a page (the survivor pick screen's details and week badge, a new head-to-head matchup) leaves the
    page content in the root snapshot, so the scrim stays in it too, under that content as on screen. Named, it would be
    drawn over the root and dim the whole page while the transition runs. The badge is matched by the name React puts on
-   it for the transition, since a failed pick's hop back can be committed with the save's own (untyped) transition. */
+   it for the transition, since a failed pick's hop back can be committed with the save's own (untyped) transition. A
+   refresh that animates live data in place (lib/refreshTransition) is the same. */
 :root:active-view-transition-type(survivor-detail) [data-page-scrim],
+:root:active-view-transition-type(refresh) [data-page-scrim],
 :root:active-view-transition-type(matchup-swap) [data-page-scrim],
 :root:has([style*="survivor-week-badge"]) [data-page-scrim] {
   view-transition-name: none;
