@@ -117,8 +117,10 @@ export const registerForSurvivor = authActionClient.outputSchema(serverActionRes
     throw new ActionError("Failed to register user for survivor");
   }
 
-  // Layout-level data (survivor nav and registration state) comes from the session, which tags can't reach.
-  revalidatePath("/", "layout");
+  // Survivor state (sidebar nav, dashboard card) is read at request time, so no server cache holds it. Revalidating
+  // the dashboard still makes the client drop its router cache, without a layout-wide revalidatePath that would also
+  // expire the service worker route.
+  revalidatePath("/");
 
   return {
     metadata: {},
@@ -183,8 +185,10 @@ export const unregisterForSurvivor = authActionClient.outputSchema(serverActionR
     throw new ActionError("Failed to unregister user for survivor");
   }
 
-  // Layout-level data (survivor nav and registration state) comes from the session, which tags can't reach.
-  revalidatePath("/", "layout");
+  // Survivor state (sidebar nav, dashboard card) is read at request time, so no server cache holds it. Revalidating
+  // the dashboard still makes the client drop its router cache, without a layout-wide revalidatePath that would also
+  // expire the service worker route.
+  revalidatePath("/");
 
   return {
     metadata: {},

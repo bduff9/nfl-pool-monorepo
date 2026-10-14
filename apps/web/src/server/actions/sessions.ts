@@ -1,7 +1,6 @@
 "use server";
 
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import "server-only";
 
@@ -31,8 +30,9 @@ export const signOut = async (): Promise<void> => {
     }
 
     await invalidateSession(session.id);
+    // Deleting the cookie already makes the client drop its whole router cache. No server-cached data depends on
+    // who is signed in, so nothing is revalidated: a layout-wide revalidatePath also expired the service worker route.
     await deleteSessionTokenCookie();
-    revalidatePath("/", "layout");
   }
 
   redirect("/auth/login");

@@ -38,8 +38,8 @@ const serwist = createSerwistRoute({
 
 export const { dynamic, dynamicParams, revalidate, generateStaticParams } = serwist;
 
-// Signing out revalidates the whole layout, which makes the next request re-render this route at runtime. Bundling
-// the worker there is uncached IO, which Cache Components answers with a 500, so the bundled file is cached instead.
+// A layout-wide revalidatePath (no action issues one now) makes the next request re-render this route at runtime.
+// Bundling the worker there is uncached IO, which Cache Components answers with a 500, so the file is cached instead.
 const getServiceWorkerFile = async (filePath: string): Promise<{ body: string; headers: Array<[string, string]> }> => {
   "use cache";
   cacheLife("max");

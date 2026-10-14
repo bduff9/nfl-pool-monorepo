@@ -120,7 +120,8 @@ describe("registerForSurvivor", () => {
 
     expect(result?.serverError).toBeUndefined();
     expect(registerUserForSurvivor).toHaveBeenCalledWith(mockDb, 1);
-    expect(revalidatePath).toHaveBeenCalledWith("/", "layout");
+    expect(revalidatePath).toHaveBeenCalledWith("/");
+    expect(revalidatePath).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -168,6 +169,7 @@ describe("unregisterForSurvivor", () => {
 
     expect(result?.serverError).toBeUndefined();
     expect(unregisterUserForSurvivor).toHaveBeenCalledWith(mockDb, 1);
-    expect(revalidatePath).toHaveBeenCalledWith("/", "layout");
+    expect(revalidatePath).toHaveBeenCalledWith("/");
+    expect(revalidatePath).toHaveBeenCalledTimes(1);
   });
 });

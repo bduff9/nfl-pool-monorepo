@@ -54,7 +54,7 @@ describe("signOut", () => {
     expect(redirect).toHaveBeenCalledWith("/auth/login");
   });
 
-  it("logs, invalidates the session, clears the cookie, and redirects when a user is logged in", async () => {
+  it("logs, invalidates the session, clears the cookie, and redirects without revalidating any path", async () => {
     getCurrentSession.mockResolvedValue({ session: { id: "s1" }, user: AUTHED_USER });
     mockDb.executeTakeFirstOrThrow.mockResolvedValueOnce({ UserName: "Test User" });
 
@@ -64,7 +64,7 @@ describe("signOut", () => {
     expect(writeLog).toHaveBeenCalledWith(expect.objectContaining({ LogAction: "LOGOUT" }));
     expect(invalidateSession).toHaveBeenCalledWith("s1");
     expect(deleteSessionTokenCookie).toHaveBeenCalled();
-    expect(revalidatePath).toHaveBeenCalledWith("/", "layout");
+    expect(revalidatePath).not.toHaveBeenCalled();
     expect(redirect).toHaveBeenCalledWith("/auth/login");
   });
 
