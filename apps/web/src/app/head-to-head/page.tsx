@@ -20,11 +20,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import type { FC } from "react";
+import { type FC, ViewTransition } from "react";
 import { PiFootballDuotone } from "react-icons/pi";
 import "server-only";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
+import HeadToHeadForm from "@/components/HeadToHeadForm/HeadToHeadForm";
 import PageContent from "@/components/PageContent/PageContent";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
 import SuspenseReveal from "@/components/ViewTransitions/SuspenseReveal";
@@ -60,6 +61,8 @@ const parseUserIDParam = (value: string | string[] | undefined): null | number =
 
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
 };
+
+const matchupFade = { default: "none", "nav-fade": "nav-fade" } as const;
 
 type HeadToHead = Awaited<ReturnType<typeof getHeadToHead>>;
 type Ranking = Awaited<ReturnType<typeof getWeeklyRankings>>[number];
@@ -206,37 +209,42 @@ const HeadToHeadPageBody: FC<HeadToHeadPageBodyProps> = async ({ searchParams })
         <CustomHead title={TITLE} />
         <PageContent className="px-3 pt-5 pb-4 md:px-5 md:pt-3">
           <h1 className="text-4xl font-semibold tracking-tight mb-6">{TITLE}</h1>
-          <form className="flex flex-wrap items-end gap-3 mb-6" method="get">
+          <HeadToHeadForm className="flex flex-wrap items-end gap-3 mb-6">
             <input name="week" type="hidden" value={selectedWeek} />
             <PlayerSelect label="Player 1" name="a" selectedID={userAID} users={users} />
             <PlayerSelect label="Player 2" name="b" selectedID={userBID} users={users} />
             <Button type="submit" variant="primary">
               Compare
             </Button>
-          </form>
-          <div className="grid grid-cols-2 gap-4 mb-6 max-w-xl">
-            <ScoreCard points={getPoints(games, picksA)} rank={rankA?.Rank} teamName={userA?.TeamName} />
-            <ScoreCard points={getPoints(games, picksB)} rank={rankB?.Rank} teamName={userB?.TeamName} />
-          </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-center">Game</TableHead>
-                <TableHead className="text-center">{userA?.TeamName}</TableHead>
-                <TableHead className="text-center">{userB?.TeamName}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {games.map((game) => (
-                <GameRow
-                  game={game}
-                  key={game.GameID}
-                  pickA={picksA.get(game.GameID)}
-                  pickB={picksB.get(game.GameID)}
-                />
-              ))}
-            </TableBody>
-          </Table>
+          </HeadToHeadForm>
+          {/* A new pair of players crossfades in place of the last one when compared (HeadToHeadForm's nav-fade) */}
+          <ViewTransition default="none" enter={matchupFade} exit={matchupFade} key={`${userAID}-${userBID}`}>
+            <div>
+              <div className="grid grid-cols-2 gap-4 mb-6 max-w-xl">
+                <ScoreCard points={getPoints(games, picksA)} rank={rankA?.Rank} teamName={userA?.TeamName} />
+                <ScoreCard points={getPoints(games, picksB)} rank={rankB?.Rank} teamName={userB?.TeamName} />
+              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-center">Game</TableHead>
+                    <TableHead className="text-center">{userA?.TeamName}</TableHead>
+                    <TableHead className="text-center">{userB?.TeamName}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {games.map((game) => (
+                    <GameRow
+                      game={game}
+                      key={game.GameID}
+                      pickA={picksA.get(game.GameID)}
+                      pickB={picksB.get(game.GameID)}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </ViewTransition>
         </PageContent>
       </div>
     </WeekTransition>
