@@ -30,11 +30,22 @@ type GameStatusDisplayProps = {
   isLive?: boolean;
 };
 
-// An overlaid "Final" came from the live feed before the official result, so it is labelled unofficial
+// An overlaid "Final" came from the live feed before the official result, so it is labelled unofficial. A game still
+// being played gets a softly pulsing dot, like a recording light.
 const LiveBadge: FC<{ gameStatus: string; isLive: boolean }> = ({ gameStatus, isLive }) =>
   isLive ? (
     <span className="block text-xs font-bold tracking-wide text-red-600 dark:text-red-400">
-      {gameStatus === "Final" ? "UNOFFICIAL" : "LIVE"}
+      {gameStatus === "Final" ? (
+        "UNOFFICIAL"
+      ) : (
+        <>
+          <span
+            aria-hidden
+            className="me-1 inline-block size-1.5 rounded-full bg-current align-middle motion-safe:animate-pulse"
+          />
+          LIVE
+        </>
+      )}
     </span>
   ) : null;
 
