@@ -61,6 +61,7 @@ const NavLink: FC<NavLinkProps> = ({
         href={href}
         onClick={handleLinkClick}
         prefetch={true}
+        transitionTypes={["nav-fade"]}
       >
         {children}
       </WeekLink>

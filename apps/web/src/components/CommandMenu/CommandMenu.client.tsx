@@ -253,7 +253,7 @@ export const CommandMenuClient: FC<CommandMenuClientProps> = ({
     topLoader.start();
 
     startTransition(() => {
-      router.push(withWeek(href, week));
+      router.push(withWeek(href, week), { transitionTypes: ["nav-fade"] });
     });
   };
 

@@ -1,5 +1,7 @@
-import Link from "next/link";
+import type { Route } from "next";
 import type { FC } from "react";
+
+import { WeekLink } from "../WeekLink/WeekLink";
 
 type Props = {
   game: { GameStatus: string; GameWeek: number; espnEventId?: string | undefined };
@@ -12,13 +14,14 @@ const GameDetailsLink: FC<Props> = ({ game }) => {
   }
 
   return (
-    <Link
+    <WeekLink
       className="block border border-t-0 border-border bg-muted px-3 py-2 text-right text-sm font-semibold hover:bg-border/30"
-      href={`/scoreboard/game/${game.espnEventId}?week=${game.GameWeek}`}
+      href={`/scoreboard/game/${game.espnEventId}?week=${game.GameWeek}` as Route}
       prefetch={false}
+      preserveWeek={false}
     >
       Game details <span aria-hidden>›</span>
-    </Link>
+    </WeekLink>
   );
 };
 

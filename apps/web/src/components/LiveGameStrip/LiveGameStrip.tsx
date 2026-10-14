@@ -1,10 +1,12 @@
 import { cn } from "@nfl-pool-monorepo/utils/styles";
-import Link from "next/link";
+import type { Route } from "next";
 import type { FC } from "react";
 
 import { getWinLeader } from "@/lib/liveGame/winLeader";
 import type { LastPlay, LiveSituation } from "@/lib/liveScores/espnSituation";
 import { getMatchupColors, type MatchupColors } from "@/lib/liveScores/teamColors";
+
+import { WeekLink } from "../WeekLink/WeekLink";
 
 type TeamRef = { TeamPrimaryColor: string; TeamSecondaryColor: string; TeamShortName: string } | null;
 
@@ -129,10 +131,11 @@ const LiveGameStrip: FC<Props> = ({ game }) => {
   }
 
   return (
-    <Link
+    <WeekLink
       className="block border border-t-0 border-border bg-muted px-3 py-2 text-sm hover:bg-border/30"
-      href={`/scoreboard/game/${target.eventId}?week=${game.GameWeek}`}
+      href={`/scoreboard/game/${target.eventId}?week=${game.GameWeek}` as Route}
       prefetch={false}
+      preserveWeek={false}
     >
       <StripBody
         colors={getMatchupColors(game.homeTeam, game.visitorTeam)}
@@ -141,7 +144,7 @@ const LiveGameStrip: FC<Props> = ({ game }) => {
         situation={target.situation}
         visitorName={getTeamName(game.visitorTeam, "Away")}
       />
-    </Link>
+    </WeekLink>
   );
 };
 
