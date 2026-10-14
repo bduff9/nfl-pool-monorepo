@@ -251,53 +251,53 @@ const SupportPageBody: FC<SupportPageBodyProps> = async ({ searchParams }) => {
   }
 
   return (
-    <PageTransition>
-      <div className="min-h-full flex flex-col md:mx-3">
-        <CustomHead title={TITLE} />
-        <PageContent className="pt-5 md:pt-3 pb-4 px-3 grow shrink-0 max-w-full" id="top">
-          <SupportSearch currentQuery={query} />
-          <h2 className="scroll-m-20 text-4xl font-semibold tracking-tight first:mt-0 text-center mb-0" id="rules">
-            Rules
-          </h2>
-          <Separator className="my-4 h-px bg-muted" />
-          {ruleMarkup}
-          <h2 className="scroll-m-20 text-4xl font-semibold tracking-tight first:mt-0 text-center mb-0" id="faq">
-            FAQ
-          </h2>
-          <Separator className="my-4 h-px bg-muted" />
-          {faqMarkup}
-          <h2 className="scroll-m-20 text-4xl font-semibold tracking-tight first:mt-0 text-center mb-0" id="contact">
-            Contact Us
-          </h2>
-          <Separator className="my-4 h-px bg-muted" />
-          <div className="text-center">
-            <SlackLink href={slackLink} />
-            <br />
-            <br />
-            Feel free to reach out for any questions or issues you may have
-            <br />
-            <a className="underline text-sky-600" href={`mailto:${supportEmail}`}>
-              {supportEmail}
-            </a>
-            <br />
-            <br />
-            {!session && (
-              <Button asChild variant="primary">
-                <WeekLink href="/auth/login">Back to login</WeekLink>
-              </Button>
-            )}
-          </div>
-        </PageContent>
-      </div>
-    </PageTransition>
+    <div className="min-h-full flex flex-col md:mx-3">
+      <CustomHead title={TITLE} />
+      <PageContent className="pt-5 md:pt-3 pb-4 px-3 grow shrink-0 max-w-full" id="top">
+        <SupportSearch currentQuery={query} />
+        <h2 className="scroll-m-20 text-4xl font-semibold tracking-tight first:mt-0 text-center mb-0" id="rules">
+          Rules
+        </h2>
+        <Separator className="my-4 h-px bg-muted" />
+        {ruleMarkup}
+        <h2 className="scroll-m-20 text-4xl font-semibold tracking-tight first:mt-0 text-center mb-0" id="faq">
+          FAQ
+        </h2>
+        <Separator className="my-4 h-px bg-muted" />
+        {faqMarkup}
+        <h2 className="scroll-m-20 text-4xl font-semibold tracking-tight first:mt-0 text-center mb-0" id="contact">
+          Contact Us
+        </h2>
+        <Separator className="my-4 h-px bg-muted" />
+        <div className="text-center">
+          <SlackLink href={slackLink} />
+          <br />
+          <br />
+          Feel free to reach out for any questions or issues you may have
+          <br />
+          <a className="underline text-sky-600" href={`mailto:${supportEmail}`}>
+            {supportEmail}
+          </a>
+          <br />
+          <br />
+          {!session && (
+            <Button asChild variant="primary">
+              <WeekLink href="/auth/login">Back to login</WeekLink>
+            </Button>
+          )}
+        </div>
+      </PageContent>
+    </div>
   );
 };
 
 const Support: FC<PageProps<"/support">> = ({ searchParams }) => {
   return (
-    <Suspense fallback={<SupportLoader />}>
-      <SupportPageBody searchParams={searchParams} />
-    </Suspense>
+    <PageTransition>
+      <Suspense fallback={<SupportLoader />}>
+        <SupportPageBody searchParams={searchParams} />
+      </Suspense>
+    </PageTransition>
   );
 };
 

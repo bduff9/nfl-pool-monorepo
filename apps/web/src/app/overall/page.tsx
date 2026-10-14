@@ -107,86 +107,86 @@ const OverallRankingsPageBody: FC<PageProps<"/overall">> = async () => {
     currentWeekGames.some((game) => game.GameStatus !== "Pregame" && game.GameStatus !== "Final");
 
   return (
-    <PageTransition>
-      <div className="h-full flex flex-col md:mx-3">
-        <CustomHead title={TITLE} />
-        <ScoreboardLiveRefresh enabled={hasLiveGames} />
-        <PageContent className="pt-0 md:pt-3 pb-4">
-          <div className="flex flex-wrap items-start">
-            <div className="hidden md:inline-block w-[25%] text-center h-[205px]">
-              <OverallDashboardTitle />
-              <RankingPieChart
-                data={[
-                  {
-                    fill: "var(--color-red-700)",
-                    myPlace,
-                    name: "ahead of me",
-                    total: overallTotalCount,
-                    value: aheadOfMe,
-                  },
-                  {
-                    fill: "var(--color-green-700)",
-                    myPlace,
-                    name: "behind me",
-                    total: overallTotalCount,
-                    value: behindMe,
-                  },
-                  {
-                    fill: "var(--color-amber-600)",
-                    myPlace,
-                    name: "tied with me",
-                    total: overallTotalCount,
-                    value: overallTiedCount,
-                  },
-                ]}
-                transitionName="overallRankingPieChart"
-              />
-            </div>
-            <div className="mt-4 block md:hidden">
-              <WeekLink className="inline-block py-2.5" href="/">
-                &laquo; Back to Dashboard
-              </WeekLink>
-            </div>
-            <SectionError title="Scenarios">
-              <Suspense fallback={null}>
-                <ScenariosDashboard scope="overall" />
-              </Suspense>
-            </SectionError>
-            <div className="hidden md:inline-block flex-1 px-3">
-              <OverallDashboardResults className="mb-4 text-center" />
-              <ProgressChart
-                correct={myOverallRank?.PointsEarned ?? 0}
-                incorrect={myOverallRank?.PointsWrong ?? 0}
-                isOver={seasonStatus === "Complete"}
-                max={myOverallRank?.PointsTotal ?? 0}
-                transitionName="overallPointsEarned"
-                type="Points"
-              />
-              <ProgressChart
-                correct={myOverallRank?.GamesCorrect ?? 0}
-                incorrect={myOverallRank?.GamesWrong ?? 0}
-                isOver={seasonStatus === "Complete"}
-                max={myOverallRank?.GamesTotal ?? 0}
-                transitionName="overallGamesCorrect"
-                type="Games"
-              />
-            </div>
-            <RetryableSection title="the overall rankings">
-              <Crossfade>
-                <OverallRankingsTable />
-              </Crossfade>
-            </RetryableSection>
+    <div className="h-full flex flex-col md:mx-3">
+      <CustomHead title={TITLE} />
+      <ScoreboardLiveRefresh enabled={hasLiveGames} />
+      <PageContent className="pt-0 md:pt-3 pb-4">
+        <div className="flex flex-wrap items-start">
+          <div className="hidden md:inline-block w-[25%] text-center h-[205px]">
+            <OverallDashboardTitle />
+            <RankingPieChart
+              data={[
+                {
+                  fill: "var(--color-red-700)",
+                  myPlace,
+                  name: "ahead of me",
+                  total: overallTotalCount,
+                  value: aheadOfMe,
+                },
+                {
+                  fill: "var(--color-green-700)",
+                  myPlace,
+                  name: "behind me",
+                  total: overallTotalCount,
+                  value: behindMe,
+                },
+                {
+                  fill: "var(--color-amber-600)",
+                  myPlace,
+                  name: "tied with me",
+                  total: overallTotalCount,
+                  value: overallTiedCount,
+                },
+              ]}
+              transitionName="overallRankingPieChart"
+            />
           </div>
-        </PageContent>
-      </div>
-    </PageTransition>
+          <div className="mt-4 block md:hidden">
+            <WeekLink className="inline-block py-2.5" href="/">
+              &laquo; Back to Dashboard
+            </WeekLink>
+          </div>
+          <SectionError title="Scenarios">
+            <Suspense fallback={null}>
+              <ScenariosDashboard scope="overall" />
+            </Suspense>
+          </SectionError>
+          <div className="hidden md:inline-block flex-1 px-3">
+            <OverallDashboardResults className="mb-4 text-center" />
+            <ProgressChart
+              correct={myOverallRank?.PointsEarned ?? 0}
+              incorrect={myOverallRank?.PointsWrong ?? 0}
+              isOver={seasonStatus === "Complete"}
+              max={myOverallRank?.PointsTotal ?? 0}
+              transitionName="overallPointsEarned"
+              type="Points"
+            />
+            <ProgressChart
+              correct={myOverallRank?.GamesCorrect ?? 0}
+              incorrect={myOverallRank?.GamesWrong ?? 0}
+              isOver={seasonStatus === "Complete"}
+              max={myOverallRank?.GamesTotal ?? 0}
+              transitionName="overallGamesCorrect"
+              type="Games"
+            />
+          </div>
+          <RetryableSection title="the overall rankings">
+            <Crossfade>
+              <OverallRankingsTable />
+            </Crossfade>
+          </RetryableSection>
+        </div>
+      </PageContent>
+    </div>
   );
 };
 
 const OverallRankings: FC<PageProps<"/overall">> = (props) => (
-  <Suspense fallback={<OverallLoading />}>
-    <OverallRankingsPageBody {...props} />
-  </Suspense>
+  <PageTransition>
+    <Suspense fallback={<OverallLoading />}>
+      <OverallRankingsPageBody {...props} />
+    </Suspense>
+  </PageTransition>
 );
 
 export default OverallRankings;

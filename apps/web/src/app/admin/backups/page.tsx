@@ -41,21 +41,21 @@ const AdminBackupsPageBody: FC<PageProps<"/admin/backups">> = async () => {
   const { count, results } = await getAdminBackups();
 
   return (
-    <PageTransition>
-      <div className="h-full flex flex-col md:mx-3">
-        <CustomHead title="Backups Admin" />
-        <PageContent className="pt-3">
-          <BackupsTable count={count} results={results} />
-        </PageContent>
-      </div>
-    </PageTransition>
+    <div className="h-full flex flex-col md:mx-3">
+      <CustomHead title="Backups Admin" />
+      <PageContent className="pt-3">
+        <BackupsTable count={count} results={results} />
+      </PageContent>
+    </div>
   );
 };
 
 const AdminBackupsPage: FC<PageProps<"/admin/backups">> = (props) => (
-  <Suspense fallback={<AdminLoading />}>
-    <AdminBackupsPageBody {...props} />
-  </Suspense>
+  <PageTransition>
+    <Suspense fallback={<AdminLoading />}>
+      <AdminBackupsPageBody {...props} />
+    </Suspense>
+  </PageTransition>
 );
 
 export default AdminBackupsPage;

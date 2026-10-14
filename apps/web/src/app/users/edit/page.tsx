@@ -56,27 +56,27 @@ const EditProfilePageBody: FC<PageProps<"/users/edit">> = async () => {
   ]);
 
   return (
-    <PageTransition>
-      <div className="h-full flex flex-col md:mx-3">
-        <CustomHead title="Edit My Profile" />
-        <PageContent className="pt-5 md:pt-4 pb-6 px-3 grow shrink-0">
-          <EditProfileForm
-            action={editMyProfile}
-            currentUser={currentUser}
-            hasGoogle={hasGoogle}
-            myNotifications={myNotifications}
-            passkeys={passkeys}
-          />
-        </PageContent>
-      </div>
-    </PageTransition>
+    <div className="h-full flex flex-col md:mx-3">
+      <CustomHead title="Edit My Profile" />
+      <PageContent className="pt-5 md:pt-4 pb-6 px-3 grow shrink-0">
+        <EditProfileForm
+          action={editMyProfile}
+          currentUser={currentUser}
+          hasGoogle={hasGoogle}
+          myNotifications={myNotifications}
+          passkeys={passkeys}
+        />
+      </PageContent>
+    </div>
   );
 };
 
 const EditProfile: FC<PageProps<"/users/edit">> = (props) => (
-  <Suspense fallback={<UsersLoading />}>
-    <EditProfilePageBody {...props} />
-  </Suspense>
+  <PageTransition>
+    <Suspense fallback={<UsersLoading />}>
+      <EditProfilePageBody {...props} />
+    </Suspense>
+  </PageTransition>
 );
 
 export default EditProfile;

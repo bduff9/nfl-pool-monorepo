@@ -60,33 +60,33 @@ const AdminPaymentsPageBody: FC<PageProps<"/admin/payments">> = async ({ searchP
     ]);
 
   return (
-    <PageTransition>
-      <div className="h-full flex flex-col md:mx-3">
-        <CustomHead title="Manage Payments" />
-        <PageContent>
-          <ManageAdminPayments
-            overallPrizes={overallPrizes}
-            poolCost={poolCost}
-            registeredCount={registeredCount}
-            survivorCost={survivorCost}
-            survivorCount={survivorCount}
-            survivorPrizes={survivorPrizes}
-            weeklyPrizes={weeklyPrizes}
-          />
+    <div className="h-full flex flex-col md:mx-3">
+      <CustomHead title="Manage Payments" />
+      <PageContent>
+        <ManageAdminPayments
+          overallPrizes={overallPrizes}
+          poolCost={poolCost}
+          registeredCount={registeredCount}
+          survivorCost={survivorCost}
+          survivorCount={survivorCount}
+          survivorPrizes={survivorPrizes}
+          weeklyPrizes={weeklyPrizes}
+        />
 
-          <div className="flex flex-col rounded-md mt-6">
-            <AdminPrizeDataTable winners={winners} />
-          </div>
-        </PageContent>
-      </div>
-    </PageTransition>
+        <div className="flex flex-col rounded-md mt-6">
+          <AdminPrizeDataTable winners={winners} />
+        </div>
+      </PageContent>
+    </div>
   );
 };
 
 const AdminPaymentsPage: FC<PageProps<"/admin/payments">> = (props) => (
-  <Suspense fallback={<AdminLoading />}>
-    <AdminPaymentsPageBody {...props} />
-  </Suspense>
+  <PageTransition>
+    <Suspense fallback={<AdminLoading />}>
+      <AdminPaymentsPageBody {...props} />
+    </Suspense>
+  </PageTransition>
 );
 
 export default AdminPaymentsPage;

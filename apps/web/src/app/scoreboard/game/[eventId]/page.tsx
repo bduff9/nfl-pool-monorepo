@@ -35,7 +35,7 @@ const GamePageBody: FC<PageProps<"/scoreboard/game/[eventId]">> = async ({ param
   const teams = await getGameTeamsForHeader(summary?.header);
 
   return (
-    <PageTransition>
+    <>
       <ScoreboardLiveRefresh enabled={shouldPollSummary(summary)} />
       <div className="h-full flex flex-col md:mx-3">
         <CustomHead title={TITLE} />
@@ -43,14 +43,16 @@ const GamePageBody: FC<PageProps<"/scoreboard/game/[eventId]">> = async ({ param
           <LiveGameDetail summary={summary} teams={teams} />
         </PageContent>
       </div>
-    </PageTransition>
+    </>
   );
 };
 
 const GamePage: FC<PageProps<"/scoreboard/game/[eventId]">> = (props) => (
-  <Suspense fallback={<ScoreboardLoader />}>
-    <GamePageBody {...props} />
-  </Suspense>
+  <PageTransition>
+    <Suspense fallback={<ScoreboardLoader />}>
+      <GamePageBody {...props} />
+    </Suspense>
+  </PageTransition>
 );
 
 export default GamePage;

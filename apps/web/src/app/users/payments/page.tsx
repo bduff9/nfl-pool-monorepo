@@ -56,70 +56,70 @@ const ViewPaymentsPageBody: FC<PageProps<"/users/payments">> = async () => {
   const owed = payments.reduce((total, payment) => total + Number(payment.PaymentAmount), 0);
 
   return (
-    <PageTransition>
-      <div className="h-full flex flex-col md:mx-3">
-        <CustomHead title="View Payments" />
-        <PageContent className="pt-5 md:pt-3 pb-4">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-start text-foreground" scope="col">
-                  Description
-                </TableHead>
-                <TableHead className="text-center text-foreground" scope="col">
-                  Week
-                </TableHead>
-                <TableHead className="text-end text-foreground" scope="col">
-                  Amount
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {payments.map((payment) => {
-                const amount = Number(payment.PaymentAmount);
+    <div className="h-full flex flex-col md:mx-3">
+      <CustomHead title="View Payments" />
+      <PageContent className="pt-5 md:pt-3 pb-4">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="text-start text-foreground" scope="col">
+                Description
+              </TableHead>
+              <TableHead className="text-center text-foreground" scope="col">
+                Week
+              </TableHead>
+              <TableHead className="text-end text-foreground" scope="col">
+                Amount
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {payments.map((payment) => {
+              const amount = Number(payment.PaymentAmount);
 
-                return (
-                  <TableRow className={amount < 0 ? "bg-red-300" : "bg-green-300"} key={`payment-${payment.PaymentID}`}>
-                    <TableCell className="text-start">{payment.PaymentDescription}</TableCell>
-                    <TableCell className="text-center">{payment.PaymentWeek}</TableCell>
-                    <TableCell className="text-end">${Math.abs(amount)}</TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-            <TableFooter>
-              <TableRow className="font-semibold bg-muted">
-                <TableCell className="text-start" colSpan={2}>
-                  {owed < 0 ? "Total you owe:" : "Total you are owed:"}
-                </TableCell>
-                <TableCell className="text-end">${Math.abs(owed)}</TableCell>
-              </TableRow>
-            </TableFooter>
-          </Table>
-          {owed < 0 && (
-            <PaymentSelector amount={Math.abs(owed)} defaultPayment={currentUser.UserPaymentType ?? "Paypal"} />
-          )}
-          <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight text-center text-red-500">
-            '*** All prizes are paid at the end of the year ***'
-          </h3>
-          <TextSeparator>My Prize Payment Info</TextSeparator>
-          <div className="mx-3">Payment Type: {currentUser.UserPaymentType}</div>
-          <div className="mx-3">Payment Account: {currentUser.UserPaymentAccount}</div>
-          <div className="mx-3">
-            <WeekLink className="inline-block py-2.5 underline" href="/users/edit">
-              Change the account to be paid out
-            </WeekLink>
-          </div>
-        </PageContent>
-      </div>
-    </PageTransition>
+              return (
+                <TableRow className={amount < 0 ? "bg-red-300" : "bg-green-300"} key={`payment-${payment.PaymentID}`}>
+                  <TableCell className="text-start">{payment.PaymentDescription}</TableCell>
+                  <TableCell className="text-center">{payment.PaymentWeek}</TableCell>
+                  <TableCell className="text-end">${Math.abs(amount)}</TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+          <TableFooter>
+            <TableRow className="font-semibold bg-muted">
+              <TableCell className="text-start" colSpan={2}>
+                {owed < 0 ? "Total you owe:" : "Total you are owed:"}
+              </TableCell>
+              <TableCell className="text-end">${Math.abs(owed)}</TableCell>
+            </TableRow>
+          </TableFooter>
+        </Table>
+        {owed < 0 && (
+          <PaymentSelector amount={Math.abs(owed)} defaultPayment={currentUser.UserPaymentType ?? "Paypal"} />
+        )}
+        <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight text-center text-red-500">
+          '*** All prizes are paid at the end of the year ***'
+        </h3>
+        <TextSeparator>My Prize Payment Info</TextSeparator>
+        <div className="mx-3">Payment Type: {currentUser.UserPaymentType}</div>
+        <div className="mx-3">Payment Account: {currentUser.UserPaymentAccount}</div>
+        <div className="mx-3">
+          <WeekLink className="inline-block py-2.5 underline" href="/users/edit">
+            Change the account to be paid out
+          </WeekLink>
+        </div>
+      </PageContent>
+    </div>
   );
 };
 
 const ViewPayments: FC<PageProps<"/users/payments">> = (props) => (
-  <Suspense fallback={<UsersLoading />}>
-    <ViewPaymentsPageBody {...props} />
-  </Suspense>
+  <PageTransition>
+    <Suspense fallback={<UsersLoading />}>
+      <ViewPaymentsPageBody {...props} />
+    </Suspense>
+  </PageTransition>
 );
 
 export default ViewPayments;

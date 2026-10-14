@@ -43,26 +43,26 @@ const CreateProfilePageBody: FC<PageProps<"/users/create">> = async () => {
   ]);
 
   return (
-    <PageTransition>
-      <div className="h-full flex flex-col md:mx-3">
-        <CustomHead title={TITLE} />
-        <PageContent className="pt-5 md:pt-4 pb-6 px-3 grow shrink-0">
-          <FinishRegistrationForm
-            currentUser={currentUser}
-            finishRegistration={finishRegistration}
-            hasGoogle={hasGoogle}
-            seasonStatus={seasonStatus}
-          />
-        </PageContent>
-      </div>
-    </PageTransition>
+    <div className="h-full flex flex-col md:mx-3">
+      <CustomHead title={TITLE} />
+      <PageContent className="pt-5 md:pt-4 pb-6 px-3 grow shrink-0">
+        <FinishRegistrationForm
+          currentUser={currentUser}
+          finishRegistration={finishRegistration}
+          hasGoogle={hasGoogle}
+          seasonStatus={seasonStatus}
+        />
+      </PageContent>
+    </div>
   );
 };
 
 const CreateProfile: FC<PageProps<"/users/create">> = (props) => (
-  <Suspense fallback={<UsersLoading />}>
-    <CreateProfilePageBody {...props} />
-  </Suspense>
+  <PageTransition>
+    <Suspense fallback={<UsersLoading />}>
+      <CreateProfilePageBody {...props} />
+    </Suspense>
+  </PageTransition>
 );
 
 export default CreateProfile;

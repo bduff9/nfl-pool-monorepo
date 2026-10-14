@@ -152,31 +152,31 @@ const HistoryPageBody: FC = async () => {
   const myEntries = history.filter((entry) => entry.UserID === currentUser.UserID);
 
   return (
-    <PageTransition>
-      <div className="h-full flex flex-col md:mx-3">
-        <CustomHead title={TITLE} />
-        <PageContent className="px-3 pt-5 pb-4 md:px-5 md:pt-3">
-          <h1 className="text-4xl font-semibold tracking-tight mb-6">{TITLE}</h1>
-          {years.length === 0 ? (
-            <p className="text-muted-foreground">No history recorded yet.</p>
-          ) : (
-            <>
-              <HistoryTrendChart allYears={years} entries={myEntries} />
-              {years.map((year) => (
-                <HistoryYearSection entries={byYear.get(year) ?? []} key={year} year={year} />
-              ))}
-            </>
-          )}
-        </PageContent>
-      </div>
-    </PageTransition>
+    <div className="h-full flex flex-col md:mx-3">
+      <CustomHead title={TITLE} />
+      <PageContent className="px-3 pt-5 pb-4 md:px-5 md:pt-3">
+        <h1 className="text-4xl font-semibold tracking-tight mb-6">{TITLE}</h1>
+        {years.length === 0 ? (
+          <p className="text-muted-foreground">No history recorded yet.</p>
+        ) : (
+          <>
+            <HistoryTrendChart allYears={years} entries={myEntries} />
+            {years.map((year) => (
+              <HistoryYearSection entries={byYear.get(year) ?? []} key={year} year={year} />
+            ))}
+          </>
+        )}
+      </PageContent>
+    </div>
   );
 };
 
 const HistoryPage: FC = () => (
-  <Suspense fallback={<HistoryLoading />}>
-    <HistoryPageBody />
-  </Suspense>
+  <PageTransition>
+    <Suspense fallback={<HistoryLoading />}>
+      <HistoryPageBody />
+    </Suspense>
+  </PageTransition>
 );
 
 export default HistoryPage;

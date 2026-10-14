@@ -41,30 +41,30 @@ const AdminAPICallsPageBody: FC<PageProps<"/admin/api">> = async ({ searchParams
   const { count, results } = await loadAPICalls(await searchParams);
 
   return (
-    <PageTransition>
-      <div className="h-full flex flex-col md:mx-3">
-        <CustomHead title="API History" />
-        <PageContent className="pt-3">
-          <div className="flex flex-col min-h-dvh py-4 px-6">
-            <div className="w-full text-center md:text-start">
-              {count} {count === 1 ? "API Call" : "API Calls"}
-            </div>
-            <div className="w-full mt-3">
-              <div className="bg-muted/80 rounded">
-                <ApiCallsDataTable count={count} results={results} />
-              </div>
+    <div className="h-full flex flex-col md:mx-3">
+      <CustomHead title="API History" />
+      <PageContent className="pt-3">
+        <div className="flex flex-col min-h-dvh py-4 px-6">
+          <div className="w-full text-center md:text-start">
+            {count} {count === 1 ? "API Call" : "API Calls"}
+          </div>
+          <div className="w-full mt-3">
+            <div className="bg-muted/80 rounded">
+              <ApiCallsDataTable count={count} results={results} />
             </div>
           </div>
-        </PageContent>
-      </div>
-    </PageTransition>
+        </div>
+      </PageContent>
+    </div>
   );
 };
 
 const AdminAPICalls: FC<PageProps<"/admin/api">> = (props) => (
-  <Suspense fallback={<AdminLoading />}>
-    <AdminAPICallsPageBody {...props} />
-  </Suspense>
+  <PageTransition>
+    <Suspense fallback={<AdminLoading />}>
+      <AdminAPICallsPageBody {...props} />
+    </Suspense>
+  </PageTransition>
 );
 
 export default AdminAPICalls;

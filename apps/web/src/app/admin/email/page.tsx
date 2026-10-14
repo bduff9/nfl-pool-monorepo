@@ -42,32 +42,32 @@ const AdminEmailPageBody: FC<PageProps<"/admin/email">> = async ({ searchParams 
   const { count, results } = await getAdminEmails(await searchParams);
 
   return (
-    <PageTransition>
-      <div className="h-full flex flex-col md:mx-3">
-        <CustomHead title="Email Users" />
-        <PageContent>
-          <SendAdminEmails />
+    <div className="h-full flex flex-col md:mx-3">
+      <CustomHead title="Email Users" />
+      <PageContent>
+        <SendAdminEmails />
 
-          <div className="flex flex-col">
-            <div className="w-full mt-4 p-4 pt-2 border rounded">
-              <div className="w-full text-center md:text-start">
-                {count} {count === 1 ? "email" : "emails"}
-              </div>
-              <div className="w-full">
-                <AdminEmailsDataTable count={count} results={results} />
-              </div>
+        <div className="flex flex-col">
+          <div className="w-full mt-4 p-4 pt-2 border rounded">
+            <div className="w-full text-center md:text-start">
+              {count} {count === 1 ? "email" : "emails"}
+            </div>
+            <div className="w-full">
+              <AdminEmailsDataTable count={count} results={results} />
             </div>
           </div>
-        </PageContent>
-      </div>
-    </PageTransition>
+        </div>
+      </PageContent>
+    </div>
   );
 };
 
 const AdminEmail: FC<PageProps<"/admin/email">> = (props) => (
-  <Suspense fallback={<AdminLoading />}>
-    <AdminEmailPageBody {...props} />
-  </Suspense>
+  <PageTransition>
+    <Suspense fallback={<AdminLoading />}>
+      <AdminEmailPageBody {...props} />
+    </Suspense>
+  </PageTransition>
 );
 
 export default AdminEmail;

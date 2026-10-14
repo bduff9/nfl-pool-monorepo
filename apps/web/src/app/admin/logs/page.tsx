@@ -41,29 +41,29 @@ const AdminLogsPageBody: FC<PageProps<"/admin/logs">> = async ({ searchParams })
   const { count, results } = await getAdminLogs(await searchParams);
 
   return (
-    <PageTransition>
-      <div className="h-full flex flex-col md:mx-3">
-        <CustomHead title="View All Logs" />
-        <PageContent className="pt-3">
-          <div className="flex flex-col min-h-dvh px-4">
-            <div className="w-full mb-2">
-              {count} {count === 1 ? "log" : "logs"}
-            </div>
-
-            <div className="w-full">
-              <AdminLogsDataTable count={count} results={results} />
-            </div>
+    <div className="h-full flex flex-col md:mx-3">
+      <CustomHead title="View All Logs" />
+      <PageContent className="pt-3">
+        <div className="flex flex-col min-h-dvh px-4">
+          <div className="w-full mb-2">
+            {count} {count === 1 ? "log" : "logs"}
           </div>
-        </PageContent>
-      </div>
-    </PageTransition>
+
+          <div className="w-full">
+            <AdminLogsDataTable count={count} results={results} />
+          </div>
+        </div>
+      </PageContent>
+    </div>
   );
 };
 
 const AdminLogsPage: FC<PageProps<"/admin/logs">> = (props) => (
-  <Suspense fallback={<AdminLoading />}>
-    <AdminLogsPageBody {...props} />
-  </Suspense>
+  <PageTransition>
+    <Suspense fallback={<AdminLoading />}>
+      <AdminLogsPageBody {...props} />
+    </Suspense>
+  </PageTransition>
 );
 
 export default AdminLogsPage;
