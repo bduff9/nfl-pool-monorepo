@@ -18,7 +18,7 @@ import { Button } from "@nfl-pool-monorepo/ui/components/button";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { type FC, Suspense } from "react";
+import { type FC, Suspense, ViewTransition } from "react";
 import "server-only";
 
 import { getSystemYear } from "@nfl-pool-monorepo/db/src/queries/systemValue";
@@ -27,6 +27,7 @@ import GoogleAuthButton from "@/components/GoogleAuthButton/GoogleAuthButton";
 import LoginForm from "@/components/LoginForm/LoginForm";
 import PasskeySignInButton from "@/components/PasskeySignInButton/PasskeySignInButton";
 import TextSeparator from "@/components/TextSeparator/TextSeparator";
+import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { WeekLink } from "@/components/WeekLink/WeekLink";
 import { requireLoggedOut } from "@/lib/auth";
 
@@ -58,7 +59,7 @@ const LoginChoices: FC<LoginChoicesProps> = ({ errorMessage, isLogin }) => (
     <div className="grid gap-2">
       <TextSeparator>{isLogin ? "Need to sign up?" : "Already registered?"}</TextSeparator>
       <Button asChild variant="black">
-        <WeekLink href={`/auth/login${isLogin ? "?register=Y" : ""}`}>
+        <WeekLink href={`/auth/login${isLogin ? "?register=Y" : ""}`} transitionTypes={["nav-fade"]}>
           {isLogin ? "Register here" : "Login here"}
         </WeekLink>
       </Button>
@@ -81,40 +82,46 @@ const LoginContent: FC<LoginContentProps> = async ({ searchParams }) => {
 
   const { errorMessage, hasSubmitted, isLogin } = parseLoginSearchParams({ error, register, submitted });
 
+  // Login and register are the same page, so the toggle between them (typed nav-fade) crossfades the whole card in
+  // place while it eases to its new height. An update rather than a keyed swap, so the form keeps what was typed.
   return (
-    <div className="bg-muted text-foreground absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-border rounded-lg p-4 shrink-0 grow w-full h-full lg:h-auto lg:w-[50%] xl:w-[33%]">
-      <div className="absolute -top-24 left-1/2 -translate-x-1/2 size-36">
-        <Image
-          alt="A football"
-          className="object-contain object-center hidden lg:block"
-          fill
-          priority={true}
-          sizes="144px"
-          src="/football.svg"
-        />
+    <ViewTransition default="none" update={{ default: "none", "nav-fade": "auto" }}>
+      <div className="bg-muted text-foreground absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-border rounded-lg p-4 shrink-0 grow w-full h-full lg:h-auto lg:w-[50%] xl:w-[33%]">
+        <div className="absolute -top-24 left-1/2 -translate-x-1/2 size-36">
+          <Image
+            alt="A football"
+            className="object-contain object-center hidden lg:block"
+            fill
+            priority={true}
+            sizes="144px"
+            src="/football.svg"
+          />
+        </div>
+        <h1 className="text-center font-medium text-4xl mt-8">
+          {year}
+          <br />
+          NFL Confidence Pool
+        </h1>
+        {hasSubmitted ? (
+          <>
+            <h2 className="text-center text-green-600 my-5">Please check your email to sign in</h2>
+            <h3 className="text-center text-foreground mb-4">You may close this window</h3>
+          </>
+        ) : (
+          <LoginChoices errorMessage={errorMessage} isLogin={isLogin} />
+        )}
       </div>
-      <h1 className="text-center font-medium text-4xl mt-8">
-        {year}
-        <br />
-        NFL Confidence Pool
-      </h1>
-      {hasSubmitted ? (
-        <>
-          <h2 className="text-center text-green-600 my-5">Please check your email to sign in</h2>
-          <h3 className="text-center text-foreground mb-4">You may close this window</h3>
-        </>
-      ) : (
-        <LoginChoices errorMessage={errorMessage} isLogin={isLogin} />
-      )}
-    </div>
+    </ViewTransition>
   );
 };
 
 const Login: FC<PageProps<"/auth/login">> = ({ searchParams }) => {
   return (
-    <Suspense fallback={<AuthLoading />}>
-      <LoginContent searchParams={searchParams} />
-    </Suspense>
+    <PageTransition>
+      <Suspense fallback={<AuthLoading />}>
+        <LoginContent searchParams={searchParams} />
+      </Suspense>
+    </PageTransition>
   );
 };
 

@@ -24,6 +24,7 @@ import "server-only";
 import { getSystemYear } from "@nfl-pool-monorepo/db/src/queries/systemValue";
 
 import ForgotPasswordForm from "@/components/ForgotPasswordForm/ForgotPasswordForm";
+import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { WeekLink } from "@/components/WeekLink/WeekLink";
 import { requireLoggedOut } from "@/lib/auth";
 
@@ -81,9 +82,11 @@ const ForgotPasswordContent: FC<ForgotPasswordContentProps> = async ({ searchPar
 
 const ForgotPassword: FC<PageProps<"/auth/forgot-password">> = ({ searchParams }) => {
   return (
-    <Suspense fallback={<AuthLoading />}>
-      <ForgotPasswordContent searchParams={searchParams} />
-    </Suspense>
+    <PageTransition>
+      <Suspense fallback={<AuthLoading />}>
+        <ForgotPasswordContent searchParams={searchParams} />
+      </Suspense>
+    </PageTransition>
   );
 };
 

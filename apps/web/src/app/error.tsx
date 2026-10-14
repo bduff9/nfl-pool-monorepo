@@ -9,6 +9,7 @@ import { type FC, useEffect, useState } from "react";
 
 import CustomHeadClient from "@/components/CustomHead/CustomHead.client";
 import PageSidebarTrigger from "@/components/PageContent/PageSidebarTrigger.client";
+import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { WeekLink } from "@/components/WeekLink/WeekLink";
 
 type Props = {
@@ -82,34 +83,36 @@ const ErrorPage: FC<Props> = ({ error, reset, retry }) => {
   }, [error]);
 
   return (
-    <div className="flex flex-col md:mx-3">
-      {!!isLoggedIn && (
-        <div className="w-full px-1 pt-1">
-          <PageSidebarTrigger />
+    <PageTransition motion="fade">
+      <div className="flex flex-col md:mx-3">
+        {!!isLoggedIn && (
+          <div className="w-full px-1 pt-1">
+            <PageSidebarTrigger />
+          </div>
+        )}
+        <CustomHeadClient alerts={[]} title="Error Occurred" />
+        <div className="bg-muted/80 text-foreground absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border rounded-sm px-3 py-6 w-full md:w-1/2">
+          <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-center mb-6">
+            Flag on the play!
+          </h1>
+          <ErrorImage image={image} />
+          <h2 className="mt-6 scroll-m-20 pb-2 text-3xl font-semibold tracking-tight transition-colors mb-2 text-center">
+            There has been an error.
+          </h2>
+          <div className="text-center mb-2">
+            <Button className="text-sky-600 text-4xl" onClick={retry} variant="link">
+              Please try again
+            </Button>
+          </div>
+          <div className="text-center mb-2">
+            <Button className="text-sky-600" onClick={reset} variant="link">
+              Still broken? Reset the page
+            </Button>
+          </div>
+          {!isLoading && <ErrorReturnLink isLoggedIn={isLoggedIn} />}
         </div>
-      )}
-      <CustomHeadClient alerts={[]} title="Error Occurred" />
-      <div className="bg-muted/80 text-foreground absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border rounded-sm px-3 py-6 w-full md:w-1/2">
-        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-center mb-6">
-          Flag on the play!
-        </h1>
-        <ErrorImage image={image} />
-        <h2 className="mt-6 scroll-m-20 pb-2 text-3xl font-semibold tracking-tight transition-colors mb-2 text-center">
-          There has been an error.
-        </h2>
-        <div className="text-center mb-2">
-          <Button className="text-sky-600 text-4xl" onClick={retry} variant="link">
-            Please try again
-          </Button>
-        </div>
-        <div className="text-center mb-2">
-          <Button className="text-sky-600" onClick={reset} variant="link">
-            Still broken? Reset the page
-          </Button>
-        </div>
-        {!isLoading && <ErrorReturnLink isLoggedIn={isLoggedIn} />}
       </div>
-    </div>
+    </PageTransition>
   );
 };
 

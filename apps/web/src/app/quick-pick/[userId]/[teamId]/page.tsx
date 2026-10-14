@@ -23,6 +23,7 @@ import { type FC, type ReactNode, Suspense } from "react";
 
 import CustomHead from "@/components/CustomHead/CustomHead";
 import QuickPickConfirm from "@/components/QuickPickConfirm/QuickPickConfirm";
+import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { getCurrentSession } from "@/server/loaders/sessions";
 
 import PageLoading from "../../../loading";
@@ -73,9 +74,11 @@ const QuickPickPageBody: FC<PageProps<"/quick-pick/[userId]/[teamId]">> = async 
 };
 
 const QuickPickPage: FC<PageProps<"/quick-pick/[userId]/[teamId]">> = (props) => (
-  <Suspense fallback={<PageLoading />}>
-    <QuickPickPageBody {...props} />
-  </Suspense>
+  <PageTransition>
+    <Suspense fallback={<PageLoading />}>
+      <QuickPickPageBody {...props} />
+    </Suspense>
+  </PageTransition>
 );
 
 export default QuickPickPage;

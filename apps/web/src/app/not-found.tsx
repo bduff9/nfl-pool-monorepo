@@ -22,6 +22,7 @@ import "server-only";
 
 import { getRandomPublicImage } from "@/app/randomImage";
 import PageSidebarTrigger from "@/components/PageContent/PageSidebarTrigger.client";
+import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { WeekLink } from "@/components/WeekLink/WeekLink";
 import Write404Log from "@/components/Write404Log/Write404Log";
 import { getCurrentSession } from "@/server/loaders/sessions";
@@ -77,9 +78,11 @@ const NotFoundFallback: FC = () => (
 );
 
 const NotFound: FC = () => (
-  <Suspense fallback={<NotFoundFallback />}>
-    <NotFoundContent />
-  </Suspense>
+  <PageTransition motion="fade">
+    <Suspense fallback={<NotFoundFallback />}>
+      <NotFoundContent />
+    </Suspense>
+  </PageTransition>
 );
 
 export default NotFound;

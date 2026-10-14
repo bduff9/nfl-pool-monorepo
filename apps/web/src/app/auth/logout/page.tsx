@@ -21,6 +21,7 @@ import { redirect } from "next/navigation";
 import { type FC, Suspense } from "react";
 
 import LogoutClient from "@/components/LogoutClient/logout";
+import PageTransition from "@/components/ViewTransitions/PageTransition";
 import { requireLoggedIn } from "@/lib/auth";
 
 import AuthLoading from "../loading";
@@ -46,9 +47,11 @@ const LogoutPageBody: FC<PageProps<"/auth/logout">> = async () => {
 };
 
 const Logout: FC<PageProps<"/auth/logout">> = (props) => (
-  <Suspense fallback={<AuthLoading />}>
-    <LogoutPageBody {...props} />
-  </Suspense>
+  <PageTransition>
+    <Suspense fallback={<AuthLoading />}>
+      <LogoutPageBody {...props} />
+    </Suspense>
+  </PageTransition>
 );
 
 export default Logout;
