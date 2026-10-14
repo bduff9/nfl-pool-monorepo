@@ -21,9 +21,8 @@ const AuthenticatedNavigation: FC = async () => {
       <OfflineSupport userId={user.id} />
       <ForegroundRefresh />
       <CommandMenu user={user} />
-      <div style={{ viewTransitionName: "persistent-nav" }}>
-        <AppSidebar user={user} />
-      </div>
+      {/* Named persistent-nav in globals.css, so it stays put while the page beside it transitions */}
+      <AppSidebar user={user} />
     </>
   );
 };

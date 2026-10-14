@@ -371,6 +371,25 @@
   animation-duration: var(--duration-move);
 }
 
+/* The desktop sidebar's fixed panel (the shadcn sidebar container), named directly so its snapshot is exactly the
+   panel on screen. Naming an in-flow wrapper instead captured a box as tall as the page with the fixed panel painted
+   inside it. The phone sidebar is a sheet that is not open during a navigation, so it needs no name. */
+[data-slot="sidebar-container"] {
+  view-transition-name: persistent-nav;
+}
+
+/* The page scrim (PageContent) holds still under every page transition, so the background photo never flashes through
+   while the old page fades out and the new one fades in. It sits under all the page's own groups and the root sits
+   under it, since the root snapshot is the opaque background photo. */
+::view-transition-group(root) {
+  z-index: -2;
+}
+
+::view-transition-group(page-scrim) {
+  z-index: -1;
+  animation: none;
+}
+
 ::view-transition-group(persistent-nav),
 ::view-transition-group(offline-banner),
 ::view-transition-group(app-toaster) {
