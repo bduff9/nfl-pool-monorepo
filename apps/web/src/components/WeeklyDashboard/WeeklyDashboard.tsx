@@ -18,6 +18,7 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
 import dynamic from "next/dynamic";
 import type { FC } from "react";
 
+import { DASHBOARD_CARD, DASHBOARD_ROW } from "@/lib/dashboardGrid";
 import { getMyTiebreaker } from "@/server/loaders/tiebreaker";
 import { getWeekStart, getWeekStatus } from "@/server/loaders/week";
 import { getMyWeeklyRank, getWeeklyMvCount, getWeeklyMvTiedCount } from "@/server/loaders/weeklyMv";
@@ -70,26 +71,35 @@ type WeeklyRankChartsProps = {
 };
 
 const WeeklyRankCharts: FC<WeeklyRankChartsProps> = ({ isOver, rank, selectedWeek, tiedCount, totalCount }) => (
-  <div>
-    <RankingPieChart data={buildRankingData(rank, totalCount, tiedCount)} transitionName="weeklyRankingPieChart" />
-    <WeeklyDashboardResults className={cn("mt-5")} selectedWeek={selectedWeek} />
-    <ProgressChart
-      correct={rank.PointsEarned}
-      incorrect={rank.PointsWrong}
-      isOver={isOver}
-      max={rank.PointsTotal}
-      transitionName="weeklyPointsEarned"
-      type="Points"
-    />
-    <ProgressChart
-      correct={rank.GamesCorrect}
-      incorrect={rank.GamesWrong}
-      isOver={isOver}
-      max={rank.GamesTotal}
-      transitionName="weeklyGamesCorrect"
-      type="Games"
-    />
-  </div>
+  <>
+    <div className={DASHBOARD_ROW.chart}>
+      <RankingPieChart data={buildRankingData(rank, totalCount, tiedCount)} transitionName="weeklyRankingPieChart" />
+    </div>
+    {/* Spaced from the pie on phones; on desktop the chart row (as tall as the survivor icon) spaces it */}
+    <div className={cn("mt-5 md:mt-0", DASHBOARD_ROW.resultsTitle)}>
+      <WeeklyDashboardResults className="" selectedWeek={selectedWeek} />
+    </div>
+    <div className={DASHBOARD_ROW.firstBar}>
+      <ProgressChart
+        correct={rank.PointsEarned}
+        incorrect={rank.PointsWrong}
+        isOver={isOver}
+        max={rank.PointsTotal}
+        transitionName="weeklyPointsEarned"
+        type="Points"
+      />
+    </div>
+    <div className={DASHBOARD_ROW.secondBar}>
+      <ProgressChart
+        correct={rank.GamesCorrect}
+        incorrect={rank.GamesWrong}
+        isOver={isOver}
+        max={rank.GamesTotal}
+        transitionName="weeklyGamesCorrect"
+        type="Games"
+      />
+    </div>
+  </>
 );
 
 const WeeklyDashboard: FC<Props> = async ({ selectedWeek }) => {
@@ -109,7 +119,7 @@ const WeeklyDashboard: FC<Props> = async ({ selectedWeek }) => {
   ]);
 
   return (
-    <div className={cn("text-center mb-3 md:mb-0 border-b border-border md:border-none px-3")}>
+    <div className={cn("text-center mb-3 md:mb-0 border-b border-border md:border-none px-3", DASHBOARD_CARD)}>
       <WeeklyDashboardTitle selectedWeek={selectedWeek} />
       <div className="flex flex-col">
         <SubmissionStatus hasSubmitted={myTiebreaker?.TiebreakerHasSubmitted === 1} />

@@ -75,7 +75,7 @@ const DashboardPageBody: FC<PageProps<"/">> = async ({ searchParams }) => {
         <CustomHead title={TITLE} />
         <PageContent className="pt-5 md:pt-3 pb-4 w-full">
           <InstallAppPrompt />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 min-h-dvh">
+          <div className="grid grid-cols-1 md:grid-cols-3 md:content-start gap-0 min-h-dvh">
             <SectionError title="Weekly Rank">
               <Suspense fallback={weeklyLoader}>
                 <Crossfade>
@@ -108,7 +108,7 @@ const DashboardSkeleton: FC = () => (
   <div className="h-full flex flex-col md:mx-3">
     <HandedOffAlerts />
     <PageContent className="pt-5 md:pt-3 pb-4 w-full">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-0 min-h-dvh">
+      <div className="grid grid-cols-1 md:grid-cols-3 md:content-start gap-0 min-h-dvh">
         {weeklyLoader}
         {overallLoader}
         {survivorLoader}

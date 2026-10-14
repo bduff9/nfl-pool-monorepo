@@ -18,6 +18,7 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
 import dynamic from "next/dynamic";
 import type { FC } from "react";
 
+import { DASHBOARD_CARD, DASHBOARD_ROW } from "@/lib/dashboardGrid";
 import { getMyOverallRank, getOverallMvCount, getOverallMvTiedCount } from "@/server/loaders/overallMv";
 import { getSeasonStatus } from "@/server/loaders/week";
 
@@ -45,34 +46,43 @@ const OverallDashboardDetails: FC<OverallDashboardDetailsProps> = ({
   const isOver = seasonStatus === "Complete";
 
   return (
-    <div>
+    <>
       <div className="mb-12">
         <WeekLink className="inline-block py-2.5 underline" href="/overall">
           View Details
         </WeekLink>
       </div>
-      <RankingPieChart
-        data={getOverallPieData(myPlace, overallTotalCount, aheadOfMe, behindMe, overallTiedCount)}
-        transitionName="overallRankingPieChart"
-      />
-      <OverallDashboardResults className={cn("mt-5")} />
-      <ProgressChart
-        correct={myOverallRank.PointsEarned}
-        incorrect={myOverallRank.PointsWrong}
-        isOver={isOver}
-        max={myOverallRank.PointsTotal}
-        transitionName="overallPointsEarned"
-        type="Points"
-      />
-      <ProgressChart
-        correct={myOverallRank.GamesCorrect}
-        incorrect={myOverallRank.GamesWrong}
-        isOver={isOver}
-        max={myOverallRank.GamesTotal}
-        transitionName="overallGamesCorrect"
-        type="Games"
-      />
-    </div>
+      <div className={DASHBOARD_ROW.chart}>
+        <RankingPieChart
+          data={getOverallPieData(myPlace, overallTotalCount, aheadOfMe, behindMe, overallTiedCount)}
+          transitionName="overallRankingPieChart"
+        />
+      </div>
+      {/* Spaced from the pie on phones; on desktop the chart row (as tall as the survivor icon) spaces it */}
+      <div className={cn("mt-5 md:mt-0", DASHBOARD_ROW.resultsTitle)}>
+        <OverallDashboardResults className="" />
+      </div>
+      <div className={DASHBOARD_ROW.firstBar}>
+        <ProgressChart
+          correct={myOverallRank.PointsEarned}
+          incorrect={myOverallRank.PointsWrong}
+          isOver={isOver}
+          max={myOverallRank.PointsTotal}
+          transitionName="overallPointsEarned"
+          type="Points"
+        />
+      </div>
+      <div className={DASHBOARD_ROW.secondBar}>
+        <ProgressChart
+          correct={myOverallRank.GamesCorrect}
+          incorrect={myOverallRank.GamesWrong}
+          isOver={isOver}
+          max={myOverallRank.GamesTotal}
+          transitionName="overallGamesCorrect"
+          type="Games"
+        />
+      </div>
+    </>
   );
 };
 
@@ -90,7 +100,7 @@ const OverallDashboard: FC = async () => {
   ]);
 
   return (
-    <div className={cn("text-center mb-3 md:mb-0 border-b border-border md:border-none px-3")}>
+    <div className={cn("text-center mb-3 md:mb-0 border-b border-border md:border-none px-3", DASHBOARD_CARD)}>
       <OverallDashboardTitle />
       {myOverallRank === undefined ? (
         <div>Season has not started yet!</div>

@@ -2,6 +2,7 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
 import { redirect } from "next/navigation";
 import type { FC } from "react";
 
+import { DASHBOARD_CARD, DASHBOARD_ROW } from "@/lib/dashboardGrid";
 /*******************************************************************************
  * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
  * Copyright (C) 2015-present Brian Duffey
@@ -85,28 +86,34 @@ const SurvivorResults: FC<SurvivorResultsProps> = ({ overallCounts, survivorStat
   return (
     <>
       {hasStarted && (
-        <h2 className="scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0">Survivor Pool Results</h2>
+        <h2 className={cn("scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0", DASHBOARD_ROW.resultsTitle)}>
+          Survivor Pool Results
+        </h2>
       )}
       {weeklyCounts.overallCount > 0 && (
-        <ProgressChart
-          correct={weeklyCounts.aliveCount}
-          incorrect={weeklyCounts.deadCount}
-          inProgress={weeklyCounts.waitingCount}
-          isOver={weekStatus === "Complete"}
-          max={weeklyCounts.overallCount}
-          transitionName="survivorWeekStatus"
-          type="Current Week Remaining"
-        />
+        <div className={DASHBOARD_ROW.firstBar}>
+          <ProgressChart
+            correct={weeklyCounts.aliveCount}
+            incorrect={weeklyCounts.deadCount}
+            inProgress={weeklyCounts.waitingCount}
+            isOver={weekStatus === "Complete"}
+            max={weeklyCounts.overallCount}
+            transitionName="survivorWeekStatus"
+            type="Current Week Remaining"
+          />
+        </div>
       )}
       {hasStarted && (
-        <ProgressChart
-          correct={overallCounts.aliveCount}
-          incorrect={overallCounts.deadCount}
-          isOver={survivorStatus === "Complete"}
-          max={overallCounts.overallCount}
-          transitionName="survivorOverallStatus"
-          type="Overall Remaining"
-        />
+        <div className={DASHBOARD_ROW.secondBar}>
+          <ProgressChart
+            correct={overallCounts.aliveCount}
+            incorrect={overallCounts.deadCount}
+            isOver={survivorStatus === "Complete"}
+            max={overallCounts.overallCount}
+            transitionName="survivorOverallStatus"
+            type="Overall Remaining"
+          />
+        </div>
       )}
     </>
   );
@@ -146,16 +153,15 @@ const SurvivorDashboard: FC<Props> = async ({ selectedWeek }) => {
   ]);
 
   return (
-    <div className={cn("text-center mb-3 md:mb-0 px-3")}>
+    <div className={cn("text-center mb-3 md:mb-0 px-3", DASHBOARD_CARD)}>
       <h2 className="mb-0 scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0">Survivor Pool</h2>
-
       <div>
-        <div>
-          <PickStatusMessage hasPick={!!mySurvivorPickForWeek} isAlive={!!isAliveInSurvivor} />
-          <ViewDetailsLink hasSurvivorMv={!!mySurvivorMv} />
-          <MakePickLink hasPick={!!mySurvivorPickForWeek} isAlive={!!isAliveInSurvivor} />
-          {!isAliveInSurvivor && <div className="md:h-12" />}
-        </div>
+        <PickStatusMessage hasPick={!!mySurvivorPickForWeek} isAlive={!!isAliveInSurvivor} />
+        <ViewDetailsLink hasSurvivorMv={!!mySurvivorMv} />
+        <MakePickLink hasPick={!!mySurvivorPickForWeek} isAlive={!!isAliveInSurvivor} />
+        {!isAliveInSurvivor && <div className="md:h-12" />}
+      </div>
+      <div className={DASHBOARD_ROW.chart}>
         <SurvivorDashboardIcon
           isAlive={isAliveInSurvivor}
           isPlaying={!!user.playsSurvivor}
@@ -163,14 +169,13 @@ const SurvivorDashboard: FC<Props> = async ({ selectedWeek }) => {
           pickForWeek={mySurvivorPickForWeek}
           transitionName="survivorIcon"
         />
-
-        <SurvivorResults
-          overallCounts={survivorOverallCounts}
-          survivorStatus={survivorStatus}
-          weeklyCounts={survivorWeeklyCounts}
-          weekStatus={weekStatus}
-        />
       </div>
+      <SurvivorResults
+        overallCounts={survivorOverallCounts}
+        survivorStatus={survivorStatus}
+        weeklyCounts={survivorWeeklyCounts}
+        weekStatus={weekStatus}
+      />
     </div>
   );
 };

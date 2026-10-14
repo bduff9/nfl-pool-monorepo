@@ -18,6 +18,8 @@ import { Skeleton } from "@nfl-pool-monorepo/ui/components/skeleton";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { FC } from "react";
 
+import { DASHBOARD_CARD, DASHBOARD_ROW } from "@/lib/dashboardGrid";
+
 import ProgressChartLoader from "../ProgressChart/ProgressChartLoader";
 import RankingPieChartLoader from "../RankingPieChart/RankingPieChartLoader";
 import SharedElement from "../ViewTransitions/SharedElement";
@@ -40,20 +42,28 @@ const DashboardLoader: FC<Props> = ({ title, transitionNames }) => {
   const heading = <h2 className="mb-0 scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0">{title}</h2>;
 
   return (
-    <div className={cn("md:w-1/3 text-center mb-3 md:mb-0 border-b border-border md:border-none")}>
+    <div className={cn("text-center mb-3 md:mb-0 border-b border-border md:border-none px-3", DASHBOARD_CARD)}>
       {rankTitle === undefined ? heading : <SharedElement name={rankTitle}>{heading}</SharedElement>}
       {/* View Details link */}
       <div className="mb-3 mt-[42px]">
         <Skeleton className="h-[18px] w-[87px] bg-muted" />
       </div>
       {/* Pie Chart */}
-      <RankingPieChartLoader transitionName={transitionNames?.rankingPieChart} />
+      <div className={cn("flex flex-col items-center", DASHBOARD_ROW.chart)}>
+        <RankingPieChartLoader transitionName={transitionNames?.rankingPieChart} />
+      </div>
       {/* H2 */}
-      <Skeleton className="mt-5 h-9 w-[250px] bg-muted" />
+      <div className={cn("mt-5 md:mt-0", DASHBOARD_ROW.resultsTitle)}>
+        <Skeleton className="mx-auto h-9 w-[250px] bg-muted" />
+      </div>
       {/* Points Bar */}
-      <ProgressChartLoader transitionName={transitionNames?.pointsChart} />
+      <div className={DASHBOARD_ROW.firstBar}>
+        <ProgressChartLoader transitionName={transitionNames?.pointsChart} />
+      </div>
       {/* Games Bar */}
-      <ProgressChartLoader transitionName={transitionNames?.gamesChart} />
+      <div className={DASHBOARD_ROW.secondBar}>
+        <ProgressChartLoader transitionName={transitionNames?.gamesChart} />
+      </div>
     </div>
   );
 };

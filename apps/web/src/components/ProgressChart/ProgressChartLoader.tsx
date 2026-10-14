@@ -27,11 +27,12 @@ const ProgressChartLoader: FC<ProgressChartLoaderProps> = ({ transitionName }) =
   const chart = (
     <>
       {/* Progress Bar Chart */}
-      <div className="text-start">
+      {/* As tall as ProgressChart's label line, bar and footer line, so the skeleton and the chart line up */}
+      <div className="flex h-6 items-center">
         <Skeleton className="h-4 w-[75px] bg-muted" />
       </div>
-      <Skeleton className="h-7 w-full bg-muted" />
-      <div className="flex justify-between mb-1">
+      <Skeleton className="h-8 w-full bg-muted" />
+      <div className="flex h-5 items-center justify-between mb-2">
         <Skeleton className="h-2 w-[125px] bg-muted" />
         <Skeleton className="h-2 w-[31px] bg-muted" />
       </div>

@@ -14,7 +14,10 @@
  * Home: https://asitewithnoname.com/
  */
 import { Skeleton } from "@nfl-pool-monorepo/ui/components/skeleton";
+import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { FC } from "react";
+
+import { DASHBOARD_CARD, DASHBOARD_ROW } from "@/lib/dashboardGrid";
 
 import ProgressChartLoader from "../ProgressChart/ProgressChartLoader";
 import SurvivorDashboardIconLoader from "../SurvivorDashboardIcon/SurvivorDashboardIconLoader";
@@ -22,21 +25,31 @@ import SurvivorDashboardIconLoader from "../SurvivorDashboardIcon/SurvivorDashbo
 // Laid out like SurvivorDashboard (status line, View Details row, make-pick row, then the icon) so the survivor icon
 // and the progress bars sit where the real card puts them and morph to and from /survivor/view without a jump
 const SurvivorDashboardLoader: FC = () => (
-  <div className="text-center mb-3 md:mb-0 px-3">
+  <div className={cn("text-center mb-3 md:mb-0 px-3", DASHBOARD_CARD)}>
     <h2 className="mb-0 scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0">Survivor Pool</h2>
-    <div className="flex h-6 items-center justify-center md:h-12">
-      <Skeleton className="h-4 w-[260px] bg-muted" />
+    <div>
+      <div className="flex h-6 items-center justify-center md:h-12">
+        <Skeleton className="h-4 w-[260px] bg-muted" />
+      </div>
+      <div className="flex h-11 items-center justify-center">
+        <Skeleton className="h-[18px] w-[87px] bg-muted" />
+      </div>
+      <div className="flex h-11 items-center justify-center md:mb-1">
+        <Skeleton className="h-[18px] w-[200px] bg-muted" />
+      </div>
     </div>
-    <div className="flex h-11 items-center justify-center">
-      <Skeleton className="h-[18px] w-[87px] bg-muted" />
+    <div className={DASHBOARD_ROW.chart}>
+      <SurvivorDashboardIconLoader transitionName="survivorIcon" />
     </div>
-    <div className="flex h-11 items-center justify-center md:mb-1">
-      <Skeleton className="h-[18px] w-[200px] bg-muted" />
+    <div className={DASHBOARD_ROW.resultsTitle}>
+      <Skeleton className="mx-auto h-9 w-[250px] bg-muted" />
     </div>
-    <SurvivorDashboardIconLoader transitionName="survivorIcon" />
-    <Skeleton className="mx-auto h-9 w-[250px] bg-muted" />
-    <ProgressChartLoader transitionName="survivorWeekStatus" />
-    <ProgressChartLoader transitionName="survivorOverallStatus" />
+    <div className={DASHBOARD_ROW.firstBar}>
+      <ProgressChartLoader transitionName="survivorWeekStatus" />
+    </div>
+    <div className={DASHBOARD_ROW.secondBar}>
+      <ProgressChartLoader transitionName="survivorOverallStatus" />
+    </div>
   </div>
 );
 
