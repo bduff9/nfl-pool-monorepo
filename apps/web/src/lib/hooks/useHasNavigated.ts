@@ -1,8 +1,8 @@
 import { useSyncExternalStore } from "react";
 
-// Whether the visitor has moved to another URL in this tab without reloading. Charts use it to play their intro
-// animation only on a fresh load: after a client navigation a chart that sweeps open inside a moving page looks like
-// it is being redrawn.
+// Whether the visitor has moved to another URL in this tab without reloading, also marked on the root element as
+// data-has-navigated. Charts use it to play their intro animation only on a fresh load: after a client navigation a
+// chart that sweeps open inside a moving page looks like it is being redrawn.
 let firstUrl: string | undefined;
 let navigated = false;
 
@@ -14,8 +14,10 @@ let navigated = false;
 export const recordUrl = (url: string): void => {
   if (firstUrl === undefined) {
     firstUrl = url;
-  } else if (url !== firstUrl) {
+  } else if (url !== firstUrl && !navigated) {
     navigated = true;
+    // For intro animations done in CSS alone (the progress bars' fill, see globals.css)
+    document.documentElement.dataset.hasNavigated = "";
   }
 };
 

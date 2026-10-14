@@ -74,7 +74,7 @@ const ProgressSegment: FC<ProgressSegmentProps> = ({ colorClass, isOver, label, 
       aria-valuemin={0}
       aria-valuenow={value}
       className={cn(
-        "flex flex-col justify-center items-center text-white text-center whitespace-nowrap transition-all",
+        "progress-fill flex flex-col justify-center items-center text-white text-center whitespace-nowrap transition-all",
         colorClass,
         !isOver && "in-progress",
       )}

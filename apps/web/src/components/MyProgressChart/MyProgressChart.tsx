@@ -49,7 +49,7 @@ const MyProgressChart: FC<MyProgressChartProps> = ({
           aria-valuemin={0}
           aria-valuenow={correct}
           className={getBarClassName(
-            "flex flex-col justify-center items-center text-green-100 text-center whitespace-nowrap transition-all  bg-green-700",
+            "progress-fill flex flex-col justify-center items-center text-green-100 text-center whitespace-nowrap transition-all bg-green-700",
             isOver,
           )}
           role="progressbar"
@@ -63,7 +63,7 @@ const MyProgressChart: FC<MyProgressChartProps> = ({
             aria-valuemin={0}
             aria-valuenow={possible}
             className={getBarClassName(
-              "flex flex-col justify-center items-center text-green-900 text-center whitespace-nowrap transition-all bg-green-300",
+              "progress-fill flex flex-col justify-center items-center text-green-900 text-center whitespace-nowrap transition-all bg-green-300",
               isOver,
             )}
             role="progressbar"

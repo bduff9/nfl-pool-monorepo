@@ -543,6 +543,19 @@ a:has(> [data-link-pending]) {
   }
 }
 
+/* Progress bars fill from empty when a page is first loaded, not after a client navigation (data-has-navigated, see
+   useHasNavigated), where a bar refilling inside a moving page or a shared-element morph would look redrawn */
+@media (prefers-reduced-motion: no-preference) {
+  :root:not([data-has-navigated]) .progress-fill {
+    transition: width 900ms var(--ease-out-quint);
+
+    @starting-style {
+      /* biome-ignore lint/complexity/noImportantStyles: the only way to start from 0 under the bar's inline width */
+      width: 0 !important;
+    }
+  }
+}
+
 /* The offline pill (OfflineBanner) slides down from under the status bar and back up */
 .offline-banner {
   --offline-banner-hidden: 0 calc(-100% - var(--safe-top) - 0.25rem);
