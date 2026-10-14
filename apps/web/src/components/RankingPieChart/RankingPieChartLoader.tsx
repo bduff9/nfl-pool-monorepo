@@ -16,8 +16,15 @@
 import { Skeleton } from "@nfl-pool-monorepo/ui/components/skeleton";
 import type { FC } from "react";
 
-const RankingPieChartLoader: FC = () => {
-  return (
+import SharedElement from "@/components/ViewTransitions/SharedElement";
+
+type RankingPieChartLoaderProps = {
+  // Only the detail-page loaders pass this; the dashboard loader renders the same skeleton without a name
+  transitionName?: string;
+};
+
+const RankingPieChartLoader: FC<RankingPieChartLoaderProps> = ({ transitionName }) => {
+  const chart = (
     <>
       {/* Pie Chart */}
       <div>
@@ -27,6 +34,16 @@ const RankingPieChartLoader: FC = () => {
         <Skeleton className="h-[19px] w-[66px] bg-muted" />
       </div>
     </>
+  );
+
+  if (!transitionName) {
+    return chart;
+  }
+
+  return (
+    <SharedElement name={transitionName}>
+      <div className="min-h-[206px] w-full">{chart}</div>
+    </SharedElement>
   );
 };
 

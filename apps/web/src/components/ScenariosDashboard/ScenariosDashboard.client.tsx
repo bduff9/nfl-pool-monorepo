@@ -2,13 +2,14 @@
 
 import "client-only";
 
-import { m } from "framer-motion";
 import type { FC } from "react";
+
+import SharedElement from "@/components/ViewTransitions/SharedElement";
 
 export const ScenarioDashboardTitle: FC = () => {
   return (
-    <m.h2 className="mb-0 scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0" layoutId="scenarioTitle">
-      Still In Play
-    </m.h2>
+    <SharedElement name="scenarioTitle">
+      <h2 className="mb-0 scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0">Still In Play</h2>
+    </SharedElement>
   );
 };

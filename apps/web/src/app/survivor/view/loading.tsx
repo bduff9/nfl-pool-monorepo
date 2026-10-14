@@ -11,8 +11,8 @@ const ViewSurvivorLoading: FC = () => (
       <div className="hidden md:flex">
         <Skeleton className="mx-auto size-[180px] rounded-full bg-muted" />
         <div className="w-2/3 px-3 pt-8">
-          <ProgressChartLoader />
-          <ProgressChartLoader />
+          <ProgressChartLoader transitionName="survivorWeekStatus" />
+          <ProgressChartLoader transitionName="survivorOverallStatus" />
         </div>
       </div>
       <Skeleton className="mt-4 h-[60vh] w-full bg-muted" />

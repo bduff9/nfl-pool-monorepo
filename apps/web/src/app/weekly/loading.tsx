@@ -23,7 +23,18 @@ import RankingsLoader from "@/components/RankingsLoader/RankingsLoader";
 const COLUMNS = ["Rank", "Team", "Owner", "Points", "Games Correct", "Tiebreaker", "Last Game", "Eliminated"];
 
 const WeeklyRankingsLoader: FC = () => (
-  <RankingsLoader columns={COLUMNS} rankTitle="Week Rank" resultsTitle="My Week Results" />
+  <RankingsLoader
+    columns={COLUMNS}
+    rankTitle="Week Rank"
+    resultsTitle="My Week Results"
+    transitionNames={{
+      gamesChart: "weeklyGamesCorrect",
+      pointsChart: "weeklyPointsEarned",
+      rankingPieChart: "weeklyRankingPieChart",
+      rankTitle: "weeklyRankTitle",
+      resultsTitle: "myWeeklyResultsTitle",
+    }}
+  />
 );
 
 export default WeeklyRankingsLoader;

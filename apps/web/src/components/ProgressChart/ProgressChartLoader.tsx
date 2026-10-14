@@ -16,8 +16,15 @@
 import { Skeleton } from "@nfl-pool-monorepo/ui/components/skeleton";
 import type { FC } from "react";
 
-const ProgressChartLoader: FC = () => {
-  return (
+import SharedElement from "@/components/ViewTransitions/SharedElement";
+
+type ProgressChartLoaderProps = {
+  // Only the detail-page loaders pass this; the dashboard loader renders the same skeleton without a name
+  transitionName?: string;
+};
+
+const ProgressChartLoader: FC<ProgressChartLoaderProps> = ({ transitionName }) => {
+  const chart = (
     <>
       {/* Progress Bar Chart */}
       <div className="text-start">
@@ -29,6 +36,16 @@ const ProgressChartLoader: FC = () => {
         <Skeleton className="h-2 w-[31px] bg-muted" />
       </div>
     </>
+  );
+
+  if (!transitionName) {
+    return chart;
+  }
+
+  return (
+    <SharedElement name={transitionName}>
+      <div>{chart}</div>
+    </SharedElement>
   );
 };
 

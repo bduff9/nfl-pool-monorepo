@@ -7,28 +7,39 @@ import type { FC } from "react";
 import PageContent from "@/components/PageContent/PageContent";
 import ProgressChartLoader from "@/components/ProgressChart/ProgressChartLoader";
 import RankingPieChartLoader from "@/components/RankingPieChart/RankingPieChartLoader";
+import SharedElement from "@/components/ViewTransitions/SharedElement";
 import { WeekLink } from "@/components/WeekLink/WeekLink";
+
+// The view transition names the real page uses at each slot, so the dashboard elements morph into this skeleton
+type TransitionNames = {
+  gamesChart: string;
+  pointsChart: string;
+  rankTitle: string;
+  rankingPieChart: string;
+  resultsTitle: string;
+};
 
 type Props = {
   // The table's column headings, rank first
   columns: Array<string>;
   rankTitle: string;
   resultsTitle: string;
+  transitionNames: TransitionNames;
 };
 
 const ROW_COUNT = 20;
 
 // The shared skeleton for the overall and weekly rankings pages
-const RankingsLoader: FC<Props> = ({ columns, rankTitle, resultsTitle }) => {
+const RankingsLoader: FC<Props> = ({ columns, rankTitle, resultsTitle, transitionNames }) => {
   return (
     <div className="h-full flex" data-testid="route-loading">
       <PageContent className="mx-2 pt-0 md:pt-3 pb-4">
         <div className="flex flex-wrap">
           <div className="hidden md:inline-block w-1/2 text-center h-[205px]">
-            <h2 className="mb-0">{rankTitle}</h2>
-            <div className="mt-4">
-              <RankingPieChartLoader />
-            </div>
+            <SharedElement name={transitionNames.rankTitle}>
+              <h2 className="mb-0">{rankTitle}</h2>
+            </SharedElement>
+            <RankingPieChartLoader transitionName={transitionNames.rankingPieChart} />
           </div>
           <div className="mt-4 block md:hidden">
             <WeekLink className="inline-block py-2.5 underline" href="/">
@@ -36,9 +47,11 @@ const RankingsLoader: FC<Props> = ({ columns, rankTitle, resultsTitle }) => {
             </WeekLink>
           </div>
           <div className="hidden md:inline-block w-1/2 px-3">
-            <h2 className="mb-4 text-center">{resultsTitle}</h2>
-            <ProgressChartLoader />
-            <ProgressChartLoader />
+            <SharedElement name={transitionNames.resultsTitle}>
+              <h2 className="mb-4 text-center">{resultsTitle}</h2>
+            </SharedElement>
+            <ProgressChartLoader transitionName={transitionNames.pointsChart} />
+            <ProgressChartLoader transitionName={transitionNames.gamesChart} />
           </div>
           <Table parentClassName="w-full mt-4 text-center">
             <TableHeader>

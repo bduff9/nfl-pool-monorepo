@@ -23,7 +23,18 @@ import RankingsLoader from "@/components/RankingsLoader/RankingsLoader";
 const COLUMNS = ["Rank", "Team", "Owner", "Points", "Games Correct", "Missed Games?"];
 
 const OverallRankingsLoader: FC = () => (
-  <RankingsLoader columns={COLUMNS} rankTitle="Overall Rank" resultsTitle="My Overall Results" />
+  <RankingsLoader
+    columns={COLUMNS}
+    rankTitle="Overall Rank"
+    resultsTitle="My Overall Results"
+    transitionNames={{
+      gamesChart: "overallGamesCorrect",
+      pointsChart: "overallPointsEarned",
+      rankingPieChart: "overallRankingPieChart",
+      rankTitle: "overallRankTitle",
+      resultsTitle: "myOverallResultsTitle",
+    }}
+  />
 );
 
 export default OverallRankingsLoader;
