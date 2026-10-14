@@ -34,10 +34,10 @@ const RankingsLoader: FC<Props> = ({ columns, rankTitle, resultsTitle, transitio
   return (
     <div className="h-full flex" data-testid="route-loading">
       <PageContent className="mx-2 pt-0 md:pt-3 pb-4">
-        <div className="flex flex-wrap">
-          <div className="hidden md:inline-block w-1/2 text-center h-[205px]">
+        <div className="flex flex-wrap items-start">
+          <div className="hidden md:inline-block w-[25%] text-center h-[205px]">
             <SharedElement name={transitionNames.rankTitle}>
-              <h2 className="mb-0">{rankTitle}</h2>
+              <h2 className="mb-0 scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0">{rankTitle}</h2>
             </SharedElement>
             <RankingPieChartLoader transitionName={transitionNames.rankingPieChart} />
           </div>
@@ -46,9 +46,11 @@ const RankingsLoader: FC<Props> = ({ columns, rankTitle, resultsTitle, transitio
               &laquo; Back to Dashboard
             </WeekLink>
           </div>
-          <div className="hidden md:inline-block w-1/2 px-3">
+          <div className="hidden md:inline-block flex-1 px-3">
             <SharedElement name={transitionNames.resultsTitle}>
-              <h2 className="mb-4 text-center">{resultsTitle}</h2>
+              <h2 className="mb-4 scroll-m-20 text-center text-3xl font-semibold tracking-tight first:mt-0">
+                {resultsTitle}
+              </h2>
             </SharedElement>
             <ProgressChartLoader transitionName={transitionNames.pointsChart} />
             <ProgressChartLoader transitionName={transitionNames.gamesChart} />
