@@ -23,7 +23,6 @@
     "@vercel/speed-insights": "2.0.0",
     "arktype": "2.2.8",
     "client-only": "0.0.1",
-    "framer-motion": "13.4.0",
     "fuse.js": "7.5.0",
     "kysely": "0.29.6",
     "libphonenumber-js": "1.13.15",
