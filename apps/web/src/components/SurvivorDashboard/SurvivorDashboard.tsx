@@ -45,19 +45,22 @@ const PickStatusMessage: FC<{ hasPick: boolean; isAlive: boolean }> = ({ hasPick
   }
 
   return hasPick ? (
-    <div className="text-green-700">You have submitted your survivor pick</div>
+    <div className="text-green-700 md:min-h-12">You have submitted your survivor pick</div>
   ) : (
-    <div className="text-red-700">You have not submitted your survivor pick yet!</div>
+    <div className="text-red-700 md:min-h-12">You have not submitted your survivor pick yet!</div>
   );
 };
 
+// On desktop the status line reserves two lines (the longer message wraps in a third-width column) and the placeholders
+// are as tall as the links they stand in for, so the icon sits at the same height in every state and
+// SurvivorDashboardLoader can put its skeleton exactly there
 const ViewDetailsLink: FC<{ hasSurvivorMv: boolean }> = ({ hasSurvivorMv }) =>
   hasSurvivorMv ? (
     <WeekLink className={cn("block py-2.5 underline")} href="/survivor/view">
       View Details
     </WeekLink>
   ) : (
-    <div className="md:h-6" />
+    <div className="md:h-11" />
   );
 
 const MakePickLink: FC<{ hasPick: boolean; isAlive: boolean }> = ({ hasPick, isAlive }) =>
@@ -66,7 +69,7 @@ const MakePickLink: FC<{ hasPick: boolean; isAlive: boolean }> = ({ hasPick, isA
       Click here to make your pick
     </WeekLink>
   ) : (
-    <div className="md:h-6 md:mb-1" />
+    <div className="md:h-11 md:mb-1" />
   );
 
 type SurvivorResultsProps = {
@@ -151,13 +154,14 @@ const SurvivorDashboard: FC<Props> = async ({ selectedWeek }) => {
           <PickStatusMessage hasPick={!!mySurvivorPickForWeek} isAlive={!!isAliveInSurvivor} />
           <ViewDetailsLink hasSurvivorMv={!!mySurvivorMv} />
           <MakePickLink hasPick={!!mySurvivorPickForWeek} isAlive={!!isAliveInSurvivor} />
-          {!isAliveInSurvivor && <div className="md:h-6" />}
+          {!isAliveInSurvivor && <div className="md:h-12" />}
         </div>
         <SurvivorDashboardIcon
           isAlive={isAliveInSurvivor}
           isPlaying={!!user.playsSurvivor}
           lastPick={mySurvivorMv?.lastPickTeam}
           pickForWeek={mySurvivorPickForWeek}
+          transitionName="survivorIcon"
         />
 
         <SurvivorResults

@@ -21,11 +21,14 @@ import { PiFootballHelmetDuotone, PiQuestionMark, PiUserDuotone } from "react-ic
 import type { getMySurvivorPickForWeek } from "@/server/loaders/survivor";
 import type { getMySurvivorMv } from "@/server/loaders/survivorMv";
 
+import SharedElement from "../ViewTransitions/SharedElement";
+
 type SurvivorDashboardIconProps = {
   isAlive: boolean;
   isPlaying: boolean;
   lastPick?: NonNullable<Awaited<ReturnType<typeof getMySurvivorMv>>>["lastPickTeam"];
   pickForWeek?: Awaited<ReturnType<typeof getMySurvivorPickForWeek>>;
+  transitionName: string;
 };
 
 type SurvivorLastPick = NonNullable<SurvivorDashboardIconProps["lastPick"]>;
@@ -101,7 +104,7 @@ const AliveIcon: FC<{ pick: NonNullable<SurvivorDashboardIconProps["pickForWeek"
   </>
 );
 
-const SurvivorDashboardIcon: FC<SurvivorDashboardIconProps> = ({
+const SurvivorIconContent: FC<Omit<SurvivorDashboardIconProps, "transitionName">> = ({
   isAlive = false,
   isPlaying,
   lastPick,
@@ -121,5 +124,15 @@ const SurvivorDashboardIcon: FC<SurvivorDashboardIconProps> = ({
 
   return <AliveIcon pick={pickForWeek} />;
 };
+
+// Every icon is 206px wide, so a fixed-width box keeps the morph between the dashboard and the survivor view (and their
+// skeletons) the same size at both ends however wide the surrounding column is
+const SurvivorDashboardIcon: FC<SurvivorDashboardIconProps> = ({ transitionName, ...props }) => (
+  <SharedElement name={transitionName}>
+    <div className="mx-auto w-[206px]">
+      <SurvivorIconContent {...props} />
+    </div>
+  </SharedElement>
+);
 
 export default SurvivorDashboardIcon;

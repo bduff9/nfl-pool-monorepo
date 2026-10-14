@@ -174,6 +174,7 @@ const ViewSurvivorPageBody: FC<PageProps<"/survivor/view">> = async ({ searchPar
                   isPlaying={user.UserPlaysSurvivor === 1}
                   lastPick={mySurvivorMv?.lastPickTeam}
                   pickForWeek={mySurvivorPickForWeek}
+                  transitionName="survivorIcon"
                 />
               </div>
               <div className="mt-4 block md:hidden">

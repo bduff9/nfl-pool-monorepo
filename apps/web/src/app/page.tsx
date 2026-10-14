@@ -25,6 +25,7 @@ import OverallDashboard from "@/components/OverallDashboard/OverallDashboard";
 import PageContent from "@/components/PageContent/PageContent";
 import SectionError from "@/components/SectionError/SectionError.client";
 import SurvivorDashboard from "@/components/SurvivorDashboard/SurvivorDashboard";
+import SurvivorDashboardLoader from "@/components/SurvivorDashboard/SurvivorDashboardLoader";
 import Crossfade from "@/components/ViewTransitions/Crossfade";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
 import SuspenseReveal from "@/components/ViewTransitions/SuspenseReveal";
@@ -63,12 +64,7 @@ const overallLoader = (
   />
 );
 
-const survivorLoader = (
-  <DashboardLoader
-    title="Survivor Pool"
-    transitionNames={{ gamesChart: "survivorOverallStatus", pointsChart: "survivorWeekStatus" }}
-  />
-);
+const survivorLoader = <SurvivorDashboardLoader />;
 
 const DashboardPageBody: FC<PageProps<"/">> = async ({ searchParams }) => {
   const selectedWeek = await requireSelectedWeek(searchParams);
