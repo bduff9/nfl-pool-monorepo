@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 /*******************************************************************************
  * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
@@ -18,6 +20,7 @@ import Image from "next/image";
 import type { FC } from "react";
 import { PiFootballHelmetDuotone, PiQuestionMark, PiUserDuotone } from "react-icons/pi";
 
+import { survivorDashboardIconHandoff, useRememberHandoff } from "@/lib/sharedElementHandoff";
 import type { getMySurvivorPickForWeek } from "@/server/loaders/survivor";
 import type { getMySurvivorMv } from "@/server/loaders/survivorMv";
 
@@ -30,6 +33,8 @@ type SurvivorDashboardIconProps = {
   pickForWeek?: Awaited<ReturnType<typeof getMySurvivorPickForWeek>>;
   transitionName: string;
 };
+
+export type SurvivorIconData = Omit<SurvivorDashboardIconProps, "transitionName">;
 
 type SurvivorLastPick = NonNullable<SurvivorDashboardIconProps["lastPick"]>;
 
@@ -127,12 +132,16 @@ const SurvivorIconContent: FC<Omit<SurvivorDashboardIconProps, "transitionName">
 
 // Every icon is 206px wide, so a fixed-width box keeps the morph between the dashboard and the survivor view (and their
 // skeletons) the same size at both ends however wide the surrounding column is
-const SurvivorDashboardIcon: FC<SurvivorDashboardIconProps> = ({ transitionName, ...props }) => (
-  <SharedElement name={transitionName}>
-    <div className="mx-auto w-[206px]">
-      <SurvivorIconContent {...props} />
-    </div>
-  </SharedElement>
-);
+const SurvivorDashboardIcon: FC<SurvivorDashboardIconProps> = ({ transitionName, ...props }) => {
+  useRememberHandoff(survivorDashboardIconHandoff, transitionName, props);
+
+  return (
+    <SharedElement name={transitionName}>
+      <div className="mx-auto w-[206px]">
+        <SurvivorIconContent {...props} />
+      </div>
+    </SharedElement>
+  );
+};
 
 export default SurvivorDashboardIcon;

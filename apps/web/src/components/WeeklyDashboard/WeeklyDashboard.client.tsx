@@ -7,6 +7,7 @@ import type { FC } from "react";
 
 import SharedElement from "@/components/ViewTransitions/SharedElement";
 import { useCountdown } from "@/lib/hooks/useCountdown";
+import { headingHandoff, useRememberHandoff } from "@/lib/sharedElementHandoff";
 
 type WeeklyDashboardCountdownProps = {
   weekStart: Date;
@@ -25,11 +26,13 @@ type WeeklyDashboardTitleProps = {
 };
 
 export const WeeklyDashboardTitle: FC<WeeklyDashboardTitleProps> = ({ selectedWeek }) => {
+  const text = selectedWeek > 0 ? `Week ${selectedWeek} Rank` : "Week Rank";
+
+  useRememberHandoff(headingHandoff, "weeklyRankTitle", text);
+
   return (
     <SharedElement name="weeklyRankTitle">
-      <h2 className="mb-0 scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0">
-        Week {selectedWeek > 0 && selectedWeek} Rank
-      </h2>
+      <h2 className="mb-0 scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0">{text}</h2>
     </SharedElement>
   );
 };
@@ -40,11 +43,13 @@ type WeeklyDashboardResultsProps = {
 };
 
 export const WeeklyDashboardResults: FC<WeeklyDashboardResultsProps> = ({ className, selectedWeek }) => {
+  const text = `My Week ${selectedWeek} Results`;
+
+  useRememberHandoff(headingHandoff, "myWeeklyResultsTitle", text);
+
   return (
     <SharedElement name="myWeeklyResultsTitle">
-      <h2 className={cn("scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0", className)}>
-        My Week {selectedWeek} Results
-      </h2>
+      <h2 className={cn("scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0", className)}>{text}</h2>
     </SharedElement>
   );
 };

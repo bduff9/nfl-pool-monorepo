@@ -19,18 +19,21 @@ import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { FC } from "react";
 
 import SharedElement from "@/components/ViewTransitions/SharedElement";
+import { progressChartHandoff, useRememberHandoff } from "@/lib/sharedElementHandoff";
 
 import { getPercent, isPositive, type ProgressChartType, showsMaxPossible } from "./progressChartHelpers";
 
 type ProgressChartProps = {
   correct: number;
   incorrect: number;
-  inProgress?: number;
+  inProgress?: number | undefined;
   isOver?: boolean;
   transitionName: string;
   max: number;
   type: ProgressChartType;
 };
+
+export type ProgressChartData = Omit<ProgressChartProps, "transitionName">;
 
 const LABELS_BY_TYPE: Record<ProgressChartType, { correct: string; inProgress: string; incorrect: string }> = {
   "Current Week Remaining": {
@@ -114,27 +117,39 @@ const ProgressChart: FC<ProgressChartProps> = ({
 }) => {
   const labels = LABELS_BY_TYPE[type];
 
+  useRememberHandoff(progressChartHandoff, transitionName, { correct, incorrect, inProgress, isOver, max, type });
+
   return (
-    <SharedElement name={transitionName}>
+    <SharedElement fit="start" name={transitionName}>
       <div>
         <div className="text-start">{type}</div>
-        <div className={cn("flex overflow-hidden h-8 text-xs bg-muted rounded-sm")}>
-          <ProgressSegment colorClass="bg-green-700" isOver={isOver} label={labels.correct} max={max} value={correct} />
-          <ProgressSegment
-            colorClass="bg-red-700"
-            isOver={isOver}
-            label={labels.incorrect}
-            max={max}
-            value={incorrect}
-          />
-          <ProgressSegment
-            colorClass="bg-gray-700"
-            isOver={isOver}
-            label={labels.inProgress}
-            max={max}
-            value={inProgress}
-          />
-        </div>
+        {/* Its own shared element, so on the way to a wider or narrower column the bar stretches with its box while
+            the labels around it keep their size */}
+        <SharedElement fit="stretch" name={`${transitionName}Bar`}>
+          <div className={cn("flex overflow-hidden h-8 text-xs bg-muted rounded-sm")}>
+            <ProgressSegment
+              colorClass="bg-green-700"
+              isOver={isOver}
+              label={labels.correct}
+              max={max}
+              value={correct}
+            />
+            <ProgressSegment
+              colorClass="bg-red-700"
+              isOver={isOver}
+              label={labels.incorrect}
+              max={max}
+              value={incorrect}
+            />
+            <ProgressSegment
+              colorClass="bg-gray-700"
+              isOver={isOver}
+              label={labels.inProgress}
+              max={max}
+              value={inProgress}
+            />
+          </div>
+        </SharedElement>
         <ProgressFooter max={max} type={type} />
       </div>
     </SharedElement>

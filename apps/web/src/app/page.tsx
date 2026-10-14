@@ -48,6 +48,7 @@ const weeklyLoader = (
       pointsChart: "weeklyPointsEarned",
       rankingPieChart: "weeklyRankingPieChart",
       rankTitle: "weeklyRankTitle",
+      resultsTitle: "myWeeklyResultsTitle",
     }}
   />
 );
@@ -60,6 +61,7 @@ const overallLoader = (
       pointsChart: "overallPointsEarned",
       rankingPieChart: "overallRankingPieChart",
       rankTitle: "overallRankTitle",
+      resultsTitle: "myOverallResultsTitle",
     }}
   />
 );

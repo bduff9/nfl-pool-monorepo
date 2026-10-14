@@ -22,6 +22,7 @@ import { DASHBOARD_CARD, DASHBOARD_ROW } from "@/lib/dashboardGrid";
 
 import ProgressChartLoader from "../ProgressChart/ProgressChartLoader";
 import RankingPieChartLoader from "../RankingPieChart/RankingPieChartLoader";
+import HandedOffHeading from "../ViewTransitions/HandedOffHeading";
 import SharedElement from "../ViewTransitions/SharedElement";
 
 // The view transition names the real dashboard uses at each slot, so the detail pages can morph back into this skeleton
@@ -30,7 +31,11 @@ type TransitionNames = {
   pointsChart?: string;
   rankingPieChart?: string;
   rankTitle?: string;
+  resultsTitle?: string;
 };
+
+const RANK_TITLE_CLASS = "mb-0 scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0";
+const RESULTS_TITLE_CLASS = "scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0";
 
 type Props = {
   title: string;
@@ -39,11 +44,23 @@ type Props = {
 
 const DashboardLoader: FC<Props> = ({ title, transitionNames }) => {
   const rankTitle = transitionNames?.rankTitle;
-  const heading = <h2 className="mb-0 scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0">{title}</h2>;
+  const resultsTitle = transitionNames?.resultsTitle;
+  const heading = <h2 className={RANK_TITLE_CLASS}>{title}</h2>;
+  const resultsSkeleton = <Skeleton className="mx-auto h-9 w-[250px] bg-muted" />;
 
   return (
     <div className={cn("text-center mb-3 md:mb-0 border-b border-border md:border-none px-3", DASHBOARD_CARD)}>
-      {rankTitle === undefined ? heading : <SharedElement name={rankTitle}>{heading}</SharedElement>}
+      {/* Named slots show what the page last rendered under the same name, so coming back from a details page the
+          titles, ring and bars arrive filled instead of turning into placeholders */}
+      {rankTitle === undefined ? (
+        heading
+      ) : (
+        <HandedOffHeading
+          className={RANK_TITLE_CLASS}
+          fallback={<SharedElement name={rankTitle}>{heading}</SharedElement>}
+          name={rankTitle}
+        />
+      )}
       {/* View Details link */}
       <div className="mb-3 mt-[42px]">
         <Skeleton className="h-[18px] w-[87px] bg-muted" />
@@ -54,7 +71,11 @@ const DashboardLoader: FC<Props> = ({ title, transitionNames }) => {
       </div>
       {/* H2 */}
       <div className={cn("mt-5 md:mt-0", DASHBOARD_ROW.resultsTitle)}>
-        <Skeleton className="mx-auto h-9 w-[250px] bg-muted" />
+        {resultsTitle === undefined ? (
+          resultsSkeleton
+        ) : (
+          <HandedOffHeading className={RESULTS_TITLE_CLASS} fallback={resultsSkeleton} name={resultsTitle} />
+        )}
       </div>
       {/* Points Bar */}
       <div className={DASHBOARD_ROW.firstBar}>

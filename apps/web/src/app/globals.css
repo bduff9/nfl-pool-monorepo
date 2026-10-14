@@ -402,7 +402,10 @@
     var(--duration-enter) ease-in both fade reverse;
 }
 
-::view-transition-group(.morph) {
+::view-transition-group(.morph),
+::view-transition-group(.shared),
+::view-transition-group(.shared-start),
+::view-transition-group(.shared-stretch) {
   animation-duration: var(--duration-move);
   animation-timing-function: var(--ease-in-out-quint);
 }
@@ -410,6 +413,32 @@
 ::view-transition-old(.morph),
 ::view-transition-new(.morph) {
   animation-duration: var(--duration-move);
+}
+
+/* Shared elements (SharedElement) travel at their own size. The two snapshots crossfade at their natural size inside the
+   moving box, instead of being scaled to its width: a title or a ring that sits in a wider column on the other page
+   would otherwise balloon or shrink on the way and blur into a double image of two sizes. A progress bar keeps its
+   labels at the start edge, and its bar (named on its own) stretches with the box, so it grows or shrinks like a bar. */
+::view-transition-old(.shared),
+::view-transition-new(.shared),
+::view-transition-old(.shared-start),
+::view-transition-new(.shared-start),
+::view-transition-old(.shared-stretch),
+::view-transition-new(.shared-stretch) {
+  height: 100%;
+  object-fit: none;
+  object-position: center top;
+  animation-duration: var(--duration-move);
+}
+
+::view-transition-old(.shared-start),
+::view-transition-new(.shared-start) {
+  object-position: left top;
+}
+
+::view-transition-old(.shared-stretch),
+::view-transition-new(.shared-stretch) {
+  object-fit: fill;
 }
 
 /* The desktop sidebar's fixed panel (the shadcn sidebar container), named directly so its snapshot is exactly the

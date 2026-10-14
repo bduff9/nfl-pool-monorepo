@@ -8,6 +8,7 @@ import { HandedOffAlerts } from "@/components/CustomHead/CustomHead.client";
 import PageContent from "@/components/PageContent/PageContent";
 import ProgressChartLoader from "@/components/ProgressChart/ProgressChartLoader";
 import RankingPieChartLoader from "@/components/RankingPieChart/RankingPieChartLoader";
+import HandedOffHeading from "@/components/ViewTransitions/HandedOffHeading";
 import SharedElement from "@/components/ViewTransitions/SharedElement";
 import { WeekLink } from "@/components/WeekLink/WeekLink";
 
@@ -29,6 +30,8 @@ type Props = {
 };
 
 const ROW_COUNT = 20;
+const RANK_TITLE_CLASS = "mb-0 scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0";
+const RESULTS_TITLE_CLASS = "mb-4 scroll-m-20 text-center text-3xl font-semibold tracking-tight first:mt-0";
 
 // The shared skeleton for the overall and weekly rankings pages
 const RankingsLoader: FC<Props> = ({ columns, rankTitle, resultsTitle, transitionNames }) => {
@@ -38,9 +41,16 @@ const RankingsLoader: FC<Props> = ({ columns, rankTitle, resultsTitle, transitio
       <PageContent className="pt-0 md:pt-3 pb-4">
         <div className="flex flex-wrap items-start">
           <div className="hidden md:inline-block w-[25%] text-center h-[205px]">
-            <SharedElement name={transitionNames.rankTitle}>
-              <h2 className="mb-0 scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0">{rankTitle}</h2>
-            </SharedElement>
+            {/* The titles, ring and bars show what the last page rendered under the same names, so they arrive filled */}
+            <HandedOffHeading
+              className={RANK_TITLE_CLASS}
+              fallback={
+                <SharedElement name={transitionNames.rankTitle}>
+                  <h2 className={RANK_TITLE_CLASS}>{rankTitle}</h2>
+                </SharedElement>
+              }
+              name={transitionNames.rankTitle}
+            />
             <RankingPieChartLoader transitionName={transitionNames.rankingPieChart} />
           </div>
           <div className="mt-4 block md:hidden">
@@ -49,11 +59,15 @@ const RankingsLoader: FC<Props> = ({ columns, rankTitle, resultsTitle, transitio
             </WeekLink>
           </div>
           <div className="hidden md:inline-block flex-1 px-3">
-            <SharedElement name={transitionNames.resultsTitle}>
-              <h2 className="mb-4 scroll-m-20 text-center text-3xl font-semibold tracking-tight first:mt-0">
-                {resultsTitle}
-              </h2>
-            </SharedElement>
+            <HandedOffHeading
+              className={RESULTS_TITLE_CLASS}
+              fallback={
+                <SharedElement name={transitionNames.resultsTitle}>
+                  <h2 className={RESULTS_TITLE_CLASS}>{resultsTitle}</h2>
+                </SharedElement>
+              }
+              name={transitionNames.resultsTitle}
+            />
             <ProgressChartLoader transitionName={transitionNames.pointsChart} />
             <ProgressChartLoader transitionName={transitionNames.gamesChart} />
           </div>

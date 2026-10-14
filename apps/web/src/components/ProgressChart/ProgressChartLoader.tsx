@@ -1,3 +1,5 @@
+"use client";
+
 /*******************************************************************************
  * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
  * Copyright (C) 2015-present Brian Duffey
@@ -14,13 +16,29 @@
  * Home: https://asitewithnoname.com/
  */
 import { Skeleton } from "@nfl-pool-monorepo/ui/components/skeleton";
-import type { FC } from "react";
+import { type FC, type ReactNode, Suspense } from "react";
 
 import SharedElement from "@/components/ViewTransitions/SharedElement";
+import { progressChartHandoff, useHandedOff } from "@/lib/sharedElementHandoff";
+
+import ProgressChart from "./ProgressChart";
 
 type ProgressChartLoaderProps = {
-  // Only the detail-page loaders pass this; the dashboard loader renders the same skeleton without a name
+  // With a name, the slot shows the bar the last page rendered under it (see HandedOffProgressChart) or a named skeleton
   transitionName?: string | undefined;
+};
+
+type HandedOffProgressChartProps = {
+  fallback: ReactNode;
+  name: string;
+};
+
+// The bar the last page rendered under this name, filled, so it moves between the pages instead of turning into a
+// placeholder and back; the skeleton when there is none (a fresh load, or another week)
+const HandedOffProgressChart: FC<HandedOffProgressChartProps> = ({ fallback, name }) => {
+  const data = useHandedOff(progressChartHandoff, name);
+
+  return data ? <ProgressChart {...data} transitionName={name} /> : fallback;
 };
 
 const ProgressChartLoader: FC<ProgressChartLoaderProps> = ({ transitionName }) => {
@@ -43,10 +61,16 @@ const ProgressChartLoader: FC<ProgressChartLoaderProps> = ({ transitionName }) =
     return chart;
   }
 
-  return (
+  const skeleton = (
     <SharedElement name={transitionName}>
       <div>{chart}</div>
     </SharedElement>
+  );
+
+  return (
+    <Suspense fallback={skeleton}>
+      <HandedOffProgressChart fallback={skeleton} name={transitionName} />
+    </Suspense>
   );
 };
 

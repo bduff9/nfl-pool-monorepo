@@ -1,3 +1,5 @@
+"use client";
+
 /*******************************************************************************
  * NFL Confidence Pool FE - the frontend implementation of an NFL confidence pool.
  * Copyright (C) 2015-present Brian Duffey
@@ -14,13 +16,30 @@
  * Home: https://asitewithnoname.com/
  */
 import { Skeleton } from "@nfl-pool-monorepo/ui/components/skeleton";
-import type { FC } from "react";
+import { type FC, type ReactNode, Suspense } from "react";
 
 import SharedElement from "@/components/ViewTransitions/SharedElement";
+import { rankingPieChartHandoff, useHandedOff } from "@/lib/sharedElementHandoff";
+
+import RankingPieChart from "./RankingPieChart";
 
 type RankingPieChartLoaderProps = {
-  // Only the detail-page loaders pass this; the dashboard loader renders the same skeleton without a name
+  // With a name, the slot shows the ring the last page rendered under it (see HandedOffRankingPieChart) or a named
+  // skeleton
   transitionName?: string | undefined;
+};
+
+type HandedOffRankingPieChartProps = {
+  fallback: ReactNode;
+  name: string;
+};
+
+// The ring the last page rendered under this name, complete, so it moves between the pages instead of turning into a
+// placeholder and back; the skeleton when there is none (a fresh load, or another week)
+const HandedOffRankingPieChart: FC<HandedOffRankingPieChartProps> = ({ fallback, name }) => {
+  const data = useHandedOff(rankingPieChartHandoff, name);
+
+  return data ? <RankingPieChart data={data} transitionName={name} /> : fallback;
 };
 
 const RankingPieChartLoader: FC<RankingPieChartLoaderProps> = ({ transitionName }) => {
@@ -40,10 +59,16 @@ const RankingPieChartLoader: FC<RankingPieChartLoaderProps> = ({ transitionName 
     return chart;
   }
 
-  return (
+  const skeleton = (
     <SharedElement name={transitionName}>
       <div className="min-h-[206px] w-full">{chart}</div>
     </SharedElement>
+  );
+
+  return (
+    <Suspense fallback={skeleton}>
+      <HandedOffRankingPieChart fallback={skeleton} name={transitionName} />
+    </Suspense>
   );
 };
 
