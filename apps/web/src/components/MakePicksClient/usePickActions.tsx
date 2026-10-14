@@ -130,7 +130,7 @@ export const usePickActions = ({
     },
     onSuccess: () => {
       toast.success(`Successfully submitted your picks for week ${selectedWeek}`);
-      router.push("/picks/view");
+      router.push("/picks/view", { transitionTypes: ["nav-forward"] });
     },
   });
 

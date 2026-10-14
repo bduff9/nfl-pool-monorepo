@@ -26,7 +26,7 @@ const QuickPickConfirm: FC<Props> = ({ teamId, teamLabel }) => {
     },
     onSuccess: () => {
       toast.success("Successfully made your quick pick!");
-      router.push("/picks/set");
+      router.push("/picks/set", { transitionTypes: ["nav-forward"] });
     },
   });
 

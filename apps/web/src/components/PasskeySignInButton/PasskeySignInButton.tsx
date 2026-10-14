@@ -31,7 +31,7 @@ const PasskeySignInButton: FC = () => {
 
       if (result.status === "success") {
         toast.success("Successfully logged in!");
-        router.push(getPostLoginRoute(result.redirectTo));
+        router.push(getPostLoginRoute(result.redirectTo), { transitionTypes: ["nav-fade"] });
       } else if (result.status === "error") {
         toast.error("Couldn't sign in with your passkey", { description: result.message });
       }

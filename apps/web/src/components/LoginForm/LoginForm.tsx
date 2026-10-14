@@ -93,7 +93,7 @@ const LoginForm: FC<Props> = ({ error, isLogin }) => {
     onError: onActionError,
     onSuccess: ({ data }) => {
       toast.success("Successfully logged in!");
-      router.push(getPostLoginRoute(data?.metadata?.redirectTo));
+      router.push(getPostLoginRoute(data?.metadata?.redirectTo), { transitionTypes: ["nav-fade"] });
     },
   });
 
@@ -101,7 +101,7 @@ const LoginForm: FC<Props> = ({ error, isLogin }) => {
     onError: onActionError,
     onSuccess: ({ data }) => {
       toast.success("Successfully registered!");
-      router.push(getPostLoginRoute(data?.metadata?.redirectTo));
+      router.push(getPostLoginRoute(data?.metadata?.redirectTo), { transitionTypes: ["nav-fade"] });
     },
   });
 

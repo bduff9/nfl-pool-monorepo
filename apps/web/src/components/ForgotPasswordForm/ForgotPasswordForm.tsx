@@ -230,7 +230,7 @@ const ForgotPasswordForm: FC<Props> = ({ error }) => {
     onError: onActionError,
     onSuccess: () => {
       toast.success("Your password has been successfully reset");
-      router.push("/");
+      router.push("/", { transitionTypes: ["nav-fade"] });
     },
   });
 

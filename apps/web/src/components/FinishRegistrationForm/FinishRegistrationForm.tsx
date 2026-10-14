@@ -67,7 +67,7 @@ const FinishRegistrationForm: FC<FinishRegistrationFormProps> = ({
       setShowUntrusted(!isTrusted);
       toast.success("You have successfully submitted your registration!");
       if (isTrusted) {
-        router.push("/users/payments");
+        router.push("/users/payments", { transitionTypes: ["nav-fade"] });
       }
     },
   });
