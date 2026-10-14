@@ -34,18 +34,12 @@ type WeekStepButtonProps = {
   href: Route;
   icon: ReactNode;
   onClick: () => void;
-  transitionType: "nav-back" | "nav-forward";
+  transitionType: "week-back" | "week-forward";
 };
 
 const WeekStepButton: FC<WeekStepButtonProps> = ({ ariaLabel, href, icon, onClick, transitionType }) => (
   <Button asChild className="p-0 m-0 [&_svg]:size-6" size="icon" variant="ghost">
-    <WeekLink
-      aria-label={ariaLabel}
-      href={href}
-      onClick={onClick}
-      prefetch={true}
-      transitionTypes={[transitionType, "week-change"]}
-    >
+    <WeekLink aria-label={ariaLabel} href={href} onClick={onClick} prefetch={true} transitionTypes={[transitionType]}>
       {icon}
     </WeekLink>
   </Button>
@@ -65,8 +59,7 @@ const WeekMenuItem: FC<WeekMenuItemProps> = ({ currentWeek, href, onSelectWeek, 
     onSelectWeek(week);
   };
 
-  const transitionTypes: string[] =
-    week > selectedWeek ? ["nav-forward", "week-change"] : week < selectedWeek ? ["nav-back", "week-change"] : [];
+  const transitionTypes: string[] = week > selectedWeek ? ["week-forward"] : week < selectedWeek ? ["week-back"] : [];
 
   return (
     <Fragment>
@@ -119,7 +112,7 @@ export const SidebarWeekHeader: FC<SidebarWeekHeaderProps> = ({
               href={withWeek(asRoute(pathname), selectedWeek - 1)}
               icon={<LuChevronLeft />}
               onClick={handlePreviousWeek}
-              transitionType="nav-back"
+              transitionType="week-back"
             />
           ) : (
             <span className="invisible size-11 md:size-9" />
@@ -152,7 +145,7 @@ export const SidebarWeekHeader: FC<SidebarWeekHeaderProps> = ({
               href={withWeek(asRoute(pathname), selectedWeek + 1)}
               icon={<LuChevronRight />}
               onClick={handleNextWeek}
-              transitionType="nav-forward"
+              transitionType="week-forward"
             />
           ) : (
             <span className="invisible size-11 md:size-9" />
@@ -165,9 +158,7 @@ export const SidebarWeekHeader: FC<SidebarWeekHeaderProps> = ({
                 href={withWeek(asRoute(pathname), currentWeek)}
                 onClick={handleGoToCurrentWeek}
                 prefetch={true}
-                transitionTypes={
-                  currentWeek > selectedWeek ? ["nav-forward", "week-change"] : ["nav-back", "week-change"]
-                }
+                transitionTypes={currentWeek > selectedWeek ? ["week-forward"] : ["week-back"]}
               >
                 <LuReply />
                 &nbsp;Go to current week

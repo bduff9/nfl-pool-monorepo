@@ -33,6 +33,7 @@ import SectionError from "@/components/SectionError/SectionError.client";
 import ShareButton from "@/components/ShareButton/ShareButton.client";
 import Crossfade from "@/components/ViewTransitions/Crossfade";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import WeekTransition from "@/components/ViewTransitions/WeekTransition";
 import { WeekLink } from "@/components/WeekLink/WeekLink";
 import { WeeklyDashboardResults, WeeklyDashboardTitle } from "@/components/WeeklyDashboard/WeeklyDashboard.client";
 import { requireRegistered } from "@/lib/auth";
@@ -116,7 +117,7 @@ const WeeklyRankingsPageBody: FC<PageProps<"/weekly">> = async ({ searchParams }
     weekGames.some((game) => game.GameStatus !== "Pregame" && game.GameStatus !== "Final");
 
   return (
-    <PageTransition>
+    <WeekTransition key={selectedWeek}>
       <div className="h-full flex flex-col md:mx-3">
         <CustomHead title={`Week ${selectedWeek} Ranks`} />
         <ScoreboardLiveRefresh enabled={hasLiveGames} />
@@ -198,14 +199,16 @@ const WeeklyRankingsPageBody: FC<PageProps<"/weekly">> = async ({ searchParams }
           </div>
         </PageContent>
       </div>
-    </PageTransition>
+    </WeekTransition>
   );
 };
 
 const WeeklyRankings: FC<PageProps<"/weekly">> = (props) => (
-  <Suspense fallback={<WeeklyLoading />}>
-    <WeeklyRankingsPageBody {...props} />
-  </Suspense>
+  <PageTransition>
+    <Suspense fallback={<WeeklyLoading />}>
+      <WeeklyRankingsPageBody {...props} />
+    </Suspense>
+  </PageTransition>
 );
 
 export default WeeklyRankings;

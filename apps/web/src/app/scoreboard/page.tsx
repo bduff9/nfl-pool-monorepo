@@ -27,6 +27,7 @@ import ScoreboardGamesList from "@/components/ScoreboardGamesList/ScoreboardGame
 import ScoreboardLiveRefresh from "@/components/ScoreboardLiveRefresh/ScoreboardLiveRefresh";
 import Crossfade from "@/components/ViewTransitions/Crossfade";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import WeekTransition from "@/components/ViewTransitions/WeekTransition";
 import { isLiveCandidate } from "@/lib/liveScores/applyLiveScores";
 import { attachEventIds, type EventIdGame, hasFinalGame } from "@/lib/liveScores/attachEventIds";
 import { getEspnEventIds } from "@/server/loaders/espnEventIds";
@@ -71,7 +72,7 @@ const ScoreboardPageBody: FC<PageProps<"/scoreboard">> = async ({ searchParams }
   const selectedWeek = await requireSelectedWeek(searchParams);
 
   return (
-    <PageTransition>
+    <WeekTransition key={selectedWeek}>
       <div className="h-full flex flex-col md:mx-3">
         <CustomHead title={TITLE} />
         <PageContent className="pt-5 md:pt-3 pb-4">
@@ -82,14 +83,16 @@ const ScoreboardPageBody: FC<PageProps<"/scoreboard">> = async ({ searchParams }
           </RetryableSection>
         </PageContent>
       </div>
-    </PageTransition>
+    </WeekTransition>
   );
 };
 
 const Scoreboard: FC<PageProps<"/scoreboard">> = (props) => (
-  <Suspense fallback={<ScoreboardLoader />}>
-    <ScoreboardPageBody {...props} />
-  </Suspense>
+  <PageTransition>
+    <Suspense fallback={<ScoreboardLoader />}>
+      <ScoreboardPageBody {...props} />
+    </Suspense>
+  </PageTransition>
 );
 
 export default Scoreboard;

@@ -5,11 +5,12 @@ type SharedElementProps = {
   name: string;
 };
 
-// share={{ "week-change": "none", default: "morph" }} must stay alongside default="none", or the named pair silently stops morphing.
-// A week change re-renders the same page, so the old and new trees pair every named element; pinning it to "none"
-// there keeps those elements part of the page's directional slide instead of crossfading in place.
+// share={{ "week-forward": "none", "week-back": "none", default: "morph" }} must stay alongside default="none", or the
+// named pair silently stops morphing. A week change remounts the page content (see WeekTransition), so the old and new
+// trees pair every named element; pinning the week types to "none" keeps those elements part of the week slide
+// instead of morphing in place.
 const SharedElement: FC<SharedElementProps> = ({ children, name }) => (
-  <ViewTransition default="none" name={name} share={{ default: "morph", "week-change": "none" }}>
+  <ViewTransition default="none" name={name} share={{ default: "morph", "week-back": "none", "week-forward": "none" }}>
     {children}
   </ViewTransition>
 );

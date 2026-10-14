@@ -29,6 +29,7 @@ import MyPicksHead from "@/components/MyPicksHead/MyPicksHead";
 import PageContent from "@/components/PageContent/PageContent";
 import ShareButton from "@/components/ShareButton/ShareButton.client";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import WeekTransition from "@/components/ViewTransitions/WeekTransition";
 import { requireRegistered } from "@/lib/auth";
 import { buildWeekPicksShareText } from "@/lib/share/shareText";
 import { getMyWeeklyPicks } from "@/server/loaders/pick";
@@ -92,7 +93,7 @@ const ViewPicksPageBody: FC<PageProps<"/picks/view">> = async ({ searchParams })
   const [myWeeklyPicks] = await Promise.all([myWeeklyPicksPromise]);
 
   return (
-    <PageTransition>
+    <WeekTransition key={selectedWeek}>
       <div className="h-full flex flex-col md:mx-3">
         <CustomHead title={`My Week ${selectedWeek} Picks`} />
         <PageContent className="pb-4">
@@ -135,14 +136,16 @@ const ViewPicksPageBody: FC<PageProps<"/picks/view">> = async ({ searchParams })
           </div>
         </PageContent>
       </div>
-    </PageTransition>
+    </WeekTransition>
   );
 };
 
 const ViewPicks: FC<PageProps<"/picks/view">> = (props) => (
-  <Suspense fallback={<ViewPicksLoading />}>
-    <ViewPicksPageBody {...props} />
-  </Suspense>
+  <PageTransition>
+    <Suspense fallback={<ViewPicksLoading />}>
+      <ViewPicksPageBody {...props} />
+    </Suspense>
+  </PageTransition>
 );
 
 export default ViewPicks;

@@ -27,6 +27,7 @@ import "server-only";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import WeekTransition from "@/components/ViewTransitions/WeekTransition";
 import { WeekLink } from "@/components/WeekLink/WeekLink";
 import { requireRegistered } from "@/lib/auth";
 import { getHeadToHead } from "@/server/loaders/headToHead";
@@ -65,25 +66,23 @@ type Game = HeadToHead["games"][number];
 type Pick = { PickPoints: null | number; TeamID: null | number };
 
 const NotReadyState: FC<{ selectedWeek: number }> = ({ selectedWeek }) => (
-  <PageTransition>
-    <div className="h-full flex flex-col md:mx-3">
-      <CustomHead title={TITLE} />
-      <PageContent className="pt-5 md:pt-3 pb-4">
-        <div className="flex flex-col items-center justify-center gap-3 min-h-[50vh] text-center">
-          <PiFootballDuotone aria-hidden="true" className="size-16 text-muted-foreground" />
-          <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight">
-            Standings for week {selectedWeek} aren&apos;t ready yet
-          </h2>
-          <p className="max-w-md text-muted-foreground">
-            Head-to-head matchups appear once this week&apos;s results start coming in. Check back soon!
-          </p>
-          <WeekLink className="inline-block py-2.5" href="/">
-            &laquo; Back to Dashboard
-          </WeekLink>
-        </div>
-      </PageContent>
-    </div>
-  </PageTransition>
+  <div className="h-full flex flex-col md:mx-3">
+    <CustomHead title={TITLE} />
+    <PageContent className="pt-5 md:pt-3 pb-4">
+      <div className="flex flex-col items-center justify-center gap-3 min-h-[50vh] text-center">
+        <PiFootballDuotone aria-hidden="true" className="size-16 text-muted-foreground" />
+        <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+          Standings for week {selectedWeek} aren&apos;t ready yet
+        </h2>
+        <p className="max-w-md text-muted-foreground">
+          Head-to-head matchups appear once this week&apos;s results start coming in. Check back soon!
+        </p>
+        <WeekLink className="inline-block py-2.5" href="/">
+          &laquo; Back to Dashboard
+        </WeekLink>
+      </div>
+    </PageContent>
+  </div>
 );
 
 const isWinningPick = (game: Game, pick: Pick | undefined): boolean =>
@@ -189,7 +188,11 @@ const HeadToHeadPageBody: FC<HeadToHeadPageBodyProps> = async ({ searchParams })
   const userBID = parseUserIDParam(params.b) ?? users.find((ranking) => ranking.UserID !== userAID)?.UserID;
 
   if (!userAID || !userBID) {
-    return <NotReadyState selectedWeek={selectedWeek} />;
+    return (
+      <WeekTransition key={selectedWeek}>
+        <NotReadyState selectedWeek={selectedWeek} />
+      </WeekTransition>
+    );
   }
 
   const userA = users.find((ranking) => ranking.UserID === userAID);
@@ -197,7 +200,7 @@ const HeadToHeadPageBody: FC<HeadToHeadPageBodyProps> = async ({ searchParams })
   const { games, picksA, picksB, rankA, rankB } = await getHeadToHead(selectedWeek, userAID, userBID);
 
   return (
-    <PageTransition>
+    <WeekTransition key={selectedWeek}>
       <div className="h-full flex flex-col md:mx-3">
         <CustomHead title={TITLE} />
         <PageContent className="px-3 pt-5 pb-4 md:px-5 md:pt-3">
@@ -235,14 +238,16 @@ const HeadToHeadPageBody: FC<HeadToHeadPageBodyProps> = async ({ searchParams })
           </Table>
         </PageContent>
       </div>
-    </PageTransition>
+    </WeekTransition>
   );
 };
 
 const HeadToHeadPage: FC<HeadToHeadPageBodyProps> = (props) => (
-  <Suspense fallback={<HeadToHeadLoading />}>
-    <HeadToHeadPageBody {...props} />
-  </Suspense>
+  <PageTransition>
+    <Suspense fallback={<HeadToHeadLoading />}>
+      <HeadToHeadPageBody {...props} />
+    </Suspense>
+  </PageTransition>
 );
 
 export default HeadToHeadPage;

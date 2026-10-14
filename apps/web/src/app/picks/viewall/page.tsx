@@ -24,6 +24,7 @@ import { type FC, Suspense } from "react";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import WeekTransition from "@/components/ViewTransitions/WeekTransition";
 import { requireRegistered } from "@/lib/auth";
 import { getAllPicksForWeek } from "@/server/loaders/pick";
 import { getMyTiebreaker } from "@/server/loaders/tiebreaker";
@@ -69,7 +70,7 @@ const ViewAllPicksPageBody: FC<PageProps<"/picks/viewall">> = async ({ searchPar
   }
 
   return (
-    <PageTransition>
+    <WeekTransition key={selectedWeek}>
       <div className="h-full flex flex-col md:mx-3">
         <CustomHead title={`View all week ${selectedWeek} picks`} />
         <PageContent className="pt-3">
@@ -82,14 +83,16 @@ const ViewAllPicksPageBody: FC<PageProps<"/picks/viewall">> = async ({ searchPar
           />
         </PageContent>
       </div>
-    </PageTransition>
+    </WeekTransition>
   );
 };
 
 const ViewAllPicks: FC<PageProps<"/picks/viewall">> = (props) => (
-  <Suspense fallback={<ViewAllPicksLoading />}>
-    <ViewAllPicksPageBody {...props} />
-  </Suspense>
+  <PageTransition>
+    <Suspense fallback={<ViewAllPicksLoading />}>
+      <ViewAllPicksPageBody {...props} />
+    </Suspense>
+  </PageTransition>
 );
 
 export default ViewAllPicks;

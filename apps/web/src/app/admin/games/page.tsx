@@ -24,6 +24,7 @@ import AdminGameRow from "@/components/AdminGameRow/AdminGameRow";
 import CustomHead from "@/components/CustomHead/CustomHead";
 import PageContent from "@/components/PageContent/PageContent";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import WeekTransition from "@/components/ViewTransitions/WeekTransition";
 import { requireAdmin } from "@/lib/auth";
 import { getGamesForWeekCached } from "@/server/loaders/game";
 import { getSelectedWeekFromParams } from "@/server/loaders/week";
@@ -50,7 +51,7 @@ const AdminGamesPageBody: FC<PageProps<"/weekly">> = async ({ searchParams }) =>
   const games = await getGamesForWeekCached(selectedWeek);
 
   return (
-    <PageTransition>
+    <WeekTransition key={selectedWeek}>
       <div className="h-full flex flex-col md:mx-3">
         <CustomHead title={TITLE} />
         <PageContent className="px-3 pt-5 pb-4 md:px-5 md:pt-3">
@@ -74,14 +75,16 @@ const AdminGamesPageBody: FC<PageProps<"/weekly">> = async ({ searchParams }) =>
           </Table>
         </PageContent>
       </div>
-    </PageTransition>
+    </WeekTransition>
   );
 };
 
 const AdminGamesPage: FC<PageProps<"/weekly">> = (props) => (
-  <Suspense fallback={<AdminLoading />}>
-    <AdminGamesPageBody {...props} />
-  </Suspense>
+  <PageTransition>
+    <Suspense fallback={<AdminLoading />}>
+      <AdminGamesPageBody {...props} />
+    </Suspense>
+  </PageTransition>
 );
 
 export default AdminGamesPage;

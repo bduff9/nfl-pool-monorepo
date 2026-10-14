@@ -22,6 +22,7 @@ import { type FC, Suspense } from "react";
 
 import MakeSurvivorPickClient from "@/components/MakeSurvivorPickClient/MakeSurvivorPickClient";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import WeekTransition from "@/components/ViewTransitions/WeekTransition";
 import { requireRegistered } from "@/lib/auth";
 import { withWeek } from "@/lib/weekSearchParams";
 import { getGamesForWeekCached, getWeekInProgress } from "@/server/loaders/game";
@@ -81,7 +82,7 @@ const SetSurvivorPageBody: FC<PageProps<"/survivor/set">> = async ({ searchParam
   }
 
   return (
-    <PageTransition>
+    <WeekTransition key={selectedWeek}>
       <div className="h-full flex flex-col md:mx-3">
         <CustomHead title="Make Survivor Picks" />
         <PageContent className="pt-5 md:pt-3 pb-4">
@@ -94,14 +95,16 @@ const SetSurvivorPageBody: FC<PageProps<"/survivor/set">> = async ({ searchParam
           />
         </PageContent>
       </div>
-    </PageTransition>
+    </WeekTransition>
   );
 };
 
 const SetSurvivorPage: FC<PageProps<"/survivor/set">> = (props) => (
-  <Suspense fallback={<SurvivorSetLoading />}>
-    <SetSurvivorPageBody {...props} />
-  </Suspense>
+  <PageTransition>
+    <Suspense fallback={<SurvivorSetLoading />}>
+      <SetSurvivorPageBody {...props} />
+    </Suspense>
+  </PageTransition>
 );
 
 export default SetSurvivorPage;

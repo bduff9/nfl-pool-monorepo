@@ -31,6 +31,7 @@ import PageContent from "@/components/PageContent/PageContent";
 import ProgressChart from "@/components/ProgressChart/ProgressChart";
 import SurvivorDashboardIcon from "@/components/SurvivorDashboardIcon/SurvivorDashboardIcon";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import WeekTransition from "@/components/ViewTransitions/WeekTransition";
 import { WeekLink } from "@/components/WeekLink/WeekLink";
 import { requireRegistered } from "@/lib/auth";
 import { getWeekInProgress } from "@/server/loaders/game";
@@ -150,7 +151,7 @@ const ViewSurvivorPageBody: FC<PageProps<"/survivor/view">> = async ({ searchPar
   }
 
   return (
-    <PageTransition>
+    <WeekTransition key={selectedWeek}>
       <div className="h-full flex flex-col md:mx-3">
         <CustomHead title="View Survivor Picks" />
         <PageContent className="pt-5 md:pt-3 pb-4">
@@ -291,14 +292,16 @@ const ViewSurvivorPageBody: FC<PageProps<"/survivor/view">> = async ({ searchPar
           </div>
         </PageContent>
       </div>
-    </PageTransition>
+    </WeekTransition>
   );
 };
 
 const ViewSurvivor: FC<PageProps<"/survivor/view">> = (props) => (
-  <Suspense fallback={<SurvivorViewLoading />}>
-    <ViewSurvivorPageBody {...props} />
-  </Suspense>
+  <PageTransition>
+    <Suspense fallback={<SurvivorViewLoading />}>
+      <ViewSurvivorPageBody {...props} />
+    </Suspense>
+  </PageTransition>
 );
 
 export default ViewSurvivor;

@@ -24,6 +24,7 @@ import CustomHead from "@/components/CustomHead/CustomHead";
 import MakePicksClient from "@/components/MakePicksClient/MakePicksClient";
 import PageContent from "@/components/PageContent/PageContent";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
+import WeekTransition from "@/components/ViewTransitions/WeekTransition";
 import { requireRegistered } from "@/lib/auth";
 import { withWeek } from "@/lib/weekSearchParams";
 import { getMyWeeklyPicks } from "@/server/loaders/pick";
@@ -60,7 +61,7 @@ const MakePicksPageBody: FC<PageProps<"/picks/set">> = async ({ searchParams }) 
   }
 
   return (
-    <PageTransition>
+    <WeekTransition key={selectedWeek}>
       <div className="h-[calc(100dvh-var(--safe-top))] flex flex-col md:mx-3">
         <CustomHead title={`Make week ${selectedWeek} picks`} />
         <PageContent className="flex flex-col pt-3 pb-(--actions-bar-height)">
@@ -72,14 +73,16 @@ const MakePicksPageBody: FC<PageProps<"/picks/set">> = async ({ searchParams }) 
           />
         </PageContent>
       </div>
-    </PageTransition>
+    </WeekTransition>
   );
 };
 
 const MakePicks: FC<PageProps<"/picks/set">> = (props) => (
-  <Suspense fallback={<MakePicksLoading />}>
-    <MakePicksPageBody {...props} />
-  </Suspense>
+  <PageTransition>
+    <Suspense fallback={<MakePicksLoading />}>
+      <MakePicksPageBody {...props} />
+    </Suspense>
+  </PageTransition>
 );
 
 export default MakePicks;
