@@ -392,7 +392,8 @@
 
 ::view-transition-group(persistent-nav),
 ::view-transition-group(offline-banner),
-::view-transition-group(app-toaster) {
+::view-transition-group(app-toaster),
+::view-transition-group(page-sidebar-trigger) {
   z-index: 100;
   animation: none;
 }
