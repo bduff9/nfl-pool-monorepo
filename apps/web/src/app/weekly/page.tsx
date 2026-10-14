@@ -152,21 +152,11 @@ const WeeklyRankingsPageBody: FC<PageProps<"/weekly">> = async ({ searchParams }
                 transitionName="weeklyRankingPieChart"
               />
             </div>
-            <div className="mt-4 block md:hidden">
+            <div className="-order-2 md:order-none mt-4 block md:hidden">
               <WeekLink className="inline-block py-2.5" href="/">
                 &laquo; Back to Dashboard
               </WeekLink>
             </div>
-            {!!myWeeklyRank && (
-              <div className="w-full px-3 pb-2 text-center md:text-right">
-                <ShareButton
-                  imageUrl={`/api/share/week/${selectedWeek}`}
-                  label="Share my result"
-                  text={buildWeekResultShareText(selectedWeek, myWeeklyRank.Rank, myWeeklyRank.Tied === 1)}
-                  title={`My week ${selectedWeek} result`}
-                />
-              </div>
-            )}
             <SectionError title="Scenarios">
               <Suspense fallback={null}>
                 <ScenariosDashboard scope="weekly" />
@@ -191,6 +181,16 @@ const WeeklyRankingsPageBody: FC<PageProps<"/weekly">> = async ({ searchParams }
                 type="Games"
               />
             </div>
+            {!!myWeeklyRank && (
+              <div className="-order-1 md:order-none w-full px-3 pb-2 text-center md:text-right">
+                <ShareButton
+                  imageUrl={`/api/share/week/${selectedWeek}`}
+                  label="Share my result"
+                  text={buildWeekResultShareText(selectedWeek, myWeeklyRank.Rank, myWeeklyRank.Tied === 1)}
+                  title={`My week ${selectedWeek} result`}
+                />
+              </div>
+            )}
             <RetryableSection title="the weekly rankings">
               <Crossfade>
                 <WeeklyRankingsTable selectedWeek={selectedWeek} />
