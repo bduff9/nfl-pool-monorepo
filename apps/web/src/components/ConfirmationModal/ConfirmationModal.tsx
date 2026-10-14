@@ -25,7 +25,7 @@ import {
 } from "@nfl-pool-monorepo/ui/components/dialog";
 import { LoaderCircle } from "lucide-react";
 import type { FC, ReactNode } from "react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 type ConfirmationModalProps = {
@@ -47,12 +47,14 @@ const ConfirmationModal: FC<ConfirmationModalProps> = ({
 }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(true);
+  const accepted = useRef<boolean>(false);
 
   const handleAccept = async (): Promise<void> => {
     setLoading(true);
 
     try {
       await onAccept();
+      accepted.current = true;
       setOpen(false);
     } catch (error) {
       console.error("Failed to confirm action", error);
@@ -64,14 +66,21 @@ const ConfirmationModal: FC<ConfirmationModalProps> = ({
     setLoading(false);
   };
 
-  const handleCancel = async (): Promise<void> => {
-    await onCancel();
+  const handleCancel = (): void => {
     setOpen(false);
+  };
+
+  // Radix calls this once the dialog has closed and finished animating out. Cancelling (the button, Escape or a tap
+  // outside) only tells the caller now, since callers unmount the modal on cancel, which would cut its close animation.
+  const handleCloseAutoFocus = (): void => {
+    if (!accepted.current) {
+      void onCancel();
+    }
   };
 
   return (
     <Dialog onOpenChange={setOpen} open={open}>
-      <DialogContent>
+      <DialogContent onCloseAutoFocus={handleCloseAutoFocus}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>

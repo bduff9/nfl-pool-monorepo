@@ -601,6 +601,67 @@
   view-transition-name: none !important;
 }
 
+/* Dialogs, alerts and the phone sidebar sheet (packages/ui) stay on top through any view transition that runs while they
+   are on screen, including their close animation: a refresh or re-sort inside the page, or a page change from a link in
+   the closing phone sidebar. Unnamed they are drawn in the root snapshot, under the pinned chrome and the scrim (which
+   would pop up through the dimmed overlay and darken the dialog) and under the sliding pages (which would hide the
+   closing sidebar at once). Each layer is named and shown live above everything, so it keeps animating as on screen.
+   One name per kind, since an alert can open over the sheet. */
+[data-slot="sheet-overlay"] {
+  view-transition-name: sheet-overlay;
+}
+
+[data-mobile="true"][data-sidebar="sidebar"] {
+  view-transition-name: sheet-content;
+}
+
+[data-slot="dialog-overlay"] {
+  view-transition-name: dialog-overlay;
+}
+
+[data-slot="dialog-content"] {
+  view-transition-name: dialog-content;
+}
+
+[data-slot="alert-dialog-overlay"] {
+  view-transition-name: alert-dialog-overlay;
+}
+
+[data-slot="alert-dialog-content"] {
+  view-transition-name: alert-dialog-content;
+}
+
+::view-transition-group(sheet-overlay),
+::view-transition-group(sheet-content),
+::view-transition-group(dialog-overlay),
+::view-transition-group(dialog-content),
+::view-transition-group(alert-dialog-overlay),
+::view-transition-group(alert-dialog-content) {
+  z-index: 101;
+  animation: none;
+}
+
+/* The live new image only; one that has already gone is not frozen on screen. Hidden by opacity, not display (see
+   .row-move). */
+::view-transition-old(sheet-overlay),
+::view-transition-old(sheet-content),
+::view-transition-old(dialog-overlay),
+::view-transition-old(dialog-content),
+::view-transition-old(alert-dialog-overlay),
+::view-transition-old(alert-dialog-content) {
+  opacity: 0;
+  animation: none;
+}
+
+::view-transition-new(sheet-overlay),
+::view-transition-new(sheet-content),
+::view-transition-new(dialog-overlay),
+::view-transition-new(dialog-content),
+::view-transition-new(alert-dialog-overlay),
+::view-transition-new(alert-dialog-content) {
+  animation: none;
+}
+
 ::view-transition-group(page-scrim) {
   z-index: -1;
   animation: none;
