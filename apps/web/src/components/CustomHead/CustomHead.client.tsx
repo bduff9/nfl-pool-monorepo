@@ -20,8 +20,10 @@ import "client-only";
 
 import { Alert, AlertTitle } from "@nfl-pool-monorepo/ui/components/alert";
 import type { FC } from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import { LuCircleAlert } from "react-icons/lu";
+
+import { getAlertsSnapshot, getServerAlertsSnapshot, rememberAlerts, subscribeToAlerts } from "./alertsHandoff";
 
 type Props = {
   alerts: string[];
@@ -56,6 +58,14 @@ const CustomHeadClient: FC<Props> = ({ alerts, title }) => {
     };
   }, [alerts, title]);
 
+  useEffect(() => {
+    rememberAlerts(alerts);
+  }, [alerts]);
+
+  return <AlertList alerts={alerts} />;
+};
+
+const AlertList: FC<{ alerts: readonly string[] }> = ({ alerts }) => {
   if (alerts.length === 0) {
     return null;
   }
@@ -71,5 +81,10 @@ const CustomHeadClient: FC<Props> = ({ alerts, title }) => {
     </div>
   );
 };
+
+/** The alerts the last page showed, for a loading skeleton, so the content below it does not move when they load. */
+export const HandedOffAlerts: FC = () => (
+  <AlertList alerts={useSyncExternalStore(subscribeToAlerts, getAlertsSnapshot, getServerAlertsSnapshot)} />
+);
 
 export default CustomHeadClient;
