@@ -27,12 +27,13 @@ import {
   DropdownMenuTrigger,
 } from "@nfl-pool-monorepo/ui/components/dropdown-menu";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
-import { type FC, useState } from "react";
+import { addTransitionType, type FC, startTransition, useRef, useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
 
 import ViewAllModal from "@/components/ViewAllModal/ViewAllModal";
 import ViewAllTable from "@/components/ViewAllTable/ViewAllTable";
 import { sortPicks } from "@/lib/arrays";
+import { getGlidingRows, REORDER_TRANSITION } from "@/lib/rowMove";
 import type { getAllPicksForWeek } from "@/server/loaders/pick";
 import type { getWeeklyRankings } from "@/server/loaders/weeklyMv";
 
@@ -86,6 +87,19 @@ const ViewModeToggle: FC<ViewModeToggleProps> = ({ isLive, mode, onOpenModal, on
   );
 };
 
+// Whether the row at each place of the table is wholly inside the table's scroll container (the desktop table scrolls on
+// its own; the phone one only sideways, so all its places count)
+const getPlaceInView = (container: HTMLElement | null) => {
+  const bounds = container?.getBoundingClientRect();
+  const rows = container?.querySelectorAll("tbody > tr");
+
+  return (index: number): boolean => {
+    const row = rows?.[index]?.getBoundingClientRect();
+
+    return !!bounds && !!row && row.top >= bounds.top - 1 && row.bottom <= bounds.bottom + 1;
+  };
+};
+
 type Props = {
   currentUserId: number;
   gamesForWeek: Awaited<ReturnType<typeof getGamesForWeek>>;
@@ -100,13 +114,29 @@ const ViewAllPicksClient: FC<Props> = ({ currentUserId, gamesForWeek, picksForWe
     Awaited<ReturnType<typeof getGamesForWeek>>[number]
   > | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [glidingUserIds, setGlidingUserIds] = useState<Set<number>>(() => new Set());
+  const tableRef = useRef<HTMLDivElement>(null);
 
   const isLive = mode === "Live Results";
   const { games, isShowingCustomGames } = resolveViewAllGames({ customGames, gamesForWeek, isLive });
+  const ranks = isShowingCustomGames ? sortPicks(picksForWeek, games, weeklyRankings) : weeklyRankings;
 
+  // Called once the modal has closed, so the rows that change place glide to it over the page rather than under the
+  // closing modal
   const saveModalChanges = (updatedGames: Awaited<ReturnType<typeof getGamesForWeek>>): void => {
-    setCustomGames(updateGames(updatedGames));
-    setIsModalOpen(false);
+    const newGames = updateGames(updatedGames);
+    const newRanks = sortPicks(picksForWeek, newGames, weeklyRankings);
+    const gliding = getGlidingRows(
+      ranks.map(({ UserID }) => UserID),
+      newRanks.map(({ UserID }) => UserID),
+      getPlaceInView(tableRef.current?.querySelector<HTMLElement>("[data-slot='table-container']") ?? null),
+    );
+
+    startTransition(() => {
+      addTransitionType(REORDER_TRANSITION);
+      setGlidingUserIds(gliding);
+      setCustomGames(newGames);
+    });
   };
 
   const handleOpenModal = () => {
@@ -136,12 +166,13 @@ const ViewAllPicksClient: FC<Props> = ({ currentUserId, gamesForWeek, picksForWe
           onSelectWhatIf={handleSelectWhatIfMode}
         />
       </div>
-      <div className="w-full">
+      <div className="w-full" ref={tableRef}>
         <ViewAllTable
           currentUserId={currentUserId}
           games={games}
+          glidingUserIds={glidingUserIds}
           picks={picksForWeek}
-          ranks={isShowingCustomGames ? sortPicks(picksForWeek, games, weeklyRankings) : weeklyRankings}
+          ranks={ranks}
         />
       </div>
       {!isLive && (

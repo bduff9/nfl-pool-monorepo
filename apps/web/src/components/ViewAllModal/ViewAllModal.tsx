@@ -31,7 +31,7 @@ import {
 } from "@nfl-pool-monorepo/ui/components/dialog";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import Image from "next/image";
-import { type FC, useEffect, useState } from "react";
+import { type FC, useEffect, useRef, useState } from "react";
 import { PiAtDuotone } from "react-icons/pi";
 
 import { getWinnerButtonClasses, getWinnerTeamDisplay, type WinnerTeam } from "./viewAllModalHelpers";
@@ -40,6 +40,7 @@ type Props = {
   closeModal: (open: boolean) => void;
   games: Awaited<ReturnType<typeof getGamesForWeek>>;
   isOpen: boolean;
+  // Called once the modal has finished closing after a save
   saveChanges: (games: Awaited<ReturnType<typeof getGamesForWeek>>) => void;
 };
 
@@ -68,6 +69,7 @@ const TeamWinnerButton: FC<TeamWinnerButtonProps> = ({ gameID, isSelected, onSel
 
 const ViewAllModal: FC<Props> = ({ closeModal, games, isOpen, saveChanges }) => {
   const [customGames, setCustomGames] = useState<Awaited<ReturnType<typeof getGamesForWeek>>>(() => games);
+  const savedGames = useRef<Awaited<ReturnType<typeof getGamesForWeek>> | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -111,12 +113,21 @@ const ViewAllModal: FC<Props> = ({ closeModal, games, isOpen, saveChanges }) => 
   };
 
   const handleSaveClick = () => {
-    saveChanges(customGames);
+    savedGames.current = customGames;
+    closeModal(false);
+  };
+
+  // Radix calls this once the content has unmounted, after its close animation
+  const handleCloseAutoFocus = () => {
+    if (savedGames.current) {
+      saveChanges(savedGames.current);
+      savedGames.current = null;
+    }
   };
 
   return (
     <Dialog onOpenChange={closeModal} open={isOpen}>
-      <DialogContent>
+      <DialogContent onCloseAutoFocus={handleCloseAutoFocus}>
         <DialogHeader>
           <DialogTitle className="text-center">What If Version</DialogTitle>
           <DialogDescription className="text-center">

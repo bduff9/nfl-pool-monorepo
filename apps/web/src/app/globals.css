@@ -544,9 +544,11 @@
    drawn over the root and dim the whole page while the transition runs. The badge is matched by the name React puts on
    it for the transition, since a failed pick's hop back can be committed with the save's own (untyped) transition. A
    refresh that animates live data in place (lib/refreshTransition) is the same, and so are the picks board's point
-   chips, matched by name too since an auto pick arrives in its save's own transition. */
+   chips, matched by name too since an auto pick arrives in its save's own transition. And a table re-sorted in place
+   (lib/rowMove). */
 :root:active-view-transition-type(survivor-detail) [data-page-scrim],
 :root:active-view-transition-type(refresh) [data-page-scrim],
+:root:active-view-transition-type(reorder) [data-page-scrim],
 :root:active-view-transition-type(matchup-swap) [data-page-scrim],
 :root:has([style*="survivor-week-badge"]) [data-page-scrim],
 :root:has([style*="pick-point-"]) [data-page-scrim] {
@@ -574,6 +576,24 @@
 
 ::view-transition-old(.pick-point):only-child {
   opacity: 0;
+}
+
+/* Table rows (RankingsTable, ViewAllTable) glide to their new place when the order changes, decelerating into it. The row
+   travels as it was and shows its new values (rank, points) once it lands, so its text never crossfades into a blur of
+   two numbers on the way. */
+::view-transition-group(.row-move) {
+  animation-duration: var(--duration-move);
+  animation-timing-function: var(--ease-out-quint);
+}
+
+::view-transition-old(.row-move) {
+  animation: none;
+}
+
+/* Hidden by opacity: display: none on a new image crashes WebKit (measured in Playwright's WebKit build) */
+::view-transition-new(.row-move) {
+  opacity: 0;
+  animation: none;
 }
 
 [data-out-of-view] [data-rfd-draggable-id] {

@@ -23,13 +23,16 @@ import { Skeleton } from "@nfl-pool-monorepo/ui/components/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@nfl-pool-monorepo/ui/components/table";
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import Image from "next/image";
-import type { FC } from "react";
+import { type FC, ViewTransition } from "react";
 
+import { REORDER_TRANSITION, ROW_MOVE } from "@/lib/rowMove";
 import type { getAllPicksForWeek } from "@/server/loaders/pick";
 import type { getWeeklyRankings } from "@/server/loaders/weeklyMv";
 
 type Props = {
   currentUserId: number;
+  // The users whose rows glide to their new place in a "What If" re-sort (see getGlidingRows)
+  glidingUserIds: Set<number>;
   games: Record<number, Awaited<ReturnType<typeof getGamesForWeek>>[number]>;
   picks: Awaited<ReturnType<typeof getAllPicksForWeek>>;
   ranks: Awaited<ReturnType<typeof getWeeklyRankings>>;
@@ -57,7 +60,7 @@ const getPoolPercentage = (
 };
 
 // fallow-ignore-next-line complexity -- aggregation loop plus row/cell render helpers; row rendering extracted to named functions
-const ViewAllTable: FC<Props> = ({ currentUserId, games, picks, ranks }) => {
+const ViewAllTable: FC<Props> = ({ currentUserId, glidingUserIds, games, picks, ranks }) => {
   // Share of the pool (users with a pick on the game) that picked each team, per game.
   const pickCountsByGameTeam = new Map<string, number>();
   const totalPicksByGame = new Map<number, number>();
@@ -136,63 +139,73 @@ const ViewAllTable: FC<Props> = ({ currentUserId, games, picks, ranks }) => {
   const renderRow = (user: Awaited<ReturnType<typeof getWeeklyRankings>>[number]) => {
     const userPicks = picks.filter((pick) => pick.UserID === user.UserID);
 
+    // Only a re-sort (REORDER_TRANSITION) moves a row, and only the rows that change place glide, so nothing else that
+    // re-renders the table (a refresh, a week change) names its rows
     return (
-      <TableRow
-        className={cn(user.UserID === currentUserId && "bg-yellow-200 [&_*]:text-black")}
+      <ViewTransition
+        default="none"
         key={`picks-for-user-${user.UserID}`}
+        name={`viewall-row-${user.UserID}`}
+        update={glidingUserIds.has(user.UserID) ? { default: "none", [REORDER_TRANSITION]: ROW_MOVE } : "none"}
       >
-        <TableHead
-          className={cn(
-            "text-foreground font-semibold sticky left-0 z-[1] text-nowrap",
-            user.UserID === currentUserId ? "bg-yellow-200 [&_*]:text-black" : "bg-card",
-          )}
-          scope="row"
-        >
-          {user.Tied === 1 && "T"}
-          {user.Rank}. {user.UserName}
-          <div className="hidden md:block">
-            <span className="invisible">
-              {user.Tied === 1 && "T"}
-              {user.Rank}.
-            </span>{" "}
-            {user.TeamName}
-          </div>
-          <div className="flex md:hidden font-light justify-between">
-            <div title="Points Earned">
-              PE
-              <br />
-              {user.PointsEarned}
+        <TableRow className={cn("[&>*]:border-b", user.UserID === currentUserId && "bg-yellow-200 [&_*]:text-black")}>
+          <TableHead
+            className={cn(
+              "text-foreground font-semibold sticky left-0 z-[1] text-nowrap",
+              user.UserID === currentUserId ? "bg-yellow-200 [&_*]:text-black" : "bg-card",
+            )}
+            scope="row"
+          >
+            {user.Tied === 1 && "T"}
+            {user.Rank}. {user.UserName}
+            <div className="hidden md:block">
+              <span className="invisible">
+                {user.Tied === 1 && "T"}
+                {user.Rank}.
+              </span>{" "}
+              {user.TeamName}
             </div>
-            <div title="Games Correct">
-              GC
-              <br />
-              {user.GamesCorrect}
+            <div className="flex md:hidden font-light justify-between">
+              <div title="Points Earned">
+                PE
+                <br />
+                {user.PointsEarned}
+              </div>
+              <div title="Games Correct">
+                GC
+                <br />
+                {user.GamesCorrect}
+              </div>
+              <div title="My Tiebreaker">
+                MT
+                <br />
+                {user.TiebreakerScore}
+              </div>
+              <div title="Actual Score">
+                AS
+                <br />
+                {user.LastScore}
+              </div>
             </div>
-            <div title="My Tiebreaker">
-              MT
-              <br />
-              {user.TiebreakerScore}
-            </div>
-            <div title="Actual Score">
-              AS
-              <br />
-              {user.LastScore}
-            </div>
-          </div>
-        </TableHead>
-        {userPicks.map(renderPickCell)}
-        <TableCell className="hidden md:table-cell text-center">{user.PointsEarned}</TableCell>
-        <TableCell className="hidden md:table-cell text-center">{user.GamesCorrect}</TableCell>
-        <TableCell className="hidden md:table-cell text-center">{user.TiebreakerScore}</TableCell>
-        <TableCell className="hidden md:table-cell text-center">{user.LastScore}</TableCell>
-      </TableRow>
+          </TableHead>
+          {userPicks.map(renderPickCell)}
+          <TableCell className="hidden md:table-cell text-center">{user.PointsEarned}</TableCell>
+          <TableCell className="hidden md:table-cell text-center">{user.GamesCorrect}</TableCell>
+          <TableCell className="hidden md:table-cell text-center">{user.TiebreakerScore}</TableCell>
+          <TableCell className="hidden md:table-cell text-center">{user.LastScore}</TableCell>
+        </TableRow>
+      </ViewTransition>
     );
   };
 
   return (
-    <Table className="align-middle" parentClassName="rounded max-w-[98vw] md:max-h-[98vh] md:overflow-scroll">
+    // Separate borders, drawn by the cells, so a gliding row carries its divider with it (see RankingsTable)
+    <Table
+      className="align-middle border-separate border-spacing-0"
+      parentClassName="rounded max-w-[98vw] md:max-h-[98vh] md:overflow-scroll"
+    >
       <TableHeader>
-        <TableRow className="hover:bg-transparent">
+        <TableRow className="hover:bg-transparent [&>*]:border-b">
           <TableHead className={cn("sticky top-0 left-0 z-[2] opacity-0")} />
           {Array.from({ length: Object.keys(games).length }).map((_, i) => (
             <TableHead
@@ -229,7 +242,7 @@ const ViewAllTable: FC<Props> = ({ currentUserId, games, picks, ranks }) => {
           </TableHead>
         </TableRow>
       </TableHeader>
-      <TableBody className="bg-muted/80">{ranks.map(renderRow)}</TableBody>
+      <TableBody className="bg-muted/80 [&>tr:last-child>*]:border-b-0">{ranks.map(renderRow)}</TableBody>
     </Table>
   );
 };
