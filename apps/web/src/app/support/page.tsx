@@ -79,7 +79,7 @@ const FAQCategoryHeading: FC<{ category: null | string }> = ({ category }) => (
 );
 
 const FAQEntry: FC<{ faq: FuseResult<Selectable<SupportContent>> }> = ({ faq }) => (
-  <details className="text-emerald-600 ml-20 mb-3">
+  <details className="disclosure text-emerald-600 ml-20 mb-3">
     <summary className="text-foreground -ml-12 py-3 md:py-0">
       <FuseHighlight attribute="SupportContentDescription" hit={faq} />
     </summary>

@@ -77,7 +77,7 @@ const NavSection: FC<NavSectionProps> = ({ children, currentPage, title }) => (
           <LuChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
         </CollapsibleTrigger>
       </SidebarGroupLabel>
-      <CollapsibleContent>
+      <CollapsibleContent className="overflow-hidden motion-safe:data-[state=closed]:animate-collapsible-up motion-safe:data-[state=open]:animate-collapsible-down">
         <SidebarGroupContent>{children}</SidebarGroupContent>
       </CollapsibleContent>
     </SidebarGroup>

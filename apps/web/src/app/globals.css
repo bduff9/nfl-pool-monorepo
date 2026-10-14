@@ -184,6 +184,8 @@
   --color-google-logo-red: #ea4335;
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-collapsible-down: collapsible-down 0.2s ease-out;
+  --animate-collapsible-up: collapsible-up 0.2s ease-out;
 
   @keyframes accordion-down {
     from {
@@ -198,6 +200,26 @@
   @keyframes accordion-up {
     from {
       height: var(--radix-accordion-content-height);
+    }
+
+    to {
+      height: 0;
+    }
+  }
+
+  @keyframes collapsible-down {
+    from {
+      height: 0;
+    }
+
+    to {
+      height: var(--radix-collapsible-content-height);
+    }
+  }
+
+  @keyframes collapsible-up {
+    from {
+      height: var(--radix-collapsible-content-height);
     }
 
     to {
@@ -578,6 +600,44 @@ a:has(> [data-link-pending]) {
     translate var(--duration-enter) ease-in,
     opacity var(--duration-enter) ease-in,
     visibility 0s var(--duration-enter);
+}
+
+/* Switching tabs fades the new panel in. Radix zeroes the animation for the panel shown on mount, so it only plays on a
+   switch. The segmented controls' selected pill fades between options rather than jumping. */
+@keyframes tab-content-in {
+  from {
+    opacity: 0;
+    translate: 0 4px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-slot="tabs-content"][data-state="active"] {
+    animation: tab-content-in 150ms ease-out;
+  }
+
+  [data-slot="tabs-trigger"] {
+    transition-property: color, box-shadow, background-color, border-color;
+  }
+}
+
+/* FAQ answers (support page) unroll instead of snapping open, where the browser can animate to an auto height */
+@media (prefers-reduced-motion: no-preference) {
+  .disclosure {
+    interpolate-size: allow-keywords;
+  }
+
+  .disclosure::details-content {
+    block-size: 0;
+    overflow-y: clip;
+    transition:
+      block-size 250ms var(--ease-out-quint),
+      content-visibility 250ms allow-discrete;
+  }
+
+  .disclosure[open]::details-content {
+    block-size: auto;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
