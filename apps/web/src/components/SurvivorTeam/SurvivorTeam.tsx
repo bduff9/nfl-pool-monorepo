@@ -89,6 +89,7 @@ const SurvivorTeam: FC<Props> = ({
   return (
     <button
       className={getSurvivorTeamClasses(stateClasses, isOnBye)}
+      data-pressable="scale"
       disabled={isSurvivorTeamDisabled(!!onClick, !!pick, loading)}
       onClick={onClick}
       type="button"

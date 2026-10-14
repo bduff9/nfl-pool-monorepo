@@ -40,14 +40,14 @@ const SubmissionStatus: FC<{ hasSubmitted: boolean }> = ({ hasSubmitted }) =>
   hasSubmitted ? (
     <>
       <div className="text-green-600">You have submitted your picks</div>
-      <WeekLink className="inline-block py-2.5 underline" href="/picks/view">
+      <WeekLink className="inline-block py-2.5 underline" data-pressable href="/picks/view">
         View my picks
       </WeekLink>
     </>
   ) : (
     <>
       <div className="text-red-600">You have not submitted your picks yet!</div>
-      <WeekLink className="inline-block py-2.5 underline" href="/picks/set">
+      <WeekLink className="inline-block py-2.5 underline" data-pressable href="/picks/set">
         Make my picks
       </WeekLink>
     </>
@@ -55,7 +55,7 @@ const SubmissionStatus: FC<{ hasSubmitted: boolean }> = ({ hasSubmitted }) =>
 
 const RankDetails: FC<{ hasRank: boolean; weekStart: Date }> = ({ hasRank, weekStart }) =>
   hasRank ? (
-    <WeekLink className="inline-block py-2.5 underline" href="/weekly">
+    <WeekLink className="inline-block py-2.5 underline" data-pressable href="/weekly">
       View Details
     </WeekLink>
   ) : (

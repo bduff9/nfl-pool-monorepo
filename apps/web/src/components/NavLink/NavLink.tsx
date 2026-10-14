@@ -58,6 +58,7 @@ const NavLink: FC<NavLinkProps> = ({
     return (
       <WeekLink
         className={getNavLinkClassName("inline-block w-full py-2 rounded text-2xl font-medium", isActive, isNested)}
+        data-pressable
         href={href}
         onClick={handleLinkClick}
         prefetch={true}
@@ -71,6 +72,7 @@ const NavLink: FC<NavLinkProps> = ({
   return (
     <button
       className={getNavLinkClassName("text-left w-full py-2 rounded cursor-pointer", isActive, isNested)}
+      data-pressable
       onClick={onClick}
       type="button"
     >

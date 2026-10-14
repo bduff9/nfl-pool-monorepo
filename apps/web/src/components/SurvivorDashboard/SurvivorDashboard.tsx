@@ -57,7 +57,7 @@ const PickStatusMessage: FC<{ hasPick: boolean; isAlive: boolean }> = ({ hasPick
 // SurvivorDashboardLoader can put its skeleton exactly there
 const ViewDetailsLink: FC<{ hasSurvivorMv: boolean }> = ({ hasSurvivorMv }) =>
   hasSurvivorMv ? (
-    <WeekLink className={cn("block py-2.5 underline")} href="/survivor/view">
+    <WeekLink className={cn("block py-2.5 underline")} data-pressable href="/survivor/view">
       View Details
     </WeekLink>
   ) : (
@@ -66,7 +66,7 @@ const ViewDetailsLink: FC<{ hasSurvivorMv: boolean }> = ({ hasSurvivorMv }) =>
 
 const MakePickLink: FC<{ hasPick: boolean; isAlive: boolean }> = ({ hasPick, isAlive }) =>
   isAlive && !hasPick ? (
-    <WeekLink className={cn("block py-2.5 underline md:mb-1")} href="/survivor/set">
+    <WeekLink className={cn("block py-2.5 underline md:mb-1")} data-pressable href="/survivor/set">
       Click here to make your pick
     </WeekLink>
   ) : (

@@ -48,7 +48,7 @@ const OverallDashboardDetails: FC<OverallDashboardDetailsProps> = ({
   return (
     <>
       <div className="mb-12">
-        <WeekLink className="inline-block py-2.5 underline" href="/overall">
+        <WeekLink className="inline-block py-2.5 underline" data-pressable href="/overall">
           View Details
         </WeekLink>
       </div>

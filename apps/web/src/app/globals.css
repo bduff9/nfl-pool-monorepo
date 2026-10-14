@@ -503,3 +503,42 @@ a:has(> [data-link-pending]) {
   opacity: 0.6;
   transition: opacity 150ms ease;
 }
+
+/* Press feedback on touch screens, where nothing else acknowledges a tap until the next page starts to arrive (the tap
+   highlight is turned off above). Opt in with data-pressable: links and rows dim like an iOS control, and
+   data-pressable="scale" surfaces (team tiles) also sink slightly. It comes on quickly and eases off. Mouse users keep
+   their hover styles instead. The shared Button dims too, on its own transition. */
+@media (hover: none) {
+  [data-pressable] {
+    transition:
+      opacity 200ms ease-out,
+      scale 200ms var(--ease-out-quint);
+  }
+
+  [data-pressable]:active:not(:disabled),
+  [data-slot="button"]:active {
+    opacity: 0.6;
+    transition-duration: 80ms;
+  }
+
+  [data-pressable="scale"]:active:not(:disabled) {
+    scale: 0.97;
+  }
+
+  /* A press that starts a view transition must not be captured half sunk: a shared element inside it (the survivor
+     week badge) would be measured smaller than where it settles */
+  :root:active-view-transition [data-pressable] {
+    scale: none;
+    transition: none;
+  }
+}
+
+@media (hover: none) and (prefers-reduced-motion: reduce) {
+  [data-pressable] {
+    transition: none;
+  }
+
+  [data-pressable="scale"]:active:not(:disabled) {
+    scale: none;
+  }
+}
