@@ -63,3 +63,17 @@ const proxyChange = (request: NextRequest): NextResponse =>
 
 export const proxy = (request: NextRequest): NextResponse =>
   isReadMethod(request.method) ? proxyRead(request) : proxyChange(request);
+
+// Prefetches skip the proxy, so merely prefetching a link never overwrites where a signed-out visitor was headed. Next
+// strips its router headers before the proxy runs, so only the matcher can tell a prefetch apart from a navigation.
+export const config = {
+  matcher: [
+    {
+      missing: [
+        { key: "next-router-prefetch", type: "header" },
+        { key: "purpose", type: "header", value: "prefetch" },
+      ],
+      source: "/:path*",
+    },
+  ],
+};

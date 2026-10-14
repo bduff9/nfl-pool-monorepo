@@ -1,7 +1,8 @@
+import { unstable_doesMiddlewareMatch } from "next/experimental/testing/server";
 import { NextRequest } from "next/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { proxy } from "./proxy";
+import { config, proxy } from "./proxy";
 
 const ORIGIN = "https://pool.example.com";
 
@@ -89,5 +90,27 @@ describe("proxy on changes", () => {
       proxy(request("/x", { headers: { host: "pool.example.com", origin: "https://evil.example.com" }, method }))
         .status,
     ).toBe(403);
+  });
+});
+
+describe("proxy matcher", () => {
+  const runsFor = (url: string, headers: Record<string, string> = {}) =>
+    unstable_doesMiddlewareMatch({ config, headers, url });
+
+  it.each([
+    ["a page load", "/weekly?week=1", { "sec-fetch-mode": "navigate" }],
+    ["a client navigation", "/weekly?week=1", { "next-router-state-tree": "%5B%5D", rsc: "1" }],
+    ["a server action", "/picks/set", { "next-action": "abc", origin: ORIGIN }],
+    ["the service worker", "/serwist/sw.js", {}],
+  ])("runs for %s", (_label, url, headers) => {
+    expect(runsFor(url, headers)).toBe(true);
+  });
+
+  it.each([
+    ["a route tree prefetch", { "next-router-prefetch": "1", "next-router-segment-prefetch": "/_tree", rsc: "1" }],
+    ["a runtime prefetch", { "next-router-prefetch": "3", rsc: "1" }],
+    ["a browser prefetch", { purpose: "prefetch" }],
+  ])("skips %s, so prefetching a link never replaces the remembered destination", (_label, headers) => {
+    expect(runsFor("/support", headers)).toBe(false);
   });
 });
