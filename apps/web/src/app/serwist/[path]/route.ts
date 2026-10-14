@@ -51,8 +51,17 @@ const getServiceWorkerFile = async (filePath: string): Promise<{ body: string; h
   return { body: await response.text(), headers: [...response.headers] };
 };
 
+// The only files the route bundles. Anything else is answered before the cache, so it never stores an entry for it.
+const SERVICE_WORKER_FILES = new Set(["sw.js", "sw.js.map"]);
+
 export const GET = async (_request: Request, { params }: RouteContext<"/serwist/[path]">): Promise<Response> => {
-  const { body, headers } = await getServiceWorkerFile((await params).path);
+  const { path: filePath } = await params;
+
+  if (!SERVICE_WORKER_FILES.has(filePath)) {
+    return new Response(null, { status: 404 });
+  }
+
+  const { body, headers } = await getServiceWorkerFile(filePath);
 
   return new Response(body, { headers });
 };

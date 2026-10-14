@@ -85,7 +85,7 @@ describe("proxy on changes", () => {
     expect(isPassedThrough(response)).toBe(false);
   });
 
-  it.each(["PUT", "PATCH", "DELETE"])("checks the origin on %s too", (method) => {
+  it.each(["PUT", "PATCH", "DELETE", "OPTIONS"])("checks the origin on %s too", (method) => {
     expect(
       proxy(request("/x", { headers: { host: "pool.example.com", origin: "https://evil.example.com" }, method }))
         .status,
@@ -102,6 +102,16 @@ describe("proxy matcher", () => {
     ["a client navigation", "/weekly?week=1", { "next-router-state-tree": "%5B%5D", rsc: "1" }],
     ["a server action", "/picks/set", { "next-action": "abc", origin: ORIGIN }],
     ["the service worker", "/serwist/sw.js", {}],
+    ["the root page", "/", { "sec-fetch-mode": "navigate" }],
+    [
+      "a cross-site preflight asking to send a prefetch header",
+      "/picks/set",
+      {
+        "access-control-request-headers": "next-action,next-router-prefetch",
+        "access-control-request-method": "POST",
+        origin: "https://evil.example.com",
+      },
+    ],
   ])("runs for %s", (_label, url, headers) => {
     expect(runsFor(url, headers)).toBe(true);
   });
