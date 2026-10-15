@@ -117,7 +117,7 @@ const PageLoadingFallback: FC = () => (
 
 const RootLayout: FC<LayoutProps<"/">> = ({ children }) => {
   return (
-    <html className={cn("h-full", roboto.className)} lang="en" suppressHydrationWarning>
+    <html className={cn("h-full bg-[#0f0f0f]", roboto.className)} lang="en" suppressHydrationWarning>
       <head>
         {env.NEXT_PUBLIC_ENV === "production" && (
           <Script
@@ -135,7 +135,8 @@ const RootLayout: FC<LayoutProps<"/">> = ({ children }) => {
         )}
       </head>
 
-      <body className="h-full bg-background bg-[url('/bkgd-pitch.png')] bg-no-repeat bg-fixed bg-top bg-cover">
+      {/* The photo is 1 MB, so on a first visit the page shows its colour for a while: near-black like the photo's top, not the white theme background */}
+      <body className="h-full bg-[#0f0f0f] bg-[url('/bkgd-pitch.png')] bg-no-repeat bg-fixed bg-top bg-cover">
         <Providers>
           <Suspense fallback={null}>
             <LogRocketGate />
