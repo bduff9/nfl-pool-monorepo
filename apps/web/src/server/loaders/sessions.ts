@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import type { User } from "@nfl-pool-monorepo/types";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import { cache } from "react";
 
 export type Session = {
@@ -72,6 +73,10 @@ async function validateSessionToken(token: string): Promise<SessionValidationRes
 export const getCurrentSession = cache(async (): Promise<SessionValidationResult> => {
   const cookieStore = await cookies();
   const token = cookieStore.get("session")?.value ?? null;
+
+  // Every page reads the session before its uncached DB reads, so this keeps them all out of the prefetch (runtime)
+  // stage, where mysql2 opening a new pool connection calls Date.now() and Next logs an "unstable value" error.
+  await connection();
 
   if (!token) {
     return { session: null, user: null };
