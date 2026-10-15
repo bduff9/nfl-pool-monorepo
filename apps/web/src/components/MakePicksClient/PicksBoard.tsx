@@ -11,6 +11,9 @@ import PickGame, { Point } from "../PickGame/PickGame";
 import TeamDetail from "../TeamDetail/TeamDetail";
 import type { LoadingType } from "./MakePicksClient";
 
+// The list scrolls itself while dragging (see useDragAutoScroll), so dnd's own auto-scroll is off
+const AUTO_SCROLLER_OPTIONS = { disabled: true };
+
 type PicksBoardProps = {
   available: Array<number>;
   children?: ReactNode;
@@ -113,6 +116,37 @@ const PickGameRow: FC<PickGameRowProps> = ({
   );
 };
 
+type PointBankProps = {
+  available: Array<number>;
+  loading: LoadingType | null;
+  pointCount: number;
+};
+
+const PointBank: FC<PointBankProps> = ({ available, loading, pointCount }) => (
+  <Droppable direction="horizontal" droppableId="pointBank">
+    {(provided, snapshot) => (
+      <div
+        className={cn(
+          "w-full flex flex-wrap justify-center items-center p-3 mb-3 min-h-[92px] shrink-0 bg-muted border-2 border-foreground gap-1",
+          snapshot.isDraggingOver && "bg-blue-300",
+        )}
+        ref={provided.innerRef}
+      >
+        {available.map((point, index) => (
+          <Point
+            index={index}
+            isDragDisabled={loading !== null}
+            key={`point-${point}`}
+            maxValue={pointCount}
+            value={point}
+          />
+        ))}
+        {provided.placeholder}
+      </div>
+    )}
+  </Droppable>
+);
+
 export const PicksBoard: FC<PicksBoardProps> = ({
   available,
   children,
@@ -134,29 +168,8 @@ export const PicksBoard: FC<PicksBoardProps> = ({
   // window, so a sticky bank's drop zone drifts away from where it is drawn. Instead the bank stays in normal flow and
   // only the game list scrolls, filling the rest of the viewport-height page (see the picks page wrapper).
   return (
-    <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragStart}>
-      <Droppable direction="horizontal" droppableId="pointBank">
-        {(provided, snapshot) => (
-          <div
-            className={cn(
-              "w-full flex flex-wrap justify-center items-center p-3 mb-3 min-h-[92px] shrink-0 bg-muted border-2 border-foreground gap-1",
-              snapshot.isDraggingOver && "bg-blue-300",
-            )}
-            ref={provided.innerRef}
-          >
-            {available.map((point, index) => (
-              <Point
-                index={index}
-                isDragDisabled={loading !== null}
-                key={`point-${point}`}
-                maxValue={optimisticPicks.length}
-                value={point}
-              />
-            ))}
-            {provided.placeholder}
-          </div>
-        )}
-      </Droppable>
+    <DragDropContext autoScrollerOptions={AUTO_SCROLLER_OPTIONS} onDragEnd={onDragEnd} onDragStart={onDragStart}>
+      <PointBank available={available} loading={loading} pointCount={optimisticPicks.length} />
       <div className="w-full flex-1 min-h-0 overflow-y-auto overscroll-contain" ref={scrollerRef}>
         {optimisticPicks.map((pick) => (
           <PickGameRow
