@@ -4,7 +4,6 @@ import type { DragStart, DropResult } from "@hello-pangea/dnd";
 import { Input } from "@nfl-pool-monorepo/ui/components/input";
 import { Label } from "@nfl-pool-monorepo/ui/components/label";
 import { useSidebar } from "@nfl-pool-monorepo/ui/components/sidebar";
-import { cn } from "@nfl-pool-monorepo/utils/styles";
 
 import { onActionError } from "@/lib/actionErrorToast";
 import { hapticTap } from "@/lib/haptics";
@@ -81,8 +80,8 @@ const TiebreakerField: FC<TiebreakerFieldProps> = ({ error, lastGame, lastScore,
 const LoadingSpinner: FC<{ loading: LoadingType | null }> = ({ loading }) =>
   loading === null ? null : (
     <div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-      <div className={cn("size-40")} role="alert">
-        <PiFootballDuotone aria-hidden="true" className="animate-spin size-40 text-orange-950" />
+      <div role="alert">
+        <PiFootballDuotone aria-hidden="true" className="size-10 animate-spin text-primary" />
         <span className="sr-only">Loading...</span>
       </div>
     </div>
