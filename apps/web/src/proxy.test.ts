@@ -36,6 +36,17 @@ describe("proxy on reads", () => {
     expect(response.cookies.get("redirect_to")).toBeUndefined();
   });
 
+  it.each(["/auth/login", "/auth/logout", "/_next/static/chunks/a.js", "/football.svg"])(
+    "leaves the session cookie alone on %s",
+    (path) => {
+      const response = proxy(withSession(path));
+
+      expect(isPassedThrough(response)).toBe(true);
+      expect(response.cookies.get("session")).toBeUndefined();
+      expect(response.cookies.get("redirect_to")).toBeUndefined();
+    },
+  );
+
   it("marks the renewed session cookie secure in production", () => {
     vi.stubEnv("NODE_ENV", "production");
 

@@ -17,14 +17,10 @@
 import "server-only";
 
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
-import { type FC, Suspense } from "react";
+import type { FC } from "react";
 
 import LogoutClient from "@/components/LogoutClient/logout";
 import PageTransition from "@/components/ViewTransitions/PageTransition";
-import { requireLoggedIn } from "@/lib/auth";
-
-import AuthLoading from "../loading";
 
 const TITLE = "Logout";
 
@@ -32,25 +28,12 @@ export const metadata: Metadata = {
   title: TITLE,
 };
 
-const LogoutPageBody: FC<PageProps<"/auth/logout">> = async () => {
-  const redirectUrl = await requireLoggedIn();
-
-  if (redirectUrl) {
-    return redirect(redirectUrl);
-  }
-
-  return (
+// No login required: a visitor whose session already expired still holds a dead cookie, and signing out is what clears it
+const Logout: FC<PageProps<"/auth/logout">> = () => (
+  <PageTransition>
     <div className="text-center w-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
       <LogoutClient />
     </div>
-  );
-};
-
-const Logout: FC<PageProps<"/auth/logout">> = (props) => (
-  <PageTransition>
-    <Suspense fallback={<AuthLoading />}>
-      <LogoutPageBody {...props} />
-    </Suspense>
   </PageTransition>
 );
 

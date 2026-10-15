@@ -30,10 +30,12 @@ export const signOut = async (): Promise<void> => {
     }
 
     await invalidateSession(session.id);
-    // Deleting the cookie already makes the client drop its whole router cache. No server-cached data depends on
-    // who is signed in, so nothing is revalidated: a layout-wide revalidatePath also expired the service worker route.
-    await deleteSessionTokenCookie();
   }
+
+  // Cleared even when the session is already gone, or an expired cookie would linger (the proxy re-sets it). Deleting
+  // the cookie already makes the client drop its whole router cache. No server-cached data depends on who is signed
+  // in, so nothing is revalidated: a layout-wide revalidatePath also expired the service worker route.
+  await deleteSessionTokenCookie();
 
   // The redirect rides on the same response that deletes the cookie, so no later request can carry the old one back
   // (the proxy re-sets whatever session cookie a request sends). Replace, so Back doesn't return to /auth/logout.

@@ -43,14 +43,14 @@ describe("signOut", () => {
     vi.resetModules();
   });
 
-  it("replaces the route with login without touching the session when no user is logged in", async () => {
+  it("clears a stale cookie and replaces the route with login when no user is logged in", async () => {
     getCurrentSession.mockResolvedValue({ session: null, user: null });
 
     const { signOut } = await import("./sessions");
 
     await signOut();
     expect(invalidateSession).not.toHaveBeenCalled();
-    expect(deleteSessionTokenCookie).not.toHaveBeenCalled();
+    expect(deleteSessionTokenCookie).toHaveBeenCalled();
     expect(writeLog).not.toHaveBeenCalled();
     expect(redirect).toHaveBeenCalledWith("/auth/login", "replace");
   });

@@ -2,6 +2,9 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 const REDIRECT_TO_SKIP_PREFIXES = ["/_next", "/api", "/auth", "/login"];
+// Requests that can still be in flight when a sign-out clears the cookie (the login page and its assets) must not renew
+// it, or they bring the old cookie straight back
+const NO_RENEWAL_PREFIXES = ["/_next", "/auth/login", "/auth/logout"];
 const HAS_FILE_EXTENSION = /\.[a-zA-Z0-9]+$/;
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
 const REDIRECT_MAX_AGE_SECONDS = 60 * 10;
@@ -20,17 +23,21 @@ const isReadMethod = (method: string): boolean => method === "GET" || method ===
 const shouldRememberDestination = (pathname: string): boolean =>
   !(REDIRECT_TO_SKIP_PREFIXES.some((prefix) => pathname.startsWith(prefix)) || HAS_FILE_EXTENSION.test(pathname));
 
+const shouldRenewSession = (pathname: string): boolean =>
+  !(NO_RENEWAL_PREFIXES.some((prefix) => pathname.startsWith(prefix)) || HAS_FILE_EXTENSION.test(pathname));
+
 const proxyRead = (request: NextRequest): NextResponse => {
   const response = NextResponse.next();
   const token = request.cookies.get("session")?.value ?? null;
+  const { pathname, search } = request.nextUrl;
 
   if (token !== null) {
-    response.cookies.set("session", token, cookieOptions(SESSION_MAX_AGE_SECONDS));
+    if (shouldRenewSession(pathname)) {
+      response.cookies.set("session", token, cookieOptions(SESSION_MAX_AGE_SECONDS));
+    }
 
     return response;
   }
-
-  const { pathname, search } = request.nextUrl;
 
   if (shouldRememberDestination(pathname)) {
     response.cookies.set("redirect_to", `${pathname}${search}`, cookieOptions(REDIRECT_MAX_AGE_SECONDS));
