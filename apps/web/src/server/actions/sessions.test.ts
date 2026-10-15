@@ -43,29 +43,31 @@ describe("signOut", () => {
     vi.resetModules();
   });
 
-  it("redirects to login without touching the session when no user is logged in", async () => {
+  it("returns without touching the session when no user is logged in", async () => {
     getCurrentSession.mockResolvedValue({ session: null, user: null });
 
     const { signOut } = await import("./sessions");
-    await signOut();
 
+    await expect(signOut()).resolves.toEqual({ signedOut: true });
     expect(invalidateSession).not.toHaveBeenCalled();
+    expect(deleteSessionTokenCookie).not.toHaveBeenCalled();
     expect(writeLog).not.toHaveBeenCalled();
-    expect(redirect).toHaveBeenCalledWith("/auth/login");
+    expect(redirect).not.toHaveBeenCalled();
   });
 
-  it("logs, invalidates the session, clears the cookie, and redirects without revalidating any path", async () => {
+  it("logs, invalidates the session and clears the cookie, without revalidating or redirecting", async () => {
     getCurrentSession.mockResolvedValue({ session: { id: "s1" }, user: AUTHED_USER });
     mockDb.executeTakeFirstOrThrow.mockResolvedValueOnce({ UserName: "Test User" });
 
     const { signOut } = await import("./sessions");
-    await signOut();
+
+    await expect(signOut()).resolves.toEqual({ signedOut: true });
 
     expect(writeLog).toHaveBeenCalledWith(expect.objectContaining({ LogAction: "LOGOUT" }));
     expect(invalidateSession).toHaveBeenCalledWith("s1");
     expect(deleteSessionTokenCookie).toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
-    expect(redirect).toHaveBeenCalledWith("/auth/login");
+    expect(redirect).not.toHaveBeenCalled();
   });
 
   it("still signs the user out when writing the audit log fails", async () => {
@@ -74,9 +76,9 @@ describe("signOut", () => {
     writeLog.mockRejectedValue(new Error("db down"));
 
     const { signOut } = await import("./sessions");
-    await signOut();
 
+    await expect(signOut()).resolves.toEqual({ signedOut: true });
     expect(invalidateSession).toHaveBeenCalledWith("s1");
-    expect(redirect).toHaveBeenCalledWith("/auth/login");
+    expect(deleteSessionTokenCookie).toHaveBeenCalled();
   });
 });

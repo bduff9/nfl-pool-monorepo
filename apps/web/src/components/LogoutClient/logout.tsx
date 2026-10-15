@@ -2,7 +2,7 @@
 import "client-only";
 
 import Image from "next/image";
-import { unstable_rethrow } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { type FC, useEffect, useState } from "react";
 
 import { WeekLink } from "@/components/WeekLink/WeekLink";
@@ -11,6 +11,7 @@ import { clearOfflineCaches } from "@/lib/serviceWorker";
 import { signOut } from "@/server/actions/sessions";
 
 const LogoutClient: FC = () => {
+  const router = useRouter();
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
@@ -22,15 +23,16 @@ const LogoutClient: FC = () => {
       try {
         await clearOfflineCaches();
         await signOut();
+        // Replace, so Back doesn't return to this page. signOut no longer redirects, so it can't throw a redirect.
+        router.replace("/auth/login", { transitionTypes: ["nav-fade"] });
       } catch (error) {
-        unstable_rethrow(error);
         console.error("Failed to sign out", error);
         setFailed(true);
       }
     };
 
     handleSignOut();
-  }, []);
+  }, [router]);
 
   return (
     <div className="text-white text-6xl -translate-y-1/2 mt-[50%]">

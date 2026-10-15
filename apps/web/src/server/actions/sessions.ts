@@ -1,7 +1,6 @@
 "use server";
 
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
-import { redirect } from "next/navigation";
 import "server-only";
 
 import { deleteSessionTokenCookie, invalidateSession } from "@/lib/auth";
@@ -9,7 +8,9 @@ import { deleteSessionTokenCookie, invalidateSession } from "@/lib/auth";
 import { getCurrentSession } from "../loaders/sessions";
 import { writeLog } from "./logs";
 
-export const signOut = async (): Promise<void> => {
+// Returns instead of redirecting: a Server Action redirect can't carry a transition type, so the caller navigates to
+// the login page itself, with the nav-fade transition.
+export const signOut = async (): Promise<{ signedOut: true }> => {
   const { session, user } = await getCurrentSession();
 
   if (user) {
@@ -35,5 +36,5 @@ export const signOut = async (): Promise<void> => {
     await deleteSessionTokenCookie();
   }
 
-  redirect("/auth/login");
+  return { signedOut: true };
 };
