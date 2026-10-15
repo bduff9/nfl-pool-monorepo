@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
+import { RedirectType, redirect } from "next/navigation";
 import "server-only";
 
 import { deleteSessionTokenCookie, invalidateSession } from "@/lib/auth";
@@ -8,9 +9,7 @@ import { deleteSessionTokenCookie, invalidateSession } from "@/lib/auth";
 import { getCurrentSession } from "../loaders/sessions";
 import { writeLog } from "./logs";
 
-// Returns instead of redirecting: a Server Action redirect can't carry a transition type, so the caller navigates to
-// the login page itself, with the nav-fade transition.
-export const signOut = async (): Promise<{ signedOut: true }> => {
+export const signOut = async (): Promise<void> => {
   const { session, user } = await getCurrentSession();
 
   if (user) {
@@ -36,5 +35,7 @@ export const signOut = async (): Promise<{ signedOut: true }> => {
     await deleteSessionTokenCookie();
   }
 
-  return { signedOut: true };
+  // The redirect rides on the same response that deletes the cookie, so no later request can carry the old one back
+  // (the proxy re-sets whatever session cookie a request sends). Replace, so Back doesn't return to /auth/logout.
+  redirect("/auth/login", RedirectType.replace);
 };

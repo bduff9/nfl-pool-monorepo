@@ -17,7 +17,7 @@ vi.mock("@nfl-pool-monorepo/db/src/kysely", () => ({
 }));
 vi.mock("../loaders/sessions", () => ({ getCurrentSession }));
 vi.mock("next/cache", () => ({ revalidatePath }));
-vi.mock("next/navigation", () => ({ redirect }));
+vi.mock("next/navigation", () => ({ RedirectType: { push: "push", replace: "replace" }, redirect }));
 vi.mock("@/lib/auth", () => ({ deleteSessionTokenCookie, invalidateSession }));
 vi.mock("./logs", () => ({ writeLog }));
 
@@ -43,31 +43,31 @@ describe("signOut", () => {
     vi.resetModules();
   });
 
-  it("returns without touching the session when no user is logged in", async () => {
+  it("replaces the route with login without touching the session when no user is logged in", async () => {
     getCurrentSession.mockResolvedValue({ session: null, user: null });
 
     const { signOut } = await import("./sessions");
 
-    await expect(signOut()).resolves.toEqual({ signedOut: true });
+    await signOut();
     expect(invalidateSession).not.toHaveBeenCalled();
     expect(deleteSessionTokenCookie).not.toHaveBeenCalled();
     expect(writeLog).not.toHaveBeenCalled();
-    expect(redirect).not.toHaveBeenCalled();
+    expect(redirect).toHaveBeenCalledWith("/auth/login", "replace");
   });
 
-  it("logs, invalidates the session and clears the cookie, without revalidating or redirecting", async () => {
+  it("logs, invalidates the session, clears the cookie and replaces the route with login, without revalidating", async () => {
     getCurrentSession.mockResolvedValue({ session: { id: "s1" }, user: AUTHED_USER });
     mockDb.executeTakeFirstOrThrow.mockResolvedValueOnce({ UserName: "Test User" });
 
     const { signOut } = await import("./sessions");
 
-    await expect(signOut()).resolves.toEqual({ signedOut: true });
+    await signOut();
 
     expect(writeLog).toHaveBeenCalledWith(expect.objectContaining({ LogAction: "LOGOUT" }));
     expect(invalidateSession).toHaveBeenCalledWith("s1");
     expect(deleteSessionTokenCookie).toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
-    expect(redirect).not.toHaveBeenCalled();
+    expect(redirect).toHaveBeenCalledWith("/auth/login", "replace");
   });
 
   it("still signs the user out when writing the audit log fails", async () => {
@@ -77,7 +77,7 @@ describe("signOut", () => {
 
     const { signOut } = await import("./sessions");
 
-    await expect(signOut()).resolves.toEqual({ signedOut: true });
+    await signOut();
     expect(invalidateSession).toHaveBeenCalledWith("s1");
     expect(deleteSessionTokenCookie).toHaveBeenCalled();
   });

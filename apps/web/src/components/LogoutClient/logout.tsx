@@ -2,16 +2,29 @@
 import "client-only";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { type FC, useEffect, useState } from "react";
+import { unstable_rethrow } from "next/navigation";
+import { addTransitionType, type FC, startTransition, useEffect, useState } from "react";
 
 import { WeekLink } from "@/components/WeekLink/WeekLink";
 import { forgetHandoffs } from "@/lib/forgetHandoffs";
 import { clearOfflineCaches } from "@/lib/serviceWorker";
 import { signOut } from "@/server/actions/sessions";
 
+// signOut ends with a redirect to /auth/login, and a Server Action redirect can't carry a transition type. Calling the
+// action inside a transition that has the type gives it one: the router dispatches the action in a nested transition,
+// which inherits the type, and the redirect commits in it.
+const signOutWithFade = (): Promise<void> => {
+  let pending: Promise<void> = Promise.resolve();
+
+  startTransition(() => {
+    addTransitionType("nav-fade");
+    pending = signOut();
+  });
+
+  return pending;
+};
+
 const LogoutClient: FC = () => {
-  const router = useRouter();
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
@@ -22,17 +35,16 @@ const LogoutClient: FC = () => {
 
       try {
         await clearOfflineCaches();
-        await signOut();
-        // Replace, so Back doesn't return to this page. signOut no longer redirects, so it can't throw a redirect.
-        router.replace("/auth/login", { transitionTypes: ["nav-fade"] });
+        await signOutWithFade();
       } catch (error) {
+        unstable_rethrow(error);
         console.error("Failed to sign out", error);
         setFailed(true);
       }
     };
 
     handleSignOut();
-  }, [router]);
+  }, []);
 
   return (
     <div className="text-white text-6xl -translate-y-1/2 mt-[50%]">
