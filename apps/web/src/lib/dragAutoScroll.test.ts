@@ -19,8 +19,13 @@ describe("getScrollDelta", () => {
     expect(getScrollDelta(690, 100, 700)).toBeGreaterThan(0);
   });
 
-  it("scrolls at full speed when the pointer is past the edge", () => {
+  it("scrolls at full speed at the top edge and past the bottom edge", () => {
+    expect(getScrollDelta(100, 100, 700)).toBe(-16);
     expect(getScrollDelta(900, 100, 700)).toBe(16);
-    expect(getScrollDelta(0, 100, 700)).toBe(-16);
+  });
+
+  it("does not scroll when the pointer is above the list, over the point bank", () => {
+    expect(getScrollDelta(99, 100, 700)).toBe(0);
+    expect(getScrollDelta(0, 100, 700)).toBe(0);
   });
 });

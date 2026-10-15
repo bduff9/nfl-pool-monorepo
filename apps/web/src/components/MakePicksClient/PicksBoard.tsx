@@ -139,7 +139,7 @@ export const PicksBoard: FC<PicksBoardProps> = ({
         {(provided, snapshot) => (
           <div
             className={cn(
-              "w-full flex flex-wrap justify-center items-center p-3 mb-3 min-h-[92px] shrink-0 bg-muted gap-1",
+              "w-full flex flex-wrap justify-center items-center p-3 mb-3 min-h-[92px] shrink-0 bg-muted border-2 border-foreground gap-1",
               snapshot.isDraggingOver && "bg-blue-300",
             )}
             ref={provided.innerRef}

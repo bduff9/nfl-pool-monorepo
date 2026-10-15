@@ -117,7 +117,14 @@ const PageLoadingFallback: FC = () => (
 
 const RootLayout: FC<LayoutProps<"/">> = ({ children }) => {
   return (
-    <html className={cn("h-full bg-[#0f0f0f]", roboto.className)} lang="en" suppressHydrationWarning>
+    <html
+      className={cn(
+        "h-full bg-[#0f0f0f] bg-[url('/bkgd-pitch.png')] bg-no-repeat bg-fixed bg-top bg-cover",
+        roboto.className,
+      )}
+      lang="en"
+      suppressHydrationWarning
+    >
       <head>
         {env.NEXT_PUBLIC_ENV === "production" && (
           <Script
@@ -135,8 +142,11 @@ const RootLayout: FC<LayoutProps<"/">> = ({ children }) => {
         )}
       </head>
 
-      {/* The photo is 1 MB, so on a first visit the page shows its colour for a while: near-black like the photo's top, not the white theme background */}
-      <body className="h-full bg-[#0f0f0f] bg-[url('/bkgd-pitch.png')] bg-no-repeat bg-fixed bg-top bg-cover">
+      {/* The photo and its near-black colour (the photo is 1 MB, so a first visit shows the colour for a while) are on
+          <html>, not here: with a background on <html>, <body>'s no longer becomes the canvas and would paint over the
+          page scrim, which sits at -z-10. bg-transparent overrides the base layer's bg-background, which would
+          otherwise cover the photo */}
+      <body className="h-full bg-transparent">
         <Providers>
           <Suspense fallback={null}>
             <LogRocketGate />

@@ -334,7 +334,7 @@ const DataTableHead = <TData extends RowData>({ table }: { table: DataTableInsta
     {table.getHeaderGroups().map((headerGroup) => (
       <TableRow key={headerGroup.id}>
         {headerGroup.headers.map((header) => (
-          <TableHead className="text-black" key={header.id}>
+          <TableHead key={header.id}>
             {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
           </TableHead>
         ))}
