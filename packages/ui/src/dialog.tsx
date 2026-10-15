@@ -3,9 +3,10 @@
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { XIcon } from "lucide-react";
-import type * as React from "react";
+import * as React from "react";
 
 import { getDialogClasses } from "./dialog-variants";
+import { useKeyboardInset } from "./hooks/use-keyboard-inset";
 
 function Dialog({ ...props }: React.ComponentProps<typeof DialogPrimitive.Root>) {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />;
@@ -41,17 +42,36 @@ function DialogContent({
   centered = false,
   className,
   children,
+  onPointerDownOutside,
+  style,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   // Stays centred on phones too, instead of becoming a bottom sheet (see dialog-variants)
   centered?: boolean;
 }) {
+  const keyboardInset = useKeyboardInset();
+
+  // With the keyboard up, a tap outside the sheet only puts the keyboard away, as on iOS, instead of dismissing it
+  const handlePointerDownOutside = React.useCallback<NonNullable<typeof onPointerDownOutside>>(
+    (event) => {
+      onPointerDownOutside?.(event);
+
+      if (keyboardInset > 0 && document.activeElement instanceof HTMLElement) {
+        event.preventDefault();
+        document.activeElement.blur();
+      }
+    },
+    [keyboardInset, onPointerDownOutside],
+  );
+
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay centered={centered} />
       <DialogPrimitive.Content
         className={cn(getDialogClasses(centered).content, className)}
         data-slot="dialog-content"
+        onPointerDownOutside={handlePointerDownOutside}
+        style={{ "--keyboard-inset": `${keyboardInset}px`, ...style } as React.CSSProperties}
         {...props}
       >
         {children}
