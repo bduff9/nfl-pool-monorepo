@@ -1,22 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import { getWakeLockAction } from "@/lib/liveScores/wakeLockPolicy";
 
-type Report = (status: string) => void;
-
-const requestScreenLock = async (report: Report): Promise<WakeLockSentinel | null> => {
+const requestScreenLock = async (): Promise<WakeLockSentinel | null> => {
   try {
-    const sentinel = await navigator.wakeLock.request("screen");
-
-    report("held");
-
-    return sentinel;
-  } catch (error) {
-    // Denied (e.g. low battery or no user activation yet); the screen simply sleeps as usual.
-    report(`refused: ${error instanceof Error ? `${error.name} ${error.message}` : String(error)}`);
-
+    return await navigator.wakeLock.request("screen");
+  } catch {
+    // Denied (iOS refuses until the user has tapped the page, or on low battery); retried on the next tap.
     return null;
   }
 };
@@ -31,13 +23,7 @@ const releaseQuietly = async (sentinel: WakeLockSentinel | null): Promise<void> 
 
 // Keeps the screen awake while `isLive`. The browser releases the lock whenever the page is hidden, so it is
 // re-requested on visibilitychange and released when no game is live or on cleanup.
-const startWakeLock = (isLive: boolean, report: Report): (() => void) => {
-  if (!("wakeLock" in navigator)) {
-    report("unsupported");
-
-    return () => undefined;
-  }
-
+const startWakeLock = (isLive: boolean): (() => void) => {
   let sentinel: WakeLockSentinel | null = null;
   let isRequesting = false;
   let isDisposed = false;
@@ -46,7 +32,7 @@ const startWakeLock = (isLive: boolean, report: Report): (() => void) => {
 
   const acquire = async (): Promise<void> => {
     isRequesting = true;
-    const acquired = await requestScreenLock(report);
+    const acquired = await requestScreenLock();
 
     isRequesting = false;
     sentinel = isDisposed ? null : acquired;
@@ -115,17 +101,12 @@ const startWakeLock = (isLive: boolean, report: Report): (() => void) => {
   };
 };
 
-/** Returns the lock's current state as text, so a refused or unsupported lock can be shown on screen. */
-export const useWakeLock = (isLive: boolean): string => {
-  const [status, setStatus] = useState("idle");
-
+export const useWakeLock = (isLive: boolean): void => {
   useEffect(() => {
-    if (!isLive) {
+    if (!isLive || !("wakeLock" in navigator)) {
       return;
     }
 
-    return startWakeLock(isLive, setStatus);
+    return startWakeLock(isLive);
   }, [isLive]);
-
-  return isLive ? status : "idle";
 };
