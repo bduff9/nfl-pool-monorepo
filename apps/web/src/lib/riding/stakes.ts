@@ -3,6 +3,7 @@ import {
   getProjectedRank,
   getProjectedTotals,
   getWinningTeam,
+  isProjectedRankTied,
   type ProjectionGame,
   type ProjectionPick,
 } from "@nfl-pool-monorepo/utils/projections";
@@ -19,9 +20,10 @@ type SideSplit = { count: number; points: number };
 
 type PoolSplit = { home: SideSplit; visitor: SideSplit };
 
-type Scenario = { rank: number; total: number };
+type Scenario = { isTied: boolean; rank: number; total: number };
 
 export type GameStakes = {
+  currentIsTied: boolean;
   currentRank: number;
   currentTotal: number;
   pick: null | {
@@ -80,7 +82,11 @@ const getScenario = (
 ): Scenario => {
   const totals = getProjectedTotals(forceWinner(games, gameId, winnerTeamId), picks);
 
-  return { rank: getProjectedRank(totals, userId), total: totals.get(userId) ?? 0 };
+  return {
+    isTied: isProjectedRankTied(totals, userId),
+    rank: getProjectedRank(totals, userId),
+    total: totals.get(userId) ?? 0,
+  };
 };
 
 const buildMyPick = (
@@ -110,6 +116,7 @@ const buildOneGame = (
   const myPick = picks.find((pick) => pick.UserID === userId && pick.GameID === game.GameID);
 
   return {
+    currentIsTied: isProjectedRankTied(totals, userId),
     currentRank: getProjectedRank(totals, userId),
     currentTotal: totals.get(userId) ?? 0,
     pick: myPick?.TeamID ? buildMyPick(game, { ...myPick, TeamID: myPick.TeamID }, games, picks) : null,

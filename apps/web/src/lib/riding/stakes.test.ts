@@ -103,14 +103,15 @@ describe("buildGameStakes", () => {
     const stakes = buildGameStakes(games, picks, 1, NOW)[1];
 
     expect(stakes?.pick).toEqual({
-      ifLoses: { rank: 2, total: 2 },
-      ifWins: { rank: 1, total: 12 },
+      ifLoses: { isTied: false, rank: 2, total: 2 },
+      ifWins: { isTied: false, rank: 1, total: 12 },
       points: 10,
       status: "losing",
       teamId: 11,
     });
     expect(stakes?.currentTotal).toBe(2);
     expect(stakes?.currentRank).toBe(2);
+    expect(stakes?.currentIsTied).toBe(false);
     expect(stakes?.split).toEqual({ home: { count: 1, points: 6 }, visitor: { count: 1, points: 10 } });
   });
 

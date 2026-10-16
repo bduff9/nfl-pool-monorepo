@@ -1,9 +1,10 @@
 import { cn } from "@nfl-pool-monorepo/utils/styles";
 import type { FC, ReactNode } from "react";
 
+import { getMatchupColors, type MatchupColors } from "@/lib/liveScores/teamColors";
 import type { GameStakes as GameStakesData, PickStatus } from "@/lib/riding/stakes";
 
-type TeamRef = { TeamShortName: string } | null;
+type TeamRef = { TeamPrimaryColor: string; TeamSecondaryColor: string; TeamShortName: string } | null;
 
 type Props = {
   game: {
@@ -29,6 +30,15 @@ const FINAL_STATUS_LABELS: Record<PickStatus, string> = { losing: "Lost", tied: 
 
 const pluralizePicks = (count: number): string => `${count} ${count === 1 ? "pick" : "picks"}`;
 
+const ordinal = (value: number): string => {
+  const suffixes: Record<number, string> = { 1: "st", 2: "nd", 3: "rd" };
+  const isTeen = value % 100 >= 11 && value % 100 <= 13;
+
+  return `${value}${isTeen ? "th" : (suffixes[value % 10] ?? "th")}`;
+};
+
+const formatRank = (rank: number, isTied: boolean): string => `${isTied ? "tied " : ""}${ordinal(rank)}`;
+
 const signed = (value: number): string => (value > 0 ? `+${value}` : `${value}`);
 
 const Row: FC<{ children: ReactNode; label: string }> = ({ children, label }) => (
@@ -38,7 +48,9 @@ const Row: FC<{ children: ReactNode; label: string }> = ({ children, label }) =>
   </div>
 );
 
-const SplitBar: FC<{ homeCount: number; visitorCount: number }> = ({ homeCount, visitorCount }) => {
+type SplitBarProps = { colors: MatchupColors; homeCount: number; visitorCount: number };
+
+const SplitBar: FC<SplitBarProps> = ({ colors, homeCount, visitorCount }) => {
   const total = homeCount + visitorCount;
 
   if (total === 0) {
@@ -47,36 +59,50 @@ const SplitBar: FC<{ homeCount: number; visitorCount: number }> = ({ homeCount, 
 
   return (
     <div aria-hidden className="mt-1 flex h-1.5 overflow-hidden rounded-full bg-border">
-      <div className="bg-primary" style={{ width: `${(homeCount / total) * 100}%` }} />
-      <div className="bg-primary/40 grow" />
+      <div style={{ backgroundColor: colors.home, width: `${(homeCount / total) * 100}%` }} />
+      <div className="grow" style={{ backgroundColor: colors.visitor }} />
     </div>
   );
 };
 
-const PoolSplitSection: FC<{ game: Props["game"]; split: GameStakesData["split"] }> = ({ game, split }) => (
-  <div className="py-1">
-    <div className="text-muted-foreground">Pool split</div>
-    <div className="flex justify-between gap-3 font-medium tabular-nums">
-      <span>
-        {game.homeTeam?.TeamShortName} {pluralizePicks(split.home.count)} · {split.home.points} pts
-      </span>
-      <span className="text-right">
-        {split.visitor.points} pts · {pluralizePicks(split.visitor.count)} {game.visitorTeam?.TeamShortName}
-      </span>
+const PoolSplitSection: FC<{ game: Props["game"]; split: GameStakesData["split"] }> = ({ game, split }) => {
+  const colors = getMatchupColors(game.homeTeam, game.visitorTeam);
+
+  return (
+    <div className="py-1">
+      <div className="text-muted-foreground">Pool split</div>
+      <div className="flex justify-between gap-3 font-medium tabular-nums">
+        <span>
+          <span
+            aria-hidden
+            className="me-1.5 inline-block size-2 rounded-full"
+            style={{ backgroundColor: colors.home }}
+          />
+          {game.homeTeam?.TeamShortName} {pluralizePicks(split.home.count)} · {split.home.points} pts
+        </span>
+        <span className="text-right">
+          {split.visitor.points} pts · {pluralizePicks(split.visitor.count)} {game.visitorTeam?.TeamShortName}
+          <span
+            aria-hidden
+            className="ms-1.5 inline-block size-2 rounded-full"
+            style={{ backgroundColor: colors.visitor }}
+          />
+        </span>
+      </div>
+      <SplitBar colors={colors} homeCount={split.home.count} visitorCount={split.visitor.count} />
     </div>
-    <SplitBar homeCount={split.home.count} visitorCount={split.visitor.count} />
-  </div>
-);
+  );
+};
 
 type PickRowsProps = { pick: NonNullable<GameStakesData["pick"]>; stakes: GameStakesData; teamName: string };
 
 const WhatIfRows: FC<PickRowsProps> = ({ pick, stakes, teamName }) => (
   <>
     <Row label={`If ${teamName} wins`}>
-      {signed(pick.ifWins.total - stakes.currentTotal)} pts · #{pick.ifWins.rank}
+      {signed(pick.ifWins.total - stakes.currentTotal)} pts · {formatRank(pick.ifWins.rank, pick.ifWins.isTied)}
     </Row>
     <Row label={`If ${teamName} loses`}>
-      {signed(pick.ifLoses.total - stakes.currentTotal)} pts · #{pick.ifLoses.rank}
+      {signed(pick.ifLoses.total - stakes.currentTotal)} pts · {formatRank(pick.ifLoses.rank, pick.ifLoses.isTied)}
     </Row>
   </>
 );
@@ -90,7 +116,7 @@ const MyPickRows: FC<PickRowsProps & { isFinal: boolean }> = ({ isFinal, ...prop
       </span>
     </Row>
     <Row label="Projected this week">
-      {props.stakes.currentTotal} pts · #{props.stakes.currentRank}
+      {props.stakes.currentTotal} pts · {formatRank(props.stakes.currentRank, props.stakes.currentIsTied)}
     </Row>
     {isFinal ? null : <WhatIfRows {...props} />}
   </>

@@ -51,6 +51,13 @@ export const getProjectedRank = (totals: Map<number, number>, userId: number): n
   return 1 + [...totals.values()].filter((total) => total > own).length;
 };
 
+/** True when at least one other user shares this user's projected total, so their rank is a tie. */
+export const isProjectedRankTied = (totals: Map<number, number>, userId: number): boolean => {
+  const own = totals.get(userId) ?? 0;
+
+  return [...totals].some(([id, total]) => id !== userId && total === own);
+};
+
 /** The games with one game forced to a final result for the given winner. */
 export const forceWinner = <T extends ProjectionGame>(games: T[], gameId: number, winnerTeamId: number): T[] =>
   games.map((game) => (game.GameID === gameId ? { ...game, GameStatus: "Final", WinnerTeamID: winnerTeamId } : game));

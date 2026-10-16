@@ -15,7 +15,7 @@ type ScoreboardLiveRefreshProps = {
 const ScoreboardLiveRefresh: FC<ScoreboardLiveRefreshProps> = ({ enabled }) => {
   const router = useRouter();
 
-  useWakeLock(enabled);
+  const wakeLockStatus = useWakeLock(enabled);
 
   useEffect(() => {
     if (!enabled) {
@@ -39,7 +39,16 @@ const ScoreboardLiveRefresh: FC<ScoreboardLiveRefreshProps> = ({ enabled }) => {
     };
   }, [enabled, router]);
 
-  return null;
+  // Temporary diagnostics: only a phone where the lock fails sees this
+  if (!wakeLockStatus.startsWith("refused") && wakeLockStatus !== "unsupported") {
+    return null;
+  }
+
+  return (
+    <div className="fixed bottom-20 left-3 z-50 max-w-[90vw] rounded bg-black/80 px-2 py-1 text-xs text-white">
+      wake lock: {wakeLockStatus}
+    </div>
+  );
 };
 
 export default ScoreboardLiveRefresh;
