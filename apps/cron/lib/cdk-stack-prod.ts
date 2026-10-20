@@ -198,6 +198,24 @@ export class CdkStackProd extends Stack {
       timeout: Duration.seconds(300),
     });
 
+    // Temporary one-off, invoked manually and then removed
+    new NodejsFunction(this, "ResendWeeklyEmailsProd", {
+      bundling: {
+        externalModules: [],
+        minify: true,
+        nodeModules: [],
+        sourceMap: true,
+      },
+      entry: "./functions/resendWeeklyEmails.ts",
+      environment,
+      functionName: "ResendWeeklyEmailsProd",
+      handler: "handler",
+      memorySize: 512,
+      retryAttempts: 0,
+      runtime: lambda.Runtime.NODEJS_24_X,
+      timeout: Duration.minutes(5),
+    });
+
     const alertsTopic = new sns.Topic(this, "ProdAlertsTopic", {
       displayName: "NFL Pool Prod Alerts",
       topicName: "nfl-pool-prod-alerts",
