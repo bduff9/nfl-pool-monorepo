@@ -1,5 +1,5 @@
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
-import type { APINewsArticle } from "@nfl-pool-monorepo/utils/validation";
+import type { NewsArticle } from "@nfl-pool-monorepo/utils/validation";
 
 import { sendWeekEndedEmail } from "../emails/weekEnded";
 import { sendWeeklyEmail } from "../emails/weekly";
@@ -92,7 +92,7 @@ const getWeekRecapOrNull = async (week: number): Promise<WeekRecap | null> => {
   }
 };
 
-export const sendWeeklyEmails = async (week: number, articles: Array<APINewsArticle>): Promise<void> => {
+export const sendWeeklyEmails = async (week: number, articles: Array<NewsArticle>): Promise<void> => {
   const emails = await db
     .selectFrom("Notifications as n")
     .innerJoin("Users as u", "n.UserID", "u.UserID")

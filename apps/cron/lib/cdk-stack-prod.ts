@@ -30,7 +30,6 @@ export class CdkStackProd extends Stack {
 
     const environment: { [key: string]: string } = {
       API_HOST: process.env.API_HOST ?? "",
-      API_NEWS_KEY: process.env.API_NEWS_KEY ?? "",
       AWS_AK_ID: process.env.AWS_AK_ID ?? "",
       AWS_R: process.env.AWS_R ?? "",
       AWS_SAK_ID: process.env.AWS_SAK_ID ?? "",
@@ -45,6 +44,7 @@ export class CdkStackProd extends Stack {
       TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID ?? "",
       TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN ?? "",
       TWILIO_PHONE_NUMBER: process.env.TWILIO_PHONE_NUMBER ?? "",
+      TYPESAFE_API_KEY: process.env.TYPESAFE_API_KEY ?? "",
       VAPID_PRIVATE_KEY: process.env.VAPID_PRIVATE_KEY ?? "",
     };
 

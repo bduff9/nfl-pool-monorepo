@@ -3,7 +3,7 @@ import { db } from "@nfl-pool-monorepo/db/src/kysely";
 import { getSurvivorPoolStatus } from "@nfl-pool-monorepo/db/src/queries/survivor";
 import { getUserAlerts } from "@nfl-pool-monorepo/db/src/queries/user";
 import { addOrdinal } from "@nfl-pool-monorepo/utils/numbers";
-import type { APINewsArticle } from "@nfl-pool-monorepo/utils/validation";
+import type { NewsArticle } from "@nfl-pool-monorepo/utils/validation";
 import type { Selectable } from "kysely";
 
 import { getUserRecap, type WeekRecap } from "../src/recap";
@@ -13,7 +13,7 @@ import { getHtml, getPlainText, getSubject } from "./templates/WeeklyEmail";
 export const sendWeeklyEmail = async (
   user: Pick<Selectable<Users>, "UserID" | "UserEmail" | "UserFirstName">,
   week: number,
-  weekArticles: APINewsArticle[],
+  weekArticles: NewsArticle[],
   recap: WeekRecap | null,
 ): Promise<void> => {
   const userMessages: string[] = [];

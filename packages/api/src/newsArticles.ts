@@ -15,92 +15,168 @@
  */
 
 import { db } from "@nfl-pool-monorepo/db/src/kysely";
-import { getRandomInteger } from "@nfl-pool-monorepo/utils/numbers";
-import { type APINewsArticle, newsArticlesSchema } from "@nfl-pool-monorepo/utils/validation";
+import type { NewsArticle } from "@nfl-pool-monorepo/utils/validation";
 import { type } from "arktype";
 
 import { fetchWithRetry } from "./fetchWithRetry";
 
-const getAPINewsURL = (week: number, from: string): string =>
-  `https://newsapi.org/v2/everything?q=+nfl week ${week} -fantasy -college -roundup&excludeDomains=engadget.com,androidcentral.com&from=${from}&apiKey=${process.env.API_NEWS_KEY}`;
+const ESPN_NEWS_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/news?limit=50";
+const JEV_URL = "https://api.typesafe.ai/v1/systemone";
+const JEV_MODEL = "jev-1.14.0";
+const ARTICLE_COUNT = 3;
+const MAX_CANDIDATES = 40;
 
-export const getArticlesForWeek = async (week: number) => {
-  const firstGame = await db
-    .selectFrom("Games")
-    .select("GameKickoff")
-    .where("GameNumber", "=", 1)
-    .where("GameWeek", "=", week)
-    .executeTakeFirstOrThrow();
-  const firstGameDate = firstGame.GameKickoff.toISOString().substring(0, 10);
-  const url = getAPINewsURL(week, firstGameDate);
-  const response = await fetchWithRetry(url);
+const espnNewsSchema = type({
+  articles: type({
+    "description?": "string",
+    headline: "string",
+    "images?": type({ url: "string" }).array(),
+    links: { web: { href: "string" } },
+    published: "string",
+    type: "string",
+  }).array(),
+});
 
-  if (!response.ok) {
-    console.error("Error calling news API", { response, week });
+const jevAnswersSchema = type({
+  answers: {
+    isFiller: { noul: "number" },
+    isMajor: { noul: "number" },
+    isUpset: { noul: "number" },
+  },
+});
 
-    throw new Error(`HTTP error! status: ${response.status}`);
+const JEV_QUESTIONS = {
+  isFiller: {
+    instructions:
+      "Is this mainly fantasy football advice, betting, draft talk, a power ranking, or a preview of an upcoming game rather than news about something that already happened?",
+    type: "noul",
+  },
+  isMajor: {
+    instructions:
+      "Is this a major NFL story, such as a star player's serious injury, a coaching change, a trade, a record, or a notable game result?",
+    type: "noul",
+  },
+  isUpset: {
+    instructions: "Does this report a surprising upset or an unexpected result in a game that was already played?",
+    type: "noul",
+  },
+} as const;
+
+type Candidate = NewsArticle & { type: string };
+
+// Used when Jev can't score an article: game recaps first, then ESPN's headlines, then everything else. The sort is
+// stable, so ties keep ESPN's own ordering.
+const getFallbackScore = ({ type }: Candidate): number => {
+  if (type === "Recap") {
+    return 1;
   }
 
-  const jsonResponse = await response.json();
-  const apiResults = newsArticlesSchema(jsonResponse);
-
-  if (apiResults instanceof type.errors) {
-    console.error("News API returned invalid data, cannot parse", { error: apiResults.summary, week });
-  }
-
-  const filteredArticles = !(apiResults instanceof type.errors)
-    ? apiResults.articles.filter((article) => !!article.author && !!article.urlToImage)
-    : [];
-
-  if (filteredArticles.length <= 3) {
-    return filteredArticles;
-  }
-
-  const articles: APINewsArticle[] = [];
-
-  while (articles.length < 3) {
-    const index = getRandomInteger(0, filteredArticles.length);
-
-    articles.push(...filteredArticles.splice(index, 1));
-  }
-
-  return articles;
+  return type === "HeadlineNews" ? 0.6 : 0.5;
 };
 
-// type GNewsArticle = {
-// 	content: string;
-// 	description: string;
-// 	image: string;
-// 	publishedAt: string;
-// 	source: {
-// 		name: string;
-// 		url: string;
-// 	};
-// 	title: string;
-// 	url: string;
-// };
-// type GNewsResults = {
-// 	articles: Array<GNewsArticle>;
-// 	totalArticles: number;
-// };
+const getCandidates = async (since: Date): Promise<Candidate[]> => {
+  const response = await fetchWithRetry(ESPN_NEWS_URL);
 
-// const getGNewsURL = (week: number, from: string): string =>
-// 	`https://gnews.io/api/v4/top-headlines?topic=sports&lang=en&q=nfl week ${week} AND NOT fantasy AND NOT college AND NOT roundup&from=${from}&token=${GNEWS_KEY}`;
+  if (!response.ok) {
+    throw new Error(`ESPN news HTTP error! status: ${response.status}`);
+  }
 
-// export const getArticlesForWeek = async (week: number): Promise<Array<GNewsArticle>> => {
-// 	const firstGame = await Game.findOneOrFail({ where: { gameNumber: 1, gameWeek: week } });
-// 	const firstGameDate = `${firstGame.gameKickoff.toISOString().split('.')[0]}Z`;
-// 	const url = getGNewsURL(week, firstGameDate);
-// 	const apiResults = await axios.get<GNewsResults>(url);
-// 	//TODO: unsure on filtering for GNews currently
-// 	const filteredArticles = apiResults.data.articles.filter(() => true);
-// 	const articles: Array<GNewsArticle> = [];
+  const feed = espnNewsSchema(await response.json());
 
-// 	while (articles.length < 3) {
-// 		const index = getRandomInteger(0, filteredArticles.length);
+  if (feed instanceof type.errors) {
+    throw new Error(`ESPN news returned invalid data: ${feed.summary}`);
+  }
 
-// 		articles.push(...filteredArticles.splice(index, 1));
-// 	}
+  return feed.articles
+    .filter(
+      (article) =>
+        article.type !== "Media" &&
+        article.links.web.href.includes("/nfl/") &&
+        !!article.images?.[0] &&
+        new Date(article.published) >= since,
+    )
+    .slice(0, MAX_CANDIDATES)
+    .map((article) => ({
+      content: article.description ?? "",
+      publishedAt: new Date(article.published),
+      title: article.headline,
+      type: article.type,
+      url: article.links.web.href,
+      urlToImage: article.images?.[0]?.url ?? null,
+    }));
+};
 
-// 	return articles;
-// };
+// Upsets and major stories rank highest, and anything that reads as filler is discounted toward zero
+const scoreArticle = async (article: Candidate): Promise<number> => {
+  const response = await fetchWithRetry(JEV_URL, {
+    body: JSON.stringify({
+      model: JEV_MODEL,
+      questions: JEV_QUESTIONS,
+      state: `${article.title}\n${article.content}`,
+    }),
+    headers: { Authorization: `Bearer ${process.env.TYPESAFE_API_KEY}`, "Content-Type": "application/json" },
+    method: "POST",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Jev HTTP error! status: ${response.status}`);
+  }
+
+  const result = jevAnswersSchema(await response.json());
+
+  if (result instanceof type.errors) {
+    throw new Error(`Jev returned invalid data: ${result.summary}`);
+  }
+
+  const { isFiller, isMajor, isUpset } = result.answers;
+
+  return (isMajor.noul + isUpset.noul * 1.5) * (1 - isFiller.noul);
+};
+
+// Jev only helps rank. If it is down or answers badly, the article keeps its deterministic fallback score and the
+// failure is logged, so the weekly email still gets the best articles we can find without it.
+const scoreCandidates = async (candidates: Candidate[], week: number) => {
+  const results = await Promise.allSettled(candidates.map(scoreArticle));
+  const failures = results.filter((result) => result.status === "rejected");
+
+  if (failures.length > 0) {
+    console.error("Jev could not score some articles, using fallback ranking for them", {
+      error: failures[0]?.reason,
+      failed: failures.length,
+      total: candidates.length,
+      week,
+    });
+  }
+
+  return candidates.map((candidate, index) => {
+    const result = results[index];
+
+    return { candidate, score: result?.status === "fulfilled" ? result.value : getFallbackScore(candidate) };
+  });
+};
+
+/**
+ * The most notable articles from ESPN since the week's first kickoff, or none if ESPN itself can't be read: the
+ * weekly email is fine without articles, and a news hiccup should never hold up finalizing the week.
+ */
+export const getArticlesForWeek = async (week: number): Promise<NewsArticle[]> => {
+  try {
+    const firstGame = await db
+      .selectFrom("Games")
+      .select("GameKickoff")
+      .where("GameNumber", "=", 1)
+      .where("GameWeek", "=", week)
+      .executeTakeFirstOrThrow();
+    const candidates = await getCandidates(firstGame.GameKickoff);
+    const scored = await scoreCandidates(candidates, week);
+
+    return scored
+      .sort((a, b) => b.score - a.score)
+      .slice(0, ARTICLE_COUNT)
+      .map(({ candidate: { type: _type, ...article } }) => article);
+  } catch (error) {
+    console.error("Could not get articles, sending without any", { error, week });
+
+    return [];
+  }
+};

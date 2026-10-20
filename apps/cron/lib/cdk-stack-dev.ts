@@ -18,7 +18,6 @@ config();
 
 const getEnvironment = (): { [key: string]: string } => ({
   API_HOST: fromEnv("API_HOST"),
-  API_NEWS_KEY: fromEnv("API_NEWS_KEY"),
   AWS_AK_ID: fromEnv("AWS_AK_ID"),
   AWS_R: fromEnv("AWS_R"),
   AWS_SAK_ID: fromEnv("AWS_SAK_ID"),
@@ -33,6 +32,7 @@ const getEnvironment = (): { [key: string]: string } => ({
   TWILIO_ACCOUNT_SID: fromEnv("TWILIO_ACCOUNT_SID"),
   TWILIO_AUTH_TOKEN: fromEnv("TWILIO_AUTH_TOKEN"),
   TWILIO_PHONE_NUMBER: fromEnv("TWILIO_PHONE_NUMBER"),
+  TYPESAFE_API_KEY: fromEnv("TYPESAFE_API_KEY"),
   VAPID_PRIVATE_KEY: fromEnv("VAPID_PRIVATE_KEY"),
 });
 
