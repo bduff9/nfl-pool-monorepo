@@ -1,4 +1,6 @@
 import { addOrdinal } from "@nfl-pool-monorepo/utils/numbers";
+// biome-ignore lint/style/useImportType: This is needed for react-email
+import * as React from "react";
 import { Column, Row, Text } from "react-email";
 
 type Props = {
@@ -8,7 +10,7 @@ type Props = {
   week: number;
 };
 
-const WeekRecapSection = ({ lines, points, rank, week }: Props) => (
+const WeekRecapSection: React.FC<Props> = ({ lines, points, rank, week }) => (
   <Row>
     <Column className="bg-white pt-8 px-6 pb-4">
       <Text className="text-xl">Week {week} Recap</Text>
