@@ -69,11 +69,12 @@ export const sendWeeklyEmail = async (
     poolUpdates.push(`${ordinal}:  ${name}`);
   }
 
-  survivorUpdates.push(`${newlyDead.length} people went out of survivor this week`);
-
   const survivorStatus = await getSurvivorPoolStatus(week);
 
-  if (survivorStatus.ended) {
+  if (!survivorStatus.ended) {
+    survivorUpdates.push(`${newlyDead.length} people went out of survivor this week`);
+    survivorUpdates.push(`There are still ${survivorStatus.stillAlive.length} people left alive`);
+  } else {
     const names = survivorStatus.winners
       .map((user) => `${user.UserFirstName} ${user.UserLastName}`)
       .reduce((acc, name, i, list) => {
@@ -84,9 +85,7 @@ export const sendWeeklyEmail = async (
         return `${acc}, ${name}`;
       }, "");
 
-    survivorUpdates.push(`The survivor pool is officially over.  ${names} won this season's pool.  Congrats!`);
-  } else {
-    survivorUpdates.push(`There are still ${survivorStatus.stillAlive.length} people left alive`);
+    survivorUpdates.push(`Congrats to ${names} for winning the survivor pool!`);
   }
 
   const to = [user.UserEmail];
